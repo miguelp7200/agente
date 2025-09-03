@@ -1,0 +1,182 @@
+# ==========================================
+# CLOUD BUILD CI/CD AUTOMÁTICO
+# Deployment sin dependencia de cuentas personales
+# ==========================================
+
+steps:
+  # Paso 1: Verificar que estamos en la rama correcta
+  - name: 'alpine/git'
+    id: 'branch-check'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Verificando rama actual..."
+        BRANCH_NAME=${BRANCH_NAME:-$(git branch --show-current)}
+        echo "Rama detectada: $BRANCH_NAME"
+        if [ "$BRANCH_NAME" != "main" ] && [ "$BRANCH_NAME" != "production" ]; then
+          echo "❌ Error: Solo se permite deployment desde 'main' o 'production'"
+          exit 1
+        fi
+        echo "✅ Rama válida para deployment"
+
+  # Paso 2: Setup Artifact Registry si no existe
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'setup-registry'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔧 Verificando/creando Artifact Registry..."
+        
+        # Verificar si el repositorio existe
+        if gcloud artifacts repositories describe invoice-chatbot \
+           --location=us-central1 \
+           --project=${PROJECT_ID} 2>/dev/null; then
+          echo "✅ Repositorio invoice-chatbot ya existe"
+        else
+          echo "📦 Creando repositorio invoice-chatbot..."
+          gcloud artifacts repositories create invoice-chatbot \
+            --repository-format=docker \
+            --location=us-central1 \
+            --project=${PROJECT_ID} \
+            --description="Repositorio para Invoice Chatbot System"
+          echo "✅ Repositorio creado exitosamente"
+        fi
+
+  # Paso 3: Build Backend
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'build-backend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🏗️ Construyendo imagen backend..."
+        
+        # Build imagen usando Cloud Build
+        gcloud builds submit \
+          --config=deployment/backend/cloudbuild.yaml \
+          --project=${PROJECT_ID} \
+          --region=us-central1 \
+          .
+
+  # Paso 4: Deploy Backend a Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-backend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🚀 Desplegando backend a Cloud Run..."
+        
+        # Deploy con service account específica
+        gcloud run deploy invoice-chatbot-backend \
+          --image="us-central1-docker.pkg.dev/${PROJECT_ID}/invoice-chatbot/invoice-chatbot-backend:latest" \
+          --platform=managed \
+          --region=us-central1 \
+          --project=${PROJECT_ID} \
+          --service-account=adk-agent-sa@${PROJECT_ID}.iam.gserviceaccount.com \
+          --allow-unauthenticated \
+          --port=8080 \
+          --memory=4Gi \
+          --cpu=2 \
+          --timeout=3600 \
+          --min-instances=0 \
+          --max-instances=10 \
+          --set-env-vars="GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=us-central1,PDF_SERVER_PORT=8080,DEBUG_MODE=false,LOG_LEVEL=INFO" \
+          --quiet
+
+  # Paso 5: Build Frontend
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'build-frontend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🎨 Construyendo imagen frontend..."
+        
+        # Build frontend usando Cloud Build
+        gcloud builds submit \
+          --config=deployment/frontend/cloudbuild.yaml \
+          --project=${PROJECT_ID} \
+          --region=us-central1 \
+          frontend/
+
+  # Paso 6: Deploy Frontend a Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-frontend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🌐 Desplegando frontend a Cloud Run..."
+        
+        # Obtener URL del backend
+        BACKEND_URL=$(gcloud run services describe invoice-chatbot-backend \
+          --region=us-central1 \
+          --project=${PROJECT_ID} \
+          --format='value(status.url)')
+        
+        echo "Backend URL detectada: $BACKEND_URL"
+        
+        # Deploy frontend
+        gcloud run deploy invoice-chatbot-frontend \
+          --image="us-central1-docker.pkg.dev/${PROJECT_ID}/invoice-chatbot/invoice-chatbot-frontend:latest" \
+          --platform=managed \
+          --region=us-central1 \
+          --project=${PROJECT_ID} \
+          --allow-unauthenticated \
+          --port=8080 \
+          --memory=1Gi \
+          --cpu=1 \
+          --timeout=300 \
+          --min-instances=0 \
+          --max-instances=5 \
+          --set-env-vars="VITE_API_URL=$BACKEND_URL" \
+          --quiet
+
+  # Paso 7: Health Check y Reporte
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'health-check'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔍 Verificando health del deployment..."
+        
+        # Obtener URLs
+        BACKEND_URL=$(gcloud run services describe invoice-chatbot-backend \
+          --region=us-central1 \
+          --project=${PROJECT_ID} \
+          --format='value(status.url)')
+        
+        FRONTEND_URL=$(gcloud run services describe invoice-chatbot-frontend \
+          --region=us-central1 \
+          --project=${PROJECT_ID} \
+          --format='value(status.url)')
+        
+        echo "🎉 ¡Deployment completado exitosamente!"
+        echo "📊 Backend URL: $BACKEND_URL"
+        echo "🌐 Frontend URL: $FRONTEND_URL"
+        
+        # Test health endpoints
+        echo "🔍 Verificando health checks..."
+        curl -f "$BACKEND_URL/health" || echo "⚠️ Backend health check falló"
+        curl -f "$FRONTEND_URL" || echo "⚠️ Frontend health check falló"
+
+# Configuración del trigger
+timeout: '3600s'  # 1 hora timeout
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+  
+# Variables de substitución
+substitutions:
+  _ENVIRONMENT: 'production'
+  _REGION: 'us-central1'
+
+# Permisos necesarios para el Cloud Build Service Account
+# - Cloud Run Developer
+# - Artifact Registry Writer  
+# - Service Account User
+# - Storage Admin (para artifacts)

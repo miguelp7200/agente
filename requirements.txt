@@ -1,0 +1,109 @@
+# Dependencias para el PoC de Procesamiento de Facturas con Vertex AI
+
+# ===== WEB FRAMEWORK Y API =====
+# Flask para la API web
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Requests para comunicación HTTP con MCP Toolbox
+requests>=2.31.0
+
+# ===== VERTEX AI & GEMINI =====
+# Google Cloud AI Platform - Incluye acceso a Gemini via Vertex AI
+google-cloud-aiplatform
+
+# NOTA: google-genai se depreca para Vertex AI, usamos vertexai directamente
+# NO necesitamos google-genai para Vertex AI
+
+# Google Cloud Core
+google-cloud-storage
+google-cloud-bigquery
+
+# ===== EXTRACCIÓN ESTRUCTURADA =====
+# Pydantic para modelos de datos estructurados
+pydantic
+
+# LangExtract - Extracción estructurada con LLMs
+langextract
+
+# ===== PROCESAMIENTO DE PDFs =====
+# PyPDF2 y pypdf para manipulación básica de PDFs
+PyPDF2
+pypdf
+
+# Para PDFs complejos o escaneados (descomenta si necesitas OCR)
+# pdf2image
+# pytesseract
+# pillow
+
+# ===== UTILIDADES Y CONFIGURACIÓN =====
+python-dotenv
+
+# Autenticación de Google Cloud (ya incluido en google-cloud-aiplatform)
+google-auth
+
+# ===== DESARROLLO Y ANÁLISIS =====
+# Para desarrollo local
+jupyter
+pandas
+ipykernel
+tqdm  # Para barras de progreso
+
+# Logging y debugging
+loguru
+
+# Testing (opcional)
+pytest
+pytest-asyncio
+
+# ===== NUEVAS DEPENDENCIAS PARA BIGQUERY =====
+# Para manejo de fechas y timestamps
+python-dateutil
+
+# Para análisis de datos (opcional, para notebooks de análisis)
+matplotlib
+seaborn
+plotly
+
+# ===== CONFIGURACIÓN VERTEX AI =====
+# Variables de entorno requeridas:
+# export GOOGLE_CLOUD_PROJECT=tu-proyecto-id
+# export GOOGLE_CLOUD_LOCATION=us-central1  
+#
+# Autenticación:
+# gcloud auth application-default-login
+#
+# IMPORTANTE: 
+# - Usamos google-cloud-aiplatform directamente para Vertex AI
+# - NO usamos google-genai (es para la API directa de Gemini)
+# - vertexai.generative_models es la forma correcta para PDFs
+
+# ===== CONFIGURACIÓN BIGQUERY =====
+# Variables adicionales en .env:
+# BIGQUERY_DATASET=invoice_processing
+# BIGQUERY_LOCATION=us-central1
+# BUCKET_NAME=tu-bucket-gcs
+
+# Flujo de uso:
+# 1. python setup_bigquery.py          # Crear infraestructura
+# 2. python batch_processing_script.py # Procesar PDFs (si es necesario)
+# 3. python upload_to_bigquery.py      # Subir JSONs a BigQuery
+# 4. python demo_completo.py           # Demo completo automatizado
+
+# Instalación de Agentes
+google-adk
+toolbox-core
+
+
+
+# Dependencias para ADK API Demo Backend
+# =====================================
+
+
+
+# Framework web y servidor API
+fastapi
+uvicorn
+
+# Para logging mejorado (opcional)
+colorlog
