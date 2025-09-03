@@ -1,93 +1,196 @@
-# invoice-backend
+# 🚀 Backend de Chatbot de Facturas Gasco
 
+## 📋 Información General
+- **Última actualización**: 3 de septiembre de 2025
+- **Estado del sistema**: PRODUCTION READY ✅
+- **ADK Agent**: gcp-invoice-agent-app (versión estable)
+- **MCP Toolbox**: 32 herramientas operativas
+- **BigQuery**: Arquitectura dual validada
 
+## 🏗️ Arquitectura del Sistema
 
-## Getting started
+El backend del sistema de chatbot de facturas Gasco está compuesto por tres componentes principales:
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+1. **ADK (Application Development Kit)**: Framework para el desarrollo de agentes conversacionales.
+2. **MCP (Model Context Protocol)**: Protocolo para la comunicación con modelos de lenguaje.
+3. **PDF Server**: Servicio para el procesamiento de documentos PDF de facturas.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Todos estos componentes se comunican con **Google Cloud Platform** para el almacenamiento y procesamiento de datos.
 
-## Add your files
+## 📁 Estructura del Repositorio
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+\\\
+app/                          # Aplicación principal ADK
+├── __init__.py
+├── main_adk.py              # Entrada principal ADK
+├── main.py                  # Servidor principal
+├── adk/                     # Framework ADK
+└── services/                # Servicios del backend
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/option-cl/gasco/invoice-backend.git
-git branch -M main
-git push -uf origin main
-```
+my-agents/                   # Agentes MCP
+└── gcp-invoice-agent-app/   # Agente principal de facturas
 
-## Integrate with your tools
+infrastructure/              # Scripts de infraestructura GCP
+├── create_bigquery_infrastructure.py
+├── setup_dataset_tabla.py
+└── SETUP_INFRAESTRUCTURA.md
 
-- [ ] [Set up project integrations](https://gitlab.com/option-cl/gasco/invoice-backend/-/settings/integrations)
+scripts/                     # Scripts de configuración
+├── configure_internal_access.ps1
+└── document_adk_endpoints.ps1
 
-## Collaborate with your team
+mcp-toolbox/                 # Herramientas MCP
+├── README.md                # Información sobre las herramientas binarias
+└── tools_updated.yaml
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+deployment/backend/          # Configuración de despliegue backend
+tests/                       # Tests del sistema
+data/samples/                # Datos de prueba (opcional)
+\\\
 
-## Test and Deploy
+## ⚙️ Requisitos Previos
 
-Use the built-in continuous integration in GitLab.
+- Python 3.12+
+- Docker
+- Google Cloud SDK
+- Acceso a Google Cloud Platform (proyecto \gent-intelligence-gasco\)
+- Credenciales de servicio configuradas
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## 🔧 Configuración del Entorno
 
-***
+### 1. Instalación de Dependencias
 
-# Editing this README
+\\\ash
+# Crear entorno virtual
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# o
+.\venv\Scripts\Activate.ps1  # Windows
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# Instalar dependencias
+pip install -r requirements.txt
+\\\
 
-## Suggestions for a good README
+### 2. Configuración de MCP Toolbox
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Los archivos binarios de MCP Toolbox son necesarios para el funcionamiento del sistema, pero debido a su tamaño no están incluidos en el repositorio. Sigue las instrucciones en \mcp-toolbox/README.md\ para obtenerlos.
 
-## Name
-Choose a self-explaining name for your project.
+### 3. Configuración de BigQuery
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+La configuración de la infraestructura de BigQuery es necesaria para el almacenamiento de datos de facturas:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+\\\ash
+cd infrastructure
+python create_bigquery_infrastructure.py
+python setup_dataset_tabla.py
+\\\
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## 🚀 Despliegue
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Despliegue Local
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+\\\ash
+# Ejecutar servidor PDF
+python local_pdf_server.py
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+# En otra terminal, ejecutar el servidor ADK
+cd app
+python main.py
+\\\
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Construcción y Despliegue en Google Cloud Run
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+#### Opción 1: Despliegue Básico
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+\\\ash
+# Construir y desplegar en un solo comando
+docker build -t invoice-backend:latest . && gcloud run deploy invoice-backend --image invoice-backend:latest --port 8080 --project agent-intelligence-gasco --region us-central1 --allow-unauthenticated
+\\\
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+#### Opción 2: Despliegue con Artifact Registry y Configuraciones Avanzadas (Recomendado)
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+\\\ash
+# 1. Construir la imagen
+docker build -t invoice-backend:latest .
 
-## License
-For open source projects, say how it is licensed.
+# 2. Etiquetar la imagen para Artifact Registry
+docker tag invoice-backend:latest us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# 3. Enviar la imagen a Artifact Registry
+docker push us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
+
+# 4. Desplegar en Cloud Run con configuraciones optimizadas
+gcloud run deploy invoice-backend \\
+  --image us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest \\
+  --region us-central1 \\
+  --project agent-intelligence-gasco \\
+  --platform managed \\
+  --allow-unauthenticated \\
+  --port 8080 \\
+  --memory 2Gi \\
+  --cpu 2 \\
+  --timeout 3600s \\
+  --max-instances 10 \\
+  --concurrency 10
+\\\
+
+#### Opción 3: Utilizando Scripts de Despliegue
+
+\\\ash
+# En Windows
+cd deployment/scripts
+.\deploy-backend.ps1
+
+# En Linux/Mac
+cd deployment/scripts
+./deploy-backend.sh
+\\\
+
+## 🧪 Pruebas
+
+Para verificar que el backend funciona correctamente después del despliegue:
+
+\\\ash
+# Prueba de endpoint de salud
+curl https://[URL_SERVICIO]/health
+
+# Prueba de chat ADK
+curl -X POST https://[URL_SERVICIO]/api/chat \\
+  -H 'Content-Type: application/json' \\
+  -d '{\"message\": \"Muéstrame las facturas del mes pasado\"}'
+\\\
+
+Para pruebas más completas, consulta los archivos en la carpeta \	ests/\.
+
+## 📊 Monitoreo
+
+El backend está configurado para enviar logs a Google Cloud Logging. Puedes monitorear la actividad y los errores del sistema desde:
+
+- [Google Cloud Console > Logging](https://console.cloud.google.com/logs)
+- [Google Cloud Console > Cloud Run > invoice-backend > Logs](https://console.cloud.google.com/run)
+
+## 🔗 Integración con Frontend
+
+El backend expone endpoints RESTful para la comunicación con el frontend:
+
+- /api/chat: Endpoint principal del chatbot
+- /api/documents: Endpoint para la gestión de documentos
+- /api/health: Verificación del estado del sistema
+- /api/bigquery: Consultas directas a la base de datos
+
+Consulta la documentación completa de la API en [https://[URL_SERVICIO]/api/docs](https://[URL_SERVICIO]/api/docs).
+
+## 🛠️ Solución de Problemas Comunes
+
+1. **Error 'Module not found'**: Asegúrate de que todas las dependencias están instaladas.
+2. **Error de conexión a BigQuery**: Verifica que las credenciales de servicio están configuradas correctamente.
+3. **Herramientas MCP no encontradas**: Asegúrate de haber descargado los binarios según las instrucciones.
+4. **Error en el procesamiento de PDF**: Verifica que el servidor PDF está en ejecución y accesible.
+
+## 📜 Licencia
+
+Este proyecto es propiedad de Gasco y Option. Todos los derechos reservados.
+
+## 👥 Contacto y Soporte
+
+Para soporte técnico o consultas, contacta al equipo de desarrollo en [soporte-tech@option.cl](mailto:soporte-tech@option.cl).
