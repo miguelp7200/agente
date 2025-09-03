@@ -1,0 +1,19 @@
+# Archivos grandes que superan los límites de GitLab
+mcp-toolbox/toolbox
+mcp-toolbox/toolbox.exe
+
+# Otros archivos típicos a ignorar
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.idea/
+.vscode/
+*.log
