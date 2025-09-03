@@ -43,7 +43,11 @@ fi
 # 2. Configurar Service Account para Cloud Run
 if [ -n "$SERVICE_ACCOUNT_ADK" ]; then
     log "🔑 Usando Service Account: $SERVICE_ACCOUNT_ADK"
-    export GOOGLE_APPLICATION_CREDENTIALS=""
+    log "🔍 DEBUG: GOOGLE_APPLICATION_CREDENTIALS actual: '$GOOGLE_APPLICATION_CREDENTIALS'"
+    
+    # Asegurar que NO hay GOOGLE_APPLICATION_CREDENTIALS configurada para Cloud Run
+    unset GOOGLE_APPLICATION_CREDENTIALS
+    log "✅ GOOGLE_APPLICATION_CREDENTIALS removida para usar metadata server"
 else
     log "🔑 Usando Application Default Credentials"
 fi
