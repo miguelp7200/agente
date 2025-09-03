@@ -30,6 +30,8 @@ var/
 # Virtual Environment
 venv/
 ENV/
+.env/
+.conda/
 
 # IDE
 .idea/
