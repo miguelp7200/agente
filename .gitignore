@@ -1,19 +1,41 @@
-# Archivos grandes que superan los límites de GitLab
+# Ignorar datos y muestras
+data/
+
+# Ignorar archivos binarios grandes
 mcp-toolbox/toolbox
 mcp-toolbox/toolbox.exe
 
-# Otros archivos típicos a ignorar
+# Python
 __pycache__/
 *.py[cod]
 *.class
 *.so
-.env
-.venv
+.Python
 env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 venv/
 ENV/
-env.bak/
-venv.bak/
+
+# IDE
 .idea/
 .vscode/
+*.swp
+*.swo
+
+# Logs
 *.log

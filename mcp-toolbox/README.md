@@ -1,23 +1,33 @@
 # MCP Toolbox
 
-Esta carpeta contiene herramientas del Model Context Protocol (MCP) necesarias para el funcionamiento del sistema.
+Este directorio contiene herramientas para trabajar con el Model Context Protocol (MCP).
 
-## Archivos Importantes
+## Archivos binarios
 
-- 	oolbox - Ejecutable Linux/Mac para MCP toolbox (archivo grande > 100MB)
-- 	oolbox.exe - Ejecutable Windows para MCP toolbox (archivo grande > 100MB)
-- 	ools_updated.yaml - Configuración de herramientas MCP
+Los siguientes archivos binarios NO están incluidos en este repositorio debido a su tamaño:
 
-## Notas de Instalación
+- 	oolbox (117.5 MB) - Versión Linux/Mac
+- 	oolbox.exe (119.05 MB) - Versión Windows
 
-Estos ejecutables no están incluidos en el repositorio Git debido a restricciones de tamaño de GitLab (>100MB).
+## Cómo obtener las herramientas
 
-### Para obtener estos archivos:
+Los archivos binarios se pueden descargar desde:
 
-1. Descargar desde el repositorio original: [URL de descarga]
-2. O solicitar acceso al bucket de almacenamiento en GCP: gs://gasco-invoice-tools/
-3. Colocar los ejecutables en esta carpeta después de clonar el repositorio
+1. El repositorio monolítico original: invoice-chatbot-system/mcp-toolbox/
+2. Google Cloud Storage: gs://gasco-mcp-tools/
+3. Contactar al administrador del sistema para obtener acceso
+
+## Instalación
+
+1. Descargue los archivos binarios mencionados arriba
+2. Colóquelos en esta carpeta (mcp-toolbox/)
+3. Asegúrese que los archivos tienen permisos de ejecución (en Linux/Mac)
 
 ## Uso
 
-Estos ejecutables son necesarios para interactuar con los agentes MCP del sistema.
+Para utilizar la herramienta:
+
+- En Windows: .\toolbox.exe [comando]
+- En Linux/Mac: ./toolbox [comando]
+
+Consulte la documentación completa para más detalles sobre los comandos disponibles.
