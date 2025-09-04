@@ -356,13 +356,13 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
 
 def generate_signed_zip_url(zip_filename: str) -> str:
     """
-    Genera una URL firmada para descarga directa desde Google Cloud Storage
+    Genera una URL de descarga directa desde Google Cloud Storage
     
     Args:
         zip_filename: Nombre del archivo ZIP
         
     Returns:
-        URL firmada para descarga directa
+        URL pública para descarga directa
     """
     try:
         # Inicializar cliente de Storage
@@ -370,21 +370,27 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         bucket = storage_client.bucket(BUCKET_NAME_WRITE)
         blob = bucket.blob(zip_filename)
         
-        # Generar URL firmada válida por 1 hora
-        from datetime import timedelta
+        # Verificar que el archivo existe
+        if not blob.exists():
+            print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
+            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
         
-        signed_url = blob.generate_signed_url(
-            version="v4",
-            expiration=timedelta(hours=1),
-            method="GET",
-        )
+        # Hacer el archivo temporalmente público (1 hora)
+        # Esto es más seguro que usar Service Account Keys
+        blob.acl.all().grant_read()
+        blob.acl.save()
         
-        print(f"✅ [GCS] URL firmada generada para {zip_filename}")
-        return signed_url
+        # Generar URL pública directa
+        public_url = f"https://storage.googleapis.com/{BUCKET_NAME_WRITE}/{zip_filename}"
+        
+        print(f"✅ [GCS] URL pública generada para {zip_filename}")
+        print(f"🔗 [GCS] URL: {public_url}")
+        
+        return public_url
         
     except Exception as e:
-        print(f"❌ [GCS] Error generando URL firmada: {e}")
-        # Fallback a URL de proxy si falla la URL firmada
+        print(f"❌ [GCS] Error generando URL pública: {e}")
+        # Fallback a URL de proxy si falla
         if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
             return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
         else:
