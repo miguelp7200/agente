@@ -153,15 +153,15 @@ fi
 
 # 7. Iniciar servidor apropiado según entorno
 if [ "$IS_CLOUD_RUN" = "true" ] || [ "$PORT" = "8080" ]; then
-    # Cloud Run: ADK simple con PDF server en background
-    log "🚀 Iniciando ADK en puerto $PORT (Cloud Run)..."
+    # Cloud Run: Usar servidor combinado que maneja ADK + descargas
+    log "🚀 Iniciando servidor combinado (ADK + proxy) en puerto $PORT..."
     log "🌐 CORS permitido para todos los orígenes en producción"
     
     # Trap para cleanup
     trap 'log "🛑 Deteniendo servicios..."; kill $PDF_PID $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
     
-    # Ejecutar ADK directamente (este será el proceso principal)
-    exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
+    # Ejecutar servidor combinado (este será el proceso principal)
+    exec python combined_server.py
 else
     # Desarrollo local: ADK tradicional
     log "🚀 Iniciando ADK API Server en puerto $PORT (desarrollo local)..."

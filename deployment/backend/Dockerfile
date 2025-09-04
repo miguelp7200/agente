@@ -46,6 +46,7 @@ ENV GOOGLE_CLOUD_LOCATION=us-central1
 ENV PORT=8080
 ENV PDF_SERVER_PORT=8011
 ENV MCP_TOOLBOX_PORT=5000
+ENV IS_CLOUD_RUN=true
 
 # Service Account para Cloud Run (será asignada automáticamente)
 # GOOGLE_APPLICATION_CREDENTIALS se omite intencionalmente para usar ADC
@@ -57,8 +58,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# List files in /app before starting
-RUN ls -la /app
-
 # Comando de inicio
-CMD ["./start_backend.sh"]
+CMD ["/bin/bash", "./start_backend.sh"]

@@ -1,61 +1,9 @@
-# Git
-.git
-.gitignore
-.gitattributes
-
-# Documentation
-*.md
-README*
-CHANGELOG*
-
-# Development
-.vscode/
-.env.local
-.env.development
-.env.test
-keys/
-*.log
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-.venv
-
-# Testing
-tests/
-*_test.py
-test_*
-
-# Cache
-.cache/
-*.cache
-
-# IDE
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Deployment (evitar recursión)
-deployment/frontend/
-deployment/scripts/
-deployment/config/
-
-# Archives and backups
-*.zip
-*.tar.gz
-*.bak
-archive/
-backup/
-
-# Temporary files
-tmp/
-temp/
+**/.git
+**/.gitignore
+**/.vscode
+**/.conda
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd

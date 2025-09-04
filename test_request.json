@@ -1,0 +1,13 @@
+{
+  "appName": "gcp-invoice-agent-app",
+  "userId": "test-user",
+  "sessionId": "test-session-20250904-010300",
+  "newMessage": {
+    "parts": [
+      {
+        "text": "Busca facturas de diciembre 2022"
+      }
+    ],
+    "role": "user"
+  }
+}
