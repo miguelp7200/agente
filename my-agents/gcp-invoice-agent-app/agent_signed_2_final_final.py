@@ -12,7 +12,11 @@ import time
 from pathlib import Path
 from typing import Optional
 from google.cloud import storage
-from datetime import datetime, timedelta # <--- ADICIÓN 1: Importación necesaria
+
+from datetime import datetime, timedelta, timezone
+import google.auth
+from google.auth import impersonated_credentials
+import traceback
 
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -260,15 +264,9 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         if result.returncode == 0:
             # ZIP creado exitosamente
             zip_filename = f"zip_{zip_id}.zip"
-            
-            # En Cloud Run: usar signed URLs de Google Cloud Storage
-            # En local: usar servidor proxy
-            if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                # Generar signed URL de Google Cloud Storage
-                download_url = generate_signed_zip_url(zip_filename)
-            else:
-                # Desarrollo local: usar proxy server normal
-                download_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+
+            download_url = generate_signed_zip_url(zip_filename)
+
 
             success_msg = f"✅ ZIP creado exitosamente: {zip_filename} con {len(downloaded_files)} archivos"
             print(f"✅ [ZIP CREATION] {success_msg}")
@@ -352,135 +350,100 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
 
         return {"success": False, "error": exception_msg}
 
+def _get_service_account_email():
+    """Obtiene el email del service account desde el servidor de metadatos de GCP."""
+    try:
+        if not IS_CLOUD_RUN:
+            print("[INFO] No se está en Cloud Run. Omitiendo la obtención de SA desde metadatos.")
+            raise RuntimeError("No es un entorno de GCP, no se puede usar el servidor de metadatos.")
+
+
+        url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+        headers = {"Metadata-Flavor": "Google"}
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status() 
+        return response.text
+    except Exception as e:
+        print(f"[CRITICAL WARNING] No se pudo obtener el email del SA desde metadatos. Se usará una URL de proxy. Error: {e}")
+        raise RuntimeError("No se pudo determinar el Service Account Email para firmar la URL.") from e
+
 
 def generate_signed_zip_url(zip_filename: str) -> str:
-    """
-    Genera una URL firmada de descarga desde Google Cloud Storage
+
+
+    if CLOUD_RUN_SERVICE_URL:
+        fallback_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+    else:
+        fallback_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+
+    if not IS_CLOUD_RUN:
+        print("[INFO] Entorno local detectado. Devolviendo URL de proxy.")
+        return fallback_url
     
-    Args:
-        zip_filename: Nombre del archivo ZIP
-        
-    Returns:
-        URL firmada para descarga segura
-    """
     try:
-        # from datetime import datetime, timedelta # Movido al inicio del archivo
+        print("\n" + "="*50)
+        print("[INFO] Iniciando proceso de firma de URL (v4 con impersonation)...")
         
-        # Inicializar cliente de Storage
-        storage_client = storage.Client()
+
+        source_credentials, project_id = google.auth.default()
+        print(f"[INFO] Credenciales fuente obtenidas para el proyecto: {project_id}")
+
+
+        target_service_account_email = _get_service_account_email()
+        print(f"[INFO] Service Account detectado: {target_service_account_email}")
+
+
+        signing_credentials = impersonated_credentials.Credentials(
+            source_credentials=source_credentials,
+            target_principal=target_service_account_email,
+            target_scopes=["https://www.googleapis.com/auth/devstorage.read_write"],
+            lifetime=300,
+        )
+        print("[SUCCESS] Credenciales de firma (impersonated) creadas.")
+        
+
+        storage_client = storage.Client(credentials=signing_credentials)
         bucket = storage_client.bucket(BUCKET_NAME_WRITE)
         blob = bucket.blob(zip_filename)
         
-        # Verificar que el archivo existe
+
         if not blob.exists():
-            print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
-            # Fallback a URL de proxy si el archivo no existe
-            if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-            else:
-                return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+            print(f"❌ [GCS SIGNING] Error: El archivo '{zip_filename}' no existe en el bucket '{BUCKET_NAME_WRITE}'.")
+            return fallback_url
         
-        # Generar signed URL válida por 1 hora
-        expiration = datetime.utcnow() + timedelta(hours=1)
-        
+
+        expiration_time = timedelta(hours=1)
         signed_url = blob.generate_signed_url(
             version="v4",
-            expiration=expiration,
-            method="GET"
+            expiration=expiration_time,
+            method="GET",
         )
         
-        print(f"✅ [GCS] Signed URL generada para {zip_filename}")
-        print(f"🔗 [GCS] URL: {signed_url[:100]}...")  # Solo mostrar inicio por seguridad
-        
+        print(f"✅ [GCS SIGNING] URL firmada generada exitosamente para '{zip_filename}'")
+        print(f"🔗 [GCS SIGNING] La URL expirará en {expiration_time}.")
+        print("="*50 + "\n")
         return signed_url
-        
+
     except Exception as e:
-        print(f"❌ [GCS] Error generando signed URL: {e}")
-        # Fallback a URL de proxy si falla la signed URL
-        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-        else:
-            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-        # Fallback a URL de proxy si falla
-        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-        else:
-            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-
-# <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales --->
-def generate_individual_download_links(pdf_urls: str) -> dict:
-    """
-    Toma URLs de GCS y genera URLs de descarga firmadas y seguras para cada una.
-    Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
-    """
-    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces de descarga...")
-    pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
-    if not pdf_urls_list:
-        return {"success": False, "error": "No se proporcionaron URLs de PDF."}
-    
-    secure_links = []
-    storage_client = storage.Client()
-
-    for gs_url in pdf_urls_list:
-        try:
-            if not gs_url.startswith("gs://"):
-                print(f"⚠️ [LINKS INDIVIDUALES] URL no válida, se omite: {gs_url}")
-                continue
-            
-            # Extraer bucket y blob path de la URL gs://
-            parts = gs_url.replace("gs://", "").split("/", 1)
-            bucket_name = parts[0]
-            blob_name = parts[1]
-            
-            bucket = storage_client.bucket(bucket_name)
-            blob = bucket.blob(blob_name)
-            
-            if not blob.exists():
-                print(f"⚠️ [LINKS INDIVIDUALES] Objeto no encontrado: {gs_url}")
-                continue
-
-            # Generar URL firmada
-            expiration = datetime.utcnow() + timedelta(hours=1)
-            signed_url = blob.generate_signed_url(
-                version="v4",
-                expiration=expiration,
-                method="GET"
-            )
-            secure_links.append(signed_url)
-            print(f"✅ [LINKS INDIVIDUALES] URL generada para: {gs_url}")
-
-        except Exception as e:
-            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
-            
-    if not secure_links:
-        return {"success": False, "error": "No se pudo generar ninguna URL de descarga segura."}
-        
-    print(f"✅ [LINKS INDIVIDUALES] {len(secure_links)} enlaces seguros generados.")
-    return {
-        "success": True,
-        "download_urls": secure_links,
-        "message": f"Se han generado {len(secure_links)} enlaces de descarga."
-    }
-# <--- Fin de la adición --->
-
+        print(f"\n❌ [CRITICAL ERROR] Falló la generación de la URL firmada.")
+        print(f"❌ [CRITICAL ERROR] Mensaje: {e}")
+        traceback.print_exc()
+        print(f"↪️  [FALLBACK] Devolviendo URL de proxy: {fallback_url}")
+        print("="*50 + "\n")
+        return fallback_url
 
 # Agregar herramienta ZIP personalizada
 zip_tool = FunctionTool(create_standard_zip)
-# <--- ADICIÓN 3: Envolver la nueva función como una herramienta para el agente --->
-individual_links_tool = FunctionTool(generate_individual_download_links)
-
 
 root_agent = Agent(
     name="invoice_pdf_finder_agent",
-    model="gemini-2.5-flash", # <--- ADICIÓN 4: Pequeña sugerencia de modelo, puedes revertirla a gemini-2.5-flash
+    model="gemini-2.5-flash",
     description=(
         "Specialized Chilean invoice PDF finder with download capabilities. "
         "Primary purpose: deliver downloadable PDF lists based on user criteria, especially time periods."
     ),
-    # <--- ADICIÓN 5: Añadir AMBAS herramientas personalizadas a la lista de herramientas del agente --->
-    tools=tools + [zip_tool, individual_links_tool],
+    tools=tools + [zip_tool],
     instruction=(
-        # <--- ADICIÓN 6: Instrucciones más explícitas para que el agente sepa QUÉ herramienta usar y CUÁNDO --->
         "Eres un agente especializado en facturas chilenas.\n\n"
         "FLUJO OBLIGATORIO:\n"
         "1. Para obtener facturas del 2019, usa search_invoices_by_date_range con start_date: '2019-01-01' y end_date: '2019-12-31'\n"

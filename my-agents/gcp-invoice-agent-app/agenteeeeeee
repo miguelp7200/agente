@@ -12,7 +12,6 @@ import time
 from pathlib import Path
 from typing import Optional
 from google.cloud import storage
-from datetime import datetime, timedelta # <--- ADICIÓN 1: Importación necesaria
 
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -364,7 +363,7 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         URL firmada para descarga segura
     """
     try:
-        # from datetime import datetime, timedelta # Movido al inicio del archivo
+        from datetime import datetime, timedelta
         
         # Inicializar cliente de Storage
         storage_client = storage.Client()
@@ -407,80 +406,19 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         else:
             return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-# <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales --->
-def generate_individual_download_links(pdf_urls: str) -> dict:
-    """
-    Toma URLs de GCS y genera URLs de descarga firmadas y seguras para cada una.
-    Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
-    """
-    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces de descarga...")
-    pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
-    if not pdf_urls_list:
-        return {"success": False, "error": "No se proporcionaron URLs de PDF."}
-    
-    secure_links = []
-    storage_client = storage.Client()
-
-    for gs_url in pdf_urls_list:
-        try:
-            if not gs_url.startswith("gs://"):
-                print(f"⚠️ [LINKS INDIVIDUALES] URL no válida, se omite: {gs_url}")
-                continue
-            
-            # Extraer bucket y blob path de la URL gs://
-            parts = gs_url.replace("gs://", "").split("/", 1)
-            bucket_name = parts[0]
-            blob_name = parts[1]
-            
-            bucket = storage_client.bucket(bucket_name)
-            blob = bucket.blob(blob_name)
-            
-            if not blob.exists():
-                print(f"⚠️ [LINKS INDIVIDUALES] Objeto no encontrado: {gs_url}")
-                continue
-
-            # Generar URL firmada
-            expiration = datetime.utcnow() + timedelta(hours=1)
-            signed_url = blob.generate_signed_url(
-                version="v4",
-                expiration=expiration,
-                method="GET"
-            )
-            secure_links.append(signed_url)
-            print(f"✅ [LINKS INDIVIDUALES] URL generada para: {gs_url}")
-
-        except Exception as e:
-            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
-            
-    if not secure_links:
-        return {"success": False, "error": "No se pudo generar ninguna URL de descarga segura."}
-        
-    print(f"✅ [LINKS INDIVIDUALES] {len(secure_links)} enlaces seguros generados.")
-    return {
-        "success": True,
-        "download_urls": secure_links,
-        "message": f"Se han generado {len(secure_links)} enlaces de descarga."
-    }
-# <--- Fin de la adición --->
-
 
 # Agregar herramienta ZIP personalizada
 zip_tool = FunctionTool(create_standard_zip)
-# <--- ADICIÓN 3: Envolver la nueva función como una herramienta para el agente --->
-individual_links_tool = FunctionTool(generate_individual_download_links)
-
 
 root_agent = Agent(
     name="invoice_pdf_finder_agent",
-    model="gemini-2.5-flash", # <--- ADICIÓN 4: Pequeña sugerencia de modelo, puedes revertirla a gemini-2.5-flash
+    model="gemini-2.5-flash",
     description=(
         "Specialized Chilean invoice PDF finder with download capabilities. "
         "Primary purpose: deliver downloadable PDF lists based on user criteria, especially time periods."
     ),
-    # <--- ADICIÓN 5: Añadir AMBAS herramientas personalizadas a la lista de herramientas del agente --->
-    tools=tools + [zip_tool, individual_links_tool],
+    tools=tools + [zip_tool],
     instruction=(
-        # <--- ADICIÓN 6: Instrucciones más explícitas para que el agente sepa QUÉ herramienta usar y CUÁNDO --->
         "Eres un agente especializado en facturas chilenas.\n\n"
         "FLUJO OBLIGATORIO:\n"
         "1. Para obtener facturas del 2019, usa search_invoices_by_date_range con start_date: '2019-01-01' y end_date: '2019-12-31'\n"
