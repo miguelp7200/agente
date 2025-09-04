@@ -111,20 +111,26 @@ for i in {1..5}; do
     fi
 done
 
-# 4. Configurar PDF Server integrado (solo en desarrollo local)
-# En Cloud Run, los archivos se sirven vía funciones del agente
-if [ "$PDF_SERVER_PORT" != "$PORT" ]; then
+# 4. Iniciar PDF Server en puerto dedicado
+# En Cloud Run, usar puerto interno diferente al principal
+if [ "$IS_CLOUD_RUN" = "true" ] || [ "$PORT" = "8080" ]; then
+    # Cloud Run: PDF Server en puerto interno, ADK manejará proxy
+    log "🚀 Iniciando PDF Server en puerto 8011 (Cloud Run interno)..."
+    PDF_SERVER_PORT=8011 python local_pdf_server.py &
+    PDF_PID=$!
+    
+    log "⏳ Esperando PDF Server inicialización..."
+    sleep 5
+    log "✅ PDF Server iniciado en puerto 8011 (interno)"
+else
+    # Desarrollo local: PDF Server en puerto configurado
     log "🚀 Iniciando PDF Server en puerto $PDF_SERVER_PORT (desarrollo local)..."
     python local_pdf_server.py &
     PDF_PID=$!
     
-    # Esperar un momento para que el PDF server inicie
     log "⏳ Esperando PDF Server inicialización..."
     sleep 5
     log "✅ PDF Server iniciado en puerto $PDF_SERVER_PORT"
-else
-    log "📁 PDF Server integrado en ADK (puerto $PORT) para Cloud Run"
-    PDF_PID=""
 fi
 
 # 4. Verificar que ADK está disponible
@@ -145,12 +151,25 @@ if [ ! -d "my-agents" ]; then
     exit 1
 fi
 
-# 7. Iniciar ADK API Server
-log "🚀 Iniciando ADK API Server en puerto $PORT..."
-log "🌐 CORS permitido para todos los orígenes en producción"
+# 7. Iniciar servidor apropiado según entorno
+if [ "$IS_CLOUD_RUN" = "true" ] || [ "$PORT" = "8080" ]; then
+    # Cloud Run: Usar servidor combinado que maneja ADK + descargas
+    log "🚀 Iniciando servidor combinado (ADK + proxy) en puerto $PORT..."
+    log "🌐 CORS permitido para todos los orígenes en producción"
+    
+    # Trap para cleanup
+    trap 'log "🛑 Deteniendo servicios..."; kill $PDF_PID $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
+    
+    # Ejecutar servidor combinado (este será el proceso principal)
+    exec python combined_server.py
+else
+    # Desarrollo local: ADK tradicional
+    log "🚀 Iniciando ADK API Server en puerto $PORT (desarrollo local)..."
+    log "🌐 CORS permitido para todos los orígenes en producción"
 
-# Trap para cleanup en caso de señales
-trap 'log "🛑 Deteniendo servicios..."; [ -n "$PDF_PID" ] && kill $PDF_PID 2>/dev/null; kill $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
+    # Trap para cleanup en caso de señales (desarrollo local)
+    trap 'log "🛑 Deteniendo servicios..."; kill $PDF_PID $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
 
-# Ejecutar ADK (este será el proceso principal)
-exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
+    # Ejecutar ADK (este será el proceso principal en desarrollo local)
+    exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
+fi

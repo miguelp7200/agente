@@ -260,12 +260,12 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             # ZIP creado exitosamente
             zip_filename = f"zip_{zip_id}.zip"
             
-            # Generar URL de descarga basada en el entorno
+            # En Cloud Run, usar una URL especial que el PDF server puede manejar
             if IS_CLOUD_RUN:
-                # En Cloud Run, generar URL firmada directa de GCS
-                download_url = generate_signed_zip_url(zip_filename)
+                # Usar endpoint especial del PDF server que maneja autenticación GCS
+                download_url = f"{CLOUD_RUN_SERVICE_URL}/gcs?url=gs://{BUCKET_NAME_WRITE}/{zip_filename}"
             else:
-                # En desarrollo local, usar proxy server
+                # En desarrollo local, usar proxy server normal
                 if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
                     download_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
                 else:
