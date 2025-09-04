@@ -134,6 +134,45 @@ def download_pdfs_from_gcs(pdf_urls, samples_dir):
     return downloaded_files
 
 
+def generate_signed_url(zip_filename: str) -> str:
+    """
+    Genera una URL firmada para descargar un archivo ZIP desde GCS.
+
+    Args:
+        zip_filename: El nombre del archivo ZIP en el bucket de GCS.
+
+    Returns:
+        La URL firmada para descargar el archivo.
+    """
+    try:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(BUCKET_NAME_WRITE)
+        blob = bucket.blob(zip_filename)
+
+        if not blob.exists():
+            print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
+            # Fallback a la URL del proxy si el archivo no existe
+            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+
+        # Generar la URL firmada con 1 hora de expiración
+        signed_url = blob.generate_signed_url(
+            version="v4",
+            expiration=3600,  # 1 hora en segundos
+            method="GET",
+        )
+        print(f"✅ [GCS] URL firmada generada para {zip_filename}")
+        print(f"🔗 [GCS] URL: {signed_url}")
+        return signed_url
+
+    except Exception as e:
+        print(f"❌ [GCS] Error generando URL firmada: {e}")
+        # Fallback a la URL del proxy si falla la generación de la URL firmada
+        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+        else:
+            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+
+
 def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
     """
     🚨 FUNCIÓN CRÍTICA: Crear ZIP automáticamente cuando hay >5 facturas
@@ -260,16 +299,8 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             # ZIP creado exitosamente
             zip_filename = f"zip_{zip_id}.zip"
             
-            # En Cloud Run, usar una URL especial que el PDF server puede manejar
-            if IS_CLOUD_RUN:
-                # Usar endpoint especial del PDF server que maneja autenticación GCS
-                download_url = f"{CLOUD_RUN_SERVICE_URL}/gcs?url=gs://{BUCKET_NAME_WRITE}/{zip_filename}"
-            else:
-                # En desarrollo local, usar proxy server normal
-                if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                    download_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-                else:
-                    download_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+            # Generar URL firmada
+            download_url = generate_signed_url(zip_filename)
 
             success_msg = f"✅ ZIP creado exitosamente: {zip_filename} con {len(downloaded_files)} archivos"
             print(f"✅ [ZIP CREATION] {success_msg}")
@@ -352,49 +383,6 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             )
 
         return {"success": False, "error": exception_msg}
-
-
-def generate_signed_zip_url(zip_filename: str) -> str:
-    """
-    Genera una URL de descarga directa desde Google Cloud Storage
-    
-    Args:
-        zip_filename: Nombre del archivo ZIP
-        
-    Returns:
-        URL pública para descarga directa
-    """
-    try:
-        # Inicializar cliente de Storage
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(BUCKET_NAME_WRITE)
-        blob = bucket.blob(zip_filename)
-        
-        # Verificar que el archivo existe
-        if not blob.exists():
-            print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
-            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-        
-        # Hacer el archivo temporalmente público (1 hora)
-        # Esto es más seguro que usar Service Account Keys
-        blob.acl.all().grant_read()
-        blob.acl.save()
-        
-        # Generar URL pública directa
-        public_url = f"https://storage.googleapis.com/{BUCKET_NAME_WRITE}/{zip_filename}"
-        
-        print(f"✅ [GCS] URL pública generada para {zip_filename}")
-        print(f"🔗 [GCS] URL: {public_url}")
-        
-        return public_url
-        
-    except Exception as e:
-        print(f"❌ [GCS] Error generando URL pública: {e}")
-        # Fallback a URL de proxy si falla
-        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-        else:
-            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
 
 # Agregar herramienta ZIP personalizada
