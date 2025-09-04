@@ -22,6 +22,9 @@ from config import (
     PDF_SERVER_PORT,
     BUCKET_NAME_READ,
     SAMPLES_DIR,
+    CLOUD_RUN_SERVICE_URL,
+    BUCKET_NAME_WRITE,
+    IS_CLOUD_RUN,
 )
 
 # 🔥 NUEVO: Importar sistema de logging de conversaciones
@@ -256,7 +259,17 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         if result.returncode == 0:
             # ZIP creado exitosamente
             zip_filename = f"zip_{zip_id}.zip"
-            download_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+            
+            # Generar URL de descarga basada en el entorno
+            if IS_CLOUD_RUN:
+                # En Cloud Run, generar URL firmada directa de GCS
+                download_url = generate_signed_zip_url(zip_filename)
+            else:
+                # En desarrollo local, usar proxy server
+                if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+                    download_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+                else:
+                    download_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
             success_msg = f"✅ ZIP creado exitosamente: {zip_filename} con {len(downloaded_files)} archivos"
             print(f"✅ [ZIP CREATION] {success_msg}")
@@ -339,6 +352,43 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             )
 
         return {"success": False, "error": exception_msg}
+
+
+def generate_signed_zip_url(zip_filename: str) -> str:
+    """
+    Genera una URL firmada para descarga directa desde Google Cloud Storage
+    
+    Args:
+        zip_filename: Nombre del archivo ZIP
+        
+    Returns:
+        URL firmada para descarga directa
+    """
+    try:
+        # Inicializar cliente de Storage
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(BUCKET_NAME_WRITE)
+        blob = bucket.blob(zip_filename)
+        
+        # Generar URL firmada válida por 1 hora
+        from datetime import timedelta
+        
+        signed_url = blob.generate_signed_url(
+            version="v4",
+            expiration=timedelta(hours=1),
+            method="GET",
+        )
+        
+        print(f"✅ [GCS] URL firmada generada para {zip_filename}")
+        return signed_url
+        
+    except Exception as e:
+        print(f"❌ [GCS] Error generando URL firmada: {e}")
+        # Fallback a URL de proxy si falla la URL firmada
+        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+        else:
+            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
 
 # Agregar herramienta ZIP personalizada

@@ -111,15 +111,21 @@ for i in {1..5}; do
     fi
 done
 
-# 4. Iniciar PDF Server en background
-log "🚀 Iniciando PDF Server en puerto $PDF_SERVER_PORT..."
-python local_pdf_server.py &
-PDF_PID=$!
-
-# Esperar un momento para que el PDF server inicie
-log "⏳ Esperando PDF Server inicialización..."
-sleep 5
-log "✅ PDF Server iniciado en puerto $PDF_SERVER_PORT"
+# 4. Configurar PDF Server integrado (solo en desarrollo local)
+# En Cloud Run, los archivos se sirven vía funciones del agente
+if [ "$PDF_SERVER_PORT" != "$PORT" ]; then
+    log "🚀 Iniciando PDF Server en puerto $PDF_SERVER_PORT (desarrollo local)..."
+    python local_pdf_server.py &
+    PDF_PID=$!
+    
+    # Esperar un momento para que el PDF server inicie
+    log "⏳ Esperando PDF Server inicialización..."
+    sleep 5
+    log "✅ PDF Server iniciado en puerto $PDF_SERVER_PORT"
+else
+    log "📁 PDF Server integrado en ADK (puerto $PORT) para Cloud Run"
+    PDF_PID=""
+fi
 
 # 4. Verificar que ADK está disponible
 if ! command -v adk &> /dev/null; then
@@ -144,7 +150,7 @@ log "🚀 Iniciando ADK API Server en puerto $PORT..."
 log "🌐 CORS permitido para todos los orígenes en producción"
 
 # Trap para cleanup en caso de señales
-trap 'log "🛑 Deteniendo servicios..."; kill $PDF_PID $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
+trap 'log "🛑 Deteniendo servicios..."; [ -n "$PDF_PID" ] && kill $PDF_PID 2>/dev/null; kill $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
 
 # Ejecutar ADK (este será el proceso principal)
 exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
