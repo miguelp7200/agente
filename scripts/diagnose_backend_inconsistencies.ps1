@@ -403,7 +403,8 @@ function Generate-ComparisonReport {
     $report.statistics.backendA.totalTests = $Results.Count
     $report.statistics.backendA.successfulTests = $backendAResults.Count
     if ($backendAResults.Count -gt 0) {
-        $report.statistics.backendA.averageResponseTime = ($backendAResults | Measure-Object -Property @{E={$_.backendA.responseTime}} -Average).Average
+        $responseTimes = $backendAResults | ForEach-Object { $_.backendA.responseTime }
+        $report.statistics.backendA.averageResponseTime = ($responseTimes | Measure-Object -Average).Average
         
         foreach ($result in $backendAResults) {
             $urlAnalysis = $result.backendA.urlAnalysis
@@ -419,7 +420,8 @@ function Generate-ComparisonReport {
     $report.statistics.backendB.totalTests = $Results.Count
     $report.statistics.backendB.successfulTests = $backendBResults.Count
     if ($backendBResults.Count -gt 0) {
-        $report.statistics.backendB.averageResponseTime = ($backendBResults | Measure-Object -Property @{E={$_.backendB.responseTime}} -Average).Average
+        $responseTimes = $backendBResults | ForEach-Object { $_.backendB.responseTime }
+        $report.statistics.backendB.averageResponseTime = ($responseTimes | Measure-Object -Average).Average
         
         foreach ($result in $backendBResults) {
             $urlAnalysis = $result.backendB.urlAnalysis
