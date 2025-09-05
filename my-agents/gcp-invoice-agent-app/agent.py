@@ -12,7 +12,9 @@ import time
 from pathlib import Path
 from typing import Optional
 from google.cloud import storage
-from datetime import datetime, timedelta # <--- ADICIÓN 1: Importación necesaria
+from datetime import datetime, timedelta
+import google.auth
+from google.auth import impersonated_credentials
 
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -353,9 +355,34 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         return {"success": False, "error": exception_msg}
 
 
+def _get_service_account_email():
+    """
+    Obtiene el email de la service account desde metadatos o variable de entorno.
+    """
+    try:
+        # Primero intentar desde metadatos si estamos en Cloud Run
+        import requests
+        
+        metadata_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+        headers = {"Metadata-Flavor": "Google"}
+        
+        response = requests.get(metadata_url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            email = response.text.strip()
+            print(f"✅ [AUTH] Service Account obtenida de metadatos: {email}")
+            return email
+    except Exception as e:
+        print(f"⚠️ [AUTH] No se pudo obtener email de metadatos: {e}")
+    
+    # Fallback: usar email hardcodeado conocido
+    default_email = "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
+    print(f"🔄 [AUTH] Usando Service Account por defecto: {default_email}")
+    return default_email
+
+
 def generate_signed_zip_url(zip_filename: str) -> str:
     """
-    Genera una URL firmada de descarga desde Google Cloud Storage
+    Genera una URL firmada de descarga desde Google Cloud Storage usando credenciales impersonadas.
     
     Args:
         zip_filename: Nombre del archivo ZIP
@@ -364,10 +391,22 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         URL firmada para descarga segura
     """
     try:
-        # from datetime import datetime, timedelta # Movido al inicio del archivo
+        # Obtener credenciales por defecto
+        credentials, project = google.auth.default()
         
-        # Inicializar cliente de Storage
-        storage_client = storage.Client()
+        # Obtener el email de la service account
+        service_account_email = _get_service_account_email()
+        
+        # Crear credenciales impersonadas para firmar URLs
+        target_scopes = ['https://www.googleapis.com/auth/cloud-platform']
+        target_credentials = impersonated_credentials.Credentials(
+            source_credentials=credentials,
+            target_principal=service_account_email,
+            target_scopes=target_scopes,
+        )
+        
+        # Inicializar cliente de Storage con credenciales de firma
+        storage_client = storage.Client(credentials=target_credentials)
         bucket = storage_client.bucket(BUCKET_NAME_WRITE)
         blob = bucket.blob(zip_filename)
         
@@ -380,32 +419,29 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             else:
                 return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
         
-        # Generar signed URL válida por 1 hora
+        # Generar signed URL válida por 1 hora con credenciales impersonadas
         expiration = datetime.utcnow() + timedelta(hours=1)
         
         signed_url = blob.generate_signed_url(
             version="v4",
             expiration=expiration,
-            method="GET"
+            method="GET",
+            credentials=target_credentials
         )
         
-        print(f"✅ [GCS] Signed URL generada para {zip_filename}")
+        print(f"✅ [GCS] Signed URL generada para {zip_filename} con credenciales impersonadas")
         print(f"🔗 [GCS] URL: {signed_url[:100]}...")  # Solo mostrar inicio por seguridad
         
         return signed_url
         
     except Exception as e:
-        print(f"❌ [GCS] Error generando signed URL: {e}")
+        print(f"❌ [GCS] Error generando signed URL con credenciales impersonadas: {e}")
         # Fallback a URL de proxy si falla la signed URL
         if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
             return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
         else:
             return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-        # Fallback a URL de proxy si falla
-        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-        else:
-            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+
 
 # <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales --->
 def generate_individual_download_links(pdf_urls: str) -> dict:

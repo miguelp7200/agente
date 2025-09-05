@@ -16,6 +16,10 @@ import threading
 import time
 import requests
 from typing import Optional, Dict, Any
+from datetime import datetime, timedelta
+
+import google.auth
+from google.auth import impersonated_credentials
 
 logger = logging.getLogger(__name__)
 
@@ -343,81 +347,122 @@ class GCSProxyHandler(http.server.BaseHTTPRequestHandler):
                 logger.warning("⚠️ No se pudo enviar error - conexión cerrada")
 
     def _serve_from_gcs_url(self, gcs_url: str, content_type: str, filename: str):
-        """Sirve un archivo desde una URL gs:// usando Storage Client"""
-        if not self.storage_client:
-            logger.error("❌ Cliente de Storage no disponible")
-            self.send_error(500, "Cliente de Storage no disponible")
-            return
-
+        """Genera URL firmada y redirige en lugar de servir directamente"""
         try:
-            # Parsear gs://bucket-name/path/to/file
-            if not gcs_url.startswith("gs://"):
-                raise ValueError("URL debe empezar con gs://")
-
-            # Remover gs:// y dividir bucket/path
-            path = gcs_url[5:]  # Remover 'gs://'
-            parts = path.split("/", 1)
-
-            if len(parts) != 2:
-                raise ValueError("URL debe tener formato gs://bucket/path")
-
-            bucket_name, blob_path = parts
-
-            logger.info(
-                f"📁 Sirviendo desde GCS: bucket={bucket_name}, path={blob_path}"
-            )
-
-            bucket = self.storage_client.bucket(bucket_name)
-            blob = bucket.blob(blob_path)
-
-            # Verificar que el blob existe
-            if not blob.exists():
-                logger.warning(f"⚠️ Archivo no existe en GCS: {gcs_url}")
-                self.send_error(404, f"Archivo no encontrado: {gcs_url}")
-                return
-
-            # Descargar contenido
-            content = blob.download_as_bytes()
-
-            # Enviar respuesta HTTP
-            self.send_response(200)
-            self.send_header("Content-Type", content_type)
-            self.send_header(
-                "Content-Disposition", f'attachment; filename="{filename}"'
-            )
-            self.send_header("Content-Length", str(len(content)))
+            logger.info(f"🔗 [GCS] Generando signed URL para: {gcs_url}")
+            
+            # Generar URL firmada usando credenciales impersonadas
+            signed_url = generate_signed_url_for_gcs(gcs_url)
+            
+            # Redirigir a la URL firmada
+            self.send_response(302)  # Found (Temporary Redirect)
+            self.send_header("Location", signed_url)
+            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
             self.end_headers()
-
-            # Enviar contenido de manera segura
-            try:
-                self.wfile.write(content)
-            except (ConnectionAbortedError, BrokenPipeError):
-                logger.warning(
-                    f"⚠️ Conexión cerrada durante envío de contenido: {gcs_url}"
-                )
-                return
-
-            logger.info(
-                f"✅ PDF servido exitosamente: {gcs_url} ({len(content)} bytes)"
-            )
-
-        except ConnectionAbortedError as e:
-            # Conexión cerrada por el cliente - no intentar enviar error
-            logger.warning(
-                f"⚠️ Conexión cerrada por cliente durante descarga: {gcs_url}"
-            )
-            return
+            
+            logger.info(f"✅ [GCS] Redirect enviado a signed URL para: {filename}")
+            
         except Exception as e:
-            logger.error(f"❌ Error sirviendo desde GCS URL {gcs_url}: {e}")
-            try:
-                self.send_error(500, f"Error obteniendo archivo: {str(e)}")
-            except (ConnectionAbortedError, BrokenPipeError):
-                # Si no podemos enviar el error, la conexión ya está cerrada
-                logger.warning("⚠️ No se pudo enviar error - conexión cerrada")
+            logger.error(f"❌ [GCS] Error generando signed URL para {gcs_url}: {e}")
+            # Fallback: mostrar error en lugar de servir directamente
+            self.send_error(500, f"Error generando URL firmada: {str(e)}")
+            return
 
     def log_message(self, format, *args):
         """Personalizar logging del servidor"""
         logger.debug(f"🌐 {self.address_string()} - {format % args}")
+
+
+def _get_service_account_email():
+    """
+    Obtiene el email de la service account desde metadatos o variable de entorno.
+    """
+    try:
+        # Primero intentar desde metadatos si estamos en Cloud Run
+        metadata_url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+        headers = {"Metadata-Flavor": "Google"}
+        
+        response = requests.get(metadata_url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            email = response.text.strip()
+            logger.info(f"✅ [AUTH] Service Account obtenida de metadatos: {email}")
+            return email
+    except Exception as e:
+        logger.warning(f"⚠️ [AUTH] No se pudo obtener email de metadatos: {e}")
+    
+    # Fallback: usar email hardcodeado conocido
+    default_email = "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
+    logger.info(f"🔄 [AUTH] Usando Service Account por defecto: {default_email}")
+    return default_email
+
+
+def generate_signed_url_for_gcs(gcs_url: str) -> str:
+    """
+    Genera una URL firmada para un archivo en GCS usando credenciales impersonadas.
+    
+    Args:
+        gcs_url: URL completa gs://bucket/path/to/file
+        
+    Returns:
+        URL firmada para descarga segura
+    """
+    try:
+        # Parsear gs://bucket-name/path/to/file
+        if not gcs_url.startswith("gs://"):
+            raise ValueError("URL debe empezar con gs://")
+
+        # Remover gs:// y dividir bucket/path
+        path = gcs_url[5:]  # Remover 'gs://'
+        parts = path.split("/", 1)
+
+        if len(parts) != 2:
+            raise ValueError("URL debe tener formato gs://bucket/path")
+
+        bucket_name, blob_path = parts
+        
+        # Obtener credenciales por defecto
+        credentials, project = google.auth.default()
+        
+        # Obtener el email de la service account
+        service_account_email = _get_service_account_email()
+        
+        # Crear credenciales impersonadas para firmar URLs
+        target_scopes = ['https://www.googleapis.com/auth/cloud-platform']
+        target_credentials = impersonated_credentials.Credentials(
+            source_credentials=credentials,
+            target_principal=service_account_email,
+            target_scopes=target_scopes,
+        )
+        
+        # Inicializar cliente de Storage con credenciales de firma
+        from google.cloud import storage
+        storage_client = storage.Client(credentials=target_credentials)
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_path)
+        
+        # Verificar que el archivo existe
+        if not blob.exists():
+            logger.warning(f"⚠️ [GCS] Archivo no encontrado: {gcs_url}")
+            raise ValueError(f"Archivo no encontrado: {gcs_url}")
+        
+        # Generar signed URL válida por 1 hora con credenciales impersonadas
+        expiration = datetime.utcnow() + timedelta(hours=1)
+        
+        signed_url = blob.generate_signed_url(
+            version="v4",
+            expiration=expiration,
+            method="GET",
+            credentials=target_credentials
+        )
+        
+        logger.info(f"✅ [GCS] Signed URL generada para {gcs_url} con credenciales impersonadas")
+        logger.info(f"🔗 [GCS] URL: {signed_url[:100]}...")  # Solo mostrar inicio por seguridad
+        
+        return signed_url
+        
+    except Exception as e:
+        logger.error(f"❌ [GCS] Error generando signed URL con credenciales impersonadas: {e}")
+        raise e
 
 
 class GCSProxyServer:
