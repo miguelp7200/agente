@@ -1,0 +1,126 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CocFAcu98PCbzEwPE5hWvRBbeNX6vB1yrJp4FoXsslMVd90aFtURTtqLet1P-hoHXOiJVhiZGUz91_Dv4MD7mHlCzVJD-dxGOzJ2XX2w-WYjQ-8FcEOpoXW3AT4b8GM7V8RV8josV3XRlblStO_Apak5E9rV2wJrxxK_pGiE1poHKiywI6xkTYToszvJT7UKeKJl9QaerWO_sE5k60NxAyqdILrCXScgPGOnqzDWVtDTXneQhVZ_RqhzA-ieXg6stGs1DCaCaWpNmmU1aEwPF3ZLkCmzIkoTdf3_wXE_yQsbKgwbtG3rzfWM_E7N-fuJ14Vz96O1Dtm-wnuih1DetpYy1i2BKtuxTmiwpwFOEWc7bd__M_ljWvcCzhXj_z2L0hT_4EdjU6whdIbQXDzyGsUodSbRkMqD0RMkKcrcU-B6g4vvHjLX29YZCSdb1rgkzODVTMqzyxxYjCxIyQp9OUFN5wQcuI86_AArADz2wjRff-EdD4pkSGNB-NxKYu4L7l3P3g5nTuAQ7cCRrnAt2Vyy8Hslg2PpPGbk1yC8CZdIv4acymxjkpdQy27G6K5Jr64h5HQ0WnxDkIlYj_wkxjEnnKd2kUYPlcjrDHFJQ7ONQz_wyg3K7JK3jwCd6B--W1-pULxCjRTe73NDFvERGjL8639LFiyvLyWIZZeX2RTAc73U3vVwdTi_FMftISJcECCYw_s6IgoJ4tpDKuLqBZB2TmKiSNNBjXkKh2vt9Ihj03VozQ0EwF7rkyUMcO8hJjK_qJzMWEgfIQA3qti1R3VNdppAbAq7GDHh73vkdf4KfN2TKZPh2b73opOVkyqYjv26DLgujORh4NhAhdqu0RNLHyTCO9a4g-k=",
+          "functionCall": {
+            "id": "adk-7f2cebc4-91a2-4d97-887d-5ef58382ee4b",
+            "args": {
+              "target_date": "2019-12-26"
+            },
+            "name": "search_invoices_by_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4456
+        }
+      ],
+      "cachedContentTokenCount": 4456,
+      "candidatesTokenCount": 20,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 20
+        }
+      ],
+      "promptTokenCount": 4965,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4965
+        }
+      ],
+      "thoughtsTokenCount": 176,
+      "totalTokenCount": 5161,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-1da97e06-cb9a-4f3e-93d3-5b90e677d9ae",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "fd17f4ad-890e-4769-9fa7-293e6a0601c4",
+    "timestamp": 1757048320.990657
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-7f2cebc4-91a2-4d97-887d-5ef58382ee4b",
+            "name": "search_invoices_by_date",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-1da97e06-cb9a-4f3e-93d3-5b90e677d9ae",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "a50c0c82-e47a-4e3a-bcde-adf20eec8a6a",
+    "timestamp": 1757048322.794816
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "No se encontraron facturas para el 26 de diciembre de 2019. ¿Hay alguna otra fecha que te interese?"
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4331
+        }
+      ],
+      "cachedContentTokenCount": 4331,
+      "candidatesTokenCount": 28,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 28
+        }
+      ],
+      "promptTokenCount": 5001,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5001
+        }
+      ],
+      "totalTokenCount": 5029,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-1da97e06-cb9a-4f3e-93d3-5b90e677d9ae",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "e9c679ff-b818-4075-8405-961ba64bb3cb",
+    "timestamp": 1757048322.801779
+  }
+]

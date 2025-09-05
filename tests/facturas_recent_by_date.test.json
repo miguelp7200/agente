@@ -1,0 +1,56 @@
+{
+    "name": "Test: Búsqueda de Facturas Más Recientes",
+    "description": "Valida la herramienta search_invoices_recent_by_date con datos reales. Busca las 10 facturas más recientes del sistema ordenadas por fecha descendente. Debe incluir facturas de 2025, 2024, etc., en orden cronológico inverso.",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_recent_by_date",
+            "args": {
+                "limit_count": 10
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "2025",
+            "2024",
+            "facturas más recientes",
+            "ordenadas por fecha",
+            "proxy",
+            "fecha"
+        ],
+        "should_not_contain": [
+            "error",
+            "disculpa",
+            "lo siento",
+            "2017",
+            "2018"
+        ]
+    },
+    "metadata": {
+        "category": "search_recent",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "validation_data": {
+            "expected_limit": 10,
+            "expected_years": [
+                "2025",
+                "2024",
+                "2023"
+            ],
+            "ordering": "fecha DESC, Factura DESC",
+            "excluded_years": [
+                "2017",
+                "2018"
+            ]
+        },
+        "test_criteria": {
+            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "date_ordering": "Facturas ordenadas por fecha más reciente primero",
+            "limit_functionality": "Exactamente 10 facturas o menos",
+            "response_format": "JSON con estructura de facturas esperada",
+            "recent_dates": "Debe incluir fechas de 2024-2025 si existen",
+            "chronological_order": "Fechas en orden descendente (más nueva -> más vieja)"
+        }
+    },
+    "query": "Dame las 10 facturas más recientes"
+}

@@ -1,0 +1,126 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Cr4CAcu98PAaZTHZbRC1_NSp-fttbW0pqn8DVBSq7r-vuxme06HguzIpKNLZ6NUS0Mt7KXgpjgqwFaW-qKEc8Y8wAgA8jd0Q1eut-Bi3EIsEE_tCqx4eMBE2Ih0fkVqN-tOP7hUZ3oGg5GQW8-9VcoGsYRvHiDT1Dk-s32l4pCgPwpNwy3jDklMfPsZFWzVgqJODY_5TpM5N1s25BnwSFye0X52P5d30Gex9scvbepiSo5We_HISZ7U2tE8b_RWyk4hvJut4X3HYBj5y4o0IgtQK1tctUHqPEvBh4fhllWkS9NKvEPtzZ0lzq4VHVOPMO06VqrtUwisd7BTx779lQpN197NPYd6oooUWa6PSSWV_iwSMipM4SrSKGQEGa2WQgEqBAJnTrBgZNgfBoj8xV4zRT93VLfDTb8v6wLz_jLoI",
+          "functionCall": {
+            "id": "adk-c6870967-3d68-40b6-be00-2b57f9588a88",
+            "args": {
+              "rut_list": "9025012-4,76341146-K"
+            },
+            "name": "search_invoices_by_multiple_ruts"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4458
+        }
+      ],
+      "cachedContentTokenCount": 4458,
+      "candidatesTokenCount": 33,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 33
+        }
+      ],
+      "promptTokenCount": 4974,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4974
+        }
+      ],
+      "thoughtsTokenCount": 68,
+      "totalTokenCount": 5075,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-868fbb66-5598-46b5-bc49-4c97f6262196",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "4e49f6a8-b3d7-4bcd-8d96-76b562173090",
+    "timestamp": 1757048436.155576
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-c6870967-3d68-40b6-be00-2b57f9588a88",
+            "name": "search_invoices_by_multiple_ruts",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-868fbb66-5598-46b5-bc49-4c97f6262196",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "9095dcab-787c-40b8-af43-0a3b23e5001a",
+    "timestamp": 1757048437.970906
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "No se encontraron facturas para los RUTs especificados. Por favor, verifica los números e intenta de nuevo."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4404
+        }
+      ],
+      "cachedContentTokenCount": 4404,
+      "candidatesTokenCount": 22,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22
+        }
+      ],
+      "promptTokenCount": 5026,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5026
+        }
+      ],
+      "totalTokenCount": 5048,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-868fbb66-5598-46b5-bc49-4c97f6262196",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "1dfecb92-0c7b-4ce1-9a63-f728efad30bf",
+    "timestamp": 1757048437.97824
+  }
+]

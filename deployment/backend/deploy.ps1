@@ -141,7 +141,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Success "Imagen subida exitosamente"
 
-# 5. Desplegar en Cloud Run
+# 5. Desplegar en Cloud Run (primera pasada)
 Write-Info "Desplegando en Cloud Run..."
 $deployArgs = @(
     "run", "deploy", $SERVICE_NAME,
@@ -162,16 +162,42 @@ $deployArgs = @(
 
 & gcloud @deployArgs
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "Error en deployment a Cloud Run"
+    Write-Error "Error en deployment inicial a Cloud Run"
     exit 1
 }
-Write-Success "Deployment completado"
+Write-Success "Deployment inicial completado"
 
-# 6. Obtener URL del servicio
+# 6. Obtener URL del servicio y redesplegar con configuración correcta
 Write-Info "Obteniendo URL del servicio..."
 $SERVICE_URL = gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(status.url)" 2>$null
 if ($SERVICE_URL) {
     Write-Success "Servicio disponible en: $SERVICE_URL"
+    
+    # 6.1. Redesplegar con URL correcta configurada
+    Write-Info "Reconfigurando con URL correcta..."
+    $deployArgsWithUrl = @(
+        "run", "deploy", $SERVICE_NAME,
+        "--image", $FULL_IMAGE_NAME,
+        "--region", $REGION,
+        "--project", $PROJECT_ID,
+        "--allow-unauthenticated",
+        "--port", "8080",
+        "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true,CLOUD_RUN_SERVICE_URL=$SERVICE_URL",
+        "--service-account", $SERVICE_ACCOUNT,
+        "--memory", "2Gi",
+        "--cpu", "2",
+        "--timeout", "3600s",
+        "--max-instances", "10",
+        "--concurrency", "10",
+        "--quiet"
+    )
+    
+    & gcloud @deployArgsWithUrl
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Error en reconfiguración a Cloud Run"
+        exit 1
+    }
+    Write-Success "Deployment completado"
 }
 else {
     Write-Warning "No se pudo obtener URL del servicio"
@@ -181,10 +207,12 @@ else {
 if (-not $SkipTests -and $SERVICE_URL) {
     Write-Info "Ejecutando pruebas de validación..."
     
-    # Health check
+    # Health check usando endpoint existente
     try {
         Start-Sleep -Seconds 10  # Esperar que el servicio inicie
-        $response = Invoke-WebRequest -Uri "$SERVICE_URL/health" -TimeoutSec 30 -ErrorAction SilentlyContinue
+        $token = gcloud auth print-identity-token 2>$null
+        $headers = @{ "Authorization" = "Bearer $token" }
+        $response = Invoke-WebRequest -Uri "$SERVICE_URL/list-apps" -Headers $headers -TimeoutSec 30 -ErrorAction SilentlyContinue
         if ($response.StatusCode -eq 200) {
             Write-Success "Health check: OK"
         }

@@ -1,0 +1,138 @@
+{
+    "name": "Invoice Chatbot Evaluation Set",
+    "description": "Conjunto completo de tests para validar funcionalidad del chatbot de facturas",
+    "version": "1.0",
+    "created_date": "2025-08-22",
+    "evals": [
+        {
+            "id": "eval_001",
+            "name": "Búsqueda básica por solicitante",
+            "turns": [
+                {
+                    "user_query": "Puedes darme la factura cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "search_invoices_by_proveedor",
+                            "args": {
+                                "proveedor_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "He encontrado la factura 0101195693 del solicitante 0012148561. El cliente es ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9). Puedes descargar el PDF en: http://localhost:8011/invoice/0101195693.pdf"
+                }
+            ]
+        },
+        {
+            "id": "eval_002",
+            "name": "Búsqueda de PDF específico - Cedible CF",
+            "turns": [
+                {
+                    "user_query": "Puedes darme la factura cedible cf cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "get_multiple_pdf_downloads",
+                            "args": {
+                                "solicitante_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "Para el solicitante 0012148561, encontré la factura 0101195693 con copia cedible con firma disponible. Cliente: ALEJANDRO ROMILIO LARA BUSTOS. Enlace de descarga: http://localhost:8011/gcs?url=gs://miguel-test/descargas/0101195693/Copia_Cedible_cf.pdf"
+                }
+            ]
+        },
+        {
+            "id": "eval_003",
+            "name": "Búsqueda de PDF específico - Tributaria CF",
+            "turns": [
+                {
+                    "user_query": "Puedes darme la factura tributaria cf cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "get_multiple_pdf_downloads",
+                            "args": {
+                                "solicitante_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "Para el solicitante 0012148561, encontré la factura 0101195693 con copia tributaria con firma disponible. Cliente: ALEJANDRO ROMILIO LARA BUSTOS. Enlace de descarga directo disponible."
+                }
+            ]
+        },
+        {
+            "id": "eval_004",
+            "name": "Búsqueda de PDF específico - Tributaria SF",
+            "turns": [
+                {
+                    "user_query": "Puedes darme la factura tributaria sf cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "get_multiple_pdf_downloads",
+                            "args": {
+                                "solicitante_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "Para el solicitante 0012148561, encontré la factura 0101195693 con copia tributaria sin firma disponible."
+                }
+            ]
+        },
+        {
+            "id": "eval_005",
+            "name": "Búsqueda múltiple - Todas tributarias",
+            "turns": [
+                {
+                    "user_query": "Puedes darme las facturas tributaria cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "get_multiple_pdf_downloads",
+                            "args": {
+                                "solicitante_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "Para el solicitante 0012148561, encontré facturas tributarias disponibles: Factura 0101195693 - Cliente: ALEJANDRO ROMILIO LARA BUSTOS. Disponible tanto con firma como sin firma."
+                }
+            ]
+        },
+        {
+            "id": "eval_006",
+            "name": "Búsqueda de PDF específico - Cedible SF",
+            "turns": [
+                {
+                    "user_query": "Puedes darme la factura cedible sf cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "get_multiple_pdf_downloads",
+                            "args": {
+                                "solicitante_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "Para el solicitante 0012148561, encontré la factura 0101195693 con copia cedible sin firma disponible."
+                }
+            ]
+        },
+        {
+            "id": "eval_007",
+            "name": "Búsqueda múltiple - Todas cedibles",
+            "turns": [
+                {
+                    "user_query": "Puedes darme las facturas cedibles cuyo solicitante es 0012148561?",
+                    "expected_tool_use": [
+                        {
+                            "tool_name": "get_multiple_pdf_downloads",
+                            "args": {
+                                "solicitante_code": "0012148561"
+                            }
+                        }
+                    ],
+                    "reference_response": "Para el solicitante 0012148561, encontré facturas cedibles disponibles: Factura 0101195693 - Cliente: ALEJANDRO ROMILIO LARA BUSTOS. Disponible tanto con firma como sin firma."
+                }
+            ]
+        }
+    ],
+    "criteria": {
+        "tool_trajectory_avg_score": 1.0,
+        "response_match_score": 0.8
+    }
+}

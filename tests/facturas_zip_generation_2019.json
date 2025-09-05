@@ -1,0 +1,17 @@
+{
+    "test_name": "test_zip_generation_2019",
+    "description": "Test para generar ZIP automático al obtener facturas del año 2019 (debería superar ZIP_THRESHOLD=5)",
+    "query": "Obtén todas las facturas del año 2019",
+    "expected_behavior": {
+        "should_trigger_zip": true,
+        "reason": "Las facturas de 2019 deberían ser más de 5 (ZIP_THRESHOLD), activando creación automática de ZIP",
+        "zip_should_contain": "Todas las facturas encontradas del año 2019"
+    },
+    "validation_steps": [
+        "1. Ejecutar query para obtener facturas de 2019",
+        "2. Verificar que el número de facturas > ZIP_THRESHOLD (5)",
+        "3. Confirmar que se ejecuta create_standard_zip automáticamente", 
+        "4. Validar que se crea archivo ZIP en bucket agent-intelligence-zips",
+        "5. Verificar registro en tabla zip_packages de BigQuery"
+    ]
+}

@@ -1,0 +1,44 @@
+{
+    "name": "Test: Búsqueda por fecha específica 2019-12-26",
+    "description": "Verifica que el chatbot puede encontrar facturas de una fecha específica usando la nueva herramienta search_invoices_by_date",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_date",
+            "args": {
+                "target_date": "2019-12-26"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "0101546183",
+            "MARIA ENRIQUETA TORRES ROJAS",
+            "9025012-4",
+            "descarga"
+        ],
+        "should_not_contain": [
+            "no encontré",
+            "error",
+            "disculpa",
+            "no pude",
+            "lo siento"
+        ]
+    },
+    "metadata": {
+        "category": "search_by_date",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "related_tools": [
+            "search_invoices_by_date"
+        ],
+        "test_data": {
+            "sample_date": "2019-12-26",
+            "expected_facturas": [
+                "0101546183"
+            ],
+            "expected_cliente": "MARIA ENRIQUETA TORRES ROJAS",
+            "expected_rut": "9025012-4"
+        }
+    },
+    "query": "Puedes darme las facturas del 26 de diciembre de 2019?"
+}

@@ -1,0 +1,126 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CtkDAcu98PBAyxuqjYpQkxypl7-1-evAr0CRfKBSu1dUNvDPyJO-VQnMYYQ21NZ668PLXEWOymLh0R3WKYoVxxmAlPWK3H7dde0QYkEHp9byJahAy93t_qOdoVpWiJVYORMu8I0jZGTaueBVqON48oN6-x9ZsPnWll9zUe5d4dMzhVoMaOF1LjZMunDf6XSH3vA5NZfrXhVXEuwbMvuUKmiNOqk8nogFsMZbNprLotNQTxOqf0kxqw52KegIS1LTahnSLniwxqgyKudKAMrZkMaz8USF_Uw_MjX-azV2joPsnNwyFNYKC2ltlYrItvJ6eJKhuoamvCzAeaBF54q66v6GzLBTbPgQlfZYe_LM8vWA2LKBz2SfMOZGoeZR5_UXGuc7N0yGAwbZ-4igmGQ815IfFxk9EFzFvR4CTdnv4gP9mqges2o26ZIQvmS-FIiBF9saNRzXWqVnR66Hrm1A63hppfnB62gaJoOlgc2vx3NyFYv5mW2udheQNlsdSKtMCUGIXmwQaI0eYnBBVGCI1z7sXG091usi9AGKUL9gOFD8GAPndGvkWXPjrzZVHjsAzXMrytlPI2j8ZTkdmNBJwSGPda1dG4SYbHhkN3jXa8hSzcXGC8__Kc3a7Tw=",
+          "functionCall": {
+            "id": "adk-63805803-dbc9-4dd2-bcd3-11bffc358d21",
+            "args": {
+              "solicitante_code": "0012148561"
+            },
+            "name": "get_cedibles_by_solicitante"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4457
+        }
+      ],
+      "cachedContentTokenCount": 4457,
+      "candidatesTokenCount": 23,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 23
+        }
+      ],
+      "promptTokenCount": 4970,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4970
+        }
+      ],
+      "thoughtsTokenCount": 128,
+      "totalTokenCount": 5121,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-ec88709a-914f-4cc9-aee5-c61b66d7f3ae",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "af68eedc-1d92-45be-af35-750e2a5a5ddb",
+    "timestamp": 1757048293.230617
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-63805803-dbc9-4dd2-bcd3-11bffc358d21",
+            "name": "get_cedibles_by_solicitante",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-ec88709a-914f-4cc9-aee5-c61b66d7f3ae",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "c3d6c215-f46e-4d31-9c69-8b20b18d5a60",
+    "timestamp": 1757048295.028744
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "No se encontraron facturas cedibles para el solicitante 0012148561."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4363
+        }
+      ],
+      "cachedContentTokenCount": 4363,
+      "candidatesTokenCount": 22,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22
+        }
+      ],
+      "promptTokenCount": 5011,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5011
+        }
+      ],
+      "totalTokenCount": 5033,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-ec88709a-914f-4cc9-aee5-c61b66d7f3ae",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "0ed1a1a4-a52e-4244-9835-3758dd897302",
+    "timestamp": 1757048295.037125
+  }
+]

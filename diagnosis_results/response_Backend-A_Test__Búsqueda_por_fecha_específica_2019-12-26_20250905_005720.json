@@ -1,0 +1,126 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Cs8FAcu98PB3BmatTZoN2Jw2sf-IJb2DjKpy8ZuN6l4yaVC2ODnARUxR_fpNEFz9yEEDiwZY3DbQERJFeaqhmOELUfHrY8Ppf4KYAkApHjpf8bMpkCu3xdRpsmg7uSHRI6rmuSIUCeMcz6rqFAvNMwE6gzzEDlG5pOiI7xu4R0W8zUcF0Wj0xbE5-t52vzo_v__OPEWV6XVKK6WFX_IDMgt5n9tWLrmZcD6l3Dfc5ZCOge5Tfmh5wONJV-n_YVESVX2-lai2OEqdOfJzoVSjs85c4Dne-zRXxWP7glhf1cGdGO7dzIsnFI-7QmAVWHtQR5_wFFhN54y7hgbPvGGJcI_MX-HTTKa7cdKFTnWy3GmHQNhOmJdmQqITteNlkLbc3rOjJXmwNeC87OVqUgwBGIv0qzdspao642lEaQ39MdQNbAApEzVT_Im6iYRuv6mf20E21L1XY1xTCGVDnUqSmL3jqOYGkXOkisgK8cxiePicQq1sLKvNOelwC68Gxdqysma2MsIVK0BJzZAwfb6D-V6xCbH3DQrC-e3Hyoex7Jy7OOuVJxdjEHMkyuiLrfRY-aU_0QYrUpV6iwNcDUDZ0rymkzFvIEuLa5pa0F_6TRClCjcZTXupoPuu4-UVS5McKdQShOPGKFuRo3XVieJp4zQDwqqmoorA6rhHothRxydbZGIDfCZDsd86VDyiuU6qpeyLgwfYGCdKbDAcV7E9psT2jGmAuAMvo8wMyep5C_ZF9Dt1dujcewNr6gPopOXOBOO250SNPfn_PRAdLKrqRLhB7DBWpl_uPsPZjPlNybzBoeu1-DU1dBQsAGAO6kQ8RjRzNqqQIa0LYtaxilytBhzaCfLYuSLLy6eMSlJnNgKIPD_Utfoav7ZUJKf-af2v9jttpZAPRl95wwDDrCIQtwtKI1x2EUpaQPbO_oGhYKsaxjzhQRDvi2LV8jr2D0yQEjw=",
+          "functionCall": {
+            "id": "adk-0ec9dc6e-72f6-4cd5-82ce-973657e60e7e",
+            "args": {
+              "target_date": "2019-12-26"
+            },
+            "name": "search_invoices_by_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4456
+        }
+      ],
+      "cachedContentTokenCount": 4456,
+      "candidatesTokenCount": 20,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 20
+        }
+      ],
+      "promptTokenCount": 4965,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4965
+        }
+      ],
+      "thoughtsTokenCount": 213,
+      "totalTokenCount": 5198,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-16707b22-995d-475f-b3c0-9cd66b1dea44",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "45d8201d-a21f-41f5-b4e3-09e607fb6960",
+    "timestamp": 1757048317.258391
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-0ec9dc6e-72f6-4cd5-82ce-973657e60e7e",
+            "name": "search_invoices_by_date",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-16707b22-995d-475f-b3c0-9cd66b1dea44",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "a91b4a36-ffbb-42be-9ce4-238ba601f691",
+    "timestamp": 1757048319.770353
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "No se encontraron facturas para el 26 de diciembre de 2019. ¿Hay alguna otra fecha que te interese?"
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4309
+        }
+      ],
+      "cachedContentTokenCount": 4309,
+      "candidatesTokenCount": 28,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 28
+        }
+      ],
+      "promptTokenCount": 5001,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5001
+        }
+      ],
+      "totalTokenCount": 5029,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-16707b22-995d-475f-b3c0-9cd66b1dea44",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "e11eaa57-9853-487a-966f-da30aa7adee1",
+    "timestamp": 1757048319.777685
+  }
+]

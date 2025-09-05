@@ -1,0 +1,62 @@
+{
+    "name": "Test: Búsqueda por Múltiples RUTs",
+    "description": "Valida la herramienta search_invoices_by_multiple_ruts con datos reales. Busca facturas de múltiples RUTs conocidos: 9025012-4 (MARIA ENRIQUETA TORRES ROJAS) y 76341146-K (PANADERIA MIRYAM ROMERO JARPA E.I.R). Utiliza funciones UNNEST y SPLIT para procesar la lista.",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_multiple_ruts",
+            "args": {
+                "rut_list": "9025012-4,76341146-K"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "9025012-4",
+            "76341146-K",
+            "MARIA ENRIQUETA TORRES ROJAS",
+            "PANADERIA MIRYAM ROMERO JARPA E.I.R",
+            "0101546183",
+            "0103560272",
+            "proxy"
+        ],
+        "should_not_contain": [
+            "error",
+            "disculpa",
+            "lo siento",
+            "4911410-9",
+            "8086093-5"
+        ]
+    },
+    "metadata": {
+        "category": "search_multiple_ruts",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "validation_data": {
+            "expected_ruts": [
+                "9025012-4",
+                "76341146-K"
+            ],
+            "expected_clientes": [
+                "MARIA ENRIQUETA TORRES ROJAS",
+                "PANADERIA MIRYAM ROMERO JARPA E.I.R"
+            ],
+            "expected_facturas": [
+                "0101546183",
+                "0103560272"
+            ],
+            "excluded_ruts": [
+                "4911410-9",
+                "8086093-5"
+            ]
+        },
+        "test_criteria": {
+            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "rut_filtering": "Solo facturas de RUTs específicos en la lista",
+            "unnest_split": "Usar UNNEST(SPLIT(@rut_list, ','))",
+            "response_format": "JSON con estructura de facturas esperada",
+            "expected_count": "Al menos 2 facturas (una por cada RUT)",
+            "ordering": "Agrupadas por RUT, ordenadas por fecha DESC"
+        }
+    },
+    "query": "Busca facturas de los RUTs 9025012-4,76341146-K"
+}

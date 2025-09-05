@@ -1,0 +1,63 @@
+{
+    "test_id": "tarea_25_estadisticas_ruts_unicos",
+    "test_name": "Tarea 25: Estadísticas de RUTs únicos - get_unique_ruts_statistics",
+    "description": "Valida que la herramienta get_unique_ruts_statistics retorne estadísticas agregadas correctas de RUTs únicos con conteo de facturas, fechas y solicitantes.",
+    "query": "Dame estadísticas de los RUTs con más facturas, mostrando al menos 2 facturas por RUT",
+    "expected_tool": "get_unique_ruts_statistics",
+    "expected_parameters": {
+        "min_facturas": 2,
+        "limit_ruts": 20
+    },
+    "validation_criteria": {
+        "structure": {
+            "response_type": "array_of_objects",
+            "required_fields": [
+                "Rut",
+                "total_facturas",
+                "primera_factura",
+                "ultima_factura",
+                "solicitantes_distintos"
+            ],
+            "expected_field_types": {
+                "Rut": "string",
+                "total_facturas": "integer",
+                "primera_factura": "date_string",
+                "ultima_factura": "date_string",
+                "solicitantes_distintos": "integer"
+            }
+        },
+        "business_logic": {
+            "min_records": 1,
+            "max_records": 20,
+            "total_facturas_validation": ">=2",
+            "date_range_validation": "primera_factura <= ultima_factura",
+            "rut_format_validation": "contains hyphen and checksum digit"
+        },
+        "data_integrity": {
+            "order_validation": "ordered by total_facturas DESC",
+            "rut_uniqueness": "all Rut values should be unique",
+            "no_null_ruts": "no Rut should be NULL or empty"
+        }
+    },
+    "known_valid_data": {
+        "expected_high_volume_ruts": [
+            "9025012-4",
+            "76341146-K",
+            "4911410-9",
+            "61958500-3"
+        ],
+        "validation_notes": "RUTs con múltiples facturas validados en tests anteriores"
+    },
+    "success_criteria": [
+        "✅ Retorna al menos 1 RUT con estadísticas",
+        "✅ Todos los RUTs tienen al menos 2 facturas (min_facturas=2)",
+        "✅ Fechas primera_factura <= ultima_factura",
+        "✅ Campos total_facturas y solicitantes_distintos son números positivos",
+        "✅ RUTs ordenados por total_facturas descendente",
+        "✅ Estructura JSON correcta con campos requeridos"
+    ],
+    "test_type": "statistics_aggregation",
+    "expected_execution_time": "< 5 segundos",
+    "date_created": "2025-08-25",
+    "validation_status": "pending"
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CpoFAcu98PByZd0T6ZPLdhXdzqzR1KH5YCDtdz_pIAhwDOaRfQIBgy9N2J0ARYall0DZ3cNiqeX6ZJmk7lZPjAhShn4tPv3dRv45rdYXtiGYNK1Crn9Ud2WyrWiPpu56SOZqhaKFC1n5E3CTgqp0iT_WAUx3nRNhzWh1KXRuL58mTIl2PIDe98exuhh72V6M4a0-i71oR7vK_ZCZvHYE3DvZlynk4mez3f8h5a-PO5djjXEqX3zIWzgBneBzFH9RMk4nK9TDbBG02glmhB0AG61kwzKrHM3V35_TYD_J6HAgh4fCgTBuUAgBnlg3Qmq5mOV5doFEzQ_r5tOd9fhxqama1_3CVhI5DBoWSgE0MdP3DFnTgKE1lHINucLGuCIKryWlBMUDe-KidpApzpZk3AZDCK4_0Ygbrbd7Le8aNI5BwJfw52LF0nClh_kAJiC0li-krm-VXJ0hOAYvTpHuaMJazMAjrxthJifz38Db6b9Jh_4ObsDxI6LQ36pDFLodbXLf4S6WVXbC01KcQqWpnrbJWaNRZV8Ueck78cfaTQlGQ0gAc5AXtOJOaQ-9fgGnDpan4DdHHZyAnWArodrFPpxurac1YzMc_TIH5kTV_L4i_2KIPJyZmVmXlhKnukOh1dwL7SX535OGYZ4Q-chabyFm31jm0KXAKdk7tiOAs32nS9SdxjCDXEspIFM9N79UhPtGGzwpKtI6Y-nL_nPxo7YHaKHp192FEPR5Co_0kzHgSdRyd-N-QeTteHquqUJVZ62Zmas-wlpsnGA1SzUFe2OmePrLr6XOGtIC3tSL6TimkfgeknHZcxcSrmEzjNEIoJPvHzeURqHE2l97QQl74f_tJsQPsm-bgZMCdhbBVRx-hVe7_cfAnhD2VnG0",
+          "functionCall": {
+            "id": "adk-ad8fc664-85a4-48d9-8a65-2397e314aa58",
+            "args": {
+              "min_facturas": 2
+            },
+            "name": "get_unique_ruts_statistics"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4455
+        }
+      ],
+      "cachedContentTokenCount": 4455,
+      "candidatesTokenCount": 13,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 13
+        }
+      ],
+      "promptTokenCount": 4965,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4965
+        }
+      ],
+      "thoughtsTokenCount": 156,
+      "totalTokenCount": 5134,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-e25ccb87-f984-4b64-b318-5ae29f14edcd",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "32a14000-06d8-4a41-864a-92fcc659de25",
+    "timestamp": 1757047729.321131
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-ad8fc664-85a4-48d9-8a65-2397e314aa58",
+            "name": "get_unique_ruts_statistics",
+            "response": {
+              "result": "[{\"Rut\":\"76742300-4\",\"primera_factura\":\"2020-06-02\",\"solicitantes_distintos\":6,\"total_facturas\":15,\"ultima_factura\":\"2021-06-23\"},{\"Rut\":\"90227000-0\",\"primera_factura\":\"2019-01-04\",\"solicitantes_distintos\":2,\"total_facturas\":3,\"ultima_factura\":\"2025-02-24\"},{\"Rut\":\"96568740-8\",\"primera_factura\":\"2020-07-29\",\"solicitantes_distintos\":3,\"total_facturas\":3,\"ultima_factura\":\"2024-12-19\"},{\"Rut\":\"61602280-6\",\"primera_factura\":\"2018-01-31\",\"solicitantes_distintos\":1,\"total_facturas\":3,\"ultima_factura\":\"2024-02-29\"},{\"Rut\":\"77219332-7\",\"primera_factura\":\"2023-04-11\",\"solicitantes_distintos\":2,\"total_facturas\":2,\"ultima_factura\":\"2025-06-30\"},{\"Rut\":\"12176862-3\",\"primera_factura\":\"2021-09-03\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2024-12-26\"},{\"Rut\":\"76533605-8\",\"primera_factura\":\"2021-06-01\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2024-08-09\"},{\"Rut\":\"10572742-9\",\"primera_factura\":\"2024-05-20\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2024-07-24\"},{\"Rut\":\"76043981-9\",\"primera_factura\":\"2020-07-08\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2024-05-10\"},{\"Rut\":\"77717085-6\",\"primera_factura\":\"2023-07-27\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2024-03-20\"},{\"Rut\":\"76668215-4\",\"primera_factura\":\"2023-11-16\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2024-01-04\"},{\"Rut\":\"11372739-K\",\"primera_factura\":\"2021-10-06\",\"solicitantes_distintos\":2,\"total_facturas\":2,\"ultima_factura\":\"2023-11-30\"},{\"Rut\":\"76279975-8\",\"primera_factura\":\"2023-08-12\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2023-10-26\"},{\"Rut\":\"10078118-2\",\"primera_factura\":\"2021-05-05\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2023-08-16\"},{\"Rut\":\"12861756-6\",\"primera_factura\":\"2020-03-24\",\"solicitantes_distintos\":2,\"total_facturas\":2,\"ultima_factura\":\"2023-06-19\"},{\"Rut\":\"61703000-4\",\"primera_factura\":\"2019-04-11\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2021-10-29\"},{\"Rut\":\"12242236-4\",\"primera_factura\":\"2020-06-19\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2020-07-23\"},{\"Rut\":\"23655075-3\",\"primera_factura\":\"2018-01-24\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2020-01-22\"},{\"Rut\":\"5075451-0\",\"primera_factura\":\"2018-11-22\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2019-09-21\"},{\"Rut\":\"82557000-4\",\"primera_factura\":\"2018-12-10\",\"solicitantes_distintos\":1,\"total_facturas\":2,\"ultima_factura\":\"2019-06-08\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-e25ccb87-f984-4b64-b318-5ae29f14edcd",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "0d410703-e782-4c9e-b509-f482764147a7",
+    "timestamp": 1757047731.319786
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CvEEAcu98PCebmIzopt3AKWIgNyIWNwQboADi0jl7dDvhgMAdm41LW7LHDUhGLCthAU-NozENfDso3_EqmlLQKP-cFxBUndFyiNrEOjWgq3LfewuenF-Y_15z_D-ESjNOH9Uox65jK4U5ZAWY3ubPPDJgKgpP8t-wwNu-9nt3mmDLS6CUkytyxgQRt22JjNLiTi0LU6-8qEmtoIeqlMvM1TDncpa0VLCFT30z4PnnZzbgJTv2WobZXEQp296N6A1V0gDwvQTzbLD70dr9ffWfQVvIxpKYU_1G6xEOB5-Xh1ONRnLDrNP1yfLqJBFcZMC5moWcCzCqsqG4uQw0B-suJDbqRNTnrDVSTr0TQptvAhEFyCvh1j9G3Fg5owYEySEPBOOr4h6WmKZFAtSBDDZGJL7sB1cMJyLw5vaLoahaCt7yJmhUL5dv_SuRQ7Tk003RxlftIoEgVMopLbPe18khjTfs5AbdzMxkuEbNeqKG9zjpKSyTBawTzlajZC7KLsPaoKrkLTGiBh-plEVuLlw7LBncVDq3RdB57L-OJwzE0MBN9kSTBOWsT7g5XyMQbjtaaVckIs4RfvCLS7tQWtVlHenr30p-QaLFIgHCa0PVm7AA6WvMcfsEiZA-HUov1JW5ChKyu-ICBfhQisfjzW0GRbBYNXmlGq0lfgs37YWMWC5RFjwqSv6AS24kL3jm7kmlkrT4YlpJo-p0oMKqcKbwJVOCKcmJG19KRmqPSZsCp-wm2B9dFsdBoUUI9Q84pM23p5EhoIKktzn18OFxSCeS2DM64zs2S0GtxWQuZx7bURSfKBsYs9I2w85-xQDtIerdhluFA==",
+          "text": "Aquí tienes las estadísticas de los RUTs con al menos 2 facturas:\n\n*   **Rut**: 76742300-4, **Total Facturas**: 15\n*   **Rut**: 90227000-0, **Total Facturas**: 3\n*   **Rut**: 96568740-8, **Total Facturas**: 3\n*   **Rut**: 61602280-6, **Total Facturas**: 3\n*   **Rut**: 77219332-7, **Total Facturas**: 2\n*   **Rut**: 12176862-3, **Total Facturas**: 2\n*   **Rut**: 76533605-8, **Total Facturas**: 2\n*   **Rut**: 10572742-9, **Total Facturas**: 2\n*   **Rut**: 76043981-9, **Total Facturas**: 2\n*   **Rut**: 77717085-6, **Total Facturas**: 2\n*   **Rut**: 76668215-4, **Total Facturas**: 2\n*   **Rut**: 11372739-K, **Total Facturas**: 2\n*   **Rut**: 76279975-8, **Total Facturas**: 2\n*   **Rut**: 10078118-2, **Total Facturas**: 2\n*   **Rut**: 12861756-6, **Total Facturas**: 2\n*   **Rut**: 61703000-4, **Total Facturas**: 2\n*   **Rut**: 12242236-4, **Total Facturas**: 2\n*   **Rut**: 23655075-3, **Total Facturas**: 2\n*   **Rut**: 5075451-0, **Total Facturas**: 2\n*   **Rut**: 82557000-4, **Total Facturas**: 2"
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4545
+        }
+      ],
+      "cachedContentTokenCount": 4545,
+      "candidatesTokenCount": 515,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 515
+        }
+      ],
+      "promptTokenCount": 6169,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 6169
+        }
+      ],
+      "thoughtsTokenCount": 139,
+      "totalTokenCount": 6823,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-e25ccb87-f984-4b64-b318-5ae29f14edcd",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "66386dbb-632d-4f48-81f2-bdfce81aaf8a",
+    "timestamp": 1757047731.327891
+  }
+]

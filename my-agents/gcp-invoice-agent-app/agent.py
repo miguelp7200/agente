@@ -454,17 +454,44 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     if not pdf_urls_list:
         return {"success": False, "error": "No se proporcionaron URLs de PDF."}
     
+    # Obtener credenciales impersonadas para firmar URLs (igual que en ZIP function)
+    try:
+        credentials, project = google.auth.default()
+        service_account_email = _get_service_account_email()
+        
+        target_scopes = ['https://www.googleapis.com/auth/cloud-platform']
+        target_credentials = impersonated_credentials.Credentials(
+            source_credentials=credentials,
+            target_principal=service_account_email,
+            target_scopes=target_scopes,
+        )
+        
+        storage_client = storage.Client(credentials=target_credentials)
+    except Exception as e:
+        print(f"❌ [LINKS INDIVIDUALES] Error configurando credenciales: {e}")
+        return {"success": False, "error": f"Error de autenticación: {e}"}
+    
     secure_links = []
-    storage_client = storage.Client()
 
     for gs_url in pdf_urls_list:
         try:
-            if not gs_url.startswith("gs://"):
+            # Extraer URL gs:// real del proxy si es necesario
+            actual_gs_url = gs_url
+            if gs_url.startswith("http") and "gcs?url=" in gs_url:
+                # URL de proxy: https://backend/gcs?url=gs://bucket/path
+                import urllib.parse
+                parsed_url = urllib.parse.urlparse(gs_url)
+                query_params = urllib.parse.parse_qs(parsed_url.query)
+                if 'url' in query_params:
+                    actual_gs_url = query_params['url'][0]
+                    print(f"🔄 [LINKS INDIVIDUALES] Extraída URL gs:// del proxy: {actual_gs_url}")
+            
+            if not actual_gs_url.startswith("gs://"):
                 print(f"⚠️ [LINKS INDIVIDUALES] URL no válida, se omite: {gs_url}")
                 continue
             
             # Extraer bucket y blob path de la URL gs://
-            parts = gs_url.replace("gs://", "").split("/", 1)
+            parts = actual_gs_url.replace("gs://", "").split("/", 1)
             bucket_name = parts[0]
             blob_name = parts[1]
             
@@ -472,7 +499,7 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             blob = bucket.blob(blob_name)
             
             if not blob.exists():
-                print(f"⚠️ [LINKS INDIVIDUALES] Objeto no encontrado: {gs_url}")
+                print(f"⚠️ [LINKS INDIVIDUALES] Objeto no encontrado: {actual_gs_url}")
                 continue
 
             # Generar URL firmada
@@ -483,10 +510,10 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 method="GET"
             )
             secure_links.append(signed_url)
-            print(f"✅ [LINKS INDIVIDUALES] URL generada para: {gs_url}")
+            print(f"✅ [LINKS INDIVIDUALES] URL generada para: {actual_gs_url}")
 
         except Exception as e:
-            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
+            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {actual_gs_url}: {e}")
             
     if not secure_links:
         return {"success": False, "error": "No se pudo generar ninguna URL de descarga segura."}

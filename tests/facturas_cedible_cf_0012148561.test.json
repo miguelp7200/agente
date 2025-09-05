@@ -1,0 +1,32 @@
+{
+    "name": "Test: Factura cedible CF por solicitante 0012148561",
+    "description": "Verifica que el chatbot puede encontrar facturas cedible con firma por solicitante",
+    "expected_trajectory": [
+        {
+            "tool_name": "get_multiple_pdf_downloads",
+            "args": {
+                "solicitante_code": "0012148561"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "cedible",
+            "con firma",
+            "0101195693",
+            "localhost:8011",
+            "descarga"
+        ],
+        "should_not_contain": [
+            "no encontré",
+            "error",
+            "disculpa"
+        ]
+    },
+    "metadata": {
+        "category": "search_by_pdf_type",
+        "priority": "high",
+        "created_date": "2025-08-22"
+    },
+    "query": "Puedes darme la factura cedible cf cuyo solicitante es 0012148561?"
+}

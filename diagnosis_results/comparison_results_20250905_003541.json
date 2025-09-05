@@ -1,0 +1,131 @@
+{
+  "statistics": {
+    "backendB": {
+      "averageResponseTime": 0,
+      "urlTypes": {
+        "hybrid": 0,
+        "signed": 0,
+        "other": 0,
+        "proxy": 0,
+        "zip": 0
+      },
+      "successfulTests": 0,
+      "totalTests": 10
+    },
+    "backendA": {
+      "averageResponseTime": 0,
+      "urlTypes": {
+        "hybrid": 0,
+        "signed": 0,
+        "other": 0,
+        "proxy": 0,
+        "zip": 0
+      },
+      "successfulTests": 0,
+      "totalTests": 10
+    }
+  },
+  "metadata": {
+    "backendB": "https://invoice-backend-819133916464.us-central1.run.app",
+    "timestamp": "20250905_003541",
+    "summary": {},
+    "totalTests": 10,
+    "backendA": "https://invoice-backend-yuhrx5x2ra-uc.a.run.app"
+  },
+  "recommendations": [
+    "⚠️ ADVERTENCIA: Ambos backends muestran comportamiento similar",
+    "⚡ Backend B es más rápido en promedio"
+  ],
+  "results": [
+    {
+      "category": "unknown",
+      "file": "estadisticas_ruts_unicos.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Dame estadísticas de los RUTs con más facturas, mostrando al menos 2 facturas por RUT",
+      "testName": "estadisticas_ruts_unicos.test",
+      "comparison": {}
+    },
+    {
+      "category": "search_by_pdf_type",
+      "file": "facturas_cedible_cf_0012148561.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Puedes darme la factura cedible cf cuyo solicitante es 0012148561?",
+      "testName": "Test: Factura cedible CF por solicitante 0012148561",
+      "comparison": {}
+    },
+    {
+      "category": "search_by_pdf_type",
+      "file": "facturas_cedible_sf_0012148561.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Puedes darme la factura cedible sf cuyo solicitante es 0012148561?",
+      "testName": "Test: Factura cedible SF por solicitante 0012148561",
+      "comparison": {}
+    },
+    {
+      "category": "search_multiple_pdfs",
+      "file": "facturas_cedibles_multiples_0012148561.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Puedes darme las facturas cedibles cuyo solicitante es 0012148561?",
+      "testName": "Test: Facturas cedibles múltiples por solicitante 0012148561",
+      "comparison": {}
+    },
+    {
+      "category": "unknown",
+      "file": "facturas_estadisticas_ruts.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Dame estadísticas de RUTs únicos: cuántas facturas tiene cada RUT, mínimo 1 factura, máximo 10 resultados",
+      "testName": "facturas_estadisticas_ruts.test",
+      "comparison": {}
+    },
+    {
+      "category": "search_by_date",
+      "file": "facturas_fecha_especifica_2019-12-26.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Puedes darme las facturas del 26 de diciembre de 2019?",
+      "testName": "Test: Búsqueda por fecha específica 2019-12-26",
+      "comparison": {}
+    },
+    {
+      "category": "search_month_year",
+      "file": "facturas_mes_year_diciembre_2019.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Busca facturas de diciembre 2019",
+      "testName": "Test: Búsqueda por Mes y Año Específico",
+      "comparison": {}
+    },
+    {
+      "category": "search_multiple_ruts",
+      "file": "facturas_multiple_ruts.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Busca facturas de los RUTs 9025012-4,76341146-K",
+      "testName": "Test: Búsqueda por Múltiples RUTs",
+      "comparison": {}
+    },
+    {
+      "category": "search_by_date_range",
+      "file": "facturas_rango_fechas_diciembre_2019.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Puedes darme las facturas entre el 1 de diciembre de 2019 y el 31 de diciembre de 2019?",
+      "testName": "Test: Búsqueda por rango de fechas diciembre 2019",
+      "comparison": {}
+    },
+    {
+      "category": "search_recent",
+      "file": "facturas_recent_by_date.test.json",
+      "backendA": {},
+      "backendB": {},
+      "query": "Dame las 10 facturas más recientes",
+      "testName": "Test: Búsqueda de Facturas Más Recientes",
+      "comparison": {}
+    }
+  ]
+}

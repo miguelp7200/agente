@@ -1,0 +1,47 @@
+{
+    "name": "Test: Búsqueda por rango de fechas diciembre 2019",
+    "description": "Verifica que el chatbot puede encontrar facturas en un rango de fechas usando la nueva herramienta search_invoices_by_date_range",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_date_range",
+            "args": {
+                "start_date": "2019-12-01",
+                "end_date": "2019-12-31"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "0101546183",
+            "MARIA ENRIQUETA TORRES ROJAS",
+            "2019-12",
+            "descarga",
+            "http://localhost:8011"
+        ],
+        "should_not_contain": [
+            "no encontré",
+            "error",
+            "disculpa",
+            "no pude",
+            "lo siento"
+        ]
+    },
+    "metadata": {
+        "category": "search_by_date_range",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "related_tools": [
+            "search_invoices_by_date_range"
+        ],
+        "test_data": {
+            "start_date": "2019-12-01",
+            "end_date": "2019-12-31",
+            "expected_facturas": [
+                "0101546183"
+            ],
+            "expected_cliente": "MARIA ENRIQUETA TORRES ROJAS",
+            "expected_month": "diciembre 2019"
+        }
+    },
+    "query": "Puedes darme las facturas entre el 1 de diciembre de 2019 y el 31 de diciembre de 2019?"
+}

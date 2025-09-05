@@ -1,0 +1,31 @@
+{
+    "name": "Test: Factura por solicitante 0012148561",
+    "description": "Verifica que el chatbot puede encontrar facturas por código de solicitante específico",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_proveedor",
+            "args": {
+                "proveedor_code": "0012148561"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "0101195693",
+            "ALEJANDRO ROMILIO LARA BUSTOS",
+            "11240427-9",
+            "descarga"
+        ],
+        "should_not_contain": [
+            "no encontré",
+            "error",
+            "disculpa"
+        ]
+    },
+    "metadata": {
+        "category": "search_by_solicitante",
+        "priority": "high",
+        "created_date": "2025-08-22"
+    },
+    "query": "Puedes darme la factura cuyo solicitante es 0012148561?"
+}

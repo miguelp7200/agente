@@ -1,0 +1,58 @@
+{
+    "name": "Test: Búsqueda por Mes y Año Específico",
+    "description": "Valida la herramienta search_invoices_by_month_year con datos reales. Busca facturas de diciembre 2019 usando funciones EXTRACT. Sabemos que existen varias facturas en diciembre 2019, incluyendo la 0101546183 del 26-dic-2019.",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_month_year",
+            "args": {
+                "target_year": 2019,
+                "target_month": 12
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "0101546183",
+            "MARIA ENRIQUETA TORRES ROJAS",
+            "2019-12-26",
+            "diciembre",
+            "2019",
+            "proxy"
+        ],
+        "should_not_contain": [
+            "error",
+            "disculpa",
+            "lo siento",
+            "2018",
+            "2020",
+            "enero",
+            "noviembre"
+        ]
+    },
+    "metadata": {
+        "category": "search_month_year",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "validation_data": {
+            "expected_year": 2019,
+            "expected_month": 12,
+            "expected_facturas": [
+                "0101546183"
+            ],
+            "expected_clientes": [
+                "MARIA ENRIQUETA TORRES ROJAS"
+            ],
+            "expected_ruts": [
+                "9025012-4"
+            ]
+        },
+        "test_criteria": {
+            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "date_filtering": "Solo facturas de diciembre 2019",
+            "extract_functions": "Usar EXTRACT(YEAR) y EXTRACT(MONTH)",
+            "response_format": "JSON con estructura de facturas esperada",
+            "expected_count": "Al menos 1 factura esperada"
+        }
+    },
+    "query": "Busca facturas de diciembre 2019"
+}

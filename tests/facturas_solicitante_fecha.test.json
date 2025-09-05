@@ -1,0 +1,49 @@
+{
+    "name": "Test: Búsqueda por Solicitante + Rango de Fechas",
+    "description": "Valida la herramienta search_invoices_by_solicitante_and_date_range con datos reales. Busca facturas del solicitante 0012436838 en diciembre 2019. Sabemos que existe al menos una factura 0101546183 de MARIA ENRIQUETA TORRES ROJAS del 26-dic-2019.",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_solicitante_and_date_range",
+            "args": {
+                "solicitante": "0012436838",
+                "start_date": "2019-12-01",
+                "end_date": "2019-12-31"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "0101546183",
+            "MARIA ENRIQUETA TORRES ROJAS",
+            "9025012-4",
+            "0012436838",
+            "2019-12-26",
+            "proxy"
+        ],
+        "should_not_contain": [
+            "error",
+            "disculpa",
+            "lo siento"
+        ]
+    },
+    "metadata": {
+        "category": "search_combined",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "validation_data": {
+            "expected_solicitante": "0012436838",
+            "expected_cliente": "MARIA ENRIQUETA TORRES ROJAS",
+            "expected_rut": "9025012-4",
+            "expected_factura": "0101546183",
+            "expected_fecha": "2019-12-26"
+        },
+        "test_criteria": {
+            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "date_filtering": "Solo facturas entre 2019-12-01 y 2019-12-31",
+            "solicitante_filtering": "Solo facturas del solicitante 0012436838",
+            "response_format": "JSON con estructura de facturas esperada",
+            "order": "Ordenadas por fecha DESC, Factura DESC"
+        }
+    },
+    "query": "Busca facturas del solicitante 0012436838 en diciembre 2019"
+}

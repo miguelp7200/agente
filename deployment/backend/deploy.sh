@@ -118,7 +118,7 @@ if ! docker push "$FULL_IMAGE_NAME"; then
 fi
 log_success "Imagen subida exitosamente"
 
-# 5. Desplegar en Cloud Run
+# 5. Desplegar en Cloud Run (primera pasada)
 log_info "Desplegando en Cloud Run..."
 if ! gcloud run deploy "$SERVICE_NAME" \
     --image "$FULL_IMAGE_NAME" \
@@ -134,15 +134,36 @@ if ! gcloud run deploy "$SERVICE_NAME" \
     --max-instances 10 \
     --concurrency 10 \
     --quiet; then
-    log_error "Error en deployment a Cloud Run"
+    log_error "Error en deployment inicial a Cloud Run"
     exit 1
 fi
-log_success "Deployment completado"
+log_success "Deployment inicial completado"
 
-# 6. Obtener URL del servicio
+# 6. Obtener URL del servicio y redesplegar con configuración correcta
 log_info "Obteniendo URL del servicio..."
 if SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" --region="$REGION" --project="$PROJECT_ID" --format="value(status.url)" 2>/dev/null); then
     log_success "Servicio disponible en: $SERVICE_URL"
+    
+    # 6.1. Redesplegar con URL correcta configurada
+    log_info "Reconfigurando con URL correcta..."
+    if ! gcloud run deploy "$SERVICE_NAME" \
+        --image "$FULL_IMAGE_NAME" \
+        --region "$REGION" \
+        --project "$PROJECT_ID" \
+        --allow-unauthenticated \
+        --port 8080 \
+        --set-env-vars "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true,CLOUD_RUN_SERVICE_URL=$SERVICE_URL" \
+        --service-account "$SERVICE_ACCOUNT" \
+        --memory 2Gi \
+        --cpu 2 \
+        --timeout 3600s \
+        --max-instances 10 \
+        --concurrency 10 \
+        --quiet; then
+        log_error "Error en reconfiguración a Cloud Run"
+        exit 1
+    fi
+    log_success "Deployment completado"
 else
     log_warning "No se pudo obtener URL del servicio"
 fi
@@ -154,12 +175,16 @@ if [ "$SKIP_TESTS" = false ] && [ -n "$SERVICE_URL" ]; then
     # Esperar a que el servicio inicie
     sleep 10
     
-    # Health check
+    # Health check usando endpoint existente
     log_info "Probando health check..."
-    if curl -f -s "$SERVICE_URL/health" > /dev/null; then
-        log_success "Health check: OK"
+    if token=$(gcloud auth print-identity-token 2>/dev/null) && [ -n "$token" ]; then
+        if curl -f -s -H "Authorization: Bearer $token" "$SERVICE_URL/list-apps" > /dev/null; then
+            log_success "Health check: OK"
+        else
+            log_warning "Health check falló o no disponible"
+        fi
     else
-        log_warning "Health check falló o no disponible"
+        log_warning "No se pudo obtener token de autenticación para health check"
     fi
     
     # Test básico del chatbot

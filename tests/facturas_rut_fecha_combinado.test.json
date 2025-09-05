@@ -1,0 +1,46 @@
+{
+    "name": "Test: Búsqueda Combinada RUT + Rango de Fechas",
+    "description": "Valida la herramienta search_invoices_by_rut_and_date_range con datos reales. Busca facturas del RUT 9025012-4 (MARIA ENRIQUETA TORRES ROJAS) en diciembre 2019. Sabemos que existe al menos una factura 0101546183 del 26-dic-2019.",
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_rut_and_date_range",
+            "args": {
+                "target_rut": "9025012-4",
+                "start_date": "2019-12-01",
+                "end_date": "2019-12-31"
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "0101546183",
+            "MARIA ENRIQUETA TORRES ROJAS",
+            "9025012-4",
+            "2019-12-26",
+            "proxy"
+        ],
+        "should_not_contain": [
+            "error",
+            "disculpa",
+            "lo siento"
+        ]
+    },
+    "metadata": {
+        "category": "search_combined",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "validation_data": {
+            "expected_rut": "9025012-4",
+            "expected_cliente": "MARIA ENRIQUETA TORRES ROJAS",
+            "expected_factura": "0101546183",
+            "expected_fecha": "2019-12-26",
+            "expected_solicitante": "0012436838"
+        },
+        "test_criteria": {
+            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "data_accuracy": "RUT y fecha deben coincidir exactamente",
+            "response_format": "JSON con estructura de facturas esperada"
+        }
+    },
+    "query": "Busca facturas del RUT 9025012-4 en diciembre 2019"
+}
