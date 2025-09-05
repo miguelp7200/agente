@@ -1,0 +1,128 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CqUCAcu98PCU5LVd4alCFyqQbsXVJSmUspwKv-4blvR8VpaOdEEsakmsksYdQnfy0Bvddk6ujT8K3g5UEJOc3_Z8VJSRHbVNuhxcbSfS-NmbkYYF0AeAjA5pN0tQKpbXi-4knVqN0S4iif1qfNmwzY5X10pGnnf8jrgW9N9ogw0J73Hwyz2G36-mMLeG2ng9Ez09eLo0ECPNd0iW9zPorMJpiPgYZ79Vnx9FC58IPq3zb5Eh9QEzSf67YQMwJg8GLQrHzxhnnuw7uLxlMbvqF_5Lg6e9N0nZfQDiHGGQRnaplJnyVqelTkIDesrXdWXK1PWesBrY2UnifBuyNsx2ImGJy_hYm6HD7As5qi6DRbePYILrIqW-wZKhdvuV6VFmO_1ceNUz75g=",
+          "functionCall": {
+            "id": "adk-ff3b012c-003a-4394-b391-854a0a9ca05b",
+            "args": {
+              "rut_list": "9025012-4,76341146-K"
+            },
+            "name": "search_invoices_by_multiple_ruts"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4458
+        }
+      ],
+      "cachedContentTokenCount": 4458,
+      "candidatesTokenCount": 33,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 33
+        }
+      ],
+      "promptTokenCount": 4974,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4974
+        }
+      ],
+      "thoughtsTokenCount": 63,
+      "totalTokenCount": 5070,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-f53d27cb-679f-44a1-ad3f-ba490f534dc6",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "267ed820-d2dd-4b32-a3e9-221a7ec447dd",
+    "timestamp": 1757049933.038816
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-ff3b012c-003a-4394-b391-854a0a9ca05b",
+            "name": "search_invoices_by_multiple_ruts",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-f53d27cb-679f-44a1-ad3f-ba490f534dc6",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "9342a768-52b2-4c7b-826f-fece6ae1bf70",
+    "timestamp": 1757049934.468768
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CuIBAcu98PCk55AIyygYWZ_6TDnDf6RUoHCBbITerUW0Q4mkgByX-hNRjMbKefGGTBpDBC35-5DAZ1rLW8u0bUnhTnsl0JQn4lQ_TvWCs4U4SVChoJL_UhlDVYX5MZxt80hP0I94t_zdUHwAPp7M_OttlPH_ZT6DAwovx2o28G53epO5u5HhKNJuAtrkV0id0lLxn_rWYBAcMZhbAsyQQEmHID6McpEa4OBiIizY2pTSW7qPVYqrq6VpZjafULc9BkJxkh4JKC4HknePrnEi2Z6kjBBqeyqYe_njCn-UcKnxbCjXFQ==",
+          "text": "No se encontraron facturas para los RUTs 9025012-4,76341146-K."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4407
+        }
+      ],
+      "cachedContentTokenCount": 4407,
+      "candidatesTokenCount": 30,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 30
+        }
+      ],
+      "promptTokenCount": 5026,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5026
+        }
+      ],
+      "thoughtsTokenCount": 49,
+      "totalTokenCount": 5105,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-f53d27cb-679f-44a1-ad3f-ba490f534dc6",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "8c5780c6-c5f5-473a-bca3-28351b0bde86",
+    "timestamp": 1757049934.476833
+  }
+]

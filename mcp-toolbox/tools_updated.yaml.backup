@@ -54,27 +54,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -106,27 +106,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -158,27 +158,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -214,27 +214,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -275,27 +275,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -332,27 +332,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -385,27 +385,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -469,27 +469,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -523,27 +523,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy
       FROM
@@ -577,27 +577,27 @@ tools:
         DetallesFactura,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as Copia_Tributaria_cf_proxy,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as Copia_Cedible_cf_proxy,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as Copia_Tributaria_sf_proxy,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as Copia_Cedible_sf_proxy,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as Doc_Termico_proxy,
         CASE 
@@ -793,27 +793,27 @@ tools:
         Nombre,
         CASE 
           WHEN Copia_Tributaria_cf IS NOT NULL 
-          THEN Copia_Tributaria_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf)
           ELSE NULL
         END as tributaria_cf_url,
         CASE 
           WHEN Copia_Cedible_cf IS NOT NULL 
-          THEN Copia_Cedible_cf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf)
           ELSE NULL
         END as cedible_cf_url,
         CASE 
           WHEN Copia_Tributaria_sf IS NOT NULL 
-          THEN Copia_Tributaria_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf)
           ELSE NULL
         END as tributaria_sf_url,
         CASE 
           WHEN Copia_Cedible_sf IS NOT NULL 
-          THEN Copia_Cedible_sf
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf)
           ELSE NULL
         END as cedible_sf_url,
         CASE 
           WHEN Doc_Termico IS NOT NULL 
-          THEN Doc_Termico
+          THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico)
           ELSE NULL
         END as termico_url,
         CONCAT(
@@ -852,19 +852,19 @@ tools:
         Nombre,
         -- Enlaces directos para cada tipo de PDF
         CASE WHEN Copia_Tributaria_cf IS NOT NULL 
-             THEN Copia_Tributaria_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf) 
              ELSE NULL END as tributaria_con_firma_url,
         CASE WHEN Copia_Cedible_cf IS NOT NULL 
-             THEN Copia_Cedible_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf) 
              ELSE NULL END as cedible_con_firma_url,
         CASE WHEN Copia_Tributaria_sf IS NOT NULL 
-             THEN Copia_Tributaria_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf) 
              ELSE NULL END as tributaria_sin_firma_url,
         CASE WHEN Copia_Cedible_sf IS NOT NULL 
-             THEN Copia_Cedible_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf) 
              ELSE NULL END as cedible_sin_firma_url,
         CASE WHEN Doc_Termico IS NOT NULL 
-             THEN Doc_Termico 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico) 
              ELSE NULL END as documento_termico_url,
         -- Contador de PDFs disponibles
         (CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 1 ELSE 0 END +
@@ -1064,7 +1064,7 @@ tools:
         Solicitante,
         Rut,
         Nombre,
-        Copia_Cedible_cf as cedible_cf_url,
+        CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf) as cedible_cf_url,
         'Copia Cedible Con Firma' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
@@ -1092,7 +1092,7 @@ tools:
         Solicitante,
         Rut,
         Nombre,
-        Copia_Cedible_sf as cedible_sf_url,
+        CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf) as cedible_sf_url,
         'Copia Cedible Sin Firma' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
@@ -1120,7 +1120,7 @@ tools:
         Solicitante,
         Rut,
         Nombre,
-        Copia_Tributaria_cf as tributaria_cf_url,
+        CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf) as tributaria_cf_url,
         'Copia Tributaria Con Firma' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
@@ -1148,7 +1148,7 @@ tools:
         Solicitante,
         Rut,
         Nombre,
-        Copia_Tributaria_sf as tributaria_sf_url,
+        CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf) as tributaria_sf_url,
         'Copia Tributaria Sin Firma' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
@@ -1177,10 +1177,10 @@ tools:
         Rut,
         Nombre,
         CASE WHEN Copia_Tributaria_cf IS NOT NULL 
-             THEN Copia_Tributaria_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf) 
              ELSE NULL END as tributaria_cf_url,
         CASE WHEN Copia_Tributaria_sf IS NOT NULL 
-             THEN Copia_Tributaria_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf) 
              ELSE NULL END as tributaria_sf_url,
         CONCAT(
           CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Tributaria Con Firma ' ELSE '' END,
@@ -1216,10 +1216,10 @@ tools:
         Rut,
         Nombre,
         CASE WHEN Copia_Cedible_cf IS NOT NULL 
-             THEN Copia_Cedible_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf) 
              ELSE NULL END as cedible_cf_url,
         CASE WHEN Copia_Cedible_sf IS NOT NULL 
-             THEN Copia_Cedible_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf) 
              ELSE NULL END as cedible_sf_url,
         CONCAT(
           CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 'Cedible Con Firma ' ELSE '' END,
@@ -1257,19 +1257,19 @@ tools:
         fecha,
         DetallesFactura,
         CASE WHEN Copia_Cedible_cf IS NOT NULL 
-             THEN Copia_Cedible_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf) 
              ELSE NULL END as Copia_Cedible_cf_proxy,
         CASE WHEN Copia_Cedible_sf IS NOT NULL 
-             THEN Copia_Cedible_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf) 
              ELSE NULL END as Copia_Cedible_sf_proxy,
         CASE WHEN Copia_Tributaria_cf IS NOT NULL 
-             THEN Copia_Tributaria_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf) 
              ELSE NULL END as Copia_Tributaria_cf_proxy,
         CASE WHEN Copia_Tributaria_sf IS NOT NULL 
-             THEN Copia_Tributaria_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf) 
              ELSE NULL END as Copia_Tributaria_sf_proxy,
         CASE WHEN Doc_Termico IS NOT NULL 
-             THEN Doc_Termico 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico) 
              ELSE NULL END as Doc_Termico_proxy
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
@@ -1366,19 +1366,19 @@ tools:
         fecha,
         valor_total_calculado,
         CASE WHEN Copia_Cedible_cf IS NOT NULL 
-             THEN Copia_Cedible_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_cf) 
              ELSE NULL END as Copia_Cedible_cf_proxy,
         CASE WHEN Copia_Cedible_sf IS NOT NULL 
-             THEN Copia_Cedible_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Cedible_sf) 
              ELSE NULL END as Copia_Cedible_sf_proxy,
         CASE WHEN Copia_Tributaria_cf IS NOT NULL 
-             THEN Copia_Tributaria_cf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_cf) 
              ELSE NULL END as Copia_Tributaria_cf_proxy,
         CASE WHEN Copia_Tributaria_sf IS NOT NULL 
-             THEN Copia_Tributaria_sf 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Copia_Tributaria_sf) 
              ELSE NULL END as Copia_Tributaria_sf_proxy,
         CASE WHEN Doc_Termico IS NOT NULL 
-             THEN Doc_Termico 
+             THEN CONCAT('https://invoice-backend-819133916464.us-central1.run.app/gcs?url=', Doc_Termico) 
              ELSE NULL END as Doc_Termico_proxy,
         REGEXP_EXTRACT(Copia_Tributaria_cf, r'[^/]+$') AS archivo_pdf_nombre
       FROM

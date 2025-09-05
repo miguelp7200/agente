@@ -1,0 +1,724 @@
+{
+  "statistics": {
+    "backendB": {
+      "urlTypes": {
+        "proxy": 17,
+        "zip": 1,
+        "hybrid": 0,
+        "signed": 17,
+        "other": 0
+      },
+      "totalTests": 10,
+      "successfulTests": 10,
+      "averageResponseTime": 11457.29013
+    },
+    "backendA": {
+      "urlTypes": {
+        "proxy": 17,
+        "zip": 0,
+        "hybrid": 0,
+        "signed": 4,
+        "other": 1
+      },
+      "totalTests": 10,
+      "successfulTests": 10,
+      "averageResponseTime": 7659.88101
+    }
+  },
+  "results": [
+    {
+      "testName": "estadisticas_ruts_unicos.test",
+      "file": "estadisticas_ruts_unicos.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes las estadísticas de los RUTs con 2 o más facturas:\n\n*   **RUT: 76742300-4**\n    *   Total de facturas: 15\n    *   Primera factura: 2020-06-02\n    *   Última factura: 2021-06-23\n    *   Solicitantes distintos: 6\n\n*   **RUT: 90227000-0**\n    *   Total de facturas: 3\n    *   Primera factura: 2019-01-04\n    *   Última factura: 2025-02-24\n    *   Solicitantes distintos: 2\n\n*   **RUT: 96568740-8**\n    *   Total de facturas: 3\n    *   Primera factura: 2020-07-29\n    *   Última factura: 2024-12-19\n    *   Solicitantes distintos: 3\n\n*   **RUT: 61602280-6**\n    *   Total de facturas: 3\n    *   Primera factura: 2018-01-31\n    *   Última factura: 2024-02-29\n    *   Solicitantes distintos: 1\n\n*   **RUT: 77219332-7**\n    *   Total de facturas: 2\n    *   Primera factura: 2023-04-11\n    *   Última factura: 2025-06-30\n    *   Solicitantes distintos: 2\n\n*   **RUT: 12176862-3**\n    *   Total de facturas: 2\n    *   Primera factura: 2021-09-03\n    *   Última factura: 2024-12-26\n    *   Solicitantes distintos: 1\n\n*   **RUT: 76533605-8**\n    *   Total de facturas: 2\n    *   Primera factura: 2021-06-01\n    *   Última factura: 2024-08-09\n    *   Solicitantes distintos: 1\n\n*   **RUT: 10572742-9**\n    *   Total de facturas: 2\n    *   Primera factura: 2024-05-20\n    *   Última factura: 2024-07-24\n    *   Solicitantes distintos: 1\n\n*   **RUT: 76043981-9**\n    *   Total de facturas: 2\n    *   Primera factura: 2020-07-08\n    *   Última factura: 2024-05-10\n    *   Solicitantes distintos: 1\n\n*   **RUT: 77717085-6**\n    *   Total de facturas: 2\n    *   Primera factura: 2023-07-27\n    *   Última factura: 2024-03-20\n    *   Solicitantes distintos: 1\n\n*   **RUT: 76668215-4**\n    *   Total de facturas: 2\n    *   Primera factura: 2023-11-16\n    *   Última factura: 2024-01-04\n    *   Solicitantes distintos: 1\n\n*   **RUT: 11372739-K**\n    *   Total de facturas: 2\n    *   Primera factura: 2021-10-06\n    *   Última factura: 2023-11-30\n    *   Solicitantes distintos: 2\n\n*   **RUT: 76279975-8**\n    *   Total de facturas: 2\n    *   Primera factura: 2023-08-12\n    *   Última factura: 2023-10-26\n    *   Solicitantes distintos: 1\n\n*   **RUT: 10078118-2**\n    *   Total de facturas: 2\n    *   Primera factura: 2021-05-05\n    *   Última factura: 2023-08-16\n    *   Solicitantes distintos: 1\n\n*   **RUT: 12861756-6**\n    *   Total de facturas: 2\n    *   Primera factura: 2020-03-24\n    *   Última factura: 2023-06-19\n    *   Solicitantes distintos: 2\n\n*   **RUT: 61703000-4**\n    *   Total de facturas: 2\n    *   Primera factura: 2019-04-11\n    *   Última factura: 2021-10-29\n    *   Solicitantes distintos: 1\n\n*   **RUT: 12242236-4**\n    *   Total de facturas: 2\n    *   Primera factura: 2020-06-19\n    *   Última factura: 2020-07-23\n    *   Solicitantes distintos: 1\n\n*   **RUT: 23655075-3**\n    *   Total de facturas: 2\n    *   Primera factura: 2018-01-24\n    *   Última factura: 2020-01-22\n    *   Solicitantes distintos: 1\n\n*   **RUT: 5075451-0**\n    *   Total de facturas: 2\n    *   Primera factura: 2018-11-22\n    *   Última factura: 2019-09-21\n    *   Solicitantes distintos: 1\n\n*   **RUT: 82557000-4**\n    *   Total de facturas: 2\n    *   Primera factura: 2018-12-10\n    *   Última factura: 2019-06-08\n    *   Solicitantes distintos: 1"
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          8901.7252
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Dame estadísticas de los RUTs con más facturas, mostrando al menos 2 facturas por RUT",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes las estadísticas de los RUTs con 2 o más facturas:\n\n*   **RUT:** 76742300-4\n    *   Primera factura: 2020-06-02\n    *   Última factura: 2021-06-23\n    *   Solicitantes distintos: 6\n    *   Total de facturas: 15\n\n*   **RUT:** 90227000-0\n    *   Primera factura: 2019-01-04\n    *   Última factura: 2025-02-24\n    *   Solicitantes distintos: 2\n    *   Total de facturas: 3\n\n*   **RUT:** 96568740-8\n    *   Primera factura: 2020-07-29\n    *   Última factura: 2024-12-19\n    *   Solicitantes distintos: 3\n    *   Total de facturas: 3\n\n*   **RUT:** 61602280-6\n    *   Primera factura: 2018-01-31\n    *   Última factura: 2024-02-29\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 3\n\n*   **RUT:** 77219332-7\n    *   Primera factura: 2023-04-11\n    *   Última factura: 2025-06-30\n    *   Solicitantes distintos: 2\n    *   Total de facturas: 2\n\n*   **RUT:** 12176862-3\n    *   Primera factura: 2021-09-03\n    *   Última factura: 2024-12-26\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 76533605-8\n    *   Primera factura: 2021-06-01\n    *   Última factura: 2024-08-09\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 10572742-9\n    *   Primera factura: 2024-05-20\n    *   Última factura: 2024-07-24\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 76043981-9\n    *   Primera factura: 2020-07-08\n    *   Última factura: 2024-05-10\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 77717085-6\n    *   Primera factura: 2023-07-27\n    *   Última factura: 2024-03-20\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 76668215-4\n    *   Primera factura: 2023-11-16\n    *   Última factura: 2024-01-04\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 11372739-K\n    *   Primera factura: 2021-10-06\n    *   Última factura: 2023-11-30\n    *   Solicitantes distintos: 2\n    *   Total de facturas: 2\n\n*   **RUT:** 76279975-8\n    *   Primera factura: 2023-08-12\n    *   Última factura: 2023-10-26\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 10078118-2\n    *   Primera factura: 2021-05-05\n    *   Última factura: 2023-08-16\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 12861756-6\n    *   Primera factura: 2020-03-24\n    *   Última factura: 2023-06-19\n    *   Solicitantes distintos: 2\n    *   Total de facturas: 2\n\n*   **RUT:** 61703000-4\n    *   Primera factura: 2019-04-11\n    *   Última factura: 2021-10-29\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 12242236-4\n    *   Primera factura: 2020-06-19\n    *   Última factura: 2020-07-23\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 23655075-3\n    *   Primera factura: 2018-01-24\n    *   Última factura: 2020-01-22\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 5075451-0\n    *   Primera factura: 2018-11-22\n    *   Última factura: 2019-09-21\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2\n\n*   **RUT:** 82557000-4\n    *   Primera factura: 2018-12-10\n    *   Última factura: 2019-06-08\n    *   Solicitantes distintos: 1\n    *   Total de facturas: 2"
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          7470.6274
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "unknown",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "Test: Factura cedible CF por solicitante 0012148561",
+      "file": "facturas_cedible_cf_0012148561.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas cedibles con firma para el solicitante 0012148561."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2556.3959
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Puedes darme la factura cedible cf cuyo solicitante es 0012148561?",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas cedibles con firma para el solicitante 0012148561."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2348.5499
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_by_pdf_type",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "Test: Factura cedible SF por solicitante 0012148561",
+      "file": "facturas_cedible_sf_0012148561.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas cedibles sin firma para el solicitante 0012148561."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2412.7508
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Puedes darme la factura cedible sf cuyo solicitante es 0012148561?",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No pude encontrar ninguna factura cedible sin firma para el solicitante 0012148561."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2305.7471
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_by_pdf_type",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "Test: Facturas cedibles múltiples por solicitante 0012148561",
+      "file": "facturas_cedibles_multiples_0012148561.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas cedibles para el solicitante 0012148561."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2577.5577
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Puedes darme las facturas cedibles cuyo solicitante es 0012148561?",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas cedibles para el solicitante 0012148561."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2827.5001
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_multiple_pdfs",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "facturas_estadisticas_ruts.test",
+      "file": "facturas_estadisticas_ruts.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes las estadísticas de los 10 RUTs únicos con al menos 1 factura, ordenados por total de facturas de forma descendente:\n\n*   **RUT:** 76742300-4\n    *   **Primera factura:** 2020-06-02\n    *   **Solicitantes distintos:** 6\n    *   **Total facturas:** 15\n    *   **Última factura:** 2021-06-23\n\n*   **RUT:** 90227000-0\n    *   **Primera factura:** 2019-01-04\n    *   **Solicitantes distintos:** 2\n    *   **Total facturas:** 3\n    *   **Última factura:** 2025-02-24\n\n*   **RUT:** 96568740-8\n    *   **Primera factura:** 2020-07-29\n    *   **Solicitantes distintos:** 3\n    *   **Total facturas:** 3\n    *   **Última factura:** 2024-12-19\n\n*   **RUT:** 61602280-6\n    *   **Primera factura:** 2018-01-31\n    *   **Solicitantes distintos:** 1\n    *   **Total facturas:** 3\n    *   **Última factura:** 2024-02-29\n\n*   **RUT:** 77219332-7\n    *   **Primera factura:** 2023-04-11\n    *   **Solicitantes distintos:** 2\n    *   **Total facturas:** 2\n    *   **Última factura:** 2025-06-30\n\n*   **RUT:** 12176862-3\n    *   **Primera factura:** 2021-09-03\n    *   **Solicitantes distintos:** 1\n    *   **Total facturas:** 2\n    *   **Última factura:** 2024-12-26\n\n*   **RUT:** 76533605-8\n    *   **Primera factura:** 2021-06-01\n    *   **Solicitantes distintos:** 1\n    *   **Total facturas:** 2\n    *   **Última factura:** 2024-08-09\n\n*   **RUT:** 10572742-9\n    *   **Primera factura:** 2024-05-20\n    *   **Solicitantes distintos:** 1\n    *   **Total facturas:** 2\n    *   **Última factura:** 2024-07-24\n\n*   **RUT:** 76043981-9\n    *   **Primera factura:** 2020-07-08\n    *   **Solicitantes distintos:** 1\n    *   **Total facturas:** 2\n    *   **Última factura:** 2024-05-10\n\n*   **RUT:** 77717085-6\n    *   **Primera factura:** 2023-07-27\n    *   **Solicitantes distintos:** 1\n    *   **Total facturas:** 2\n    *   **Última factura:** 2024-03-20"
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          6234.9782
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Dame estadísticas de RUTs únicos: cuántas facturas tiene cada RUT, mínimo 1 factura, máximo 10 resultados",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes las estadísticas de los 10 RUTs únicos con al menos 1 factura:\n\n*   **RUT: 76742300-4**\n    *   Primera factura: 2020-06-02\n    *   Última factura: 2021-06-23\n    *   Solicitantes distintos: 6\n    *   Total facturas: 15\n*   **RUT: 90227000-0**\n    *   Primera factura: 2019-01-04\n    *   Última factura: 2025-02-24\n    *   Solicitantes distintos: 2\n    *   Total facturas: 3\n*   **RUT: 96568740-8**\n    *   Primera factura: 2020-07-29\n    *   Última factura: 2024-12-19\n    *   Solicitantes distintos: 3\n    *   Total facturas: 3\n*   **RUT: 61602280-6**\n    *   Primera factura: 2018-01-31\n    *   Última factura: 2024-02-29\n    *   Solicitantes distintos: 1\n    *   Total facturas: 3\n*   **RUT: 77219332-7**\n    *   Primera factura: 2023-04-11\n    *   Última factura: 2025-06-30\n    *   Solicitantes distintos: 2\n    *   Total facturas: 2\n*   **RUT: 12176862-3**\n    *   Primera factura: 2021-09-03\n    *   Última factura: 2024-12-26\n    *   Solicitantes distintos: 1\n    *   Total facturas: 2\n*   **RUT: 76533605-8**\n    *   Primera factura: 2021-06-01\n    *   Última factura: 2024-08-09\n    *   Solicitantes distintos: 1\n    *   Total facturas: 2\n*   **RUT: 10572742-9**\n    *   Primera factura: 2024-05-20\n    *   Última factura: 2024-07-24\n    *   Solicitantes distintos: 1\n    *   Total facturas: 2\n*   **RUT: 76043981-9**\n    *   Primera factura: 2020-07-08\n    *   Última factura: 2024-05-10\n    *   Solicitantes distintos: 1\n    *   Total facturas: 2\n*   **RUT: 77717085-6**\n    *   Primera factura: 2023-07-27\n    *   Última factura: 2024-03-20\n    *   Solicitantes distintos: 1\n    *   Total facturas: 2"
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          4602.9907
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "unknown",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "Test: Búsqueda por fecha específica 2019-12-26",
+      "file": "facturas_fecha_especifica_2019-12-26.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas para el 26 de diciembre de 2019. ¿Hay alguna otra fecha que te interese?"
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2478.2474
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Puedes darme las facturas del 26 de diciembre de 2019?",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No pude encontrar ninguna factura para el 26 de diciembre de 2019. ¿Hay alguna otra fecha que te interese?"
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2714.5938
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_by_date",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "Test: Búsqueda por Mes y Año Específico",
+      "file": "facturas_mes_year_diciembre_2019.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Se han generado 17 enlaces de descarga para las facturas de diciembre de 2019. Aquí están:\n\n*   [Copia Cedible cf - Factura 0101531734](https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=1d910b627efa628cbba97f828058d59889530dadf7df8593a050917e9b5ad68ca1a15e754f3c44ded77dc079774c5448c006ff991493c519b45dae927873cf52cece353292c6df081e283c9d5502bbe928787c93d552dc2f3a9293cfb45c26feabd691c0f7028b89cac70d4f2c6263f4928619818b34220989b0abe1569a85e39fd2b7bd7da32479b21e280366428aafb389de376e1ec6ad25cc7d86c623973426d8856e65833c21c2a2ed8b773241df7ff56bdd9dc7dbf2a5305f3a5193b585e105c77248619fe2994412aee620a8f7f53828f749cb907eb6b11b02ed8b053bef355c6c621391b7436fc6c4612aa05b7625c6b71580480ffc89130759adb903)\n*   [Copia Cedible sf - Factura 0101531734](https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=7072554631895e04c739c6dcf9a9b590647183c7d66ed6e8a399ffd74fe85a7700f7a245197b6d8ed4ae7b3a7034d2e7cf756813a5226aa91ce963d19ec2b1fca9734a13bdfdb64995c0cdc3948b155142b14a07955198fd215b7869ad16ea60bb338cd517f478fc3d051a64d4a8e33bfacd92907292d46500fce6365a543d56582bd71cced425b61212ceb6ca72a896aef199c128a5ced943b1ce37f99277ce7ecbaed5f2eabd67da87d012e3e3f924bf563eb8b85d401ee5c54ccd18224b6221c8f1e4ff38a5591dd93e37b0300934007f91017da994ce28482171ee7eb633a461ec0ea90228d29a18457770cf8bc2b93836ffa1ebb3dcb7b45fb3fd78bd93)\n*   [Copia Tributaria cf - Factura 0101531734](https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=028744141a48b859d02128cb22c1fb6ebaa2ddc618431487bea584000092f4ef689ba0d4931d4f3538a566487159a2928f77497551fde6333c2e45fbe769c7d984c8dc82abd26437fdb4a567abc1cba6ad5c86010f21bc9f983c62a1d408fede5e225e20b14181def9716def259666791750ee0599709b829e512f7be0c6654ec18223befda4fa0cbe502353972c003f6563db1cce91648f5ef0c5b2ff2540d6187aa52f23a8e0b58c7495d3ee84b7281c023a5fc1975bd70f31e1c911b7de89ca0a437a4621ca3407b1bd32d5c1b6ae1af1a7e62ecb4fa41179ec66bc9ceb82ebc5e527a0941f2502e116273135f5487b5ffc2f46f0170de761b5921f624e51)\n*   [Copia Tributaria sf - Factura 0101531734](https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=9523c477be2eb170b5ae7056f318e3b05f5dc4eba29b98495ea1e0d82ea7a044f8644797dcb09c304710e2aa1b1418b3596e3df2b235cc9695efd857df0ec867be4d3ecb1382f577d15e9751e59a8f4f02b902dcbce7addc99d4caedb23b98015d1aba999d1e5f1ad9d0be9c137d09598d17edb555c5d45e94bcb5748c2f138a5bad1f7d75fdc93aba13fd4b7a76eccdaba2c953e4d1a3764daf17fbacc18f96ecfd9c25bec9be83caba70e258a076e6e8648300c72353f445e9459bbe37653e213faf6763b2a017910f7826dd9099be7b8a6619de79c32ca0e1678249ff681518c3a0df115362946d12cb6475a77c2ae4ef2411692400dcc163)\n*   [Copia Cedible cf - Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=b0213012249cbd4f179293de16531509689c0ad48cbad561a64d826c5ac1d80c771dd2a852fc968134d6cea4c8f05b369df987a66ae504ece132f7205b54ab69c179bda5ce582071efe48bae8a531cc007b200d2080d3897ded9b9366c3a521fc9cb8639bfdd128acf64433cb04e913e5539c8f8c6ff614cda9284a4c9453ab5df376e6d8e7d6d6ce0f9ba3e0b9c1f831b12178aba730404d2beeac12ffa438add8844f51664fbcbcd4ee3de3eb599a9e0772dfb64eefa05080b2a8a7432656f1a8a9e72600f2c6bf72b8557b7519f963927611d89ba841ec79cfbb617d5f49bcfc831733d755be95304416703c2faa62fc2fb87a73acb634e94fd71787f0fbda)\n*   [Copia Cedible sf - Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=8eb340d688102851378186e3e078884a125af38e91d111b491b8fd3e4fdfdfb2dc4fb2e895a9846299be699ae3206d2f0f239e113579c11fbe67c06adbc088f8277e5b5cb85fec156ad57243c6dea92e2640f2778307b8242af0306491eb6bfdec7d5a9b269d700690e492d0930157ab3620d09fed8b6b14b4abbb8cc42ee8ac521bf8e305903bdc2024d9091391c66e080995bcac30d1190005815b0654ead9f64c06130909b57a30f6dbbf5bd716f2c52899ce1b5f9adfda5df02b101bbb06cb22906335c91d3360b5ea3d2045d93fb1fc2e1c725374a3f4fb7723a0e642866606b392043403bf8ad54725f40f772c790cfb42f1fdf75bcd0c72af094544c5)\n*   [Copia Tributaria cf - Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=8a589da9a49458d4af52202b7dd8ae0b2e8b4368192a638d115aa63b1379ec27dcc9177e7608403850634acb5e05ea6410b974fbd0d8a89fa1fcebdc62d88ed3420ac579cbb8dbce9f029ab235d096b1192ba1ec67a45f9baafd28d386e5d8cbf006fbeecf7d569f2d40490e8fab5ba792a42b92ebcf95fb093b5b0a798ecccda9fc7891b792bc34c1cacdb53df0853215afaf27feb6790d76d45f16e733273ab344c60b5993ed642340ae740a2b22192707011f40c71a168e1521a8c222cf5b26c28dea4b37059d4d2bab5de1fe0200a5a72afe16a708ccd51a6335f7ff9eee473dda87068aed899f0d74cc009be23499ed6f30dbd7ef849e0adeb2d8effd33)\n*   [Copia Tributaria sf - Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=7ff18fffa072a2d078cdf65ea8c27808fbd6a41e8dfcb46355b421f38b3ece0daac8be551eb7ec8abc36d695ae09d1a6fa65b7a1a987c7c8cc535a3f1ee24a931f0aa8fdb67774640734db5ebc2352eda0903f64479c2be8c6c9a2aeeee4ca3492915242d78152cbc9e361fc95244d8656d606c2332675afcb5d78fc48bb224e776908f9dbc4a229766c2c7e11349b2d6ab9aa76eccdaba2c953e4d1a3764daf17fbacc18f96ecfd9c25bec9be83caba70e258a076e6e8648300c72353f4475a406db9f3562b56e707f436f33e9d9f73067fdb96c37afa70)\n*   [Doc Térmico - Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=be7cca911738f8e9bbde8a603e09d1598958a3e4dee6c3b2dbd1003bf4d381124a29df5823717b35e1f14049e064e6519728d42da9b2a5dc13fa64c66041b31b594ea2e7e83c187d1d2a011ef94471122852749f3908a92a6a77883b868e32301ac9a926c0b7bb2788e076dfc992e1a75f0086a92dbf1038385f58c46910a24e49f9d45e1e4d3109cfa9dd0eb3c400a24fe5c7277e6b11a94ddc99cff373e16bb76fea31ca45855fa8bb061a3f7a04485a5d7d5d88141cb53011dc181d258bfb65591871faad9df9b844b78dcd58b500b9eb4cb0638ecc37cdc2c82c1753269294bd8b126e1d2c51cef359cfc8923a7ed65887b3c6b7ba3eff245d50f04fea48)\n*   [Copia Cedible cf - Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=35c90dee5e3b1116a35daa452dd15f6cc89341751ecde407b22ff913c1359df8a5caa1bf5e4d4403b25a12012e01b28820735771a3da5355b06154b6c360e00b767cc825d70343129728d641472946e96ebbc2cd45f02b06bc6b80d932e02360aad5f3a9179ad9b3d571549ee992d6cd33287ef648c7708aaf666bc3e84cf9606222cadc75bbf8794e88a663cc0ef108240033fd6e18e28b4de497a81346b5aedbfbf765701f5aa40f55a2f040734424afc53e2358d0a96cdb11ac56c28267e8646b769540cd427b6ffb724bdb23ba82403f0f920fdba2b916c96ddfe788ca51f25c945c7946fa06c8d1fc381235928f476d5f613926c0b105507417b5f70d34)\n*   [Copia Cedible sf - Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=5388e64c01c9dac9172c1104ce809c6c9f629af1f659de91192d026ea3cd4311a391cce86c742672005e9900f1adbfcbf3cf78cd73ed7394e1cfe40ff02e0ae80769058ab481d56603a8e88b6755d507c41a16eeb30a44340cedc62b34fd6e8a263f8a21d963eb606ddd3f68db6664bf6ab4b6a23a75e93912dde96a54b8772e0ebfceee496a5f365d393139b614fc1b060ef23fb7d8f7cf23310bd4cc0af7792a04108c952ba88cdf00db65aad909e3293afa860a263c571f50b540c57f2f7ceac083f9e9d0e461fcfe93a8f15c6a72e87b38883856a74ed14fdcfd490a27c4f946fbafa1719fdb24357f6fc1de8407773720b4a3cad10b9097a33a2fec7fd3)\n*   [Copia Tributaria cf - Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=84f15c698f2f7cf4ba90bde4887d72b86decf80ce82c1a5ca86c4b5e97ca481eade2326b96f0d75cc259703281efdfe490801691f81a9ae51917606a3fe1a387f9e6b29e5a13f0639717aefe767cbda3d1ee4674a830a373d32bbe913781a8a1ce9ea892226677f03aca72c260f19051688cc8ecb6d066b4772008d1272bc6b168cecdd4466684e2a32db330bf7f03b7f967eb31eb8a44cca50faeca47e9bca42e9326e1c03b3e9b0f327d3e246aa9bef22d41c2f6d96d59ee8dbf9dbcfe71f0eb40a548c010e148fdaabd2c3eedaa8fd8d21e9206afee775d5167424175560634d2187b8d70d16ebf405b13fcd7d5a6c1838d36ce7bfa6607559f61b1cfe553)\n*   [Copia Tributaria sf - Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=38bd07afa5f1fc57d30ffd103b75bd96bf9d4040a2ad3fdf0e02a8211969c76761d5c8752d65cfe3b4cb29301caf600fe8e012995712ad59c3112198586ec4563630dc76ca8c47fc58e3fb53e3ded01e356bd6c6b0a2678296cba38c122d9623be5e2ae5a9dfa2e9d9b2b94d4fc3fef347f373f298d6f6d2d26b1b67ea8931b8cdb5103e709bbc64151cadd96b577f5f7ab6d264baba718e18c2c0003bdedf3ea3ec39639e9caccc55f029f0e4b702d8fb775ddd3a4e1217bc4e5a6646c3bf90a9871d954579a9edb3e0803f3ff33578ba7fa9f55bc18300c0d7d388fcc1c99e47f2f4d1053290939dcc02438d3dfda0df4b89a655addb4502b4cb6fe7f0a7c3)\n*   [Doc Térmico - Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=3887c913f7612aab765e1d9b0a4227c4786b54149b8051b7a883bfcd1ba1966601488fd0dd65f6148069e0fd0c3f99a0e135e6724dd409f7a50fedecbd4f51db9493766ea55f50d008670031d285f61febc1be4e436251e5035da2b58d2b0bdd2ff021e26e75a1b1f48079706bc31e6ff913f1d12fc47381daf18d3a3e8c3e81d1b896f7d9ba000af38098c4502ba6ff423e4cf8c1aae2b2ab81cba0c3c14cdbedfa7e3b27b6c2efbd60bd527f064b2f93d2f23d7c56e24a7c086dc8bd070596977ff4c4c4a9b983bd3693c66ce6f597612d788f748dc2e828b8a6b2ba84bec7956b41760dd1a6cc66c20f63d71ae0529a3db332a6ea9d7a565fed6b789ac62d)\n*   [Copia Tributaria cf - Factura 0101507588](https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052452Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=5be0a6964dbfc07a55a9c414bd3ef7903a437e811b03ae4f6fec6665f75c8f8a5e0de8e628e6c6f9525795e47ce0f332a039cfa35ea18ae6be7ab42c90c9cd0d733e2d687f93b93602bb04fef26df41d8ab6da0295aec305a199f944e54bdd54140bff4bd8d4cad5d1d8bfe11973e4dafe4370d7154d40eb75b8afd92346e649230c1b60e676ecc0dbfe59080749ad92faa796cfdb17eadbe0093f04494e7cd50c4d58668ee49d72773850ff515078e91f4afae22ca32ae042b5f23701533b511087a596425ab879444161dd8101fc73d9fcf6ea07515adc51bb8017e0327cb373b367799ce7d4d1800950ae5d067c18bc94998f50082b8942c2b23fdc9d86ad)\n*   [Copia Tributaria sf - Factura 0101507588](https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052452Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=b7bbea3048ee31fac60db662f6cfaea048b16043bd9ac0292939b8b7b9630b93de2f3ddfcec691061f849158d931a73686882de13d0acf769ce4fe89cd3c1df9f0cfcacfb8d3044a9206fbff6f007a88811a12299e499341ad6c36d759898005feee5efb91078d79db8339493267822869b3e175476c4d625dbbc33ac760208690714daad8fd3724676847d63f1218cfa0fc04d95e859c3c3aa8547d35ca5e0a8f2e858489bb8925919871c6fd1895a654fd11848cba49816f05e406db4290486f93ca35d5620589ed641194d45c957fc4f175ea05821117da41315c4339c453b9cd324bbaaafbddddf537679c01a4407447adf08e12c662ec002b210a1db28a)\n*   [Doc Térmico - Factura 0101507588](https://storage.googleapis.com/miguel-test/descargas/0101507588/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052452Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=8f458d6894b2efa5b4737206fa8aef8d828cc7fcaa6f5f2f380750a35d5cffc0b7679d15cab7711f430faf76216b60c9ccdc37f9643c53857701b44873e17a5db91e4be72a461b87da25af9b11d8ccb93dacc0a3ec5e9b99bb231ead68cee5a157491732f1b275c3c2af76d872c63bf961a29467ebffd79f7da16c3413919bd57f814e95102338e6a7c8f3101f0c4c7de68dbda7f50744aef547f8ebc090618328a61b10d58973ea0e0429be267f1d94ec3c662ce8dee30cf2f267aa66a520faca593c29a4505fc2ae6b161d406b639219bd05c30fbdbe183f5208f0423a2a3b58978c1053f4475a406db9f3562b56e707f436f33e9d9f73067fdb96c37afa70)\n\nPor favor, haz clic en el enlace del documento que desees descargar."
+        ],
+        "urlAnalysis": {
+          "proxy": [],
+          "zip": [],
+          "hybrid": [],
+          "signed": [
+            "https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=1d910b627efa628cbba97f828058d59889530dadf7df8593a050917e9b5ad68ca1a15e754f3c44ded77dc079774c5448c006ff991493c519b45dae927873cf52cece353292c6df081e283c9d5502bbe928787c93d552dc2f3a9293cfb45c26feabd691c0f7028b89cac70d4f2c6263f4928619818b34220989b0abe1569a85e39fd2b7bd7da32479b21e280366428aafb389de376e1ec6ad25cc7d86c623973426d8856e65833c21c2a2ed8b773241df7ff56bdd9dc7dbf2a5305f3a5193b585e105c77248619fe2994412aee620a8f7f53828f749cb907eb6b11b02ed8b053bef355c6c621391b7436fc6c4612aa05b7625c6b71580480ffc89130759adb903",
+            "https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=7072554631895e04c739c6dcf9a9b590647183c7d66ed6e8a399ffd74fe85a7700f7a245197b6d8ed4ae7b3a7034d2e7cf756813a5226aa91ce963d19ec2b1fca9734a13bdfdb64995c0cdc3948b155142b14a07955198fd215b7869ad16ea60bb338cd517f478fc3d051a64d4a8e33bfacd92907292d46500fce6365a543d56582bd71cced425b61212ceb6ca72a896aef199c128a5ced943b1ce37f99277ce7ecbaed5f2eabd67da87d012e3e3f924bf563eb8b85d401ee5c54ccd18224b6221c8f1e4ff38a5591dd93e37b0300934007f91017da994ce28482171ee7eb633a461ec0ea90228d29a18457770cf8bc2b93836ffa1ebb3dcb7b45fb3fd78bd93",
+            "https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=028744141a48b859d02128cb22c1fb6ebaa2ddc618431487bea584000092f4ef689ba0d4931d4f3538a566487159a2928f77497551fde6333c2e45fbe769c7d984c8dc82abd26437fdb4a567abc1cba6ad5c86010f21bc9f983c62a1d408fede5e225e20b14181def9716def259666791750ee0599709b829e512f7be0c6654ec18223befda4fa0cbe502353972c003f6563db1cce91648f5ef0c5b2ff2540d6187aa52f23a8e0b58c7495d3ee84b7281c023a5fc1975bd70f31e1c911b7de89ca0a437a4621ca3407b1bd32d5c1b6ae1af1a7e62ecb4fa41179ec66bc9ceb82ebc5e527a0941f2502e116273135f5487b5ffc2f46f0170de761b5921f624e51",
+            "https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=9523c477be2eb170b5ae7056f318e3b05f5dc4eba29b98495ea1e0d82ea7a044f8644797dcb09c304710e2aa1b1418b3596e3df2b235cc9695efd857df0ec867be4d3ecb1382f577d15e9751e59a8f4f02b902dcbce7addc99d4caedb23b98015d1aba999d1e5f1ad9d0be9c137d09598d17edb555c5d45e94bcb5748c2f138a5bad1f7d75fdc93aba13fd4b7a76eccdaba2c953e4d1a3764daf17fbacc18f96ecfd9c25bec9be83caba70e258a076e6e8648300c72353f445e9459bbe37653e213faf6763b2a017910f7826dd9099be7b8a6619de79c32ca0e1678249ff681518c3a0df115362946d12cb6475a77c2ae4ef2411692400dcc163",
+            "https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052450Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=b0213012249cbd4f179293de16531509689c0ad48cbad561a64d826c5ac1d80c771dd2a852fc968134d6cea4c8f05b369df987a66ae504ece132f7205b54ab69c179bda5ce582071efe48bae8a531cc007b200d2080d3897ded9b9366c3a521fc9cb8639bfdd128acf64433cb04e913e5539c8f8c6ff614cda9284a4c9453ab5df376e6d8e7d6d6ce0f9ba3e0b9c1f831b12178aba730404d2beeac12ffa438add8844f51664fbcbcd4ee3de3eb599a9e0772dfb64eefa05080b2a8a7432656f1a8a9e72600f2c6bf72b8557b7519f963927611d89ba841ec79cfbb617d5f49bcfc831733d755be95304416703c2faa62fc2fb87a73acb634e94fd71787f0fbda",
+            "https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=8eb340d688102851378186e3e078884a125af38e91d111b491b8fd3e4fdfdfb2dc4fb2e895a9846299be699ae3206d2f0f239e113579c11fbe67c06adbc088f8277e5b5cb85fec156ad57243c6dea92e2640f2778307b8242af0306491eb6bfdec7d5a9b269d700690e492d0930157ab3620d09fed8b6b14b4abbb8cc42ee8ac521bf8e305903bdc2024d9091391c66e080995bcac30d1190005815b0654ead9f64c06130909b57a30f6dbbf5bd716f2c52899ce1b5f9adfda5df02b101bbb06cb22906335c91d3360b5ea3d2045d93fb1fc2e1c725374a3f4fb7723a0e642866606b392043403bf8ad54725f40f772c790cfb42f1fdf75bcd0c72af094544c5",
+            "https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=8a589da9a49458d4af52202b7dd8ae0b2e8b4368192a638d115aa63b1379ec27dcc9177e7608403850634acb5e05ea6410b974fbd0d8a89fa1fcebdc62d88ed3420ac579cbb8dbce9f029ab235d096b1192ba1ec67a45f9baafd28d386e5d8cbf006fbeecf7d569f2d40490e8fab5ba792a42b92ebcf95fb093b5b0a798ecccda9fc7891b792bc34c1cacdb53df0853215afaf27feb6790d76d45f16e733273ab344c60b5993ed642340ae740a2b22192707011f40c71a168e1521a8c222cf5b26c28dea4b37059d4d2bab5de1fe0200a5a72afe16a708ccd51a6335f7ff9eee473dda87068aed899f0d74cc009be23499ed6f30dbd7ef849e0adeb2d8effd33",
+            "https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=7ff18fffa072a2d078cdf65ea8c27808fbd6a41e8dfcb46355b421f38b3ece0daac8be551eb7ec8abc36d695ae09d1a6fa65b7a1a987c7c8cc535a3f1ee24a931f0aa8fdb67774640734db5ebc2352eda0903f64479c2be8c6c9a2aeeee4ca3492915242d78152cbc9e361fc95244d8656d606c2332675afcb5d78fc48bb224e776908f9dbc4a229766c2c7e11349b2d6ab9aa76eccdaba2c953e4d1a3764daf17fbacc18f96ecfd9c25bec9be83caba70e258a076e6e8648300c72353f4475a406db9f3562b56e707f436f33e9d9f73067fdb96c37afa70",
+            "https://storage.googleapis.com/miguel-test/descargas/0101552280/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=be7cca911738f8e9bbde8a603e09d1598958a3e4dee6c3b2dbd1003bf4d381124a29df5823717b35e1f14049e064e6519728d42da9b2a5dc13fa64c66041b31b594ea2e7e83c187d1d2a011ef94471122852749f3908a92a6a77883b868e32301ac9a926c0b7bb2788e076dfc992e1a75f0086a92dbf1038385f58c46910a24e49f9d45e1e4d3109cfa9dd0eb3c400a24fe5c7277e6b11a94ddc99cff373e16bb76fea31ca45855fa8bb061a3f7a04485a5d7d5d88141cb53011dc181d258bfb65591871faad9df9b844b78dcd58b500b9eb4cb0638ecc37cdc2c82c1753269294bd8b126e1d2c51cef359cfc8923a7ed65887b3c6b7ba3eff245d50f04fea48",
+            "https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=35c90dee5e3b1116a35daa452dd15f6cc89341751ecde407b22ff913c1359df8a5caa1bf5e4d4403b25a12012e01b28820735771a3da5355b06154b6c360e00b767cc825d70343129728d641472946e96ebbc2cd45f02b06bc6b80d932e02360aad5f3a9179ad9b3d571549ee992d6cd33287ef648c7708aaf666bc3e84cf9606222cadc75bbf8794e88a663cc0ef108240033fd6e18e28b4de497a81346b5aedbfbf765701f5aa40f55a2f040734424afc53e2358d0a96cdb11ac56c28267e8646b769540cd427b6ffb724bdb23ba82403f0f920fdba2b916c96ddfe788ca51f25c945c7946fa06c8d1fc381235928f476d5f613926c0b105507417b5f70d34",
+            "https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=5388e64c01c9dac9172c1104ce809c6c9f629af1f659de91192d026ea3cd4311a391cce86c742672005e9900f1adbfcbf3cf78cd73ed7394e1cfe40ff02e0ae80769058ab481d56603a8e88b6755d507c41a16eeb30a44340cedc62b34fd6e8a263f8a21d963eb606ddd3f68db6664bf6ab4b6a23a75e93912dde96a54b8772e0ebfceee496a5f365d393139b614fc1b060ef23fb7d8f7cf23310bd4cc0af7792a04108c952ba88cdf00db65aad909e3293afa860a263c571f50b540c57f2f7ceac083f9e9d0e461fcfe93a8f15c6a72e87b38883856a74ed14fdcfd490a27c4f946fbafa1719fdb24357f6fc1de8407773720b4a3cad10b9097a33a2fec7fd3",
+            "https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=84f15c698f2f7cf4ba90bde4887d72b86decf80ce82c1a5ca86c4b5e97ca481eade2326b96f0d75cc259703281efdfe490801691f81a9ae51917606a3fe1a387f9e6b29e5a13f0639717aefe767cbda3d1ee4674a830a373d32bbe913781a8a1ce9ea892226677f03aca72c260f19051688cc8ecb6d066b4772008d1272bc6b168cecdd4466684e2a32db330bf7f03b7f967eb31eb8a44cca50faeca47e9bca42e9326e1c03b3e9b0f327d3e246aa9bef22d41c2f6d96d59ee8dbf9dbcfe71f0eb40a548c010e148fdaabd2c3eedaa8fd8d21e9206afee775d5167424175560634d2187b8d70d16ebf405b13fcd7d5a6c1838d36ce7bfa6607559f61b1cfe553",
+            "https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=38bd07afa5f1fc57d30ffd103b75bd96bf9d4040a2ad3fdf0e02a8211969c76761d5c8752d65cfe3b4cb29301caf600fe8e012995712ad59c3112198586ec4563630dc76ca8c47fc58e3fb53e3ded01e356bd6c6b0a2678296cba38c122d9623be5e2ae5a9dfa2e9d9b2b94d4fc3fef347f373f298d6f6d2d26b1b67ea8931b8cdb5103e709bbc64151cadd96b577f5f7ab6d264baba718e18c2c0003bdedf3ea3ec39639e9caccc55f029f0e4b702d8fb775ddd3a4e1217bc4e5a6646c3bf90a9871d954579a9edb3e0803f3ff33578ba7fa9f55bc18300c0d7d388fcc1c99e47f2f4d1053290939dcc02438d3dfda0df4b89a655addb4502b4cb6fe7f0a7c3",
+            "https://storage.googleapis.com/miguel-test/descargas/0101514836/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052451Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=3887c913f7612aab765e1d9b0a4227c4786b54149b8051b7a883bfcd1ba1966601488fd0dd65f6148069e0fd0c3f99a0e135e6724dd409f7a50fedecbd4f51db9493766ea55f50d008670031d285f61febc1be4e436251e5035da2b58d2b0bdd2ff021e26e75a1b1f48079706bc31e6ff913f1d12fc47381daf18d3a3e8c3e81d1b896f7d9ba000af38098c4502ba6ff423e4cf8c1aae2b2ab81cba0c3c14cdbedfa7e3b27b6c2efbd60bd527f064b2f93d2f23d7c56e24a7c086dc8bd070596977ff4c4c4a9b983bd3693c66ce6f597612d788f748dc2e828b8a6b2ba84bec7956b41760dd1a6cc66c20f63d71ae0529a3db332a6ea9d7a565fed6b789ac62d",
+            "https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052452Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=5be0a6964dbfc07a55a9c414bd3ef7903a437e811b03ae4f6fec6665f75c8f8a5e0de8e628e6c6f9525795e47ce0f332a039cfa35ea18ae6be7ab42c90c9cd0d733e2d687f93b93602bb04fef26df41d8ab6da0295aec305a199f944e54bdd54140bff4bd8d4cad5d1d8bfe11973e4dafe4370d7154d40eb75b8afd92346e649230c1b60e676ecc0dbfe59080749ad92faa796cfdb17eadbe0093f04494e7cd50c4d58668ee49d72773850ff515078e91f4afae22ca32ae042b5f23701533b511087a596425ab879444161dd8101fc73d9fcf6ea07515adc51bb8017e0327cb373b367799ce7d4d1800950ae5d067c18bc94998f50082b8942c2b23fdc9d86ad",
+            "https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052452Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=b7bbea3048ee31fac60db662f6cfaea048b16043bd9ac0292939b8b7b9630b93de2f3ddfcec691061f849158d931a73686882de13d0acf769ce4fe89cd3c1df9f0cfcacfb8d3044a9206fbff6f007a88811a12299e499341ad6c36d759898005feee5efb91078d79db8339493267822869b3e175476c4d625dbbc33ac760208690714daad8fd3724676847d63f1218cfa0fc04d95e859c3c3aa8547d35ca5e0a8f2e858489bb8925919871c6fd1895a654fd11848cba49816f05e406db4290486f93ca35d5620589ed641194d45c957fc4f175ea05821117da41315c4339c453b9cd324bbaaafbddddf537679c01a4407447adf08e12c662ec002b210a1db28a",
+            "https://storage.googleapis.com/miguel-test/descargas/0101507588/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052452Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=8f458d6894b2efa5b4737206fa8aef8d828cc7fcaa6f5f2f380750a35d5cffc0b7679d15cab7711f430faf76216b60c9ccdc37f9643c53857701b44873e17a5db91e4be72a461b87da25af9b11d8ccb93dacc0a3ec5e9b99bb231ead68cee5a157491732f1b275c3c2af76d872c63bf961a29467ebffd79f7da16c3413919bd57f814e95102338e6a7c8f3101f0c4c7de68dbda7f50744aef547f8ebc090618328a61b10d58973ea0e0429be267f1d94ec3c662ce8dee30cf2f267aa66a520faca593c29a4505fc2ae6b161d406b639219bd05c30fbdbe183f5208f0423a2a3b58978c1053f4475a406db9f3562b56e707f436f33e9d9f73067fdb96c37afa70"
+          ],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          52239.4759
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Busca facturas de diciembre 2019",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Se encontraron 4 facturas para diciembre de 2019:\n\nFactura 0101531734 (PEDRO IGNACIO FUENTES ESTRADA):\n* Copia Cedible CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf\n* Copia Cedible SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf\n* Copia Tributaria CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf\n* Copia Tributaria SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf\n\nFactura 0101552280 (MOVIL 205 SPA):\n* Copia Cedible CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf\n* Copia Cedible SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf\n* Copia Tributaria CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf\n* Copia Tributaria SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf\n* Documento Térmico: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Doc_Termico.pdf\n\nFactura 0101514836 (MIGUEL GONZALO ZARAGOZA CHACANA TRA):\n* Copia Cedible CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf\n* Copia Cedible SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf\n* Copia Tributaria CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf\n* Copia Tributaria SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf\n* Documento Térmico: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Doc_Termico.pdf\n\nFactura 0101507588 (PEDRO DIAZ GARCIA):\n* Copia Tributaria CF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf\n* Copia Tributaria SF: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf\n* Documento Térmico: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Doc_Termico.pdf\n"
+        ],
+        "urlAnalysis": {
+          "proxy": [
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Doc_Termico.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Doc_Termico.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Doc_Termico.pdf"
+          ],
+          "zip": [],
+          "hybrid": [],
+          "signed": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          8188.4882
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_month_year",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 17,
+        "preferred": "Backend-B"
+      }
+    },
+    {
+      "testName": "Test: Búsqueda por Múltiples RUTs",
+      "file": "facturas_multiple_ruts.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas para los RUTs especificados. Por favor, verifica los números e intenta de nuevo."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2525.0435
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Busca facturas de los RUTs 9025012-4,76341146-K",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "No se encontraron facturas para los RUTs 9025012-4,76341146-K."
+        ],
+        "urlAnalysis": {
+          "zip": [],
+          "proxy": [],
+          "signed": [],
+          "hybrid": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          2384.325
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_multiple_ruts",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    },
+    {
+      "testName": "Test: Búsqueda por rango de fechas diciembre 2019",
+      "file": "facturas_rango_fechas_diciembre_2019.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes las facturas encontradas para el período solicitado:\n\n*   **Factura 0101531734 (Fecha: 2019-12-31, Cliente: PEDRO IGNACIO FUENTES ESTRADA)**\n    *   Copia Cedible con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf\n    *   Copia Cedible sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf\n    *   Copia Tributaria con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf\n    *   Copia Tributaria sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf\n\n*   **Factura 0101552280 (Fecha: 2019-12-30, Cliente: MOVIL 205 SPA)**\n    *   Copia Cedible con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf\n    *   Copia Cedible sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf\n    *   Copia Tributaria con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf\n    *   Copia Tributaria sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf\n    *   Documento Térmico: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Doc_Termico.pdf\n\n*   **Factura 0101514836 (Fecha: 2019-12-10, Cliente: MIGUEL GONZALO ZARAGOZA CHACANA TRA)**\n    *   Copia Cedible con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf\n    *   Copia Cedible sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf\n    *   Copia Tributaria con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf\n    *   Copia Tributaria sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf\n    *   Documento Térmico: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Doc_Termico.pdf\n\n*   **Factura 0101507588 (Fecha: 2019-12-06, Cliente: PEDRO DIAZ GARCIA)**\n    *   Copia Tributaria con Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf\n    *   Copia Tributaria sin Firma: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf\n    *   Documento Térmico: https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Doc_Termico.pdf"
+        ],
+        "urlAnalysis": {
+          "proxy": [
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Doc_Termico.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Doc_Termico.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf",
+            "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Doc_Termico.pdf"
+          ],
+          "zip": [],
+          "hybrid": [],
+          "signed": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          7861.8161
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Puedes darme las facturas entre el 1 de diciembre de 2019 y el 31 de diciembre de 2019?",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes los enlaces de descarga para las facturas encontradas:\n\n*   [Factura 0101531734](https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=47d21e8c1fea938a425e54714ccc12cc26be933f9247df9a0a5e72312c8f77cdf881742a5355297f4761777ffb391a8bc0c4559ea59356798eb8d0ab06e006b7ce256dcdaac021277edf56501db11abf769dc3fba0dbc25d910b2418e7e527be86af1967db5d30a767fa9a4826f1ae223f9195843e3a761503767965ba7723468d361202c11a9771b0dbcd545340026a5ff2c322b5d68c49bb1eeb7ca387218e15afd488783bbf672bc5ebbc8291b63cbd1b37d7d03465c2fbafcd143d7510a7eb1af95c6ce0b853a426f1cad5638c987cd98f33af85f38b7633a4f22496c0f7d2438ff12fc7246d11c8c76869708a5175282f7ee253197ed5341a38df3c635a)\n*   [Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=d1470f016fe2b9f8febb2cd9afd56b346385b85def6a1622cde8e35bdc9313b66bc1299171c76b81d85c987e5e8da12807d52303825b656bc2cf27e7e1011904cd05c0f16b914cbca51352815b2868c2e33c3b8c4b667acc421ed9f59320e789a1e972072c93761a64549b37a915657cd7dc2fba7a4389ba9e88e6dc0e8b4d9495e50925097ac84501df465482e13b7204aa488cea21937e4f3f15f6f4f87400a1fc39ecdb624ef4db77be5968e4cd1550eaaf5d4790779e00006147e1701c711ba7707b3fd988f4dfeceb4edf0e5d176a674794955bf7970cc0508e1117ca51d0b2b16cfa3b08fc5441586990988018d4e6344908ec2ff9996c27cf621819f8)\n*   [Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=6e7420b52be39346409e48e2fa7decf3ea0c645d66d4267f9c3f0c400293714adf01cee6d3220a1526f3e7ab22d7020a8c0fc6b4434c78bb26ba82e1024d5ae140f2dbafa0bda93674729534e2e37ef386da8769258f447feeaec0bdc423c37849452fed0b9da8bffa0c91d141fc8a7fb2f0bb9c764c863b71ae6151b1c0a81bc1378cb26fc239532d1bcda8d672cfdde79c962871cba7b2df5db3ed4d4cd608b945c61d4ef84acd80f23e5e4d90c1c08c61814f45e1f08c72012a5fe83aacf1c6015f8d543342c56e686eca00131e9e453494b72ed2e2e73f6950e4707f61874fa66edbd4bb491da9dfb55713dd05e93ae95c01b2158c55b4fc1168dcc6257f)\n*   [Factura 0101507588](https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=3c77a2008ae777750dd2ec1755308a6517b25616ead65894db3b8feee8464f9ce32b4a93ed41833af6350740b14573d6f8dc2f0317f7e8f350fbf3c5f63e3d50f6794ad1a45fffb0ba8a2c8385c8ce1e68352609ee8532d0d073218558edcc9becc9da716c56917deb295fa9276773452fa129f8a3fe94694061960eb30b7023acb0cec45bbe719bfb1895fe43155eba3197be3b601fbb9e0d0bcd9634a7330b39f96c47a49656cfd5222f2045386843b39137bdb3c4c16188853efe3b90cabf86d2ca3a91cff564d60188c8305315b87877441be6cade2a57feaea9de998c90d5951b253d0bb13b199e0370e4a14dcd6b5070fc85740526b0f6d5b40f20bbcf)\n"
+        ],
+        "urlAnalysis": {
+          "proxy": [],
+          "zip": [],
+          "hybrid": [],
+          "signed": [
+            "https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=47d21e8c1fea938a425e54714ccc12cc26be933f9247df9a0a5e72312c8f77cdf881742a5355297f4761777ffb391a8bc0c4559ea59356798eb8d0ab06e006b7ce256dcdaac021277edf56501db11abf769dc3fba0dbc25d910b2418e7e527be86af1967db5d30a767fa9a4826f1ae223f9195843e3a761503767965ba7723468d361202c11a9771b0dbcd545340026a5ff2c322b5d68c49bb1eeb7ca387218e15afd488783bbf672bc5ebbc8291b63cbd1b37d7d03465c2fbafcd143d7510a7eb1af95c6ce0b853a426f1cad5638c987cd98f33af85f38b7633a4f22496c0f7d2438ff12fc7246d11c8c76869708a5175282f7ee253197ed5341a38df3c635a",
+            "https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=d1470f016fe2b9f8febb2cd9afd56b346385b85def6a1622cde8e35bdc9313b66bc1299171c76b81d85c987e5e8da12807d52303825b656bc2cf27e7e1011904cd05c0f16b914cbca51352815b2868c2e33c3b8c4b667acc421ed9f59320e789a1e972072c93761a64549b37a915657cd7dc2fba7a4389ba9e88e6dc0e8b4d9495e50925097ac84501df465482e13b7204aa488cea21937e4f3f15f6f4f87400a1fc39ecdb624ef4db77be5968e4cd1550eaaf5d4790779e00006147e1701c711ba7707b3fd988f4dfeceb4edf0e5d176a674794955bf7970cc0508e1117ca51d0b2b16cfa3b08fc5441586990988018d4e6344908ec2ff9996c27cf621819f8",
+            "https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=6e7420b52be39346409e48e2fa7decf3ea0c645d66d4267f9c3f0c400293714adf01cee6d3220a1526f3e7ab22d7020a8c0fc6b4434c78bb26ba82e1024d5ae140f2dbafa0bda93674729534e2e37ef386da8769258f447feeaec0bdc423c37849452fed0b9da8bffa0c91d141fc8a7fb2f0bb9c764c863b71ae6151b1c0a81bc1378cb26fc239532d1bcda8d672cfdde79c962871cba7b2df5db3ed4d4cd608b945c61d4ef84acd80f23e5e4d90c1c08c61814f45e1f08c72012a5fe83aacf1c6015f8d543342c56e686eca00131e9e453494b72ed2e2e73f6950e4707f61874fa66edbd4bb491da9dfb55713dd05e93ae95c01b2158c55b4fc1168dcc6257f",
+            "https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=3c77a2008ae777750dd2ec1755308a6517b25616ead65894db3b8feee8464f9ce32b4a93ed41833af6350740b14573d6f8dc2f0317f7e8f350fbf3c5f63e3d50f6794ad1a45fffb0ba8a2c8385c8ce1e68352609ee8532d0d073218558edcc9becc9da716c56917deb295fa9276773452fa129f8a3fe94694061960eb30b7023acb0cec45bbe719bfb1895fe43155eba3197be3b601fbb9e0d0bcd9634a7330b39f96c47a49656cfd5222f2045386843b39137bdb3c4c16188853efe3b90cabf86d2ca3a91cff564d60188c8305315b87877441be6cade2a57feaea9de998c90d5951b253d0bb13b199e0370e4a14dcd6b5070fc85740526b0f6d5b40f20bbcf"
+          ],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          16753.7471
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_by_date_range",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": -17,
+        "preferred": "Backend-A"
+      }
+    },
+    {
+      "testName": "Test: Búsqueda de Facturas Más Recientes",
+      "file": "facturas_recent_by_date.test.json",
+      "backendB": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "Aquí tienes el enlace para descargar el archivo ZIP con las 10 facturas más recientes: https://storage.googleapis.com/agent-intelligence-zips/zip_060c9d22-2ed5-4b91-ad56-16fb26142d02.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052705Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=d4cd4b08578250bca19a357517a63f0805709c5ffddc74c64b2f2322d2e1a47649e4bcaa04101369b8f3a65b4ac0ed35bd4e52dc0993709996c5365ec48131b3bd4c567b9b0f70878705312103420447de2e15a8ba3bff955c08fb3da634a758eb7fcfc670493740c4d02ec2e80f2ceb7b8824b3cfd7f3707e30d59e320b71fd29791682d70a76cb4b3fa76c489b24c1f459bf3fad19e70039f14917e47f17b4aaa584ac5952c7945bbb42136ab89fd9a084e6bf78b025e38927a372ed1aa4da5bf979072e15f76b2d72b9f9dfcae8f2077959bbeb78ebde5cdf551f16139e01d4083f3e388436bf4c26dd3023bce2b462a4309a32a0d23330ea60e4bdcbf3f8"
+        ],
+        "urlAnalysis": {
+          "proxy": [],
+          "zip": [
+            "https://storage.googleapis.com/agent-intelligence-zips/zip_060c9d22-2ed5-4b91-ad56-16fb26142d02.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052705Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=d4cd4b08578250bca19a357517a63f0805709c5ffddc74c64b2f2322d2e1a47649e4bcaa04101369b8f3a65b4ac0ed35bd4e52dc0993709996c5365ec48131b3bd4c567b9b0f70878705312103420447de2e15a8ba3bff955c08fb3da634a758eb7fcfc670493740c4d02ec2e80f2ceb7b8824b3cfd7f3707e30d59e320b71fd29791682d70a76cb4b3fa76c489b24c1f459bf3fad19e70039f14917e47f17b4aaa584ac5952c7945bbb42136ab89fd9a084e6bf78b025e38927a372ed1aa4da5bf979072e15f76b2d72b9f9dfcae8f2077959bbeb78ebde5cdf551f16139e01d4083f3e388436bf4c26dd3023bce2b462a4309a32a0d23330ea60e4bdcbf3f8"
+          ],
+          "hybrid": [],
+          "signed": [],
+          "other": []
+        },
+        "responseTime": [
+          null,
+          26784.9106
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "query": "Dame las 10 facturas más recientes",
+      "backendA": {
+        "error": [
+          null,
+          null
+        ],
+        "response": [
+          null,
+          "¡Aquí tienes las 10 facturas más recientes! Puedes descargarlas todas en un archivo ZIP desde el siguiente enlace:\n\n[Descargar ZIP de facturas recientes](https://invoice-backend-819133916464.us-central1.run.app/zips/zip_f4e8773f-2626-462c-a813-fe5f352b6e4d.zip)\n\nEl archivo ZIP contiene 50 PDFs."
+        ],
+        "urlAnalysis": {
+          "proxy": [],
+          "zip": [],
+          "hybrid": [],
+          "signed": [],
+          "other": [
+            "https://invoice-backend-819133916464.us-central1.run.app/zips/zip_f4e8773f-2626-462c-a813-fe5f352b6e4d.zip"
+          ]
+        },
+        "responseTime": [
+          null,
+          27002.2408
+        ],
+        "success": [
+          null,
+          true
+        ]
+      },
+      "category": "search_recent",
+      "comparison": {
+        "signedUrlDiff": 0,
+        "responseTimeDiff": 0,
+        "proxyUrlDiff": 0,
+        "preferred": "Similar"
+      }
+    }
+  ],
+  "recommendations": [
+    "✅ RECOMENDACIÓN: Usar Backend B - Genera más URLs firmadas válidas",
+    "⚡ Backend A es más rápido en promedio"
+  ],
+  "metadata": {
+    "totalTests": 10,
+    "backendB": "https://invoice-backend-819133916464.us-central1.run.app",
+    "timestamp": "20250905_012251",
+    "backendA": "https://invoice-backend-yuhrx5x2ra-uc.a.run.app",
+    "summary": {}
+  }
+}

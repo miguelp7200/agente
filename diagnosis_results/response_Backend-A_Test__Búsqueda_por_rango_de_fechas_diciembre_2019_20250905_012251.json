@@ -1,0 +1,218 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Ct4GAcu98PDFx3WNNTh5caz9uYb4xzzRxhZxHfQxP0G4lP9np6ybhJ3Ct_DZg7eHt_eCoKmtvaPe6qyI_37aQ3Z7ULTxd8O3aT0wOOc9wzmhqvuyrt1XpThAjaM75TxannID6jPc9Z84ZG5U1hiKdpqDU8yTeG4Toj8BKdTwK876XV7FmB3mXKmavoLln_FnDwqBnDPIfK9yMlAYaLQbsPBFKzv3FVXUz4ydui1zBhxvwWP_2Du5XvaOuaonFCyFDlSiY6jYSOIgBfwxkuaErIG6WQQQejbHb6CADt5c0x2nS_mJaafSlm0qUWuWxniKmlsJQTOiUaAOpPGO9Y9n705_StWZtrqYFK3oxMFY1PhfHu4IkOJ2p55r8Yd3vT4pQig1xunldOMw5cvsgDmA-2Ceh7dWqAR8d_ujwFV_8F7blJcYLYDc25BiMUi5AG5oOZhTQ_p9-YtE_yTPD3FqpEmmsAhEnYPqDOZ9eqcu2P9eJtGKA9_QvP3KyAn3NWWBQtfaor4EJTFbC7mNbTQxoeyy-ks19mkkyDR-_Svg8HwzL-8i_7YV-O-HRzR-axn_AGHkpOEIV8rJAcKoj0q71RV__VxBMkS6XunXCUkX0PzycF1wZMRsMz-9NFUVwNEBrtkr270WyT1FWc2H-Bd6oPlZksPI8NCGnrL4Q-YpG0GtBMfo2gdqGzyErxQk4BhCFoUuofr_o2Fddzao5n6-BYa4ZES9YiNuw9nt4kQFChstKS0DLqQb4a37jUd72VFIgb3l1IQIryOzbjFJ-R8I20C7TCoZyiDqqf1qKpA6-UbakJvmne0uXF0gbumf4NAYTfdiMyM-OwhuoHkLwwGibJeO9ZDUmP5U6CxEel6Y48eZuJPltYCcrcll6EwEA8CRDSM2Pq6rX6SUJeQjDvza-SQ6oCVNB9S-WMiBa9JovBmnGmwcGGCu8_HqRKAVntjlBn8E-bKUlTO4AodB1MUlwqM0hFFcqLDOqxLmrPLCDviP6343OuLUcurZPH8CbMq7L-dclhA2L1dOKT2RnUN04-5HIz4iApBUzYvb1O28EDJ8KDHX043IaA_SSFsXUswsQSH8XvGHRR_Qdu_IRSmVQcdpVqEHM28ttGQU6pJiiRBb6zRdlrXuAURjyGldLCiYNQ==",
+          "functionCall": {
+            "id": "adk-6cf94caf-69f0-4e36-9d96-1516ecebbb03",
+            "args": {
+              "start_date": "2019-12-01",
+              "end_date": "2019-12-31"
+            },
+            "name": "search_invoices_by_date_range"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4459
+        }
+      ],
+      "cachedContentTokenCount": 4459,
+      "candidatesTokenCount": 35,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 35
+        }
+      ],
+      "promptTokenCount": 4978,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4978
+        }
+      ],
+      "thoughtsTokenCount": 265,
+      "totalTokenCount": 5278,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-1e7efc6d-6f09-43c4-b5ec-9406c5143dcb",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "7c4fd9b0-634f-4dd2-8e77-4dd1d1452324",
+    "timestamp": 1757049943.782776
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-6cf94caf-69f0-4e36-9d96-1516ecebbb03",
+            "name": "search_invoices_by_date_range",
+            "response": {
+              "result": "[{\"Copia_Cedible_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CUOTAS_LEASING\",\"Moneda\":\"CLP\",\"Peso\":\"0\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"496624\"}],\"Doc_Termico_proxy\":null,\"Factura\":\"0101531734\",\"Nombre\":\"PEDRO IGNACIO FUENTES ESTRADA\",\"Rut\":\"15420171-8\",\"Solicitante\":\"0012259527\",\"fecha\":\"2019-12-31\"},{\"Copia_Cedible_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"396\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"5940\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"5400265\"}],\"Doc_Termico_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Doc_Termico.pdf\",\"Factura\":\"0101552280\",\"Nombre\":\"MOVIL 205 SPA\",\"Rut\":\"77010182-4\",\"Solicitante\":\"0012474149\",\"fecha\":\"2019-12-30\"},{\"Copia_Cedible_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"8\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"120\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"143599\"},{\"Cantidad\":\"4\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"20\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"34719\"},{\"Cantidad\":\"3\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"135\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"170671\"}],\"Doc_Termico_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Doc_Termico.pdf\",\"Factura\":\"0101514836\",\"Nombre\":\"MIGUEL GONZALO ZARAGOZA CHACANA TRA\",\"Rut\":\"76735422-3\",\"Solicitante\":\"0012386301\",\"fecha\":\"2019-12-10\"},{\"Copia_Cedible_cf_proxy\":null,\"Copia_Cedible_sf_proxy\":null,\"Copia_Tributaria_cf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"199\",\"CantidadUnidad\":\"L\",\"Factura_Pos\":\"000010\",\"Material\":\"GGN_REF\",\"Moneda\":\"CLP\",\"Peso\":\"51931/500\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"0\"}],\"Doc_Termico_proxy\":\"https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Doc_Termico.pdf\",\"Factura\":\"0101507588\",\"Nombre\":\"PEDRO DIAZ GARCIA\",\"Rut\":\"10884019-6\",\"Solicitante\":\"0012161122\",\"fecha\":\"2019-12-06\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-1e7efc6d-6f09-43c4-b5ec-9406c5143dcb",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "28a573f2-9e19-4808-bc18-b40e62b763be",
+    "timestamp": 1757049945.854465
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CsAWAcu98PCsOB9_F3-GyZrewT7g3yiXEnr_aF9bsvJVUpv4_fsauJl89iO7Ouiv60rUwhr5pgo5en1-AmsnJlus2PyjIoVtwXemMOiT03aVsdNK8kYmSOaz5NgY3jG6XjT4289YMusFzXgt-ewOm9enncqRABbGsETnbT7xUS5_ui6hm2L7nfZXLqdHUuNXv05nVdKoWtUT0-WB1vRTf_vpKndqoNBKLC27Sx6qCHKL_SsbDRvF84QN9S2vt-I137Ym-LPgXUX7sSjUAJJCSMxtjj0TtCBqV0g8TYM0dclJ6IDsmZJ1fc5HTzw8fGzm2oT1LQNzuyR1gSW7dyFyJjMVdQfhn4Bgt6EKrIeNqArn0tY32rg14yw1dNvlMszo3vxMe1nUjK0uTjDAzzbAJjIulap9pJ8oixQEd9r0fDwIlJrtQqS1XJ0_Vp0JX0BJwnw2-6eOb8jEcM2zXJxLNzWvENUW4aYyyLpgeLxX7cZl23462WoiRzU37SSGxm87R1-z-DR_wXrXpszwPE2bWWPg4OKi4n3ERWMYBK9lFKFxqZfalmweQLsKHX0OxJO6do0RFwzTNiU61tFttu9B2viHG5StuP2YrKTm5ErpatFwBes-fJs6HU9l_6Q8tsM3W4Zy-GNYneNJ_wtstH2xVEEZUYiOjy3CrQWTky6N7L2tV2j8FWWfOGMkHyRUd62Mfci-MOoS1L0AJhEQkcJJ1Oiyx2fG_EX_jRUKcZPIEP7EbjPDJLqK_WujwxCCpzbDmCjrxImENHpcT2nh2Dke2NrtTPsXFrHNDTXBsQA6pHrjlDZNmMmU3XRQoQj2yHwCNIsga2qmHaD9Dz6fY3UdS-b0K_aYt31yuu-J6uYgMt2PHOZI5P60DtANwMaRf4LWrIo4wx-HczAxh0K1TriswX9pEMEHivNSeJfViVvyXihfgpeCcp6Vv0PKe8zyWNTS7QrctwWY_pg63lpQMjMcI2CWJsfrN6xqcP5hWOViZ1riPArsVykyOdthBSVGMoGkjSLfRF0J723YT2Tkg1oC7HloeuGYj3jWvqf5z8SQT9pNuVWKQ3tUHptOSByavYFQrZMAgNWKpjn6YNRtCdk7BvY_jDPttgIHRvRk6Yyp0oLSj15tC9NZdjiHinCfHdhXQcyFNcEFWs9rzS8Rdw0G1uUlT7Q81FxdR8kDLP0Vb-O-TjsTrqZfYf488aLyka6LKE_kH6Wr48B1k62HrTWoNFoO0LpEWjX15pzdqdFsqbm_MwNgClG4ZuZk9pRpIHfgKcL3mePao-A4WImEwPD9LBcUsRl8D7qK6A0lTZzCEpKDjRbCrf1A7ubuhlXt-xaw1iXhowXOHiiLLZWu7h8qBchldYKxqfUID6P-BNdikVNKUtB1d_PSb7rMh6YnKGzgypEp8-FN1p1_sK9r_UPin-h3nmuWVqM6HIt4LxWaeRyjopID7c8Z400fXbw1cjiSFD0V8y0ec97HwiPJKTM29L7GB91IsmLYls2tn5Kk6ff6-5orONLCL0SUKwMKhsLz1hPoSE_rs30XcOPWHaG_SWvjrMbB27LASKYokIJIvwAzXk7hOuY50i0eyqJYL6F59DOIdU_yM_mnW9njJrBw0CpB3ewCD3MH3ph-QvYECLqqRUD2hZ2aURhx1g3EDyLcaRSB6YZIGUmHokF3Epn9ntjVoilG733c3hIuowc4UzZgV1dLe93rgoQbh1BB06sbxG0JFotrP9x34NprWvkAfOQXvuDb2s8Mc6MYVcddseOgRmHzZn9HZPxN7-vkxZOgZW3AJQfU-yVpvnMG99wIdgJwWOG5qlTikuQUB7EnsFI8CZa0hGYmIBU-qfMv4l2b6E1RDOC3z41c9OSpLk5QF4b9eMwhvrl73ubi3zIATRpBVRH9hl739jvIhYaLRiexBivHC23FF7nnKeD5-3-MHHgBoOg9fkx-pnhUiHtGBXrI2dHSvzcVBw_N8r1OpzDn55r-g3Z4ufEXkCkXug4qC45-5goD6s48LPGwlUivIHrlKj4B6cDMsuRKTcQu3ONPrjak7z2FH9ZY6IStP5Q2ROGQG9okyv7tYHAmz1uVNhCpkA55KYirMADscUNmd95y0bKGfETdwVCcXl-GcwyBseJobsduEi5hQj990oIOm5Bow__IxS6Cz5bHotfRnQ1bsfKrpFwpcPZasESNl7oZKi5iduZEUeMxox2WSfItTaY8wQ3o848u5tRXXPGqy8k7dd5AZuiJi6d-0Qw_pGwJxRbww23iwcpaDwquYjI3iTaPrmhONBGxa8KaWKxvX0oBTDcZ9pPfDWhtdi31mPwfNYl8M3uxCO1SBQjcHS-PVSojTW-_DMZL42wa20tGxYmFrPf0yimc16G_tDfVinDPAP7dcgmF1j1Ed5oC4DReXIv5vnUlSo1a4YTLFdl1sj4uNoLd_tKPngBsoWQ10oWQgWRPCV7jYowmOUWSCCaqYOD0QyZzGbbABin6Y2sI93jEt1QkF1PffWe1n2zWn0KwOqAms32JG41Jombkhs5te8Rpr89bOYDcyL_nXM8Q7oPgdhoYDP_cp72CfIhDOHehoDsrCP9jRBQL0GUhT8DcoYTuE55dfn_IfHHqir5ztjsXuZ37sOApkdnqJcRZzNLYF7MF-HE3xNNxTpwl9ZUG_WUzM7ANp7zyw2RVrhxagp62v3lDTfUulryomLW0JENDqwJBQbSEH0tt8Q51xjlwF3UrRaRDTucM2qxGO0-0YpnfmxG31cMj_FWC76IZE3bqkB7TImU_iF1esk3dn-KY7OoHlC5xxC4E0r9sl6AOQgCQ7cr8VWRZDq8B8O0A-NpYadVUXQ8PMOC_77-giNNAmSKRp19ECDtGw2JBCZEPaljdjjxJ2UtEof3_mL0GZIP5bWmXwijuDHi7XqHSGFPt_-umeHKnfliDWE6Wip66zoc_4gSRXcncd572ROUC_xtS3xklg3MJV9F_rwHj_hlM-r7VZwVulRW1hRfGqDsGZm2ekYGUuG_0W38G73QqUiBExC0gsqJJZKtq23836mDxZ6pZTT-mY6jFaipsuFEiuSUFhWrPdMBmEGNDp9Xk_R640BCgottE3Fn62TYTYHuiEuC4MDSC9w6712F4KPrs8O9IiLqeuaECeVoPX9Nz1eu5l2QV-tYS8fG0kLyC9CIr4uP23zaZPzK3Z9GUEpCrkq1y1XOOazfBtKmoA8e96BFutJmfe6R9LSSXMeBcQ52NQSCpPocKCd8bYSajXhcqOhS9pS6v69Xie62KBxuzuZn1WioLt6cDlMGBLJS2qnXJVl-cbmTbhylQ2A9Ac9CxucIRUmg2t3m1-6rlSk2wVnagH8mrDdZg30ehqmdwtonORg9ejT7tlEhTXdkRhuV3UISyLnmWhgfbcytp-hIjwSOi2gU1g05WKjTHdxCSHGmm4nFQd6XaJ87IE_lVm7eg2cWUxz64T15RBr98mLtpgQ6tbhruc6altiRBGqbjC6FJFiX3_o3VM3zsDnfCesIgR_pJXwmqz-qWkMHcV7vlVegNsGSFoK2i1xl4RJeptBA1s_sLuPkM3cvKrSELOFeqgcQs0HcXJsm9qtXkV29AtXC4PD76YUwBUsiQtZvvd4z3ed_A78Fz6ihLLapV5-AL8HtXjvzQh21ocBO9OTrK1oFee016cu5IOkffdVpT9XMqe7Xd__f7bz1OKwVAPRg9q01QyTl3iFUB4q5tWZrWJ-xeXpMJIVE9CgLtKku4aI8EisgKrzj1aYcMWzcMNE-ciblGZHer8rpLyV6PpnkduN5iFvuD_SN37UAfvcVrNifWlIHT0GH7EOB-GunJgGFU_JuYSjyk",
+          "text": "Se encontraron 4 facturas en el rango de fechas solicitado. Aquí tienes los enlaces de descarga individuales:\n"
+        },
+        {
+          "functionCall": {
+            "id": "adk-1281050a-0b31-4843-b348-a0a4d457fd07",
+            "args": {
+              "pdf_urls": "https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf,https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf,https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf,https://invoice-backend-819133916464.us-central1.run.app/gcs?url=gs://miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf"
+            },
+            "name": "generate_individual_download_links"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 4593
+        }
+      ],
+      "cachedContentTokenCount": 4593,
+      "candidatesTokenCount": 278,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 278
+        }
+      ],
+      "promptTokenCount": 6846,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 6846
+        }
+      ],
+      "thoughtsTokenCount": 1028,
+      "totalTokenCount": 8152,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-1e7efc6d-6f09-43c4-b5ec-9406c5143dcb",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "e988f3a6-4273-4d44-b159-64e13007cecb",
+    "timestamp": 1757049945.862263
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-1281050a-0b31-4843-b348-a0a4d457fd07",
+            "name": "generate_individual_download_links",
+            "response": {
+              "success": true,
+              "download_urls": [
+                "https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=47d21e8c1fea938a425e54714ccc12cc26be933f9247df9a0a5e72312c8f77cdf881742a5355297f4761777ffb391a8bc0c4559ea59356798eb8d0ab06e006b7ce256dcdaac021277edf56501db11abf769dc3fba0dbc25d910b2418e7e527be86af1967db5d30a767fa9a4826f1ae223f9195843e3a761503767965ba7723468d361202c11a9771b0dbcd545340026a5ff2c322b5d68c49bb1eeb7ca387218e15afd488783bbf672bc5ebbc8291b63cbd1b37d7d03465c2fbafcd143d7510a7eb1af95c6ce0b853a426f1cad5638c987cd98f33af85f38b7633a4f22496c0f7d2438ff12fc7246d11c8c76869708a5175282f7ee253197ed5341a38df3c635a",
+                "https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=d1470f016fe2b9f8febb2cd9afd56b346385b85def6a1622cde8e35bdc9313b66bc1299171c76b81d85c987e5e8da12807d52303825b656bc2cf27e7e1011904cd05c0f16b914cbca51352815b2868c2e33c3b8c4b667acc421ed9f59320e789a1e972072c93761a64549b37a915657cd7dc2fba7a4389ba9e88e6dc0e8b4d9495e50925097ac84501df465482e13b7204aa488cea21937e4f3f15f6f4f87400a1fc39ecdb624ef4db77be5968e4cd1550eaaf5d4790779e00006147e1701c711ba7707b3fd988f4dfeceb4edf0e5d176a674794955bf7970cc0508e1117ca51d0b2b16cfa3b08fc5441586990988018d4e6344908ec2ff9996c27cf621819f8",
+                "https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=6e7420b52be39346409e48e2fa7decf3ea0c645d66d4267f9c3f0c400293714adf01cee6d3220a1526f3e7ab22d7020a8c0fc6b4434c78bb26ba82e1024d5ae140f2dbafa0bda93674729534e2e37ef386da8769258f447feeaec0bdc423c37849452fed0b9da8bffa0c91d141fc8a7fb2f0bb9c764c863b71ae6151b1c0a81bc1378cb26fc239532d1bcda8d672cfdde79c962871cba7b2df5db3ed4d4cd608b945c61d4ef84acd80f23e5e4d90c1c08c61814f45e1f08c72012a5fe83aacf1c6015f8d543342c56e686eca00131e9e453494b72ed2e2e73f6950e4707f61874fa66edbd4bb491da9dfb55713dd05e93ae95c01b2158c55b4fc1168dcc6257f",
+                "https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=3c77a2008ae777750dd2ec1755308a6517b25616ead65894db3b8feee8464f9ce32b4a93ed41833af6350740b14573d6f8dc2f0317f7e8f350fbf3c5f63e3d50f6794ad1a45fffb0ba8a2c8385c8ce1e68352609ee8532d0d073218558edcc9becc9da716c56917deb295fa9276773452fa129f8a3fe94694061960eb30b7023acb0cec45bbe719bfb1895fe43155eba3197be3b601fbb9e0d0bcd9634a7330b39f96c47a49656cfd5222f2045386843b39137bdb3c4c16188853efe3b90cabf86d2ca3a91cff564d60188c8305315b87877441be6cade2a57feaea9de998c90d5951b253d0bb13b199e0370e4a14dcd6b5070fc85740526b0f6d5b40f20bbcf"
+              ],
+              "message": "Se han generado 4 enlaces de descarga."
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-1e7efc6d-6f09-43c4-b5ec-9406c5143dcb",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "70ccca31-7880-4a78-a73c-d292bdff6b1d",
+    "timestamp": 1757049951.639052
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CuADAcu98PBc8cvlVhr55zUzKfPkqYPi3mUv_H4J_QNkzdtcbuQA7qk1gPnaQqwLKwSB6e5z4DkbrE-PTaDGIt8cETKgEHUhDx_3tmsGoaO6EdxKFXkNwVTgAQPUFp2uVg4jpLWcsunJNOpJn-ESOKBjrgzYRPROwUD_b4kEE8v3YeboMSv0xqG1w0f320KlNXjxFO15CMapSscktmFTXwRTsF2OxbqYg7Aa6Zqzx1tEyrbuQOSjSVt8IgeBzHpmH9qu-rqgy-Srz9LrRBhwbcS8PrqV_P_3H1-yBShydl-twamqL1SNUkJmw187tbPihRvpyvgUqE-s17YeePzWk5gssItizp_F0baqAmhOM9OoqvHQ8_6ojIUoAIiVEKkyXV-U4DzlN-exVUpP11s7tGxPKMq_2OahyjYD9bo9d6Mhx1isRUDrju9NF-d1ZjNXUKa4_QGDCuiqDa6um1QTAKc4olXK0c6_1OiiLUkFFRCNsKZt3Ti__KdJcdtozHXqzMIj_FOzzLhpbO0HWuJI6p-zh-HER2heZxEmUZZy11s09xM_lQ3g2nNQyXR1J59m_1MpMJ0DB9Ymfdwra1Owd6mTfbbentW9T3w01GQH0ERSLs-8YhFjEaBGD84M44C-DosP",
+          "text": "Aquí tienes los enlaces de descarga para las facturas encontradas:\n\n*   [Factura 0101531734](https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=47d21e8c1fea938a425e54714ccc12cc26be933f9247df9a0a5e72312c8f77cdf881742a5355297f4761777ffb391a8bc0c4559ea59356798eb8d0ab06e006b7ce256dcdaac021277edf56501db11abf769dc3fba0dbc25d910b2418e7e527be86af1967db5d30a767fa9a4826f1ae223f9195843e3a761503767965ba7723468d361202c11a9771b0dbcd545340026a5ff2c322b5d68c49bb1eeb7ca387218e15afd488783bbf672bc5ebbc8291b63cbd1b37d7d03465c2fbafcd143d7510a7eb1af95c6ce0b853a426f1cad5638c987cd98f33af85f38b7633a4f22496c0f7d2438ff12fc7246d11c8c76869708a5175282f7ee253197ed5341a38df3c635a)\n*   [Factura 0101552280](https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=d1470f016fe2b9f8febb2cd9afd56b346385b85def6a1622cde8e35bdc9313b66bc1299171c76b81d85c987e5e8da12807d52303825b656bc2cf27e7e1011904cd05c0f16b914cbca51352815b2868c2e33c3b8c4b667acc421ed9f59320e789a1e972072c93761a64549b37a915657cd7dc2fba7a4389ba9e88e6dc0e8b4d9495e50925097ac84501df465482e13b7204aa488cea21937e4f3f15f6f4f87400a1fc39ecdb624ef4db77be5968e4cd1550eaaf5d4790779e00006147e1701c711ba7707b3fd988f4dfeceb4edf0e5d176a674794955bf7970cc0508e1117ca51d0b2b16cfa3b08fc5441586990988018d4e6344908ec2ff9996c27cf621819f8)\n*   [Factura 0101514836](https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=6e7420b52be39346409e48e2fa7decf3ea0c645d66d4267f9c3f0c400293714adf01cee6d3220a1526f3e7ab22d7020a8c0fc6b4434c78bb26ba82e1024d5ae140f2dbafa0bda93674729534e2e37ef386da8769258f447feeaec0bdc423c37849452fed0b9da8bffa0c91d141fc8a7fb2f0bb9c764c863b71ae6151b1c0a81bc1378cb26fc239532d1bcda8d672cfdde79c962871cba7b2df5db3ed4d4cd608b945c61d4ef84acd80f23e5e4d90c1c08c61814f45e1f08c72012a5fe83aacf1c6015f8d543342c56e686eca00131e9e453494b72ed2e2e73f6950e4707f61874fa66edbd4bb491da9dfb55713dd05e93ae95c01b2158c55b4fc1168dcc6257f)\n*   [Factura 0101507588](https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250905%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250905T052551Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=3c77a2008ae777750dd2ec1755308a6517b25616ead65894db3b8feee8464f9ce32b4a93ed41833af6350740b14573d6f8dc2f0317f7e8f350fbf3c5f63e3d50f6794ad1a45fffb0ba8a2c8385c8ce1e68352609ee8532d0d073218558edcc9becc9da716c56917deb295fa9276773452fa129f8a3fe94694061960eb30b7023acb0cec45bbe719bfb1895fe43155eba3197be3b601fbb9e0d0bcd9634a7330b39f96c47a49656cfd5222f2045386843b39137bdb3c4c16188853efe3b90cabf86d2ca3a91cff564d60188c8305315b87877441be6cade2a57feaea9de998c90d5951b253d0bb13b199e0370e4a14dcd6b5070fc85740526b0f6d5b40f20bbcf)\n"
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 6048
+        }
+      ],
+      "cachedContentTokenCount": 6048,
+      "candidatesTokenCount": 2545,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 2545
+        }
+      ],
+      "promptTokenCount": 9606,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 9606
+        }
+      ],
+      "thoughtsTokenCount": 125,
+      "totalTokenCount": 12276,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-1e7efc6d-6f09-43c4-b5ec-9406c5143dcb",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "8dfc2ef1-af6e-4475-9119-dacf364aee97",
+    "timestamp": 1757049951.646472
+  }
+]
