@@ -1457,6 +1457,26 @@ tools:
         description: Fecha de fin en formato YYYY-MM-DD (ej. "2019-12-31")
         required: true
 
+  get_data_coverage_statistics:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT
+        MIN(fecha) as Fecha_Inicio,
+        MAX(fecha) as Fecha_Fin,
+        COUNT(DISTINCT Rut) as Total_RUTs_Unicos,
+        COUNT(*) as Total_Facturas,
+        COUNT(DISTINCT EXTRACT(YEAR FROM fecha)) as Años_Cubiertos,
+        COUNT(DISTINCT EXTRACT(MONTH FROM fecha)) as Meses_Distintos,
+        ROUND(AVG(EXTRACT(YEAR FROM fecha)), 1) as Año_Promedio
+      FROM
+        `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+    description: |
+      Obtiene estadísticas completas del horizonte temporal y cobertura de datos.
+      Usar cuando el usuario pregunte sobre rango temporal de datos o después de mostrar estadísticas de RUTs.
+      Proporciona contexto temporal completo del dataset de facturas.
+      Incluye fechas de inicio/fin, total de RUTs únicos, facturas totales, años cubiertos y estadísticas temporales.
+
 toolsets:
   gasco_invoice_search:
     - search_invoices
@@ -1488,6 +1508,7 @@ toolsets:
     - get_tributaria_sf_by_solicitante
     - get_tributarias_by_solicitante
     - get_cedibles_by_solicitante
+    - get_data_coverage_statistics
 
   gasco_zip_management:
     - create_zip_record
