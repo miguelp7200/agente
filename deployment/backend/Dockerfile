@@ -54,9 +54,9 @@ ENV IS_CLOUD_RUN=true
 # Exponer puerto principal
 EXPOSE 8080
 
-# Health check
+# Health check usando endpoint ADK real
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:8080/list-apps || exit 1
 
 # Comando de inicio
 CMD ["/bin/bash", "./start_backend.sh"]
