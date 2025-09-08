@@ -1,30 +1,61 @@
 {
-    "test_id": "tarea_25_estadisticas_ruts_unicos",
-    "test_name": "Tarea 25: Estadísticas de RUTs únicos - get_unique_ruts_statistics",
-    "description": "Valida que la herramienta get_unique_ruts_statistics retorne estadísticas agregadas correctas de RUTs únicos con conteo de facturas, fechas y solicitantes.",
+    "test_id": "tarea_25_estadisticas_ruts_unicos_con_contexto_temporal",
+    "test_name": "Tarea 25: Estadísticas de RUTs únicos con contexto temporal completo",
+    "description": "Valida que el agente proporcione estadísticas de RUTs con información temporal completa. Debe llamar get_unique_ruts_statistics seguido de get_data_coverage_statistics para contexto temporal.",
     "query": "Dame estadísticas de los RUTs con más facturas, mostrando al menos 2 facturas por RUT",
-    "expected_tool": "get_unique_ruts_statistics",
-    "expected_parameters": {
-        "min_facturas": 2,
-        "limit_ruts": 20
-    },
+    "expected_trajectory": [
+        {
+            "tool_name": "get_unique_ruts_statistics",
+            "args": {
+                "min_facturas": 2,
+                "limit_ruts": 20
+            }
+        },
+        {
+            "tool_name": "get_data_coverage_statistics",
+            "args": {}
+        }
+    ],
     "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "RUT:",
+                "Total Facturas:",
+                "desde",
+                "hasta",
+                "Los datos abarcan",
+                "años",
+                "horizonte temporal",
+                "facturas totales"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "first_tool": "get_unique_ruts_statistics",
+            "second_tool": "get_data_coverage_statistics",
+            "sequence_required": true
+        },
         "structure": {
-            "response_type": "array_of_objects",
-            "required_fields": [
+            "response_type": "comprehensive_statistics_with_temporal_context",
+            "rut_statistics_fields": [
                 "Rut",
-                "total_facturas",
+                "total_facturas", 
                 "primera_factura",
                 "ultima_factura",
                 "solicitantes_distintos"
             ],
-            "expected_field_types": {
-                "Rut": "string",
-                "total_facturas": "integer",
-                "primera_factura": "date_string",
-                "ultima_factura": "date_string",
-                "solicitantes_distintos": "integer"
-            }
+            "temporal_coverage_fields": [
+                "Fecha_Inicio",
+                "Fecha_Fin",
+                "Total_RUTs_Unicos",
+                "Total_Facturas",
+                "Años_Cubiertos"
+            ]
         },
         "business_logic": {
             "min_records": 1,
@@ -49,15 +80,19 @@
         "validation_notes": "RUTs con múltiples facturas validados en tests anteriores"
     },
     "success_criteria": [
-        "✅ Retorna al menos 1 RUT con estadísticas",
-        "✅ Todos los RUTs tienen al menos 2 facturas (min_facturas=2)",
-        "✅ Fechas primera_factura <= ultima_factura",
-        "✅ Campos total_facturas y solicitantes_distintos son números positivos",
-        "✅ RUTs ordenados por total_facturas descendente",
-        "✅ Estructura JSON correcta con campos requeridos"
+        "✅ Llama get_unique_ruts_statistics con parámetros correctos",
+        "✅ Llama get_data_coverage_statistics para contexto temporal", 
+        "✅ Muestra estadísticas de RUTs con rangos temporales individuales",
+        "✅ Incluye información de horizonte temporal completo",
+        "✅ Menciona período total cubierto por los datos",
+        "✅ Formato de respuesta clara y comprensible",
+        "✅ Secuencia de herramientas ejecutada correctamente",
+        "✅ Respuesta contiene palabras clave temporales esperadas"
     ],
-    "test_type": "statistics_aggregation",
-    "expected_execution_time": "< 5 segundos",
+    "test_type": "comprehensive_statistics_with_temporal_context",
+    "expected_execution_time": "< 8 segundos",
     "date_created": "2025-08-25",
-    "validation_status": "pending"
+    "date_updated": "2025-09-08",
+    "validation_status": "pending",
+    "improvement_notes": "Test actualizado para validar mejora de contexto temporal automático agregada en septiembre 2025"
 }
