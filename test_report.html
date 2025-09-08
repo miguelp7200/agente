@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Chatbot Test Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f0f8ff; padding: 20px; border-radius: 5px; }
+        .summary { background-color: #f9f9f9; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background-color: #d4edda; border-left: 5px solid #28a745; }
+        .fail { background-color: #f8d7da; border-left: 5px solid #dc3545; }
+        .error { background-color: #fff3cd; border-left: 5px solid #ffc107; }
+        .query { font-weight: bold; color: #0066cc; }
+        .response { margin: 10px 0; font-style: italic; }
+        .score { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Invoice Chatbot Test Report (ADK Agent)</h1>
+        <p>Generated: 2025-09-08 18:54:22</p>
+        <p>Agent Path: C:\Users\victo\OneDrive\Documentos\Option\proyectos\invoice-chatbot-planificacion\invoice-backend\my-agents\gcp-invoice-agent-app</p>
+    </div>
+    
+    <div class="summary">
+        <h2>📊 Test Summary</h2>
+        <p><strong>Total Tests:</strong> 18</p>
+        <p><strong>Passed:</strong> 6</p>
+        <p><strong>Failed:</strong> 12</p>
+        <p><strong>Pass Rate:</strong> 33.3%</p>
+    </div>
+    
+    <div class="results">
+        <h2>📋 Detailed Results</h2>
+
+        <div class="test-result pass">
+            <h3>Test: Facturas cedibles múltiples por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme las facturas cedibles cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: No se encontraron facturas cedibles para el solicitante 0012148561.
+</div>
+            <p><strong>Status:</strong> PASS</p>
+
+            <p class="score">Overall Score: 87.5%</p>
+            <p>Should Contain Score: 75.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Factura cedible CF por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme la factura cedible cf cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: No se encontraron facturas cedibles con firma para el solicitante 0012148561.</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 70.0%</p>
+            <p>Should Contain Score: 40.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result pass">
+            <h3>Test: Factura cedible SF por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme la factura cedible sf cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: No se encontraron facturas cedibles sin firma para el solicitante 0012148561.</div>
+            <p><strong>Status:</strong> PASS</p>
+
+            <p class="score">Overall Score: 87.5%</p>
+            <p>Should Contain Score: 75.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Facturas tributarias múltiples por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme las facturas tributaria cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: Aquí tienes la factura tributaria encontrada para el solicitante 0012148561:
+
+Se encontró 1 factura con tipo de copia tributaria.
+
+Enlaces de descarga seguros:
+</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 75.0%</p>
+            <p>Should Contain Score: 50.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result pass">
+            <h3>Test: Factura tributaria CF por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme la factura tributaria cf cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: Se encontró 1 factura tributaria con firma para el solicitante 0012148561:
+
+- **Factura:** 0101195693
+- **Nombre:** ALEJANDRO ROMILIO LARA BUSTOS
+- **RUT:** 11240427-9
+- **Tipo de Documento:** Copia Tributaria Con Firma
+
+</div>
+            <p><strong>Status:</strong> PASS</p>
+
+            <p class="score">Overall Score: 80.0%</p>
+            <p>Should Contain Score: 60.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result pass">
+            <h3>Test: Factura tributaria SF por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme la factura tributaria sf cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: Se encontró 1 factura tributaria sin firma para el solicitante 0012148561.
+
+Aquí tienes el enlace de descarga:
+Enlaces de descarga seguros:
+https://storage.googleapis.com/miguel-test/descargas/0101195693/Copia_Tributaria_sf.pdf</div>
+            <p><strong>Status:</strong> PASS</p>
+
+            <p class="score">Overall Score: 100.0%</p>
+            <p>Should Contain Score: 100.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda por fecha específica 2019-12-26</h3>
+            <p class="query">Query: Puedes darme las facturas del 26 de diciembre de 2019?</p>
+            <div class="response">Response: No se encontraron facturas para el 26 de diciembre de 2019.</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 50.0%</p>
+            <p>Should Contain Score: 0.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda por Mes y Año Específico</h3>
+            <p class="query">Query: Busca facturas de diciembre 2019</p>
+            <div class="response">Response: Se encontraron 4 facturas para diciembre de 2019.
+
+Enlaces de descarga seguros:
+- https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214726Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=4286dc739b28e08f30437bfea2f37dd0b1e4fef3c90ac13d33dad0c5717c16387776276867ce14c3699a223c19c04d4dc612ff7e549e227b924f61442483cac3c22120d3562926dceeedfdbe6292b8d01e139ab03878bea9ea7f75fa08a86413765196cd0d9cf1c5cc28da2fa7d2e70022834e7aa36505964813009b2174507caa5f767acfbdc0eaae09e3374cdb58f5d2ac5cb9aa5962f128bafc99d23ba878b4e80b7c44d23e0d31e25f7500f011cf0ca1c2efe2eba3e134ef096434b26cf3770641aa5b88bc77d96e6ecdc0615a6cde3f6c51e76fe881f508125e01526c96a1bfd4eef9b53000dfc202da71512296d07a4c57d3b6655ddaa36b6ca4d85f31
+- https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214726Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=4ffa8a039f48872fa26ece8e7ce316881eed97ad01dd9ea38c435bba205c40ab36c4db2efff82c189bcd20af91699999e884165bf62c8e64736ba2bcc67e0348d2fc92eac7c4fba90123426820483489cb4655aa7580010a83e4cff57000d655c41f04ffba965ab1b8557b683fb89de0e2778cf627411a99230fb63e28b863784ea4f9261a032fa85b9758fc3de3f6bed23b751cac8ba38d3658d2036184a2368a5fcec4b72f46cb744e85e80a8c0c0ae39d6dbcd458143bd2bdd3361204fec35289a266b5ebae8811b4996db018e351c28253abf1f4976691959807c7117ac165e52b82c189bfc1a3de6a5195a82e39e1070a8bd4eee5996a08c9bfe415deda
+- https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214726Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=b98e1181944c7163819f7eeba06aa176b66a92305007dde228b7099d8705dbd68708f3f4f0ed7c30b001c365281127e6f895ec7797e729e9323d07841eab8fee6f1e685c41675d505b2c68684712ea3a242f2f634af78244902cfae03069695712911d6d963dc5c6fc4793135108bdceec76a745aeba3dc4889e3bf077e5f7bc9676383a2f919f3e8ddefab993e62410f6796cb2863029e1fcf4e6f13b402133dbf2589fdc7bef719b73fdb443af6684988faff3e8a845929437ff0066458a80ce56b613e4bc5ef73995cd86ba4d201fd461735d421d633bf4976eed06b02905401674dd7c668029e1f82ffd9a9bcb756a8bfaef4ed03bea06db57fd5732d04f
+- https://storage.googleapis.com/miguel-test/descargas/0101531734/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214727Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=4bc7b2e8ed2bc434e44045cf4845f97a106936b4da431b4ccbf196cfdabd3029204fb8b163dfe98705f2e877e7de746ada8454f0a6224d6c26ec85003fa60963fa568a148fc737d2173b06b20ae54b489d149c017910aa67ae2d3f1c6eec1a1f28bece361e9ec76f4e1eb2bdf20ebbcd240132f1db2a0b8b8b5bfa79e128ca6c77010057fb61910d948228e3b2db0096c0dd1da5d304006fc9c3834898b23161e25ea46566c5d0f0ae86b3b9abf7466d37a3efab6f228b1ddea1d3366a59e64e9f9ee028a005803f1a2143a421154c5103e629e50d473264f884d09c68e79f470b965e36029444b90c251f7b49530acfadab7865f5060bbbcd5230289b7064d7
+- https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214727Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=9091154b5225b9b760078dde978091bc0471e4b03a62a804910a412c4646eb51df6dc410c421cdf02f67ab9074a62c08fbf51217a343d221731894698a8dd70566acebddb0d715b3f0ef5fd37f3c10daba1c20a2acd21cb7389048a9d3f83f463ebb66fbce44c4629b5a49c804970d91c5952dfb924cb59d10854211c450a54f3c57190b2ad752d75c334bedfc686c6e619466ef453f2247a47d6c44fba2ba5c334c55720e1986dbd804c21c02fb2cc0eee67e0aabe29120b6755b64d524a221c565cfa7d809e1bd502e6a419dba903ff5d888fcf559f0074a5032f0fefacea06eaa2af6ed35c564c1a0ef81c90fd27c979b3d3844889d16a2fbee711b7d065e
+- https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214728Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=4e8fba1015bb8ca6624ef4adb656cc8e2c669e2688af1958d50a5750909311e3a98f7451ccf62d0761e11cd91beb6aeeb044a92942941219aa79e72ad8be8444bdd5966de859d6624ef06936450d0cfec44c745ee411168da10deb1879e418a71663c028940abbd0d627907bc29aacd0fa70cfaeb62b25b01a0e3c3e8f716dfa60969b732280db10e5a3bbed771e40ad7d31ce62bbec37f495dbaa66d9507a976ff9078b6404e166c0894f00566ac6125c8096739beeea1219538c77e2fd32c2d22c17afe8991208bf87f685cfe702f16f2ca9195b1a2f0aa3a15119b015ff39cefafc5009c51237fe54dc050aff62f23fd3936f6b21e39627dba75144507ede
+- https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214728Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=770973c842cbc9a8162620eed1d06c0a8ade24a82fc8a85ec273443c13717b0fe97b06a0ed40e6176ce4bbf992c28d9d21ce51d51fb6c58846a81726f5693083ae29d989ed8821547366ad982da2a111681733a8568bbbe5954fc299bd9ed22231e8e5c1c4b4a6f3213f9bbabf46c08efd42f5824d2170ca3a4aed5c2fdc57a40d02af05906f0e50b2993efa21698bd5804dcdbdee909e162633349bc82619165d77d7a898ace62269ae67dd8c77f6c555f3559711d92a2280ac6146fbea8f7b9e8141684368af58be4150cca97ac5fba1e241e2a2b4aeff1eabd573dff789d7276574cf000d4bbd01eb34fa7c9068f259466c3588b006fd58283937c9db6bac
+- https://storage.googleapis.com/miguel-test/descargas/0101552280/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214729Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=4443832121c8abf06c7688ecb1440289f46b1b016d9763887788a4f72a108934bd9eb4f62322692615911fb7acfae711166b0483d264426afbb8b59192000799847248acf68348bb2172e9361998c937904d21a4072bf938d626a87dbe21b9ed20f87dba079cb94bc50516d8d20d0e1b0de517f41b57e65436d1898bfe333a21362eb9aeb29cb98efb893c6ca7f3b65ca02d089ab7fa5ea34ed3cf83404532e7285562171732c658892cbaa56d0814e1411b2c793f5007de0ae7981a16c0258696646a2b59bc9eb06e47df20344eb173e0335abce82810bd255470bbd70963a7f78ab87b5672cf70ee42ea02930ec0679544debe5de30f6c713f1416540def98
+- https://storage.googleapis.com/miguel-test/descargas/0101552280/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214729Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=7fa1924dc8a005f3db10f3c95bcb51b8ae516c6cc4e3bbc764f9c9585664e0f28c7fdc9f039f3b6b5b19e1fd9f1026c54a3a9d72cc7d78218673a06a0ef7c41976fbaab19ac7f49a4a2564b44af0f3f6aeb52394da413573b352c55f7580d3ac290ffd2231b55aaab8c35c6545e90ab17d7a090f3eb516117595741b6f05efee95173d30562ba833d68f78f0c9a7235c9c76d49b0f1dec43e8a106e7ea3e11ab2e63ba71c6f61badde3b8d4c489c9948ff2ffaefe603aa08d8ec9c140b68f293e7ea676697723b7d0720af623927d0a9effc4883728e21e6f0f8403c17e30b530fe41a920f51fb8f7248cf3b23abb10586405ade53b45e76ae8b417c814dfebb
+- https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Cedible_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214729Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=cd51bcd29ad9fdb90d6474db2161b901ef3d54a47fc7efc40ce6b6feb39bae28d4433640f760e46c1126695f1e60b20f5dce0e01e3a54644ffb5eb97a3c33febda335110a19195f68f40142b2c707d5e843923546c7b64c69dbee31a9b4ce97a281c38aa94aacce48eb55dc2723c67b2171c17b1d1dd70253eb1fd92f4c45734427396e7b27680055f25477440a43d260280bece19c6bac849cbc67ea9d2339b9b8899dba5f9416de81196caaa55da8888cf7083d833c90c222288a27c3a505dfd93034478c7cad84683f3c7a68c4c09591e2bf336a552a84afa6941d09e86a2a8db6befa2464234175cc4d70be71a4de33a7b079a59af94f6297b21421c0466
+- https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Cedible_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214730Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=46dace80144fd684f99a76a31ee8f1b58d3e86d0f35918f828b535b9bb3143e70d871e46480967468a5ccad4b6112d2ef21891c5cfc89f0a914a8aed63b4f98a214d83f979e15fa76dc182f7500da0d2844c0149a84361030a4744ec2b43e07f0e597dd92a946b14f0ae7b449c741ff94565527bab4fe06078095f4bf7e0b9d08f84c54184fc5b420a02e36030f0bfc007a87ce033d975333c29733ac320a3b631d8275f03a9c0862dc1dd1a8f4828dbbaba16ddf5671200dfae772699c95b1912bf5cae0380922cb292f4ca7cf363dd9c55cae3d8b2045973436d2cc7cb4e1c17566a86235147a4c1eb77c3db3a5f602cad2f5475d2d6c89c05d7ca213f16fe
+- https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214730Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=7fb514aba779cbd3554acb620bfdb8624f897dfc472a9299abdd549a00f93dd60ce52d961dc31ce6726ec0cb9dd2f8af4a6c25520c6de5cdbc4766da6359d4e287dc19598b40c8eab6b4686b3d7291b3f7981ca578545bf0c077caa239599ddab5f697f44e4d21e2b19f31c15783cae6910d52b78a70d44bfb997a0d9b9a8e57d891b75745adbbcc93f75a905c8c489c20c4f6f7d1c88a8015a8dcd59cd8b4480cdebe8c2fc12e6a63014d4853c8de284dae4507c899d68ce8c2aa2caa19996f6e845b612829391c1c90da24936ab201c5cccee3975855a304d872a92e7b7f8bb1dc4b779f4b5367c05173a633039bc067595902d41caa7f30e19c84c5baf51e
+- https://storage.googleapis.com/miguel-test/descargas/0101514836/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214730Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=5105603acf2f45f99d1774b7423e98992922dda5fc4ae92d38f3dc159628abf461f46730d80f33bceba8b52212184b7b97951704aaa0bda9130ad97f405b6064274fe9dca5b97979786fa7cf89f16b675cf55a51bf2add98a9283b621fa72c9ec0c17a46045c18f12e6452d932b0f349b4c1b952e969c3850f4d8099cdb18eafb248a1d7caf62f0b5a5837d1c67ba91a333623bba0da5694c3151c764c5f802a083a5ca4f32615b09c8b8251ed8c810b672371612e996f18ea2193021e4c5988542393cbe5b8fc30b90e3cf647b427905955e108ee6192399dda5cb986f771fd1f6d4efac82dbf8a814238a346151280fa267b33133387fb50552b5c9bf84a7e
+- https://storage.googleapis.com/miguel-test/descargas/0101514836/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214731Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=7ffd483ac85b90a7c260844cc52d37337fa42095ae1cb3bc40a8a584737576ae030b28c916821b661aad8e43ad6ef7c4a84ab4e5c42f247f24b7591770a586f1d9dbfb1f92ae048b2a828c8ce774441b106498b22a6e0543c98a8c33830537dc415e658b416227ef6de9bd765a497ba526640fb2d880011e0603303e0857ee5648107da970766b234f3d3a4506381ce73707fa0ecd965b5367863d980778e10fe2a1b3febad2e5c934ac7a6b995dc64374d67f0ecb64d0d374f1271dec7f27a409c7bf6c8d44aecd2735e06e3499b72be0767b9b299ba76d66294ab57fe258843ee5b5adb3bea151980bae1d8545bde585a648c68d6e74e70e99b8ece5380109
+- https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_cf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214731Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=54ecc0f04603a67a1a55720aeed2a7cc89df96cdf40ab36e07abf9dfe25a97ab99275164bdcf115ec2457493713171968028556c1008e379b355d1198fe8e189cd67ead8bb8b07724db549675b6627f55fb961aa8f8a14eae6e77034180384f90e9bea6a72a6e691368555c81bd281391651d1f14c115bf9fcdb89f60c6b12cde66598008d8c3ff07cf7e95515b56bbe20c4dca4a8f7dae2f6ec136ceb7f91b8ef180e043e949e51b8b91c6f70fee27ebebd95a0bebf2874762ccb4d81e918b244c28fc61877f0ac695422bdb1cc68b6c7aef8bb2ef85f8117648e2c7f5b9c8979f75743ecf4e650a7b7a89dbc4207f1e18c6e3178348ebb6f37a4058c0153d5
+- https://storage.googleapis.com/miguel-test/descargas/0101507588/Copia_Tributaria_sf.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214732Z&X-Goog-Expires=3599&X-Goog-SignedHeaders=host&X-Goog-Signature=a77993e1275f4c0738ddaf3eb6f823d8dec83bdd3d29d2d4cc84c1207369ed8061b6f5969ef915fca2cb325a0efcb1a9d956f61f8d013efe20ebd87c61d2d88010e796c3443d155fb140ebade9048aaf0ffc67b9fb495479a38a6fc7a0b05d1211508fb72ff3e382f5f9125027c4fdcfca8a5f924a6113d6bea3932aaaa43f43dafca49c5243cfb83c1c9caa2a4fdc1b2c1e7885dbf18dc77facc6a7e5679014ea93aacf894d19379b7d462906d658d4cf687acd64de10e6c61230ec2db70c6b7fb9e01503474fa0eeca4c0caf9b16eef3db2d9a888873122dfee932aaa06f1ac28f0cff0b533625f014d2e3caa721021af058f6758c9a21b63e1e9010a03629
+- https://storage.googleapis.com/miguel-test/descargas/0101507588/Doc_Termico.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250908%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250908T214732Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=24547f0a501ce472789b73f09282a2ee0d8524ffade540dd302739d777c7fc63a2b70061fab476279c74e7f0017358ebd56c14c48c5c98e54ec82e625b444d7442c2b4e84bdac61205fd42e7c3f883a9f86922bd496701ebc8af7635967514f8dd926c2d077ee74e3871b44098c050a243ca55085112e70ca2b79a559aa5d929a5259220ec6c958f73c6b07e4002a6ff6dcead002ee0f485f5fa997fb97f07514c3dc77527fb14663568ffcaa3db1522c83962d6a6f8eeee8b97e708510da23864f7d8a0dd2ff28177a0bd69a37bc43f7ebcc9cfd6cca36f1d82830813063bb6b033876a3f5f27505e09e9e7ed254df0215a4a9fa01cac830253223c1528e11e</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 66.7%</p>
+            <p>Should Contain Score: 33.3%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda por Múltiples RUTs</h3>
+            <p class="query">Query: Busca facturas de los RUTs 9025012-4,76341146-K</p>
+            <div class="response">Response: No se encontraron facturas para los RUTs 9025012-4 y 76341146-K.</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 64.3%</p>
+            <p>Should Contain Score: 28.6%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result pass">
+            <h3>Test: Búsqueda por rango de fechas diciembre 2019</h3>
+            <p class="query">Query: Puedes darme las facturas entre el 1 de diciembre de 2019 y el 31 de diciembre de 2019?</p>
+            <div class="response">Response: Se encontraron 4 facturas entre el 1 de diciembre de 2019 y el 31 de diciembre de 2019.
+
+Aquí tienes los enlaces de descarga individual para cada factura:
+</div>
+            <p><strong>Status:</strong> PASS</p>
+
+            <p class="score">Overall Score: 80.0%</p>
+            <p>Should Contain Score: 60.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda de Facturas Más Recientes</h3>
+            <p class="query">Query: Dame las 10 facturas más recientes</p>
+            <div class="response">Response: Se han encontrado las 10 facturas más recientes.
+
+Se generará un archivo ZIP con todas las copias de PDF disponibles para estas facturas.
+
+</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 58.3%</p>
+            <p>Should Contain Score: 16.7%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda por RUT específico 9025012-4</h3>
+            <p class="query">Query: Puedes darme las facturas del RUT 9025012-4?</p>
+            <div class="response">Response: No se encontraron facturas para el RUT 9025012-4.</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 60.0%</p>
+            <p>Should Contain Score: 20.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda Combinada RUT + Rango de Fechas</h3>
+            <p class="query">Query: Busca facturas del RUT 9025012-4 en diciembre 2019</p>
+            <div class="response">Response: No se encontraron facturas para el RUT 9025012-4 en diciembre de 2019.</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 60.0%</p>
+            <p>Should Contain Score: 20.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Facturas por RUT y Monto Mínimo - Tarea 28</h3>
+            <p class="query">Query: Busca facturas del RUT 76804953-K que tengan un valor mayor o igual a 500.000 pesos</p>
+            <div class="response">Response: Se encontraron 8 facturas para el RUT 76804953-K con un valor igual o superior a 500.000 pesos. A continuación, se generará un archivo ZIP con todas las copias de estas facturas para su descarga:
+
+</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 66.7%</p>
+            <p>Should Contain Score: 33.3%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result pass">
+            <h3>Test: Factura por solicitante 0012148561</h3>
+            <p class="query">Query: Puedes darme la factura cuyo solicitante es 0012148561?</p>
+            <div class="response">Response: Se encontró 1 factura para el solicitante 0012148561:
+
+**Factura:** 0101195693
+**RUT:** 11240427-9
+**Nombre:** ALEJANDRO ROMILIO LARA BUSTOS
+**PDFs disponibles:** Copia Tributaria (Con Firma), Copia Tributaria (Sin Firma), Documento Térmico
+
+Enlaces de descarga seguros:
+</div>
+            <p><strong>Status:</strong> PASS</p>
+
+            <p class="score">Overall Score: 100.0%</p>
+            <p>Should Contain Score: 100.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Búsqueda por Solicitante + Rango de Fechas</h3>
+            <p class="query">Query: Busca facturas del solicitante 0012436838 en diciembre 2019</p>
+            <div class="response">Response: No se encontraron facturas para el solicitante 0012436838 en diciembre de 2019.</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 58.3%</p>
+            <p>Should Contain Score: 16.7%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Test: Estadísticas de RUTs únicos con contexto temporal completo</h3>
+            <p class="query">Query: Dame estadísticas de los RUTs con más facturas, mostrando al menos 2 facturas por RUT</p>
+            <div class="response">Response: Aquí tienes las estadísticas de los RUTs con al menos 2 facturas:
+
+*   **RUT: 61958500-3**, Total Facturas: 109 (desde 2023-01-13 hasta 2025-08-31)
+*   **RUT: 96568740-8**, Total Facturas: 68 (desde 2020-07-29 hasta 2025-08-29)
+*   **RUT: 61607401-6**, Total Facturas: 49 (desde 2023-01-23 hasta 2025-08-22)
+*   **RUT: 61602280-6**, Total Facturas: 41 (desde 2018-01-31 hasta 2025-08-31)
+*   **RUT: 76947812-4**, Total Facturas: 28 (desde 2023-02-08 hasta 2025-07-24)
+*   **RUT: 77256507-0**, Total Facturas: 27 (desde 2023-01-31 hasta 2025-07-31)
+*   **RUT: 76053551-6**, Total Facturas: 27 (desde 2022-12-31 hasta 2024-10-31)
+*   **RUT: 77219332-7**, Total Facturas: 23 (desde 2023-04-11 hasta 2025-09-02)
+*   **RUT: 76747198-K**, Total Facturas: 20 (desde 2023-03-24 hasta 2025-08-08)
+*   **RUT: 76729944-3**, Total Facturas: 20 (desde 2018-09-30 hasta 2025-07-18)
+*   **RUT: 61608503-4**, Total Facturas: 19 (desde 2023-10-17 hasta 2025-08-29)
+*   **RUT: 77195184-8**, Total Facturas: 18 (desde 2023-03-23 hasta 2025-08-15)
+*   **RUT: 76952567-K**, Total Facturas: 17 (desde 2023-01-04 hasta 2025-07-31)
+*   **RUT: 76778026-5**, Total Facturas: 17 (desde 2022-11-03 hasta 2025-04-30)
+*   **RUT: 76533605-8**, Total Facturas: 16 (desde 2021-06-01 hasta 2025-07-31)
+*   **RUT: 76735422-3**, Total Facturas: 15 (desde 2019-12-10 hasta 2025-09-06)
+*   **RUT: 96792430-K**, Total Facturas: 15 (desde 2023-03-28 hasta 2025-08-31)
+*   **RUT: 76817669-8**, Total Facturas: 15 (desde 2023-03-10 hasta 2025-01-09)
+*   **RUT: 76742300-4**, Total Facturas: 15 (desde 2020-06-02 hasta 2021-06-23)
+*   **RUT: 76881185-7**, Total Facturas: 14 (desde 2024-03-04 hasta 2025-08-31)
+*   **RUT: 76949781-1**, Total Facturas: 14 (desde 2023-02-01 hasta 2025-08-21)
+*   **RUT: 77592846-8**, Total Facturas: 14 (desde 2023-02-14 hasta 2025-07-21)
+*   **RUT: 77311543-5**, Total Facturas: 14 (desde 2023-02-06 hasta 2025-06-11)
+*   **RUT: 77046018-2**, Total Facturas: 14 (desde 2023-02-18 hasta 2025-02-28)
+*   **RUT: 13591078-3**, Total Facturas: 13 (desde 2023-01-10 hasta 2025-06-25)
+*   **RUT: 77798256-7**, Total Facturas: 13 (desde 2023-02-03 hasta 2025-06-17)
+*   **RUT: 13118363-1**, Total Facturas: 13 (desde 2018-06-30 hasta 2024-12-30)
+*   **RUT: 77647481-9**, Total Facturas: 12 (desde 2024-03-12 hasta 2025-08-30)
+*   **RUT: 77010182-4**, Total Facturas: 12 (desde 2019-12-30 hasta 2025-08-27)
+*   **RUT: 10688498-6**, Total Facturas: 12 (desde 2023-04-03 hasta 2025-08-23)
+*   **RUT: 15115712-2**, Total Facturas: 12 (desde 2023-03-15 hasta 2025-08-21)
+*   **RUT: 77079872-8**, Total Facturas: 12 (desde 2023-03-20 hasta 2025-07-21)
+*   **RUT: 76412826-5**, Total Facturas: 12 (desde 2023-02-28 hasta 2025-07-11)
+*   **RUT: 76719262-2**, Total Facturas: 12 (desde 2023-01-10 hasta 2025-07-02)
+*   **RUT: 10572742-9**, Total Facturas: 12 (desde 2023-04-20 hasta 2025-05-30)
+*   **RUT: 14556034-9**, Total Facturas: 12 (desde 2023-03-17 hasta 2025-05-28)
+*   **RUT: 77394472-5**, Total Facturas: 11 (desde 2023-01-06 hasta 2025-09-05)
+*   **RUT: 76828551-9**, Total Facturas: 11 (desde 2023-01-31 hasta 2025-07-30)
+*   **RUT: 77444771-7**, Total Facturas: 11 (desde 2023-07-15 hasta 2025-07-26)
+*   **RUT: 71631900-8**, Total Facturas: 11 (desde 2023-05-13 hasta 2025-07-24)
+*   **RUT: 76039376-2**, Total Facturas: 11 (desde 2023-06-07 hasta 2025-07-22)
+*   **RUT: 10767278-8**, Total Facturas: 11 (desde 2023-02-07 hasta 2025-04-10)
+*   **RUT: 77562457-4**, Total Facturas: 10 (desde 2023-07-22 hasta 2025-09-01)
+*   **RUT: 76804953-K**, Total Facturas: 10 (desde 2023-08-21 hasta 2025-08-30)
+*   **RUT: 76827927-6**, Total Facturas: 10 (desde 2023-08-08 hasta 2025-08-20)
+*   **RUT: 7979276-4**, Total Facturas: 10 (desde 2023-07-17 hasta 2025-08-20)
+*   **RUT: 76784412-3**, Total Facturas: 10 (desde 2021-11-26 hasta 2025-07-31)
+*   **RUT: 76818366-K**, Total Facturas: 10 (desde 2021-07-30 hasta 2025-07-21)
+*   **RUT: 77316691-9**, Total Facturas: 10 (desde 2023-04-26 hasta 2025-07-15)
+*   **RUT: 76687624-2**, Total Facturas: 10 (desde 2023-05-16 hasta 2025-07-09)
+</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 75.0%</p>
+            <p>Should Contain Score: 50.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+        <div class="test-result fail">
+            <h3>Tarea 25 - Estadísticas de RUTs Únicos</h3>
+            <p class="query">Query: Dame estadísticas de RUTs únicos: cuántas facturas tiene cada RUT, mínimo 1 factura, máximo 10 resultados</p>
+            <div class="response">Response: Aquí tienes las estadísticas de los 10 RUTs con al menos 1 factura:
+
+*   RUT: 61958500-3, Total Facturas: 109 (desde 2023-01-13 hasta 2025-08-31)
+*   RUT: 96568740-8, Total Facturas: 68 (desde 2020-07-29 hasta 2025-08-29)
+*   RUT: 61607401-6, Total Facturas: 49 (desde 2023-01-23 hasta 2025-08-22)
+*   RUT: 61602280-6, Total Facturas: 41 (desde 2018-01-31 hasta 2025-08-31)
+*   RUT: 76947812-4, Total Facturas: 28 (desde 2023-02-08 hasta 2025-07-24)
+*   RUT: 77256507-0, Total Facturas: 27 (desde 2023-01-31 hasta 2025-07-31)
+*   RUT: 76053551-6, Total Facturas: 27 (desde 2022-12-31 hasta 2024-10-31)
+*   RUT: 77219332-7, Total Facturas: 23 (desde 2023-04-11 hasta 2025-09-02)
+*   RUT: 76747198-K, Total Facturas: 20 (desde 2023-03-24 hasta 2025-08-08)
+*   RUT: 76729944-3, Total Facturas: 20 (desde 2018-09-30 hasta 2025-07-18)
+</div>
+            <p><strong>Status:</strong> FAIL</p>
+
+            <p class="score">Overall Score: 60.0%</p>
+            <p>Should Contain Score: 20.0%</p>
+            <p>Should Not Contain Score: 100.0%</p>
+        </div>
+
+    </div>
+</body>
+</html>

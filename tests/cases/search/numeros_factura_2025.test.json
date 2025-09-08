@@ -1,0 +1,27 @@
+{
+    "name": "Test: Year Specific Search - Facturas 2025",
+    "description": "Valida que el agente pueda buscar números de factura específicos por año. Prioridad: high.",
+    "query": "dime los números de factura de 2025",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": ["números", "factura", "2025"],
+            "should_not_contain": ["error", "no encontré", "disculpa"]
+        },
+        "tool_sequence": {
+            "expected_tools": ["search_invoices_by_year"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "year_specific_search",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "user_query_validation",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "functional_response": true,
+            "accurate_data": true,
+            "no_errors": true
+        }
+    }
+}

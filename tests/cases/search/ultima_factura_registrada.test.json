@@ -1,0 +1,37 @@
+{
+    "name": "Test: Última Factura Registrada",
+    "description": "Valida que el agente pueda identificar y mostrar la factura más reciente en el sistema. Test crítico para validar ordenamiento temporal.",
+    "query": "dame la última factura registrada",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "última",
+                "factura",
+                "registrada",
+                "2025"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["search_recent_invoices"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "recent_search",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "most_recent_validation",
+        "expected_execution_time": "< 6 segundos",
+        "validation_requirements": {
+            "single_result": true,
+            "recent_date_expected": true,
+            "download_links": false
+        }
+    }
+}

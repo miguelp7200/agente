@@ -397,8 +397,14 @@ class InvoiceChatbotTester:
             if "validation_details" in result:
                 details = result["validation_details"]
                 html_content += f"""
-            <p class="score">Overall Score: {details['overall_score']:.1%}</p>
+            <p class="score">Overall Score: {details.get('overall_score', 0):.1%}</p>
+"""
+                if 'should_contain_score' in details:
+                    html_content += f"""
             <p>Should Contain Score: {details['should_contain_score']:.1%}</p>
+"""
+                if 'should_not_contain_score' in details:
+                    html_content += f"""
             <p>Should Not Contain Score: {details['should_not_contain_score']:.1%}</p>
 """
 
@@ -495,7 +501,7 @@ def main():
             # Buscar en todas las subcarpetas de cases
             found_file = None
             cases_dir = Path(__file__).parent.parent / "cases"
-            for subfolder in ["search", "downloads", "statistics", "integration"]:
+            for subfolder in ["search", "downloads", "statistics", "integration", "financial"]:
                 potential_file = cases_dir / subfolder / args.test_file
                 if potential_file.exists():
                     found_file = potential_file

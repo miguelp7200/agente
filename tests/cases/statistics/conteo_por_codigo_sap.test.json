@@ -1,0 +1,37 @@
+{
+    "name": "Test: Conteo de Facturas por Código SAP",
+    "description": "Valida que el agente pueda generar estadísticas basadas en códigos SAP. Test importante para análisis operacional.",
+    "query": "hazme un conteo de facturas por cada codigo sap",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "conteo",
+                "código",
+                "sap",
+                "facturas"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré", 
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_invoices_by_sap_code"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "sap_analysis",
+        "priority": "medium",
+        "created_date": "2025-09-08",
+        "test_type": "sap_code_breakdown",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "sap_codes_listed": true,
+            "count_per_code": true,
+            "multiple_codes_expected": true
+        }
+    }
+}

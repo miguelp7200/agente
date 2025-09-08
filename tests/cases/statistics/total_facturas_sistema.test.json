@@ -1,0 +1,35 @@
+{
+    "name": "Test: Total de Facturas en el Sistema",
+    "description": "Valida que el agente pueda proporcionar estadísticas básicas del total de facturas disponibles en el sistema. Test fundamental para verificar conectividad y acceso a datos.",
+    "query": "cuantas facturas tenemos en total en nuestro sistema",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "total",
+                "facturas",
+                "sistema"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_data_coverage_statistics"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "basic_statistics",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "data_coverage_validation",
+        "expected_execution_time": "< 5 segundos",
+        "validation_requirements": {
+            "numeric_response": true,
+            "min_expected_facturas": 100
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "name": "Test: Estadísticas de Facturas por Año",
+    "description": "Valida que el agente pueda proporcionar un desglose anual del número de facturas. Fundamental para análisis temporal.",
+    "query": "cuantas facturas hay por cada año",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "año",
+                "facturas",
+                "total",
+                "2023",
+                "2024",
+                "2025"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_invoices_by_year_statistics"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "annual_statistics", 
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "yearly_breakdown_analysis",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "yearly_breakdown": true,
+            "multiple_years_expected": true,
+            "min_years": 3
+        }
+    }
+}

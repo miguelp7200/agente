@@ -1,0 +1,40 @@
+{
+    "name": "Test: Mayor Monto en Agosto 2025",
+    "description": "Valida que el agente pueda identificar la factura con el monto más alto en un período específico. Test crítico para análisis financiero.",
+    "query": "cual es el mayor monto de una factura en agosto 2025, entregame el rut y el solicitante",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "mayor",
+                "monto",
+                "agosto",
+                "2025",
+                "rut",
+                "solicitante"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["search_invoices_by_amount_range"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "financial_analysis",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "max_amount_analysis",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "max_amount_identification": true,
+            "rut_included": true,
+            "solicitante_included": true,
+            "specific_month_year": true
+        }
+    }
+}

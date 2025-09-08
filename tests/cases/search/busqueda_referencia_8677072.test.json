@@ -1,0 +1,35 @@
+{
+    "name": "Test: Búsqueda por Referencia Específica",
+    "description": "Valida que el agente pueda buscar facturas usando números de referencia específicos. Test fundamental para búsquedas precisas.",
+    "query": "me puedes traer la factura referencia 8677072",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "factura",
+                "referencia",
+                "8677072"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["search_invoices_by_reference"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "reference_search",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "specific_reference_lookup",
+        "expected_execution_time": "< 6 segundos",
+        "validation_requirements": {
+            "reference_number_search": true,
+            "specific_result": true,
+            "download_links_optional": true
+        }
+    }
+}

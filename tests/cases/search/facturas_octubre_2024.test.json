@@ -1,0 +1,36 @@
+{
+    "name": "Test: Facturas Octubre 2024",
+    "description": "Valida búsqueda de facturas por mes y año específico. Test para validar filtrado temporal eficiente.",
+    "query": "Hola, me das las facturas de octubre de 2024?",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "octubre",
+                "2024",
+                "facturas",
+                "encontr"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["search_invoices_by_month_year"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "monthly_search",
+        "priority": "high", 
+        "created_date": "2025-09-08",
+        "test_type": "month_year_filtering",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "month_year_filtering": true,
+            "october_2024_specific": true,
+            "multiple_results_expected": false
+        }
+    }
+}

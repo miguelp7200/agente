@@ -1,0 +1,27 @@
+{
+    "name": "Test: Financial Analysis - Suma Montos por Año",
+    "description": "Valida que el agente pueda manejar consultas de análisis financiero por año. Prioridad: high.",
+    "query": "cuanto es la suma de los montos por cada año",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": ["suma", "montos", "año", "total"],
+            "should_not_contain": ["error", "no puedo", "disculpa"]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_amount_statistics_by_year"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "financial_analysis",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "user_query_validation",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "functional_response": true,
+            "accurate_data": true,
+            "no_errors": true
+        }
+    }
+}

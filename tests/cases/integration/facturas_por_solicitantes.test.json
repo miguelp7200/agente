@@ -1,0 +1,27 @@
+{
+    "name": "Test: Business Intelligence - Facturas por Solicitantes",
+    "description": "Valida que el agente pueda generar reportes de business intelligence. Prioridad: high.",
+    "query": "dame las facturas por solicitantes",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": ["facturas", "solicitantes"],
+            "should_not_contain": ["error", "no puedo"]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_invoices_by_solicitante"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "business_intelligence",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "user_query_validation",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "functional_response": true,
+            "accurate_data": true,
+            "no_errors": true
+        }
+    }
+}

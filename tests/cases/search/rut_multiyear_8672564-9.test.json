@@ -1,0 +1,27 @@
+{
+    "name": "Test: RUT Multi-Year Search",
+    "description": "Valida que el agente pueda buscar facturas por RUT específico en múltiples años. Prioridad: high.",
+    "query": "Busca facturas del rut 8672564-9 de los años 2019 y 2020",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": ["8672564-9", "2019", "2020", "facturas"],
+            "should_not_contain": ["error", "no encontré"]
+        },
+        "tool_sequence": {
+            "expected_tools": ["search_invoices_by_rut_date_range"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "rut_multi_year_search",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "user_query_validation",
+        "expected_execution_time": "< 8 segundos",
+        "validation_requirements": {
+            "functional_response": true,
+            "accurate_data": true,
+            "no_errors": true
+        }
+    }
+}

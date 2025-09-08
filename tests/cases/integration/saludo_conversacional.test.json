@@ -1,0 +1,37 @@
+{
+    "name": "Test: Búsqueda Conversacional - Saludo",
+    "description": "Valida que el agente pueda manejar consultas conversacionales y proporcionar orientación sobre sus capacidades.",
+    "query": "Hola, ¿puedes ayudarme?",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "hola",
+                "ayuda",
+                "facturas",
+                "buscar",
+                "puedo"
+            ],
+            "should_not_contain": [
+                "error",
+                "disculpa",
+                "no entiendo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": [],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "conversational",
+        "priority": "low",
+        "created_date": "2025-09-08",
+        "test_type": "greeting_response",
+        "expected_execution_time": "< 3 segundos",
+        "validation_requirements": {
+            "friendly_response": true,
+            "capabilities_mentioned": true,
+            "no_tool_calls": true
+        }
+    }
+}

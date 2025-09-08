@@ -1,0 +1,38 @@
+{
+    "name": "Test: Cobertura Temporal - Años Mínimo y Máximo",
+    "description": "Valida que el agente pueda determinar el rango temporal completo de los datos disponibles. Esencial para entender la cobertura del dataset.",
+    "query": "cual es el minimo año y el maximo año",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "mínimo",
+                "máximo", 
+                "año",
+                "desde",
+                "hasta"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_data_coverage_statistics"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "temporal_coverage",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "temporal_range_validation",
+        "expected_execution_time": "< 5 segundos",
+        "validation_requirements": {
+            "year_range_required": true,
+            "min_year_expected": 2018,
+            "max_year_expected": 2025
+        }
+    }
+}

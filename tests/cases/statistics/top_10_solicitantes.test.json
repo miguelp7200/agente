@@ -1,0 +1,38 @@
+{
+    "name": "Test: Top 10 Solicitantes por Cantidad de Facturas", 
+    "description": "Valida que el agente pueda generar estadísticas de los solicitantes con mayor volumen de facturas. Test esencial para análisis de negocio.",
+    "query": "dame cuantas facturas tengo por cada solicitante, dame el top 10",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "top",
+                "solicitante",
+                "facturas",
+                "total",
+                "10"
+            ],
+            "should_not_contain": [
+                "error",
+                "no encontré",
+                "disculpa",
+                "no puedo"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": ["get_top_solicitantes_statistics"],
+            "sequence_required": false
+        }
+    },
+    "metadata": {
+        "category": "business_intelligence",
+        "priority": "high",
+        "created_date": "2025-09-08",
+        "test_type": "top_solicitantes_analysis",
+        "expected_execution_time": "< 10 segundos",
+        "validation_requirements": {
+            "top_10_results": true,
+            "count_per_solicitante": true,
+            "ordered_by_volume": true
+        }
+    }
+}
