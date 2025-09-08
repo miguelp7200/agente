@@ -1,18 +1,36 @@
 {
-    "test_name": "Tarea 25 - Estadísticas de RUTs Únicos",
+    "name": "Tarea 25 - Estadísticas de RUTs Únicos",
     "description": "Testing get_unique_ruts_statistics: conteo de facturas por RUT y rangos de fechas",
     "query": "Dame estadísticas de RUTs únicos: cuántas facturas tiene cada RUT, mínimo 1 factura, máximo 10 resultados",
-    "tool_expected": "get_unique_ruts_statistics",
-    "expected_criteria": {
-        "min_results": 5,
-        "max_results": 10,
-        "required_fields": [
+    "expected_trajectory": [
+        {
+            "tool_name": "get_unique_ruts_statistics",
+            "args": {
+                "min_facturas": 1,
+                "limit_ruts": 10
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
             "Rut",
             "total_facturas",
             "primera_factura",
             "ultima_factura",
             "solicitantes_distintos"
         ],
+        "should_not_contain": [
+            "error",
+            "no encontré",
+            "disculpa"
+        ]
+    },
+    "metadata": {
+        "category": "statistics",
+        "priority": "medium",
+        "test_type": "rut_statistics",
+        "min_results": 5,
+        "max_results": 10,
         "data_validation": {
             "total_facturas_min": 1,
             "fecha_format": "YYYY-MM-DD",
@@ -21,7 +39,7 @@
                 "76341146-K",
                 "4911410-9"
             ]
-        }
-    },
-    "validation_notes": "Verificar que retorna estadísticas agregadas por RUT con conteos y fechas correctas"
+        },
+        "validation_notes": "Verificar que retorna estadísticas agregadas por RUT con conteos y fechas correctas"
+    }
 }

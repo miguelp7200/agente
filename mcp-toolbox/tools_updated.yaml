@@ -1466,16 +1466,16 @@ tools:
         MAX(fecha) as Fecha_Fin,
         COUNT(DISTINCT Rut) as Total_RUTs_Unicos,
         COUNT(*) as Total_Facturas,
-        COUNT(DISTINCT EXTRACT(YEAR FROM fecha)) as Años_Cubiertos,
+        COUNT(DISTINCT EXTRACT(YEAR FROM fecha)) as Anos_Cubiertos,
         COUNT(DISTINCT EXTRACT(MONTH FROM fecha)) as Meses_Distintos,
-        ROUND(AVG(EXTRACT(YEAR FROM fecha)), 1) as Año_Promedio
+        ROUND(AVG(EXTRACT(YEAR FROM fecha)), 1) as Ano_Promedio
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
     description: |
-      Obtiene estadísticas completas del horizonte temporal y cobertura de datos.
-      Usar cuando el usuario pregunte sobre rango temporal de datos o después de mostrar estadísticas de RUTs.
+      Obtiene estadisticas completas del horizonte temporal y cobertura de datos.
+      Usar cuando el usuario pregunte sobre rango temporal de datos o despues de mostrar estadisticas de RUTs.
       Proporciona contexto temporal completo del dataset de facturas.
-      Incluye fechas de inicio/fin, total de RUTs únicos, facturas totales, años cubiertos y estadísticas temporales.
+      Incluye fechas de inicio/fin, total de RUTs unicos, facturas totales, anos cubiertos y estadisticas temporales.
 
 toolsets:
   gasco_invoice_search:

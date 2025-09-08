@@ -72,9 +72,9 @@ function Check-Services {
         Write-Host "💡 Ejecuta: 'cd mcp-toolbox && .\toolbox.exe --tools-file=tools_updated.yaml --ui'" -ForegroundColor Yellow
     }
     
-    # Verificar ADK API Server usando endpoint /apps
+    # Verificar ADK API Server usando endpoint /list-apps
     try {
-        $adkResponse = Invoke-WebRequest -Uri "http://localhost:8001/apps" -TimeoutSec 3 -ErrorAction Stop
+        $adkResponse = Invoke-WebRequest -Uri "http://localhost:8001/list-apps" -TimeoutSec 3 -ErrorAction Stop
         Write-Host "✅ ADK API Server: Funcionando en puerto 8001" -ForegroundColor Green
     } catch {
         Write-Host "⚠️ ADK API Server: No disponible en http://localhost:8001" -ForegroundColor Yellow
@@ -96,7 +96,7 @@ function Run-ApiServerTests {
     
     # Verificar que el API server esté disponible
     try {
-        $response = Invoke-WebRequest -Uri "http://localhost:8001/apps" -TimeoutSec 5 -ErrorAction Stop
+        $response = Invoke-WebRequest -Uri "http://localhost:8001/list-apps" -TimeoutSec 5 -ErrorAction Stop
         Write-Host "✅ ADK API Server disponible" -ForegroundColor Green
     } catch {
         Write-Host "❌ ADK API Server no disponible en puerto 8001" -ForegroundColor Red

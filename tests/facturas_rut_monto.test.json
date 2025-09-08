@@ -1,13 +1,40 @@
 {
-    "test_name": "Facturas por RUT y Monto Mínimo - Tarea 28",
+    "name": "Facturas por RUT y Monto Mínimo - Tarea 28",
     "description": "Validar search_invoices_by_rut_and_amount: facturas del RUT 76804953-K con monto >= 500000 pesos",
     "query": "Busca facturas del RUT 76804953-K que tengan un valor mayor o igual a 500.000 pesos",
-    "tool_expected": "search_invoices_by_rut_and_amount",
-    "parameters_expected": {
-        "target_rut": "76804953-K",
-        "min_amount": 500000
+    "expected_trajectory": [
+        {
+            "tool_name": "search_invoices_by_rut_and_amount",
+            "args": {
+                "target_rut": "76804953-K",
+                "min_amount": 500000
+            }
+        }
+    ],
+    "expected_response": {
+        "should_contain": [
+            "Factura",
+            "Rut",
+            "Nombre",
+            "fecha",
+            "valor_total_calculado",
+            "Copia_Cedible_cf_proxy",
+            "Copia_Tributaria_cf_proxy",
+            "76804953-K",
+            "INVERSIONES BNP SPA"
+        ],
+        "should_not_contain": [
+            "error",
+            "no encontré",
+            "disculpa"
+        ]
     },
-    "validation_criteria": {
+    "metadata": {
+        "category": "combined_filter_high_value",
+        "priority": "high",
+        "created_date": "2025-08-25",
+        "test_type": "combined_filter_high_value",
+        "complexity": "complex_sql_with_aggregation",
         "data_requirements": {
             "min_results": 1,
             "max_results": 20,
@@ -32,13 +59,7 @@
             "empresa_esperada": "INVERSIONES BNP SPA",
             "cantidad_items_esperada": "Múltiples items en DetallesFactura",
             "tipos_pdf_esperados": "Cedible y Tributaria disponibles"
-        }
-    },
-    "test_metadata": {
-        "created_date": "2025-08-25",
-        "test_type": "combined_filter_high_value",
-        "priority": "high",
-        "complexity": "complex_sql_with_aggregation",
+        },
         "notes": "Test para validar filtrado combinado RUT + monto con cálculo de valor total"
     }
 }
