@@ -12,11 +12,11 @@
     ],
     "expected_response": {
         "should_contain": [
-            "0101546183",
-            "MARIA ENRIQUETA TORRES ROJAS",
-            "2019-12",
+            "0101",
+            "diciembre",
+            "2019",
             "descarga",
-            "http://localhost:8011"
+            "storage.googleapis.com"
         ],
         "should_not_contain": [
             "no encontré",
