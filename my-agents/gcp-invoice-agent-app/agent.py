@@ -446,15 +446,16 @@ def generate_signed_zip_url(zip_filename: str) -> str:
 # <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales --->
 def generate_individual_download_links(pdf_urls: str) -> dict:
     """
-    Toma URLs de GCS y genera URLs de descarga firmadas y seguras para cada una.
+    Toma URLs de GCS y genera URLs firmadas seguras para cada una.
+    SIEMPRE genera URLs firmadas usando credenciales impersonadas en TODOS los entornos.
     Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
     """
-    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces de descarga...")
+    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces firmados...")
     pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
     if not pdf_urls_list:
         return {"success": False, "error": "No se proporcionaron URLs de PDF."}
     
-    # Obtener credenciales impersonadas para firmar URLs (igual que en ZIP function)
+    # Configurar credenciales impersonadas para firmar URLs
     try:
         credentials, project = google.auth.default()
         service_account_email = _get_service_account_email()
@@ -467,8 +468,9 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
         )
         
         storage_client = storage.Client(credentials=target_credentials)
+        print(f"✅ [LINKS INDIVIDUALES] Cliente GCS inicializado con credenciales impersonadas para PDFs en {BUCKET_NAME_READ}")
     except Exception as e:
-        print(f"❌ [LINKS INDIVIDUALES] Error configurando credenciales: {e}")
+        print(f"❌ [LINKS INDIVIDUALES] Error configurando credenciales impersonadas: {e}")
         return {"success": False, "error": f"Error de autenticación: {e}"}
     
     secure_links = []
@@ -495,6 +497,11 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             bucket_name = parts[0]
             blob_name = parts[1]
             
+            # Validar que es el bucket correcto para PDFs
+            if bucket_name != BUCKET_NAME_READ:
+                print(f"⚠️ [LINKS INDIVIDUALES] Bucket incorrecto {bucket_name}, esperado {BUCKET_NAME_READ}")
+                continue
+            
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(blob_name)
             
@@ -502,27 +509,65 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 print(f"⚠️ [LINKS INDIVIDUALES] Objeto no encontrado: {actual_gs_url}")
                 continue
 
-            # Generar URL firmada
+            # SIEMPRE generar URL firmada usando credenciales impersonadas
             expiration = datetime.utcnow() + timedelta(hours=1)
             signed_url = blob.generate_signed_url(
                 version="v4",
                 expiration=expiration,
-                method="GET"
+                method="GET",
+                credentials=target_credentials
             )
+            
+            # 🚨 VALIDACIÓN DE SEGURIDAD: Detectar URLs malformadas
+            if len(signed_url) > 2000:  # URLs normales ~850 chars
+                print(f"⚠️ [LINKS INDIVIDUALES] URL anormalmente larga detectada ({len(signed_url)} chars)")
+                signature_part = signed_url.split('X-Goog-Signature=')[1] if 'X-Goog-Signature=' in signed_url else ''
+                if len(signature_part) > 600:  # Firmas normales ~512 chars
+                    print(f"⚠️ [LINKS INDIVIDUALES] Firma malformada detectada ({len(signature_part)} chars)")
+                    # Intentar regenerar una vez más
+                    print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
+                    signed_url = blob.generate_signed_url(
+                        version="v4",
+                        expiration=expiration,
+                        method="GET",
+                        credentials=target_credentials
+                    )
+                    if len(signed_url) > 2000:
+                        print(f"❌ [LINKS INDIVIDUALES] URL sigue siendo malformada, omitiendo")
+                        continue
+            
             secure_links.append(signed_url)
-            print(f"✅ [LINKS INDIVIDUALES] URL generada para: {actual_gs_url}")
+            print(f"✅ [LINKS INDIVIDUALES] URL firmada generada para: {actual_gs_url} (longitud: {len(signed_url)})")
 
         except Exception as e:
-            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {actual_gs_url}: {e}")
+            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
             
     if not secure_links:
         return {"success": False, "error": "No se pudo generar ninguna URL de descarga segura."}
         
-    print(f"✅ [LINKS INDIVIDUALES] {len(secure_links)} enlaces seguros generados.")
+    print(f"✅ [LINKS INDIVIDUALES] {len(secure_links)} enlaces firmados generados.")
+    
+    # 🚨 VALIDACIÓN FINAL: Verificar que todas las URLs están bien formadas
+    validated_links = []
+    for i, url in enumerate(secure_links):
+        if len(url) > 2000:
+            print(f"⚠️ [LINKS INDIVIDUALES] Omitiendo URL #{i+1} por longitud anormal ({len(url)} chars)")
+            continue
+        validated_links.append(url)
+    
+    if not validated_links:
+        return {"success": False, "error": "Todas las URLs generadas fueron malformadas y omitidas."}
+    
+    # DEBUG: Mostrar algunas URLs para verificar el formato
+    if validated_links:
+        print(f"🔗 [DEBUG] Primera URL generada: {validated_links[0][:100]}...")
+        if len(validated_links) > 1:
+            print(f"🔗 [DEBUG] Última URL generada: {validated_links[-1][:100]}...")
+    
     return {
         "success": True,
-        "download_urls": secure_links,
-        "message": f"Se han generado {len(secure_links)} enlaces de descarga."
+        "download_urls": validated_links,
+        "message": f"Se han generado {len(validated_links)} enlaces de descarga firmados."
     }
 # <--- Fin de la adición --->
 
@@ -543,23 +588,38 @@ root_agent = Agent(
     # <--- ADICIÓN 5: Añadir AMBAS herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
     instruction=(
-        # <--- ADICIÓN 6: Instrucciones más explícitas para que el agente sepa QUÉ herramienta usar y CUÁNDO --->
         "Eres un agente especializado en facturas chilenas.\n\n"
-        "FLUJO OBLIGATORIO:\n"
-        "1. Para obtener facturas del 2019, usa search_invoices_by_date_range con start_date: '2019-01-01' y end_date: '2019-12-31'\n"
-        "2. Si encuentras 5 o más facturas, DEBES llamar create_standard_zip con las URLs encontradas\n"
-        "3. Si encuentras menos de 5 facturas, muestra enlaces individuales\n\n"
+        "🔒 REGLA CRÍTICA DE URLs FIRMADAS:\n"
+        "NUNCA devuelvas URLs gs:// directas. SIEMPRE debes convertir URLs a firmadas con storage.googleapis.com\n"
+        "- PDFs están en: gs://miguel-test (proyecto datalake-gasco)\n"
+        "- ZIPs se crean en: gs://agent-intelligence-zips (proyecto agent-intelligence-gasco)\n\n"
+        "FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):\n"
+        "1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, etc.)\n"
+        "2. Si encuentras 5 o más facturas:\n"
+        "   → DEBES llamar create_standard_zip(pdf_urls='url1,url2,url3,...')\n"
+        "   → Esto genera automáticamente URLs firmadas para el ZIP\n"
+        "3. Si encuentras menos de 5 facturas:\n"
+        "   → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')\n"
+        "   → Esto convierte las URLs gs:// a URLs firmadas individuales\n"
+        "4. OBLIGATORIO: Después de generar URLs, SIEMPRE incluye las URLs completas en tu respuesta final\n\n"
+        "FORMATO DE RESPUESTA OBLIGATORIO:\n"
+        "- Primero resume los resultados encontrados (facturas, fechas, etc.)\n"
+        "- Luego SIEMPRE incluye las URLs de descarga completas\n"
+        "- Ejemplo: 'Enlaces de descarga seguros:' seguido de las URLs\n"
+        "- Las URLs deben ser clicables y contener https://storage.googleapis.com\n\n"
         "REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:\n"
         "- Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles\n"
         "- Formato: 'RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])'\n"
         "- Después de estadísticas, llama get_data_coverage_statistics para mostrar horizonte temporal completo\n"
         "- Menciona explícitamente el período total cubierto por los datos\n"
         "- Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente\n\n"
-        "REGLA CRÍTICA:\n"
-        "Cuando tengas >= 5 facturas, INMEDIATAMENTE llama:\n"
-        "create_standard_zip(pdf_urls='url1,url2,url3,...')\n\n"
-        "IMPORTANTE: pdf_urls debe ser un string con URLs separadas por comas.\n"
-        "Siempre DEBES ejecutar la búsqueda primero. NO inventes datos.\n"
+        "CRÍTICO:\n"
+        "- pdf_urls debe ser un string con URLs separadas por comas\n"
+        "- Siempre DEBES ejecutar la búsqueda primero. NO inventes datos\n"
+        "- NUNCA muestres URLs gs:// sin firmar\n"
+        "- SIEMPRE usa credenciales impersonadas para generar URLs firmadas\n"
+        "- NUNCA uses URLs proxy - solo URLs firmadas con storage.googleapis.com\n"
+        "- OBLIGATORIO: Incluir las URLs completas en la respuesta al usuario\n"
         "Responde en español de forma clara y directa."
     ),
     before_agent_callback=conversation_tracker.before_agent_callback if conversation_tracker else None,

@@ -6,7 +6,6 @@ Versión actualizada para usar el agente ADK real
 
 import pytest
 import json
-import asyncio
 import os
 import requests
 import argparse
@@ -16,16 +15,20 @@ import sys
 import logging
 from datetime import datetime
 
+# Agregar el directorio padre para imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Imports de utilidades
+from utils.adk_wrapper import ADKSyncWrapper
+
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Agregar el directorio del proyecto al path
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent
+tests_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
-
-# Importar wrapper para agente ADK
-from adk_wrapper import create_adk_agent_wrapper
 
 # Configuración del agente ADK
 ADK_AGENT_PATH = project_root / "my-agents" / "gcp-invoice-agent-app"
@@ -69,9 +72,23 @@ class InvoiceChatbotTester:
 
     def __init__(self):
         self.agent_wrapper = None
-        self.tests_dir = Path(__file__).parent
+        self.tests_dir = Path(__file__).parent.parent  # Ajustar para nueva estructura
 
-    async def setup_agent(self):
+    def discover_test_files(self):
+        """Descubre todos los archivos de test en la estructura organizada"""
+        test_files = []
+        cases_dir = self.tests_dir / "cases"
+        
+        if cases_dir.exists():
+            # Buscar en subdirectorios de cases
+            test_files.extend(list(cases_dir.glob("**/*.test.json")))
+        
+        # También buscar en el directorio raíz por compatibilidad
+        test_files.extend(list(self.tests_dir.glob("*.test.json")))
+        
+        return test_files
+
+    def setup_agent(self):
         """Configura el agente ADK"""
         if self.agent_wrapper is None:
             # Verificar que el agente existe
@@ -80,16 +97,16 @@ class InvoiceChatbotTester:
 
             logger.info(f"🤖 Configurando agente ADK: {ADK_AGENT_PATH}")
 
-            # Usar wrapper HTTP para conectar al servidor ADK existente
-            self.agent_wrapper = create_adk_agent_wrapper(ADK_AGENT_PATH, "http")
-            logger.info("✅ Agente ADK configurado via HTTP wrapper")
+            # Usar wrapper HTTP sincrónico para conectar al servidor ADK existente
+            self.agent_wrapper = ADKSyncWrapper(ADK_AGENT_PATH)
+            logger.info("✅ Agente ADK configurado via HTTP wrapper sincrónico")
 
-    async def cleanup_agent(self):
+    def cleanup_agent(self):
         """Limpia recursos del agente"""
-        if self.agent_wrapper and hasattr(self.agent_wrapper, "stop_server"):
-            await self.agent_wrapper.stop_server()
+        # El HTTP wrapper no necesita cleanup especial
+        pass
 
-    async def run_single_test(self, test_file: Path) -> Dict[str, Any]:
+    def run_single_test(self, test_file: Path) -> Dict[str, Any]:
         """Ejecuta un test individual desde archivo .test.json"""
 
         with open(test_file, "r", encoding="utf-8") as f:
@@ -100,13 +117,19 @@ class InvoiceChatbotTester:
         print(f"🧪 Ejecutando test: {test_name}")
 
         # Configurar agente si no está listo
-        await self.setup_agent()
+        self.setup_agent()
 
         # Ejecutar consulta con el agente
         try:
             # Obtener la consulta (compatible con diferentes formatos)
             query = test_data.get('query') or test_data.get('user_content', '')
-            response = await self.agent_wrapper.process_query(query)
+            response = self.agent_wrapper.process_query(query)
+            
+            # DEBUG: Mostrar respuesta completa del agente
+            print(f"\n🔍 RESPUESTA COMPLETA DEL AGENTE:")
+            print(f"Query: {query}")
+            print(f"Answer: {response.get('answer', 'NO ANSWER')}")
+            print("=" * 80)
 
             # Validar respuesta según el formato del test
             if 'validation_criteria' in test_data:
@@ -260,13 +283,29 @@ class InvoiceChatbotTester:
             "note": "Tool sequence validation not fully implemented yet"
         }
 
-    async def run_all_tests(self) -> Dict[str, Any]:
+    def run_all_tests(self) -> Dict[str, Any]:
         """Ejecuta todos los archivos .test.json en el directorio tests/"""
 
-        test_files = list(self.tests_dir.glob("*.test.json"))
+        # Buscar archivos test en la nueva estructura organizada
+        test_files = []
+        cases_dir = self.tests_dir / "cases"
+        
+        if cases_dir.exists():
+            # Buscar en subdirectorios de cases
+            test_files.extend(list(cases_dir.glob("**/*.test.json")))
+        
+        # También buscar en el directorio raíz por compatibilidad
+        test_files.extend(list(self.tests_dir.glob("*.test.json")))
 
         if not test_files:
             print("❌ No se encontraron archivos .test.json en el directorio tests/")
+            print("📁 Directorios verificados:")
+            print(f"   - {self.tests_dir}")
+            print(f"   - {cases_dir}")
+            print(f"   - {cases_dir}/search/")
+            print(f"   - {cases_dir}/downloads/")
+            print(f"   - {cases_dir}/statistics/")
+            print(f"   - {cases_dir}/integration/")
             return {"error": "No test files found"}
 
         print(f"🎯 Encontrados {len(test_files)} archivos de test")
@@ -275,7 +314,7 @@ class InvoiceChatbotTester:
         passed_tests = 0
 
         for test_file in test_files:
-            result = await self.run_single_test(test_file)
+            result = self.run_single_test(test_file)
             results.append(result)
 
             if result["status"] == "PASS":
@@ -285,7 +324,7 @@ class InvoiceChatbotTester:
                 print(f"❌ {result['test_name']} - {result['status']}")
 
         # Limpiar agente
-        await self.cleanup_agent()
+        self.cleanup_agent()
 
         # Generar reporte
         summary = {
@@ -390,30 +429,27 @@ class TestInvoiceChatbot:
     def tester(self):
         return InvoiceChatbotTester()
 
-    @pytest.mark.asyncio
-    async def test_solicitante_0012148561(self, tester):
+    def test_solicitante_0012148561(self, tester):
         """Test individual: búsqueda por solicitante 0012148561"""
-        test_file = Path(__file__).parent / "facturas_solicitante_0012148561.test.json"
+        test_file = Path(__file__).parent.parent / "cases" / "search" / "facturas_solicitante_0012148561.test.json"
         if test_file.exists():
-            result = await tester.run_single_test(test_file)
+            result = tester.run_single_test(test_file)
             assert (
                 result["status"] == "PASS"
             ), f"Test falló: {result.get('error', 'Unknown error')}"
 
-    @pytest.mark.asyncio
-    async def test_cedible_cf_0012148561(self, tester):
+    def test_cedible_cf_0012148561(self, tester):
         """Test individual: búsqueda factura cedible CF"""
-        test_file = Path(__file__).parent / "facturas_cedible_cf_0012148561.test.json"
+        test_file = Path(__file__).parent.parent / "cases" / "search" / "facturas_cedible_cf_0012148561.test.json"
         if test_file.exists():
-            result = await tester.run_single_test(test_file)
+            result = tester.run_single_test(test_file)
             assert (
                 result["status"] == "PASS"
             ), f"Test falló: {result.get('error', 'Unknown error')}"
 
-    @pytest.mark.asyncio
-    async def test_all_invoice_tests(self, tester):
+    def test_all_invoice_tests(self, tester):
         """Test suite completo: ejecuta todos los tests de facturas"""
-        results = await tester.run_all_tests()
+        results = tester.run_all_tests()
 
         # Generar reporte
         tester.generate_html_report(results)
@@ -425,7 +461,7 @@ class TestInvoiceChatbot:
 
 
 # Script principal para ejecución directa
-async def main():
+def main():
     """Función principal para ejecutar tests"""
     # Parsear argumentos de línea de comandos
     parser = argparse.ArgumentParser(description='Testing automatizado del Invoice Chatbot')
@@ -454,13 +490,24 @@ async def main():
     # Ejecutar test específico o todos los tests
     if args.test_file:
         # Ejecutar solo el test especificado
-        test_file = Path(__file__).parent / args.test_file
+        test_file = Path(__file__).parent.parent / "cases" / args.test_file
         if not test_file.exists():
-            print(f"❌ Archivo de test no encontrado: {test_file}")
-            return
+            # Buscar en todas las subcarpetas de cases
+            found_file = None
+            cases_dir = Path(__file__).parent.parent / "cases"
+            for subfolder in ["search", "downloads", "statistics", "integration"]:
+                potential_file = cases_dir / subfolder / args.test_file
+                if potential_file.exists():
+                    found_file = potential_file
+                    break
+            
+            if found_file is None:
+                print(f"❌ Archivo de test no encontrado: {args.test_file}")
+                return
+            test_file = found_file
             
         print(f"🎯 Ejecutando test específico: {args.test_file}")
-        result = await tester.run_single_test(test_file)
+        result = tester.run_single_test(test_file)
         
         # Mostrar resultado
         print(f"\n📊 RESULTADO DEL TEST:")
@@ -476,11 +523,11 @@ async def main():
                 print(f"Detalles: {result['validation_details']}")
         
         # Limpiar recursos
-        await tester.cleanup_agent()
+        tester.cleanup_agent()
         return
     else:
         # Ejecutar todos los tests individuales
-        results = await tester.run_all_tests()
+        results = tester.run_all_tests()
 
         # Generar reporte HTML
         tester.generate_html_report(results)
@@ -494,4 +541,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

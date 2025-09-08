@@ -230,7 +230,7 @@ class ADKHTTPWrapper:
             response = requests.post(
                 f"{self.base_url}/run",
                 json=data,
-                timeout=120,  # 120 segundos para permitir procesamiento completo
+                timeout=300,  # 300 segundos para permitir procesamiento completo de listas grandes
             )
 
             if response.status_code != 200:
@@ -420,3 +420,107 @@ def create_adk_agent_wrapper(agent_path: Path, method: str = "http") -> Any:
         return SimpleTextWrapper(agent_path)
     else:
         raise ValueError(f"Método no soportado: {method}")
+
+
+class ADKSyncWrapper:
+    """Wrapper sincrónico para el servidor ADK API"""
+
+    def __init__(self, agent_path: Path = None, port: int = 8001):
+        self.agent_path = agent_path
+        self.port = port
+        self.base_url = f"http://localhost:{port}"
+        self.timeout = 300  # Aumentar timeout a 5 minutos para listas grandes de PDFs
+
+    def process_query(self, question: str) -> Dict[str, Any]:
+        """Procesa una consulta de forma sincrónica usando requests"""
+        import requests
+        import uuid
+        
+        try:
+            # Paso 1: Crear una sesión
+            app_name = "gcp-invoice-agent-app"
+            user_id = "test-user"
+            session_id = str(uuid.uuid4())
+            
+            session_url = f"{self.base_url}/apps/{app_name}/users/{user_id}/sessions/{session_id}"
+            logger.info(f"🔧 Creando sesión: {session_url}")
+            
+            session_response = requests.post(
+                session_url,
+                json={},
+                headers={"Content-Type": "application/json"},
+                timeout=30,
+            )
+            
+            if session_response.status_code != 200:
+                error_msg = f"Error creando sesión: {session_response.status_code} - {session_response.text}"
+                logger.error(f"❌ {error_msg}")
+                return {"error": error_msg}
+            
+            logger.info("✅ Sesión creada correctamente")
+            
+            # Paso 2: Enviar la consulta usando el endpoint /run
+            data = {
+                "appName": app_name,
+                "userId": user_id,
+                "sessionId": session_id,
+                "newMessage": {"parts": [{"text": question}], "role": "user"},
+            }
+            
+            logger.info(f"🔄 Enviando consulta a {self.base_url}/run")
+            
+            response = requests.post(
+                f"{self.base_url}/run",
+                json=data,
+                timeout=self.timeout,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                logger.info("✅ Query ejecutada exitosamente")
+                
+                # Procesar respuesta para extraer el mensaje del agente
+                answer = "No se encontró respuesta"
+                events = result if isinstance(result, list) else []
+                
+                for event in events:
+                    if isinstance(event, dict):
+                        content = event.get("content", {})
+                        
+                        # Buscar respuesta del modelo/assistant
+                        if content.get("role") == "model" or content.get("role") == "assistant":
+                            parts = content.get("parts", [])
+                            for part in parts:
+                                if isinstance(part, dict) and "text" in part:
+                                    answer = part["text"]
+                                    break
+                            if answer != "No se encontró respuesta":
+                                break
+                        
+                        # Backup: buscar cualquier texto en las partes
+                        elif "parts" in content:
+                            parts = content.get("parts", [])
+                            for part in parts:
+                                if isinstance(part, dict) and "text" in part:
+                                    answer = part["text"]
+                                    break
+                
+                return {"success": True, "answer": answer, "raw_events": events}
+            else:
+                error_msg = f"HTTP {response.status_code}: {response.text}"
+                logger.error(f"❌ Error en query: {error_msg}")
+                return {"error": error_msg}
+                
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Error de conexión: {str(e)}"
+            logger.error(f"❌ {error_msg}")
+            return {"error": error_msg}
+        except Exception as e:
+            error_msg = f"Error inesperado: {str(e)}"
+            logger.error(f"❌ {error_msg}")
+            return {"error": error_msg}
+
+    def cleanup(self):
+        """Cleanup - no hay nada que limpiar para el wrapper sincrónico"""
+        pass
