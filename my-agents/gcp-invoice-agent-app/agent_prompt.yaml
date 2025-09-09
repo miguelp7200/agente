@@ -34,13 +34,15 @@ system_instructions: |
   FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):
   1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, search_invoices_recent_by_date, etc.)
   2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
-  3. Si encuentras 5 o más facturas:
-     → DEBES llamar create_standard_zip(pdf_urls='url1,url2,url3,...')
-     → Esto genera automáticamente URLs firmadas para el ZIP
-  4. Si encuentras menos de 5 facturas:
-     → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')
-     → Esto convierte las URLs gs:// a URLs firmadas individuales
-  5. OBLIGATORIO: Presenta la respuesta usando el FORMATO MEJORADO especificado abajo
+  3. **OBLIGATORIO DESPUÉS DE CADA BÚSQUEDA:**
+     - Contar el número de facturas encontradas en la respuesta
+     - Si encuentras 5 o más facturas: INMEDIATAMENTE ejecutar create_standard_zip
+     - Si encuentras menos de 5 facturas: INMEDIATAMENTE ejecutar generate_individual_download_links
+     - NUNCA omitir este paso - SIEMPRE ejecutar una de estas dos herramientas
+  4. **OBLIGATORIO DESPUÉS DE EJECUTAR HERRAMIENTAS DE DESCARGA:**
+     - Generar respuesta completa para el usuario usando el FORMATO MEJORADO
+     - Incluir todas las URLs recibidas de las herramientas
+     - NUNCA dejar la respuesta vacía
 
   FORMATO DE RESPUESTA MEJORADO:
   Usa este formato específico para presentar los resultados:
@@ -89,12 +91,32 @@ system_instructions: |
   - Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente
 
   CRÍTICO:
-  - NUNCA intentes procesar las URLs manualmente con código Python
-  - NUNCA llames herramientas inexistentes como create_standard_zip o generate_individual_download_links
-  - Siempre DEBES ejecutar la búsqueda primero. NO inventes datos
-  - Presenta DIRECTAMENTE las URLs gs:// encontradas
+  - NUNCA inventes datos. Siempre ejecuta la búsqueda primero
   - Responde en español de forma clara y directa
-  - OBLIGATORIO: Incluir las URLs completas en la respuesta al usuario
+  
+  📦 LÓGICA CONDICIONAL PARA URLs (CRÍTICA - NUNCA OMITIR):
+  
+  **PASO 1: DESPUÉS DE CADA BÚSQUEDA, OBLIGATORIO:**
+  - Contar facturas encontradas en la respuesta de la herramienta
+  - SIEMPRE ejecutar uno de los siguientes pasos (nunca omitir)
+  
+  **PASO 2A: SI HAY MUCHAS FACTURAS (≥5):**
+  - INMEDIATAMENTE ejecutar: create_standard_zip(pdf_urls)
+  - Incluir URL del ZIP en la respuesta: "[Descargar ZIP](URL_FIRMADA)"
+  - Para documentos individuales mostrar: "Disponible en ZIP"
+  - NO ejecutar generate_individual_download_links
+  
+  **PASO 2B: SI HAY POCAS FACTURAS (<5):**
+  - INMEDIATAMENTE ejecutar: generate_individual_download_links(pdf_urls)
+  - Reemplazar URLs gs:// con URLs firmadas individuales
+  - NO ejecutar create_standard_zip
+  - NO mencionar archivo ZIP
+  
+  **PASO 3: RESPUESTA FINAL (OBLIGATORIO):**
+  - SIEMPRE generar respuesta completa para el usuario
+  - Usar URLs firmadas devueltas por las herramientas
+  - NUNCA dejar la respuesta vacía o solo con espacios
+  - Seguir el FORMATO MEJORADO especificado arriba
   Responde en español de forma clara y directa.
 
 # Available tools description and configuration

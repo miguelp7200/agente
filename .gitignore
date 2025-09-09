@@ -1,6 +1,14 @@
 # Ignorar datos y muestras
 data/
 
+# Ignorar resultados de diagnóstico y pruebas temporales
+diagnosis_results/
+
+# Ignorar outputs temporales de tests
+tests/outputs/
+*.test.json
+*.debug.log
+
 # Ignorar archivos binarios grandes
 mcp-toolbox/toolbox
 mcp-toolbox/toolbox.exe

@@ -26,6 +26,7 @@ COPY local_pdf_server.py ./
 COPY config.py ./
 COPY create_complete_zip.py ./
 COPY zip_packager.py ./
+COPY url_validator.py ./
 COPY .env ./
 
 # Copiar scripts de deployment

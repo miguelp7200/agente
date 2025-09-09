@@ -158,6 +158,17 @@ ZIP_PREVIEW_LIMIT = int(os.getenv("ZIP_PREVIEW_LIMIT", "3"))
 # Días antes que expire un ZIP generado
 ZIP_EXPIRATION_DAYS = int(os.getenv("ZIP_EXPIRATION_DAYS", "7"))
 
+# Configuración de timeouts para ZIP creation
+ZIP_CREATION_TIMEOUT = int(os.getenv("ZIP_CREATION_TIMEOUT", "900"))  # 15 minutos
+ZIP_DOWNLOAD_TIMEOUT = int(os.getenv("ZIP_DOWNLOAD_TIMEOUT", "300"))  # 5 minutos por PDF
+ZIP_MAX_CONCURRENT_DOWNLOADS = int(os.getenv("ZIP_MAX_CONCURRENT_DOWNLOADS", "10"))  # Descargas paralelas
+
+# Límite máximo de PDFs por ZIP para evitar timeouts
+ZIP_MAX_FILES = int(os.getenv("ZIP_MAX_FILES", "50"))
+
+# Usar URLs firmadas individuales en lugar de ZIP para conjuntos muy grandes
+USE_SIGNED_URLS_THRESHOLD = int(os.getenv("USE_SIGNED_URLS_THRESHOLD", "30"))
+
 # ==============================================
 # CONFIGURACIÓN DE VISUALIZACIÓN EN CHAT
 # ==============================================

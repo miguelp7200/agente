@@ -33,6 +33,9 @@ from config import (
 # Importar configuración YAML (importación relativa)
 from .agent_prompt_config import load_system_instructions, load_agent_config
 
+# Importar validador de URLs
+from url_validator import fix_response_urls, validate_signed_url
+
 # 🔥 NUEVO: Importar sistema de logging de conversaciones
 try:
     # Intento 1: Importar desde el mismo directorio que este archivo (ADK context)
@@ -432,6 +435,34 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             credentials=target_credentials
         )
         
+        # 🚨 VALIDACIÓN DE ZIP URL
+        if not validate_signed_url(signed_url):
+            print(f"⚠️ [GCS] ZIP URL malformada detectada ({len(signed_url)} chars)")
+            print("🔄 [GCS] Intentando regenerar ZIP URL...")
+            try:
+                # Intentar regenerar una vez más
+                signed_url = blob.generate_signed_url(
+                    version="v4",
+                    expiration=expiration,
+                    method="GET",
+                    credentials=target_credentials
+                )
+                
+                if not validate_signed_url(signed_url):
+                    print(f"❌ [GCS] ZIP URL sigue malformada, usando fallback")
+                    if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+                        return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+                    else:
+                        return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+                else:
+                    print(f"✅ [GCS] ZIP URL regenerada correctamente")
+            except Exception as e:
+                print(f"❌ [GCS] Error regenerando ZIP URL: {e}")
+                if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+                    return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+                else:
+                    return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+        
         print(f"✅ [GCS] Signed URL generada para {zip_filename} con credenciales impersonadas")
         print(f"🔗 [GCS] URL: {signed_url[:100]}...")  # Solo mostrar inicio por seguridad
         
@@ -521,23 +552,39 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 credentials=target_credentials
             )
             
-            # 🚨 VALIDACIÓN DE SEGURIDAD: Detectar URLs malformadas
-            if len(signed_url) > 2000:  # URLs normales ~850 chars
-                print(f"⚠️ [LINKS INDIVIDUALES] URL anormalmente larga detectada ({len(signed_url)} chars)")
-                signature_part = signed_url.split('X-Goog-Signature=')[1] if 'X-Goog-Signature=' in signed_url else ''
-                if len(signature_part) > 600:  # Firmas normales ~512 chars
-                    print(f"⚠️ [LINKS INDIVIDUALES] Firma malformada detectada ({len(signature_part)} chars)")
+            # 🚨 VALIDACIÓN DE URL con validador mejorado
+            if not validate_signed_url(signed_url):
+                print(f"⚠️ [LINKS INDIVIDUALES] URL malformada detectada ({len(signed_url)} chars)")
+                print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
+                try:
                     # Intentar regenerar una vez más
-                    print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
                     signed_url = blob.generate_signed_url(
                         version="v4",
                         expiration=expiration,
                         method="GET",
                         credentials=target_credentials
                     )
-                    if len(signed_url) > 2000:
-                        print(f"❌ [LINKS INDIVIDUALES] URL sigue siendo malformada, omitiendo")
-                        continue
+                    
+                    if not validate_signed_url(signed_url):
+                        print(f"❌ [LINKS INDIVIDUALES] URL sigue malformada después de regenerar")
+                        # Usar URL de proxy como fallback
+                        if CLOUD_RUN_SERVICE_URL:
+                            signed_url = f"{CLOUD_RUN_SERVICE_URL}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
+                        else:
+                            signed_url = f"http://localhost:{PDF_SERVER_PORT}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
+                        print(f"🔄 [LINKS INDIVIDUALES] Usando URL de proxy: {signed_url}")
+                    else:
+                        print(f"✅ [LINKS INDIVIDUALES] URL regenerada correctamente")
+                except Exception as e:
+                    print(f"❌ [LINKS INDIVIDUALES] Error regenerando URL: {e}")
+                    # Usar URL de proxy como fallback final
+                    if CLOUD_RUN_SERVICE_URL:
+                        signed_url = f"{CLOUD_RUN_SERVICE_URL}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
+                    else:
+                        signed_url = f"http://localhost:{PDF_SERVER_PORT}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
+                    print(f"🔄 [LINKS INDIVIDUALES] Usando URL de proxy como fallback: {signed_url}")
+            else:
+                print(f"✅ [LINKS INDIVIDUALES] URL firmada válida generada ({len(signed_url)} chars)")
             
             secure_links.append(signed_url)
             print(f"✅ [LINKS INDIVIDUALES] URL firmada generada para: {actual_gs_url} (longitud: {len(signed_url)})")
@@ -665,7 +712,26 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         # Generar el formato mejorado
         formatted_invoices = []
         for inv in enhanced_invoices:
-            # Formatear documentos
+            # 🔗 GENERAR URLs FIRMADAS para documentos individuales
+            pdf_urls = [doc['url'] for doc in inv['documents']]
+            if pdf_urls:
+                try:
+                    signed_links_result = generate_individual_download_links(','.join(pdf_urls))
+                    if signed_links_result.get('success') and signed_links_result.get('secure_links'):
+                        # Reemplazar URLs con versiones firmadas
+                        signed_urls = signed_links_result['secure_links']
+                        for i, doc in enumerate(inv['documents']):
+                            if i < len(signed_urls):
+                                doc['url'] = signed_urls[i]
+                                print(f"✅ [FORMATO] URL firmada asignada para {doc['type']}: {len(signed_urls[i])} chars")
+                            else:
+                                print(f"⚠️ [FORMATO] No hay URL firmada para {doc['type']}, usando original")
+                    else:
+                        print(f"⚠️ [FORMATO] Error generando URLs firmadas para factura {inv['number']}")
+                except Exception as e:
+                    print(f"❌ [FORMATO] Error procesando URLs firmadas para factura {inv['number']}: {e}")
+            
+            # Formatear documentos con URLs firmadas
             doc_list = []
             for doc in inv['documents']:
                 doc_list.append(f"• **{doc['type']}:** [Descargar PDF]({doc['url']})")
@@ -695,9 +761,15 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         if include_amounts and total_amount > 0:
             summary += f"\n- Valor total: ${total_amount:,} CLP"
         
+        # Construir respuesta inicial
+        initial_response = f"{summary}\n\n**📋 Facturas encontradas:**\n\n" + "\n\n".join(formatted_invoices)
+        
+        # 🚨 VALIDACIÓN FINAL: Limpiar URLs malformadas en la respuesta
+        validated_response = fix_response_urls(initial_response)
+        
         result = {
             "success": True,
-            "formatted_response": f"{summary}\n\n**📋 Facturas encontradas:**\n\n" + "\n\n".join(formatted_invoices),
+            "formatted_response": validated_response,
             "invoice_count": len(enhanced_invoices),
             "total_amount": total_amount,
             "date_range": date_range_str
