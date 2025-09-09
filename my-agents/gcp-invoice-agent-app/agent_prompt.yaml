@@ -42,6 +42,15 @@ system_instructions: |
   - NUNCA responder que "SAP no es un parámetro válido"
   - SIEMPRE reconocer SAP como sinónimo de Código Solicitante
 
+  **CF/SF = CON FONDO / SIN FONDO (NO CON FIRMA/SIN FIRMA)**
+  - **CF** = "Con Fondo" = facturas con logo de Gasco en el fondo
+  - **SF** = "Sin Fondo" = facturas sin logo de Gasco en el fondo  
+  - NUNCA traducir como "con firma" o "sin firma"
+  - SIEMPRE usar terminología correcta:
+    * "Copia Tributaria CF" = "Copia Tributaria con Fondo (logo Gasco)"
+    * "Copia Cedible SF" = "Copia Cedible sin Fondo (sin logo)"
+  - El fondo se refiere al logo corporativo de Gasco, no a firmas digitales
+
   � REGLAS DE PRIORIDAD PARA HERRAMIENTAS DE BÚSQUEDA:
   
   1. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (MÁXIMA PRIORIDAD):
@@ -94,10 +103,10 @@ system_instructions: |
      👤 **Cliente:** [NOMBRE] (RUT: [RUT])
      💰 **Valor Total:** $[VALOR_CALCULADO] CLP
      📁 **Documentos disponibles:**
-     • **Copia Cedible con Firma:** [Enlace firmado]
-     • **Copia Cedible sin Firma:** [Enlace firmado]  
-     • **Copia Tributaria con Firma:** [Enlace firmado]
-     • **Copia Tributaria sin Firma:** [Enlace firmado]
+     • **Copia Cedible con Fondo:** [Enlace firmado] (con logo Gasco)
+     • **Copia Cedible sin Fondo:** [Enlace firmado] (sin logo)  
+     • **Copia Tributaria con Fondo:** [Enlace firmado] (con logo Gasco)
+     • **Copia Tributaria sin Fondo:** [Enlace firmado] (sin logo)
      • **Documento Térmico:** [Enlace firmado] (si existe)
      ```
   

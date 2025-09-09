@@ -817,10 +817,10 @@ tools:
           ELSE NULL
         END as termico_url,
         CONCAT(
-          CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN '✅ Copia Tributaria (con firma)\n' ELSE '' END,
-          CASE WHEN Copia_Cedible_cf IS NOT NULL THEN '✅ Copia Cedible (con firma)\n' ELSE '' END,
-          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN '✅ Copia Tributaria (sin firma)\n' ELSE '' END,
-          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN '✅ Copia Cedible (sin firma)\n' ELSE '' END,
+          CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN '✅ Copia Tributaria (con fondo - logo Gasco)\n' ELSE '' END,
+          CASE WHEN Copia_Cedible_cf IS NOT NULL THEN '✅ Copia Cedible (con fondo - logo Gasco)\n' ELSE '' END,
+          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN '✅ Copia Tributaria (sin fondo - sin logo)\n' ELSE '' END,
+          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN '✅ Copia Cedible (sin fondo - sin logo)\n' ELSE '' END,
           CASE WHEN Doc_Termico IS NOT NULL THEN '✅ Documento Térmico\n' ELSE '' END
         ) as pdfs_disponibles
       FROM
@@ -874,10 +874,10 @@ tools:
          CASE WHEN Doc_Termico IS NOT NULL THEN 1 ELSE 0 END) as total_pdfs_disponibles,
         -- Lista descriptiva de PDFs disponibles
         CONCAT(
-          CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Copia Tributaria (Con Firma) ' ELSE '' END,
-          CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 'Copia Cedible (Con Firma) ' ELSE '' END,
-          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 'Copia Tributaria (Sin Firma) ' ELSE '' END,
-          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN 'Copia Cedible (Sin Firma) ' ELSE '' END,
+          CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Copia Tributaria (Con Fondo - logo Gasco) ' ELSE '' END,
+          CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 'Copia Cedible (Con Fondo - logo Gasco) ' ELSE '' END,
+          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 'Copia Tributaria (Sin Fondo - sin logo) ' ELSE '' END,
+          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN 'Copia Cedible (Sin Fondo - sin logo) ' ELSE '' END,
           CASE WHEN Doc_Termico IS NOT NULL THEN 'Documento Termico ' ELSE '' END
         ) as tipos_pdf_disponibles
       FROM
@@ -889,10 +889,10 @@ tools:
       HERRAMIENTA ESPECIALIZADA: Obtiene TODOS los PDFs disponibles para un solicitante específico.
       
       Muestra cada tipo de PDF con URL directa funcional:
-      - tributaria_con_firma_url: Copia Tributaria con firma
-      - cedible_con_firma_url: Copia Cedible con firma  
-      - tributaria_sin_firma_url: Copia Tributaria sin firma
-      - cedible_sin_firma_url: Copia Cedible sin firma
+      - tributaria_con_fondo_url: Copia Tributaria con fondo (logo Gasco)
+      - cedible_con_fondo_url: Copia Cedible con fondo (logo Gasco)
+      - tributaria_sin_fondo_url: Copia Tributaria sin fondo (sin logo)
+      - cedible_sin_fondo_url: Copia Cedible sin fondo (sin logo)
       - documento_termico_url: Documento Térmico
       
       Incluye contador total_pdfs_disponibles y lista tipos_pdf_disponibles.
@@ -1065,7 +1065,7 @@ tools:
         Rut,
         Nombre,
         Copia_Cedible_cf as cedible_cf_url,
-        'Copia Cedible Con Firma' as tipo_documento
+        'Copia Cedible Con Fondo (logo Gasco)' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
@@ -1074,9 +1074,9 @@ tools:
       ORDER BY Factura DESC
       LIMIT 20
     description: |
-      Obtiene facturas Cedible CON FIRMA para un solicitante específico.
-      Solo retorna facturas que tienen disponible la Copia Cedible Con Firma.
-      Usar cuando el usuario pida específicamente "cedible con firma" o "cedible cf".
+      Obtiene facturas Cedible CON FONDO (logo Gasco) para un solicitante específico.
+      Solo retorna facturas que tienen disponible la Copia Cedible Con Fondo.
+      Usar cuando el usuario pida específicamente "cedible con fondo" o "cedible cf".
     parameters:
       - name: solicitante_code
         type: string
@@ -1093,7 +1093,7 @@ tools:
         Rut,
         Nombre,
         Copia_Cedible_sf as cedible_sf_url,
-        'Copia Cedible Sin Firma' as tipo_documento
+        'Copia Cedible Sin Fondo (sin logo)' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
@@ -1102,9 +1102,9 @@ tools:
       ORDER BY Factura DESC
       LIMIT 20
     description: |
-      Obtiene facturas Cedible SIN FIRMA para un solicitante específico.
-      Solo retorna facturas que tienen disponible la Copia Cedible Sin Firma.
-      Usar cuando el usuario pida específicamente "cedible sin firma" o "cedible sf".
+      Obtiene facturas Cedible SIN FONDO (sin logo) para un solicitante específico.
+      Solo retorna facturas que tienen disponible la Copia Cedible Sin Fondo.
+      Usar cuando el usuario pida específicamente "cedible sin fondo" o "cedible sf".
     parameters:
       - name: solicitante_code
         type: string
@@ -1121,7 +1121,7 @@ tools:
         Rut,
         Nombre,
         Copia_Tributaria_cf as tributaria_cf_url,
-        'Copia Tributaria Con Firma' as tipo_documento
+        'Copia Tributaria Con Fondo (logo Gasco)' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
@@ -1130,9 +1130,9 @@ tools:
       ORDER BY Factura DESC
       LIMIT 20
     description: |
-      Obtiene facturas Tributaria CON FIRMA para un solicitante específico.
-      Solo retorna facturas que tienen disponible la Copia Tributaria Con Firma.
-      Usar cuando el usuario pida específicamente "tributaria con firma" o "tributaria cf".
+      Obtiene facturas Tributaria CON FONDO (logo Gasco) para un solicitante específico.
+      Solo retorna facturas que tienen disponible la Copia Tributaria Con Fondo.
+      Usar cuando el usuario pida específicamente "tributaria con fondo" o "tributaria cf".
     parameters:
       - name: solicitante_code
         type: string
@@ -1149,7 +1149,7 @@ tools:
         Rut,
         Nombre,
         Copia_Tributaria_sf as tributaria_sf_url,
-        'Copia Tributaria Sin Firma' as tipo_documento
+        'Copia Tributaria Sin Fondo (sin logo)' as tipo_documento
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
@@ -1158,9 +1158,9 @@ tools:
       ORDER BY Factura DESC
       LIMIT 20
     description: |
-      Obtiene facturas Tributaria SIN FIRMA para un solicitante específico.
-      Solo retorna facturas que tienen disponible la Copia Tributaria Sin Firma.
-      Usar cuando el usuario pida específicamente "tributaria sin firma" o "tributaria sf".
+      Obtiene facturas Tributaria SIN FONDO (sin logo) para un solicitante específico.
+      Solo retorna facturas que tienen disponible la Copia Tributaria Sin Fondo.
+      Usar cuando el usuario pida específicamente "tributaria sin fondo" o "tributaria sf".
     parameters:
       - name: solicitante_code
         type: string
@@ -1183,8 +1183,8 @@ tools:
              THEN Copia_Tributaria_sf 
              ELSE NULL END as tributaria_sf_url,
         CONCAT(
-          CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Tributaria Con Firma ' ELSE '' END,
-          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 'Tributaria Sin Firma ' ELSE '' END
+          CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Tributaria Con Fondo (logo Gasco) ' ELSE '' END,
+          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 'Tributaria Sin Fondo (sin logo) ' ELSE '' END
         ) as tipos_tributarios_disponibles,
         (CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 1 ELSE 0 END +
          CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 1 ELSE 0 END) as total_tributarias_disponibles
@@ -1222,8 +1222,8 @@ tools:
              THEN Copia_Cedible_sf 
              ELSE NULL END as cedible_sf_url,
         CONCAT(
-          CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 'Cedible Con Firma ' ELSE '' END,
-          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN 'Cedible Sin Firma ' ELSE '' END
+          CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 'Cedible Con Fondo (logo Gasco) ' ELSE '' END,
+          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN 'Cedible Sin Fondo (sin logo) ' ELSE '' END
         ) as tipos_cedibles_disponibles,
         (CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 1 ELSE 0 END +
          CASE WHEN Copia_Cedible_sf IS NOT NULL THEN 1 ELSE 0 END) as total_cedibles_disponibles

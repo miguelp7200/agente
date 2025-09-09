@@ -30,12 +30,6 @@ from config import (
     IS_CLOUD_RUN,
 )
 
-# Importar configuración YAML (importación relativa)
-from .agent_prompt_config import load_system_instructions, load_agent_config
-
-# Importar validador de URLs - DESACTIVADO PARA TESTING
-# from url_validator import fix_response_urls, validate_signed_url
-
 # 🔥 NUEVO: Importar sistema de logging de conversaciones
 try:
     # Intento 1: Importar desde el mismo directorio que este archivo (ADK context)
@@ -435,35 +429,6 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             credentials=target_credentials
         )
         
-        # 🚨 VALIDACIÓN DE ZIP URL - DESACTIVADA PARA TESTING
-        # if not validate_signed_url(signed_url):
-        if False:  # Desactivado temporalmente
-            print(f"⚠️ [GCS] ZIP URL malformada detectada ({len(signed_url)} chars)")
-            print("🔄 [GCS] Intentando regenerar ZIP URL...")
-            try:
-                # Intentar regenerar una vez más
-                signed_url = blob.generate_signed_url(
-                    version="v4",
-                    expiration=expiration,
-                    method="GET",
-                    credentials=target_credentials
-                )
-                
-                # if not validate_signed_url(signed_url):
-                #     print(f"❌ [GCS] ZIP URL sigue malformada, usando fallback")
-                #     if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                #         return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-                #     else:
-                #         return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-                # else:
-                #     print(f"✅ [GCS] ZIP URL regenerada correctamente")
-            except Exception as e:
-                print(f"❌ [GCS] Error regenerando ZIP URL: {e}")
-                if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                    return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-                else:
-                    return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-        
         print(f"✅ [GCS] Signed URL generada para {zip_filename} con credenciales impersonadas")
         print(f"🔗 [GCS] URL: {signed_url[:100]}...")  # Solo mostrar inicio por seguridad
         
@@ -553,41 +518,23 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 credentials=target_credentials
             )
             
-            # 🚨 VALIDACIÓN DE URL con validador mejorado - DESACTIVADA PARA TESTING
-            # if not validate_signed_url(signed_url):
-            if False:  # Desactivado temporalmente
-                print(f"⚠️ [LINKS INDIVIDUALES] URL malformada detectada ({len(signed_url)} chars)")
-                print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
-                try:
+            # 🚨 VALIDACIÓN DE SEGURIDAD: Detectar URLs malformadas
+            if len(signed_url) > 2000:  # URLs normales ~850 chars
+                print(f"⚠️ [LINKS INDIVIDUALES] URL anormalmente larga detectada ({len(signed_url)} chars)")
+                signature_part = signed_url.split('X-Goog-Signature=')[1] if 'X-Goog-Signature=' in signed_url else ''
+                if len(signature_part) > 600:  # Firmas normales ~512 chars
+                    print(f"⚠️ [LINKS INDIVIDUALES] Firma malformada detectada ({len(signature_part)} chars)")
                     # Intentar regenerar una vez más
+                    print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
                     signed_url = blob.generate_signed_url(
                         version="v4",
                         expiration=expiration,
                         method="GET",
                         credentials=target_credentials
                     )
-                    
-                    # if not validate_signed_url(signed_url):
-                    if False:  # Desactivado temporalmente
-                        print(f"❌ [LINKS INDIVIDUALES] URL sigue malformada después de regenerar")
-                        # Usar URL de proxy como fallback
-                        if CLOUD_RUN_SERVICE_URL:
-                            signed_url = f"{CLOUD_RUN_SERVICE_URL}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                        else:
-                            signed_url = f"http://localhost:{PDF_SERVER_PORT}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                        print(f"🔄 [LINKS INDIVIDUALES] Usando URL de proxy: {signed_url}")
-                    else:
-                        print(f"✅ [LINKS INDIVIDUALES] URL regenerada correctamente")
-                except Exception as e:
-                    print(f"❌ [LINKS INDIVIDUALES] Error regenerando URL: {e}")
-                    # Usar URL de proxy como fallback final
-                    if CLOUD_RUN_SERVICE_URL:
-                        signed_url = f"{CLOUD_RUN_SERVICE_URL}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                    else:
-                        signed_url = f"http://localhost:{PDF_SERVER_PORT}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                    print(f"🔄 [LINKS INDIVIDUALES] Usando URL de proxy como fallback: {signed_url}")
-            else:
-                print(f"✅ [LINKS INDIVIDUALES] URL firmada válida generada ({len(signed_url)} chars)")
+                    if len(signed_url) > 2000:
+                        print(f"❌ [LINKS INDIVIDUALES] URL sigue siendo malformada, omitiendo")
+                        continue
             
             secure_links.append(signed_url)
             print(f"✅ [LINKS INDIVIDUALES] URL firmada generada para: {actual_gs_url} (longitud: {len(signed_url)})")
@@ -622,188 +569,59 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
         "download_urls": validated_links,
         "message": f"Se han generado {len(validated_links)} enlaces de descarga firmados."
     }
-
-def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = True) -> dict:
-    """
-    Formatea la respuesta de facturas con información contextual mejorada.
-    Toma datos de facturas y genera una presentación más user-friendly.
-    
-    Args:
-        invoice_data: JSON string con datos de facturas del MCP tool
-        include_amounts: Si incluir información de montos (opcional)
-    
-    Returns:
-        Dict con el formato mejorado de presentación
-    """
-    import json
-    
-    try:
-        # Parsear datos de facturas
-        if isinstance(invoice_data, str):
-            invoices = json.loads(invoice_data)
-        else:
-            invoices = invoice_data
-            
-        if not isinstance(invoices, list):
-            return {"success": False, "error": "Formato de datos inválido"}
-            
-        enhanced_invoices = []
-        total_amount = 0
-        date_range = {"min": None, "max": None}
-        
-        for invoice in invoices:
-            try:
-                # Extraer información básica
-                invoice_number = invoice.get('Factura', 'N/A')
-                invoice_date = invoice.get('fecha', 'N/A')
-                client_name = invoice.get('Nombre', 'N/A')
-                rut = invoice.get('Rut', 'N/A')
-                
-                # Calcular monto total de la factura
-                invoice_amount = 0
-                details = invoice.get('DetallesFactura', [])
-                if details and isinstance(details, list):
-                    for detail in details:
-                        try:
-                            valor = detail.get('ValorTotal', '0')
-                            if isinstance(valor, str) and valor.isdigit():
-                                invoice_amount += int(valor)
-                        except (ValueError, TypeError):
-                            continue
-                            
-                total_amount += invoice_amount
-                
-                # Actualizar rango de fechas
-                if invoice_date != 'N/A':
-                    if date_range["min"] is None or invoice_date < date_range["min"]:
-                        date_range["min"] = invoice_date
-                    if date_range["max"] is None or invoice_date > date_range["max"]:
-                        date_range["max"] = invoice_date
-                
-                # Recopilar documentos disponibles
-                documents = []
-                doc_mapping = {
-                    'Copia_Cedible_cf_proxy': 'Copia Cedible con Fondo (logo Gasco)',
-                    'Copia_Cedible_sf_proxy': 'Copia Cedible sin Fondo (sin logo)', 
-                    'Copia_Tributaria_cf_proxy': 'Copia Tributaria con Fondo (logo Gasco)',
-                    'Copia_Tributaria_sf_proxy': 'Copia Tributaria sin Fondo (sin logo)',
-                    'Doc_Termico_proxy': 'Documento Térmico'
-                }
-                
-                for field, description in doc_mapping.items():
-                    if field in invoice and invoice[field]:
-                        documents.append({
-                            'type': description,
-                            'url': invoice[field]
-                        })
-                
-                enhanced_invoice = {
-                    'number': invoice_number,
-                    'date': invoice_date,
-                    'client': client_name,
-                    'rut': rut,
-                    'amount': invoice_amount,
-                    'documents': documents
-                }
-                
-                enhanced_invoices.append(enhanced_invoice)
-                
-            except Exception as e:
-                print(f"⚠️ [FORMATO] Error procesando factura: {e}")
-                continue
-        
-        # Generar el formato mejorado
-        formatted_invoices = []
-        for inv in enhanced_invoices:
-            # 🔗 GENERAR URLs FIRMADAS para documentos individuales
-            pdf_urls = [doc['url'] for doc in inv['documents']]
-            if pdf_urls:
-                try:
-                    signed_links_result = generate_individual_download_links(','.join(pdf_urls))
-                    if signed_links_result.get('success') and signed_links_result.get('secure_links'):
-                        # Reemplazar URLs con versiones firmadas
-                        signed_urls = signed_links_result['secure_links']
-                        for i, doc in enumerate(inv['documents']):
-                            if i < len(signed_urls):
-                                doc['url'] = signed_urls[i]
-                                print(f"✅ [FORMATO] URL firmada asignada para {doc['type']}: {len(signed_urls[i])} chars")
-                            else:
-                                print(f"⚠️ [FORMATO] No hay URL firmada para {doc['type']}, usando original")
-                    else:
-                        print(f"⚠️ [FORMATO] Error generando URLs firmadas para factura {inv['number']}")
-                except Exception as e:
-                    print(f"❌ [FORMATO] Error procesando URLs firmadas para factura {inv['number']}: {e}")
-            
-            # Formatear documentos con URLs firmadas
-            doc_list = []
-            for doc in inv['documents']:
-                doc_list.append(f"• **{doc['type']}:** [Descargar PDF]({doc['url']})")
-            
-            # Crear presentación de factura
-            amount_info = f"\n💰 **Valor:** ${inv['amount']:,} CLP" if include_amounts and inv['amount'] > 0 else ""
-            
-            invoice_block = f"""**📋 Factura {inv['number']}** ({inv['date']})
-👤 **Cliente:** {inv['client']} (RUT: {inv['rut']}){amount_info}
-📁 **Documentos disponibles:**
-{chr(10).join(doc_list)}"""
-            
-            formatted_invoices.append(invoice_block)
-            
-        # Generar resumen
-        date_range_str = "N/A"
-        if date_range["min"] and date_range["max"]:
-            if date_range["min"] == date_range["max"]:
-                date_range_str = date_range["min"]
-            else:
-                date_range_str = f"desde {date_range['min']} hasta {date_range['max']}"
-        
-        summary = f"""**📊 Resumen de búsqueda:**
-- Total encontradas: {len(enhanced_invoices)} facturas
-- Período: {date_range_str}"""
-        
-        if include_amounts and total_amount > 0:
-            summary += f"\n- Valor total: ${total_amount:,} CLP"
-        
-        # Construir respuesta inicial
-        initial_response = f"{summary}\n\n**📋 Facturas encontradas:**\n\n" + "\n\n".join(formatted_invoices)
-        
-        # 🚨 VALIDACIÓN FINAL: Limpiar URLs malformadas en la respuesta - DESACTIVADA PARA TESTING
-        # validated_response = fix_response_urls(initial_response)
-        validated_response = initial_response  # Sin validación para testing
-        
-        result = {
-            "success": True,
-            "formatted_response": validated_response,
-            "invoice_count": len(enhanced_invoices),
-            "total_amount": total_amount,
-            "date_range": date_range_str
-        }
-        
-        print(f"✅ [FORMATO] Generada presentación mejorada para {len(enhanced_invoices)} facturas")
-        return result
-        
-    except Exception as e:
-        print(f"❌ [FORMATO] Error formateando respuesta: {e}")
-        return {"success": False, "error": f"Error en formateo: {e}"}
 # <--- Fin de la adición --->
 
 
-# Agregar herramientas personalizadas
+# Agregar herramienta ZIP personalizada
 zip_tool = FunctionTool(create_standard_zip)
+# <--- ADICIÓN 3: Envolver la nueva función como una herramienta para el agente --->
 individual_links_tool = FunctionTool(generate_individual_download_links)
-
-# Cargar configuración desde YAML
-agent_config = load_agent_config()
-system_instructions = load_system_instructions()
 
 
 root_agent = Agent(
-    name=agent_config['name'],
-    model=agent_config['model'],
-    description=agent_config['description'],
-    # <--- ADICIÓN 5: Añadir herramientas personalizadas a la lista de herramientas del agente --->
+    name="invoice_pdf_finder_agent",
+    model="gemini-2.5-flash", # <--- ADICIÓN 4: Pequeña sugerencia de modelo, puedes revertirla a gemini-2.5-flash
+    description=(
+        "Specialized Chilean invoice PDF finder with download capabilities. "
+        "Primary purpose: deliver downloadable PDF lists based on user criteria, especially time periods."
+    ),
+    # <--- ADICIÓN 5: Añadir AMBAS herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
-    instruction=system_instructions,  # ← Cargado desde agent_prompt.yaml
+    instruction=(
+        "Eres un agente especializado en facturas chilenas.\n\n"
+        "🔒 REGLA CRÍTICA DE URLs FIRMADAS:\n"
+        "NUNCA devuelvas URLs gs:// directas. SIEMPRE debes convertir URLs a firmadas con storage.googleapis.com\n"
+        "- PDFs están en: gs://miguel-test (proyecto datalake-gasco)\n"
+        "- ZIPs se crean en: gs://agent-intelligence-zips (proyecto agent-intelligence-gasco)\n\n"
+        "FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):\n"
+        "1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, etc.)\n"
+        "2. Si encuentras 5 o más facturas:\n"
+        "   → DEBES llamar create_standard_zip(pdf_urls='url1,url2,url3,...')\n"
+        "   → Esto genera automáticamente URLs firmadas para el ZIP\n"
+        "3. Si encuentras menos de 5 facturas:\n"
+        "   → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')\n"
+        "   → Esto convierte las URLs gs:// a URLs firmadas individuales\n"
+        "4. OBLIGATORIO: Después de generar URLs, SIEMPRE incluye las URLs completas en tu respuesta final\n\n"
+        "FORMATO DE RESPUESTA OBLIGATORIO:\n"
+        "- Primero resume los resultados encontrados (facturas, fechas, etc.)\n"
+        "- Luego SIEMPRE incluye las URLs de descarga completas\n"
+        "- Ejemplo: 'Enlaces de descarga seguros:' seguido de las URLs\n"
+        "- Las URLs deben ser clicables y contener https://storage.googleapis.com\n\n"
+        "REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:\n"
+        "- Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles\n"
+        "- Formato: 'RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])'\n"
+        "- Después de estadísticas, llama get_data_coverage_statistics para mostrar horizonte temporal completo\n"
+        "- Menciona explícitamente el período total cubierto por los datos\n"
+        "- Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente\n\n"
+        "CRÍTICO:\n"
+        "- pdf_urls debe ser un string con URLs separadas por comas\n"
+        "- Siempre DEBES ejecutar la búsqueda primero. NO inventes datos\n"
+        "- NUNCA muestres URLs gs:// sin firmar\n"
+        "- SIEMPRE usa credenciales impersonadas para generar URLs firmadas\n"
+        "- NUNCA uses URLs proxy - solo URLs firmadas con storage.googleapis.com\n"
+        "- OBLIGATORIO: Incluir las URLs completas en la respuesta al usuario\n"
+        "Responde en español de forma clara y directa."
+    ),
     before_agent_callback=conversation_tracker.before_agent_callback if conversation_tracker else None,
     after_agent_callback=conversation_tracker.after_agent_callback if conversation_tracker else None,
     before_tool_callback=conversation_tracker.before_tool_callback if conversation_tracker else None,
