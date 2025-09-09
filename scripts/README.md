@@ -4,6 +4,39 @@ Este directorio contiene scripts automatizados para documentar y validar el sist
 
 ## 🔧 Scripts Disponibles
 
+### `test_local_agent.ps1`
+**🚀 NUEVO:** Script interactivo para probar el agente ADK en tiempo real con el formato mejorado de respuestas.
+
+#### **Descripción:**
+Script de PowerShell que permite probar directamente el agente ADK local, verificando:
+- ✅ Conectividad con el servidor ADK
+- ✅ Creación de sesiones exitosa  
+- ✅ Generación de URLs firmadas
+- ✅ Formato mejorado de respuestas con contexto
+
+#### **Uso:**
+```powershell
+# Desde el directorio raíz del proyecto
+.\scripts\test_local_agent.ps1
+```
+
+#### **Prerequisitos:**
+```powershell
+# 1. ADK API Server corriendo
+adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
+
+# 2. MCP Toolbox Server corriendo  
+cd mcp-toolbox
+.\toolbox.exe --tools-file="tools_updated.yaml" --logging-format standard --log-level DEBUG --ui
+```
+
+#### **Salida Esperada:**
+- 📋 Variables de configuración
+- ✅ Creación de sesión exitosa
+- 📤 Envío de consulta ("Busca facturas de diciembre 2019")
+- 🤖 Respuesta formateada con URLs firmadas
+- ✅ Verificación de URLs firmadas detectadas
+
 ### `document_adk_endpoints.ps1`
 Script principal para documentar todos los endpoints de la API de ADK y generar documentación completa del sistema.
 

@@ -572,12 +572,148 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
         "download_urls": validated_links,
         "message": f"Se han generado {len(validated_links)} enlaces de descarga firmados."
     }
+
+def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = True) -> dict:
+    """
+    Formatea la respuesta de facturas con información contextual mejorada.
+    Toma datos de facturas y genera una presentación más user-friendly.
+    
+    Args:
+        invoice_data: JSON string con datos de facturas del MCP tool
+        include_amounts: Si incluir información de montos (opcional)
+    
+    Returns:
+        Dict con el formato mejorado de presentación
+    """
+    import json
+    
+    try:
+        # Parsear datos de facturas
+        if isinstance(invoice_data, str):
+            invoices = json.loads(invoice_data)
+        else:
+            invoices = invoice_data
+            
+        if not isinstance(invoices, list):
+            return {"success": False, "error": "Formato de datos inválido"}
+            
+        enhanced_invoices = []
+        total_amount = 0
+        date_range = {"min": None, "max": None}
+        
+        for invoice in invoices:
+            try:
+                # Extraer información básica
+                invoice_number = invoice.get('Factura', 'N/A')
+                invoice_date = invoice.get('fecha', 'N/A')
+                client_name = invoice.get('Nombre', 'N/A')
+                rut = invoice.get('Rut', 'N/A')
+                
+                # Calcular monto total de la factura
+                invoice_amount = 0
+                details = invoice.get('DetallesFactura', [])
+                if details and isinstance(details, list):
+                    for detail in details:
+                        try:
+                            valor = detail.get('ValorTotal', '0')
+                            if isinstance(valor, str) and valor.isdigit():
+                                invoice_amount += int(valor)
+                        except (ValueError, TypeError):
+                            continue
+                            
+                total_amount += invoice_amount
+                
+                # Actualizar rango de fechas
+                if invoice_date != 'N/A':
+                    if date_range["min"] is None or invoice_date < date_range["min"]:
+                        date_range["min"] = invoice_date
+                    if date_range["max"] is None or invoice_date > date_range["max"]:
+                        date_range["max"] = invoice_date
+                
+                # Recopilar documentos disponibles
+                documents = []
+                doc_mapping = {
+                    'Copia_Cedible_cf_proxy': 'Copia Cedible con Firma',
+                    'Copia_Cedible_sf_proxy': 'Copia Cedible sin Firma', 
+                    'Copia_Tributaria_cf_proxy': 'Copia Tributaria con Firma',
+                    'Copia_Tributaria_sf_proxy': 'Copia Tributaria sin Firma',
+                    'Doc_Termico_proxy': 'Documento Térmico'
+                }
+                
+                for field, description in doc_mapping.items():
+                    if field in invoice and invoice[field]:
+                        documents.append({
+                            'type': description,
+                            'url': invoice[field]
+                        })
+                
+                enhanced_invoice = {
+                    'number': invoice_number,
+                    'date': invoice_date,
+                    'client': client_name,
+                    'rut': rut,
+                    'amount': invoice_amount,
+                    'documents': documents
+                }
+                
+                enhanced_invoices.append(enhanced_invoice)
+                
+            except Exception as e:
+                print(f"⚠️ [FORMATO] Error procesando factura: {e}")
+                continue
+        
+        # Generar el formato mejorado
+        formatted_invoices = []
+        for inv in enhanced_invoices:
+            # Formatear documentos
+            doc_list = []
+            for doc in inv['documents']:
+                doc_list.append(f"• **{doc['type']}:** [Descargar PDF]({doc['url']})")
+            
+            # Crear presentación de factura
+            amount_info = f"\n💰 **Valor:** ${inv['amount']:,} CLP" if include_amounts and inv['amount'] > 0 else ""
+            
+            invoice_block = f"""**📋 Factura {inv['number']}** ({inv['date']})
+👤 **Cliente:** {inv['client']} (RUT: {inv['rut']}){amount_info}
+📁 **Documentos disponibles:**
+{chr(10).join(doc_list)}"""
+            
+            formatted_invoices.append(invoice_block)
+            
+        # Generar resumen
+        date_range_str = "N/A"
+        if date_range["min"] and date_range["max"]:
+            if date_range["min"] == date_range["max"]:
+                date_range_str = date_range["min"]
+            else:
+                date_range_str = f"desde {date_range['min']} hasta {date_range['max']}"
+        
+        summary = f"""**📊 Resumen de búsqueda:**
+- Total encontradas: {len(enhanced_invoices)} facturas
+- Período: {date_range_str}"""
+        
+        if include_amounts and total_amount > 0:
+            summary += f"\n- Valor total: ${total_amount:,} CLP"
+        
+        result = {
+            "success": True,
+            "formatted_response": f"{summary}\n\n**📋 Facturas encontradas:**\n\n" + "\n\n".join(formatted_invoices),
+            "invoice_count": len(enhanced_invoices),
+            "total_amount": total_amount,
+            "date_range": date_range_str
+        }
+        
+        print(f"✅ [FORMATO] Generada presentación mejorada para {len(enhanced_invoices)} facturas")
+        return result
+        
+    except Exception as e:
+        print(f"❌ [FORMATO] Error formateando respuesta: {e}")
+        return {"success": False, "error": f"Error en formateo: {e}"}
 # <--- Fin de la adición --->
 
 
-# Agregar herramienta ZIP personalizada
+# Agregar herramientas personalizadas
 zip_tool = FunctionTool(create_standard_zip)
-# <--- ADICIÓN 3: Envolver la nueva función como una herramienta para el agente --->
 individual_links_tool = FunctionTool(generate_individual_download_links)
 
 # Cargar configuración desde YAML
@@ -589,7 +725,7 @@ root_agent = Agent(
     name=agent_config['name'],
     model=agent_config['model'],
     description=agent_config['description'],
-    # <--- ADICIÓN 5: Añadir AMBAS herramientas personalizadas a la lista de herramientas del agente --->
+    # <--- ADICIÓN 5: Añadir herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
     instruction=system_instructions,  # ← Cargado desde agent_prompt.yaml
     before_agent_callback=conversation_tracker.before_agent_callback if conversation_tracker else None,

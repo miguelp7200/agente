@@ -39,13 +39,41 @@ system_instructions: |
   3. Si encuentras menos de 5 facturas:
      → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')
      → Esto convierte las URLs gs:// a URLs firmadas individuales
-  4. OBLIGATORIO: Después de generar URLs, SIEMPRE incluye las URLs completas en tu respuesta final
+  4. OBLIGATORIO: Presenta la respuesta usando el FORMATO MEJORADO especificado abajo
 
-  FORMATO DE RESPUESTA OBLIGATORIO:
-  - Primero resume los resultados encontrados (facturas, fechas, etc.)
-  - Luego SIEMPRE incluye las URLs de descarga completas
-  - Ejemplo: 'Enlaces de descarga seguros:' seguido de las URLs
-  - Las URLs deben ser clicables y contener https://storage.googleapis.com
+  FORMATO DE RESPUESTA MEJORADO:
+  Usa este formato específico para presentar los resultados:
+  
+  1. ENCABEZADO CON RESUMEN:
+     "Se encontraron [N] facturas para [criterio de búsqueda]. Período: [fechas]."
+  
+  2. PRESENTACIÓN POR FACTURA (usar este formato exacto):
+     Para cada factura encontrada:
+     ```
+     📋 **Factura [NÚMERO]** ([FECHA])
+     👤 **Cliente:** [NOMBRE] (RUT: [RUT])
+     💰 **Valor Total:** $[VALOR_CALCULADO] CLP
+     📁 **Documentos disponibles:**
+     • **Copia Cedible con Firma:** [Enlace firmado]
+     • **Copia Cedible sin Firma:** [Enlace firmado]  
+     • **Copia Tributaria con Firma:** [Enlace firmado]
+     • **Copia Tributaria sin Firma:** [Enlace firmado]
+     • **Documento Térmico:** [Enlace firmado] (si existe)
+     ```
+  
+  3. CÁLCULO DE VALORES:
+     - Sumar todos los ValorTotal de DetallesFactura para cada factura
+     - Mostrar el valor total formateado con separadores de miles
+     - Si ValorTotal es "0" o vacío, mostrar "Valor: Sin especificar"
+  
+  4. ENLACES:
+     - SIEMPRE usar las URLs firmadas generadas por generate_individual_download_links
+     - Las URLs deben ser clicables: [Descargar PDF](URL_FIRMADA)
+     - Solo mostrar documentos que existen (no son null)
+  
+  5. ORDEN DE PRESENTACIÓN:
+     - Mostrar facturas ordenadas por fecha (más reciente primero)
+     - Separar cada factura con una línea en blanco
 
   REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:
   - Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles
@@ -196,6 +224,14 @@ response_formats:
       - Período: desde {start_date} hasta {end_date}
       - Criterios de búsqueda: {search_criteria}
       
+  enhanced_invoice_presentation:
+    format: |
+      **📋 Factura {invoice_number}** ({invoice_date})
+      👤 **Cliente:** {client_name} (RUT: {rut})
+      💰 **Valor:** ${amount:,} CLP
+      📁 **Documentos disponibles:**
+      {document_links}
+      
   statistics_format:
     format: |
       RUT: {rut}, Total Facturas: {count} (desde {first_date} hasta {last_date})
@@ -205,10 +241,27 @@ response_formats:
       **Enlaces de descarga seguros:**
       {signed_urls_list}
       
+    contextual_invoice_links: |
+      {enhanced_invoice_list}
+      
     zip_download: |
       **Archivo ZIP generado:**
       📦 {zip_filename} ({file_count} archivos)
       🔗 [Descargar ZIP]({download_url})
+      
+  document_link_template:
+    format: |
+      • **{document_type}:** [Descargar PDF]({download_url})
+      
+  summary_with_context:
+    format: |
+      **📊 Resumen de búsqueda:**
+      - Total encontradas: {count} facturas
+      - Período: {date_range}
+      - Valor total: ${total_amount:,} CLP
+      
+      **📋 Facturas encontradas:**
+      {invoice_details}
 
 # Conversation tracking and logging
 conversation_tracking:

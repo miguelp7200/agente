@@ -14,7 +14,7 @@
 
 param(
     [string]$ApiBase = "http://localhost:8001",
-    [string]$OutputFile = "adk_endpoints_documentation.txt",
+    [string]$OutputFile = "docs\adk_endpoints_documentation.txt",
     [switch]$IncludeTests,
     [switch]$Verbose
 )

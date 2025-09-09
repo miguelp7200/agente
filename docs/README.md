@@ -9,6 +9,10 @@ Documentación de resolución de problemas y diagnósticos técnicos.
 
 - **adk-malformed-urls-diagnosis.md** - Análisis completo del problema de URLs malformadas en el framework ADK y su solución
 
+### 📄 Archivos de Documentación API
+
+- **adk_api_documentation.json** - Documentación completa de la API del servidor ADK en formato OpenAPI/Swagger (generada automáticamente)
+
 ## Convenciones
 
 - Los documentos de troubleshooting deben incluir:

@@ -1,6 +1,6 @@
 {
     "name": "Test: Búsqueda por Mes y Año Específico",
-    "description": "Valida la herramienta search_invoices_by_month_year con datos reales. Busca facturas de diciembre 2019 usando funciones EXTRACT. Sabemos que existen varias facturas en diciembre 2019, incluyendo la 0101546183 del 26-dic-2019.",
+    "description": "Valida la herramienta search_invoices_by_month_year con datos reales. Busca facturas de diciembre 2019 usando funciones EXTRACT. Se encuentran 4 facturas: 0101531734, 0101552280, 0101514836, y 0101507588.",
     "expected_trajectory": [
         {
             "tool_name": "search_invoices_by_month_year",
@@ -12,12 +12,13 @@
     ],
     "expected_response": {
         "should_contain": [
-            "0101546183",
-            "MARIA ENRIQUETA TORRES ROJAS",
-            "2019-12-26",
+            "0101531734",
+            "PEDRO IGNACIO FUENTES ESTRADA",
+            "0101552280",
+            "MOVIL 205 SPA",
             "diciembre",
             "2019",
-            "proxy"
+            "storage.googleapis.com"
         ],
         "should_not_contain": [
             "error",
@@ -37,21 +38,30 @@
             "expected_year": 2019,
             "expected_month": 12,
             "expected_facturas": [
-                "0101546183"
+                "0101531734",
+                "0101552280", 
+                "0101514836",
+                "0101507588"
             ],
             "expected_clientes": [
-                "MARIA ENRIQUETA TORRES ROJAS"
+                "PEDRO IGNACIO FUENTES ESTRADA",
+                "MOVIL 205 SPA",
+                "MIGUEL GONZALO ZARAGOZA CHACANA TRA",
+                "PEDRO DIAZ GARCIA"
             ],
             "expected_ruts": [
-                "9025012-4"
+                "15420171-8",
+                "77010182-4",
+                "76735422-3", 
+                "10884019-6"
             ]
         },
         "test_criteria": {
-            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "signed_urls": "Deben incluir https://storage.googleapis.com con URLs firmadas",
             "date_filtering": "Solo facturas de diciembre 2019",
             "extract_functions": "Usar EXTRACT(YEAR) y EXTRACT(MONTH)",
-            "response_format": "JSON con estructura de facturas esperada",
-            "expected_count": "Al menos 1 factura esperada"
+            "response_format": "Formato mejorado con contexto por factura",
+            "expected_count": "4 facturas encontradas para diciembre 2019"
         }
     },
     "query": "Busca facturas de diciembre 2019"
