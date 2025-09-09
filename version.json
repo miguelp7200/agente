@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "release_date": "2025-09-09",
+  "description": "URLs firmadas y sistema de tests completado",
+  "changes": [
+    "✅ URLs firmadas funcionando (storage.googleapis.com)",
+    "✅ Tests críticos completados (5/5 al 100%)",
+    "✅ ZIP automático para >5 facturas",
+    "✅ Herramientas estadísticas con dual-tool execution",
+    "✅ Agent_prompt.yaml optimizado",
+    "🔧 Deploy script mejorado con versiones únicas"
+  ],
+  "next_version": "0.2.1",
+  "git_hash": "eb4085d",
+  "build_number": 1
+}

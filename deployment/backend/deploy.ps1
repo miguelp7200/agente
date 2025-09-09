@@ -26,20 +26,41 @@
     .\deploy.ps1 -Version "v1.2.3"
     
 .EXAMPLE
+    .\deploy.ps1 -AutoVersion
+    
+.EXAMPLE
     .\deploy.ps1 -SkipBuild -SkipTests
 #>
 
 param(
     [string]$Version = $null,
     [switch]$SkipBuild,
-    [switch]$SkipTests
+    [switch]$SkipTests,
+    [switch]$AutoVersion
 )
 
-# Generar versión única si no se especifica
+# Obtener versión del proyecto o generar única
 if (-not $Version) {
-    $Timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-    $Version = "v$Timestamp"
-    Write-Info "Generando versión única: $Version"
+    if ($AutoVersion) {
+        # Usar versión del proyecto + timestamp
+        try {
+            $projectVersion = & .\version.ps1 current
+            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+            $Version = "$projectVersion-$timestamp"
+            Write-Info "Usando versión del proyecto: $Version"
+        }
+        catch {
+            Write-Warning "No se pudo leer version.json, usando timestamp"
+            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+            $Version = "v$timestamp"
+        }
+    }
+    else {
+        # Generar versión única con timestamp
+        $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+        $Version = "v$timestamp"
+        Write-Info "Generando versión única: $Version"
+    }
 }
 
 # Configuración
