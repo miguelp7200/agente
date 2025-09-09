@@ -1511,6 +1511,64 @@ tools:
       
       Usar cuando el usuario solicite distribución temporal anual de facturas.
 
+  search_invoices_by_company_name_and_date:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT
+        Factura,
+        Solicitante,
+        Rut,
+        Nombre,
+        fecha,
+        DetallesFactura,
+        CASE WHEN Copia_Cedible_cf IS NOT NULL 
+             THEN Copia_Cedible_cf 
+             ELSE NULL END as Copia_Cedible_cf_proxy,
+        CASE WHEN Copia_Cedible_sf IS NOT NULL 
+             THEN Copia_Cedible_sf 
+             ELSE NULL END as Copia_Cedible_sf_proxy,
+        CASE WHEN Copia_Tributaria_cf IS NOT NULL 
+             THEN Copia_Tributaria_cf 
+             ELSE NULL END as Copia_Tributaria_cf_proxy,
+        CASE WHEN Copia_Tributaria_sf IS NOT NULL 
+             THEN Copia_Tributaria_sf 
+             ELSE NULL END as Copia_Tributaria_sf_proxy,
+        CASE WHEN Doc_Termico IS NOT NULL 
+             THEN Doc_Termico 
+             ELSE NULL END as Doc_Termico_proxy
+      FROM
+        `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+      WHERE
+        (UPPER(Solicitante) LIKE CONCAT('%', UPPER(@company_name), '%') 
+         OR UPPER(Nombre) LIKE CONCAT('%', UPPER(@company_name), '%'))
+        AND EXTRACT(YEAR FROM fecha) = @year
+        AND EXTRACT(MONTH FROM fecha) = @month
+      ORDER BY fecha DESC, Factura DESC
+      LIMIT 30
+    description: |
+      Busca facturas por nombre de empresa/solicitante/cliente y mes/año específicos.
+      ESENCIAL para consultas como "facturas de Gas las Naciones en julio 2025".
+      
+      Características:
+      - Busca en AMBOS campos: Solicitante (proveedor) Y Nombre (cliente)
+      - Normaliza automáticamente a MAYÚSCULAS para coincidencia
+      - Acepta nombres parciales: "gas naciones" encontrará "GAS LAS NACIONES"
+      - Filtra por mes y año específicos
+      - Incluye todas las rutas de PDFs disponibles
+      
+      Usar cuando el usuario mencione empresa + período temporal específico.
+    parameters:
+      - name: company_name
+        type: string
+        description: Nombre de la empresa, cliente o solicitante (ej. "Gas las Naciones", "Agrosuper")
+      - name: year
+        type: integer
+        description: Año de las facturas (ej. 2025, 2024)
+      - name: month
+        type: integer
+        description: Mes de las facturas (1-12, donde 7=julio)
+
 toolsets:
   gasco_invoice_search:
     - search_invoices
@@ -1526,6 +1584,7 @@ toolsets:
     - search_invoices_by_rut_and_amount
     - get_date_range_statistics
     - search_invoices_by_proveedor
+    - search_invoices_by_company_name_and_date
     - search_invoices_by_factura_number
     - search_invoices_by_referencia_number
     - search_invoices_by_any_number
