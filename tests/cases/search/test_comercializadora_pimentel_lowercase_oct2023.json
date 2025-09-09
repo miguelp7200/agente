@@ -1,0 +1,113 @@
+{
+  "test_case": "comercializadora_pimentel_october_2023_lowercase",
+  "description": "Test company name search with lowercase format for October 2023 - Case sensitivity validation",
+  "category": "search",
+  "subcategory": "case_insensitive_search",
+  "created_date": "2025-09-09",
+  "test_data": {
+    "input": {
+      "query": "dame las facturas de comercializadora pimentel para octubre 2023",
+      "company_name": "comercializadora pimentel",
+      "period": "octubre 2023",
+      "case_format": "lowercase"
+    },
+    "expected_behavior": {
+      "should_recognize_company": true,
+      "should_normalize_case": true,
+      "should_match_uppercase_results": true,
+      "expected_tool": "search_invoices_by_company_name_and_date",
+      "should_find_same_invoices_as_uppercase": true
+    },
+    "actual_results": {
+      "test_status": "VALIDATED",
+      "company_recognized": true,
+      "case_normalization_working": true,
+      "tool_used": "search_invoices_by_company_name_and_date",
+      "results_match_uppercase_test": true,
+      "bigquery_upper_normalization": "CONFIRMED_WORKING"
+    }
+  },
+  "validation_criteria": {
+    "case_insensitive_recognition": {
+      "description": "System recognizes 'comercializadora pimentel' (lowercase) same as uppercase",
+      "status": "PASSED",
+      "validation_method": "Response contains company reference regardless of case",
+      "regex_pattern": "COMERCIALIZADORA.*PIMENTEL|comercializadora.*pimentel"
+    },
+    "bigquery_normalization": {
+      "description": "UPPER() function in BigQuery handles case differences correctly",
+      "status": "PASSED", 
+      "validation_method": "Same results as uppercase test",
+      "technical_implementation": "UPPER(Nombre) LIKE UPPER(@company_name)"
+    },
+    "consistent_results": {
+      "description": "Results identical to uppercase version of same test",
+      "status": "PASSED",
+      "validation_method": "Cross-reference with test_comercializadora_pimentel_uppercase_oct2023",
+      "baseline_comparison": "Should find same invoice from 2023-10-30"
+    },
+    "tool_selection_consistency": {
+      "description": "Uses same MCP tool regardless of input case",
+      "status": "PASSED",
+      "validation_method": "Tool invocation logs",
+      "expected_tool": "search_invoices_by_company_name_and_date"
+    }
+  },
+  "case_sensitivity_matrix": {
+    "test_pairs": {
+      "uppercase_test": "test_comercializadora_pimentel_uppercase_oct2023.json",
+      "lowercase_test": "this_test",
+      "expected_relationship": "IDENTICAL_RESULTS"
+    },
+    "normalization_strategy": {
+      "frontend": "No case normalization required",
+      "backend_prompt": "Case-agnostic company name recognition",
+      "bigquery": "UPPER() normalization in WHERE clauses",
+      "result": "Case-insensitive search capability"
+    }
+  },
+  "technical_details": {
+    "script_location": "scripts/test_comercializadora_pimentel_minusculas_oct2023.ps1",
+    "session_id_pattern": "comercializadora-pimentel-minusculas-oct2023-{timestamp}",
+    "api_interaction": {
+      "endpoint": "http://localhost:8001/run",
+      "method": "POST",
+      "timeout": "300 seconds",
+      "content_type": "application/json"
+    },
+    "bigquery_verification": {
+      "expected_query_pattern": "WHERE UPPER(Nombre) LIKE UPPER('%comercializadora pimentel%')",
+      "normalization_function": "UPPER()",
+      "case_handling": "Server-side normalization"
+    }
+  },
+  "regression_testing": {
+    "critical_importance": "Ensures case sensitivity doesn't break user experience",
+    "user_impact": "Users can search with any case format naturally",
+    "test_frequency": "Every release - critical UX feature",
+    "failure_impact": "HIGH - Users expect case-insensitive search"
+  },
+  "validation_script_logic": {
+    "powershell_validations": [
+      "Company reference detection (case-agnostic regex)",
+      "Date period recognition",
+      "Tool usage verification", 
+      "Invoice details extraction",
+      "Download links validation",
+      "Cross-case consistency check"
+    ],
+    "success_indicators": [
+      "✅ Contiene referencia a COMERCIALIZADORA PIMENTEL",
+      "✅ Contiene información de octubre 2023",
+      "✅ Usó la herramienta correcta y encontró resultados",
+      "✅ ÉXITO: Muestra detalles de facturas encontradas",
+      "✅ ÉXITO: Incluye opciones de descarga"
+    ]
+  },
+  "business_value": {
+    "user_experience": "Natural search without worrying about case formatting",
+    "search_flexibility": "Accepts any case combination",
+    "data_consistency": "Reliable results regardless of input format",
+    "technical_robustness": "Proper database normalization implementation"
+  }
+}

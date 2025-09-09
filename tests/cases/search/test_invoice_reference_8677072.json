@@ -1,0 +1,108 @@
+{
+  "test_case": "invoice_reference_search_8677072",
+  "description": "Test invoice search by specific reference number",
+  "category": "search",
+  "subcategory": "reference_based_search",
+  "created_date": "2025-09-09",
+  "test_data": {
+    "input": {
+      "query": "me puedes traer la factura referencia 8677072",
+      "reference_number": "8677072",
+      "search_type": "by_reference"
+    },
+    "expected_behavior": {
+      "should_recognize_reference": true,
+      "should_use_appropriate_tool": true,
+      "expected_tools": [
+        "search_invoices_by_reference",
+        "search_invoices_by_company_name_and_date",
+        "other_fallback_tools"
+      ]
+    },
+    "actual_results": {
+      "test_status": "REQUIRES_EXECUTION",
+      "reference_recognized": "TO_BE_DETERMINED",
+      "tools_used": "TO_BE_DETERMINED",
+      "invoices_found": "TO_BE_DETERMINED",
+      "response_quality": "TO_BE_DETERMINED"
+    }
+  },
+  "validation_criteria": {
+    "reference_recognition": {
+      "description": "System recognizes '8677072' as invoice reference",
+      "status": "PENDING",
+      "validation_method": "Response analysis for reference number mention"
+    },
+    "tool_selection": {
+      "description": "Appropriate tool selection for reference-based search",
+      "status": "PENDING",
+      "validation_method": "MCP tool invocation logs"
+    },
+    "search_accuracy": {
+      "description": "Finds correct invoice or provides appropriate error message",
+      "status": "PENDING",
+      "validation_method": "Result validation against database"
+    },
+    "response_structure": {
+      "description": "Well-formatted response with invoice details or error handling",
+      "status": "PENDING",
+      "validation_method": "Response format validation"
+    }
+  },
+  "technical_considerations": {
+    "current_tools_analysis": {
+      "dedicated_reference_tool": "search_invoices_by_reference - NEEDS_VERIFICATION",
+      "fallback_options": [
+        "search_invoices_by_company_name_and_date",
+        "search_invoices_by_solicitante_and_date_range"
+      ],
+      "tool_gap_identified": "May need dedicated reference search tool"
+    },
+    "database_schema": {
+      "reference_field": "Factura_Referencia",
+      "primary_field": "Factura",
+      "search_strategy": "Exact match on reference field"
+    }
+  },
+  "potential_issues": {
+    "tool_availability": {
+      "issue": "No dedicated search_invoices_by_reference tool confirmed",
+      "impact": "May require manual fallback to other search methods",
+      "solution": "Implement dedicated reference search tool if needed"
+    },
+    "data_availability": {
+      "issue": "Reference 8677072 may not exist in current dataset",
+      "impact": "Test may show 'no results' which is valid behavior",
+      "solution": "Validate test data existence before execution"
+    }
+  },
+  "recommended_actions": {
+    "immediate": [
+      "Execute test script to capture actual behavior",
+      "Analyze tool selection and response quality",
+      "Document actual results in this JSON"
+    ],
+    "if_test_fails": [
+      "Verify if dedicated reference search tool exists",
+      "Check if reference 8677072 exists in database",
+      "Consider implementing search_invoices_by_reference tool"
+    ],
+    "improvement_opportunities": [
+      "Add reference validation before search",
+      "Implement fuzzy matching for similar references",
+      "Add search suggestions for failed reference searches"
+    ]
+  },
+  "test_automation": {
+    "script_location": "scripts/test_factura_referencia_8677072.ps1",
+    "execution_status": "READY_TO_RUN",
+    "automation_feasibility": "HIGH",
+    "recommended_frequency": "Weekly regression testing"
+  },
+  "business_context": {
+    "use_case": "Users need to find specific invoices by reference number",
+    "frequency": "Common user workflow",
+    "criticality": "MEDIUM - Important for user productivity",
+    "user_expectation": "Fast, accurate results for exact reference matches"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "test_suite": "invoice_search_comprehensive_tests",
+  "description": "Complete test suite for MCP Invoice Search Tools validation",
+  "created_date": "2025-09-09",
+  "version": "1.0",
+  "test_categories": {
+    "sap_search": {
+      "description": "SAP/Código Solicitante search functionality",
+      "tests": [
+        {
+          "file": "test_sap_codigo_solicitante_august_2025.json",
+          "script": "scripts/test_sap_codigo_solicitante_12537749_ago2025.ps1",
+          "status": "PASSED",
+          "priority": "CRITICAL",
+          "issue_resolved": "Client reported 'SAP no es un parámetro válido'"
+        }
+      ]
+    },
+    "company_date_search": {
+      "description": "Company name + date period search functionality",
+      "tests": [
+        {
+          "file": "test_comercializadora_pimentel_uppercase_oct2023.json",
+          "script": "scripts/test_comercializadora_pimentel_oct2023.ps1", 
+          "status": "PASSED",
+          "priority": "HIGH",
+          "focus": "Baseline company+date search"
+        },
+        {
+          "file": "test_comercializadora_pimentel_lowercase_oct2023.json",
+          "script": "scripts/test_comercializadora_pimentel_minusculas_oct2023.ps1",
+          "status": "PASSED", 
+          "priority": "HIGH",
+          "focus": "Case-insensitive search validation"
+        }
+      ]
+    },
+    "reference_search": {
+      "description": "Invoice reference number search functionality",
+      "tests": [
+        {
+          "file": "test_invoice_reference_8677072.json",
+          "script": "scripts/test_factura_referencia_8677072.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "MEDIUM",
+          "focus": "Direct invoice reference lookup"
+        }
+      ]
+    }
+  },
+  "test_execution_summary": {
+    "total_tests": 4,
+    "passed_tests": 3,
+    "pending_tests": 1,
+    "critical_issues_resolved": 1,
+    "coverage_areas": [
+      "SAP code recognition and normalization",
+      "Case-insensitive company search",
+      "Date period interpretation",
+      "MCP tool selection",
+      "Download link generation",
+      "Response formatting"
+    ]
+  },
+  "automation_framework": {
+    "script_language": "PowerShell",
+    "api_testing": "REST API calls to localhost:8001",
+    "validation_method": "Regex pattern matching + response analysis",
+    "session_management": "Dynamic session creation per test",
+    "execution_environment": "Local development (MCP Toolbox + ADK Agent)"
+  },
+  "regression_testing_plan": {
+    "frequency": "Before each release",
+    "execution_order": [
+      "SAP search tests (critical functionality)",
+      "Company+date search tests (core workflow)", 
+      "Reference search tests (specific lookups)"
+    ],
+    "success_criteria": "All tests show ✅ status in PowerShell output",
+    "failure_escalation": "Block release if critical tests fail"
+  },
+  "technical_architecture_validated": {
+    "mcp_toolbox": {
+      "tools_validated": [
+        "search_invoices_by_solicitante_and_date_range",
+        "search_invoices_by_company_name_and_date",
+        "generate_individual_download_links"
+      ],
+      "normalization_confirmed": [
+        "LPAD for SAP codes",
+        "UPPER for company names"
+      ]
+    },
+    "agent_prompt": {
+      "sap_recognition": "✅ SAP = Código Solicitante rules working",
+      "tool_selection": "✅ Priority-based tool selection working",
+      "response_formatting": "✅ Structured markdown responses"
+    },
+    "bigquery_integration": {
+      "case_insensitive_search": "✅ UPPER() normalization working",
+      "date_range_queries": "✅ Date filtering working",
+      "signed_urls": "✅ GCS download links generation working"
+    }
+  },
+  "business_impact_validated": {
+    "user_experience_improvements": [
+      "Natural SAP code search without format restrictions",
+      "Case-insensitive company name search",
+      "Reliable invoice discovery and download"
+    ],
+    "client_issues_resolved": [
+      "'SAP no es un parámetro válido' - FIXED",
+      "Case sensitivity problems - FIXED",
+      "Download link generation - CONFIRMED WORKING"
+    ],
+    "workflow_efficiency": "Users can search invoices naturally without technical knowledge"
+  },
+  "maintenance_notes": {
+    "test_data_dependencies": [
+      "COMERCIALIZADORA PIMENTEL SPA invoices in test database",
+      "SAP code 12537749 with invoices in August 2025",
+      "Reference 8677072 existence (to be verified)"
+    ],
+    "environment_requirements": [
+      "MCP Toolbox running on localhost:5000",
+      "ADK Agent running on localhost:8001", 
+      "BigQuery access to datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
+      "GCS access to miguel-test bucket"
+    ],
+    "update_frequency": "Update test data monthly, review test cases quarterly"
+  }
+}

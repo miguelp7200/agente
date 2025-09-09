@@ -1,0 +1,98 @@
+{
+  "test_case": "sap_codigo_solicitante_august_2025",
+  "description": "Test SAP recognition and automatic code normalization for August 2025",
+  "category": "search",
+  "subcategory": "sap_normalization",
+  "created_date": "2025-09-09",
+  "test_data": {
+    "input": {
+      "query": "dame la factura del siguiente sap, para agosto 2025 - 12537749",
+      "sap_code": "12537749",
+      "period": "agosto 2025",
+      "expected_normalization": "0012537749"
+    },
+    "expected_behavior": {
+      "should_recognize_sap": true,
+      "should_normalize_code": true,
+      "should_find_invoices": true,
+      "should_generate_download_links": true,
+      "expected_tool": "search_invoices_by_solicitante_and_date_range"
+    },
+    "actual_results": {
+      "test_passed": true,
+      "sap_recognized": true,
+      "code_normalized": "0012537749",
+      "invoices_found": 1,
+      "invoice_details": {
+        "factura": "0105481293",
+        "cliente": "CENTRAL GAS SPA",
+        "rut": "76747198-K",
+        "fecha": "2025-08-30",
+        "valor_total": "568805",
+        "moneda": "CLP"
+      },
+      "download_links_generated": 5,
+      "tools_used": [
+        "search_invoices_by_solicitante_and_date_range",
+        "generate_individual_download_links"
+      ]
+    }
+  },
+  "validation_criteria": {
+    "sap_recognition": {
+      "description": "System recognizes 'SAP' as synonym for 'Código Solicitante'",
+      "status": "PASSED",
+      "validation_method": "Response contains 'Código Solicitante' reference"
+    },
+    "code_normalization": {
+      "description": "Automatic LPAD normalization from 12537749 to 0012537749",
+      "status": "PASSED", 
+      "validation_method": "BigQuery logs show normalized parameter"
+    },
+    "search_execution": {
+      "description": "Correct MCP tool selection and execution",
+      "status": "PASSED",
+      "validation_method": "Tool invocation logs and results"
+    },
+    "response_quality": {
+      "description": "Structured response with invoice details and download links",
+      "status": "PASSED",
+      "validation_method": "Response format and content validation"
+    }
+  },
+  "technical_details": {
+    "mcp_toolbox_logs": {
+      "tool_invocation": "search_invoices_by_solicitante_and_date_range",
+      "parameters": {
+        "solicitante": "0012537749",
+        "start_date": "2025-08-01",
+        "end_date": "2025-08-31"
+      },
+      "bigquery_result": "1 row returned",
+      "execution_time": "~1.5 seconds"
+    },
+    "agent_behavior": {
+      "prompt_recognition": "SAP = Código Solicitante rules applied",
+      "tool_selection": "Correct priority-based selection",
+      "response_formatting": "Markdown with download links"
+    }
+  },
+  "regression_prevention": {
+    "issue_resolved": "Client reported 'SAP no es un parámetro válido' - FIXED",
+    "critical_fixes": [
+      "Added SAP recognition rules in agent_prompt.yaml",
+      "Implemented LPAD normalization in tools_updated.yaml",
+      "Updated parameter descriptions for clarity"
+    ],
+    "test_automation": {
+      "script_location": "scripts/test_sap_codigo_solicitante_12537749_ago2025.ps1",
+      "can_be_automated": true,
+      "recommended_frequency": "Before each release"
+    }
+  },
+  "business_impact": {
+    "user_experience": "Users can now search by SAP codes naturally",
+    "functionality_restored": "SAP-based invoice search fully functional",
+    "client_satisfaction": "Critical issue resolved for client workflow"
+  }
+}

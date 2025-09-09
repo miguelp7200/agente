@@ -1,0 +1,112 @@
+{
+  "test_case": "comercializadora_pimentel_october_2023_uppercase",
+  "description": "Test company name search with uppercase format for October 2023",
+  "category": "search",
+  "subcategory": "company_date_search",
+  "created_date": "2025-09-09",
+  "test_data": {
+    "input": {
+      "query": "dame las facturas de COMERCIALIZADORA PIMENTEL para octubre 2023",
+      "company_name": "COMERCIALIZADORA PIMENTEL",
+      "period": "octubre 2023",
+      "case_format": "UPPERCASE"
+    },
+    "expected_behavior": {
+      "should_recognize_company": true,
+      "should_recognize_date": true,
+      "should_use_case_insensitive_search": true,
+      "expected_tool": "search_invoices_by_company_name_and_date",
+      "should_find_invoices": true,
+      "should_generate_download_links": true
+    },
+    "actual_results": {
+      "test_status": "VALIDATED",
+      "company_recognized": true,
+      "date_recognized": true,
+      "tool_used": "search_invoices_by_company_name_and_date",
+      "invoices_found": "CONFIRMED_WORKING",
+      "expected_invoice_date": "2023-10-30",
+      "case_insensitive_working": true
+    }
+  },
+  "validation_criteria": {
+    "company_recognition": {
+      "description": "System recognizes 'COMERCIALIZADORA PIMENTEL' as company name",
+      "status": "PASSED",
+      "validation_method": "Response contains company reference",
+      "regex_pattern": "COMERCIALIZADORA.*PIMENTEL|comercializadora.*pimentel"
+    },
+    "date_recognition": {
+      "description": "System interprets 'octubre 2023' correctly",
+      "status": "PASSED", 
+      "validation_method": "Response contains October 2023 information",
+      "regex_pattern": "octubre|october|2023|mes.*10.*año.*2023"
+    },
+    "tool_selection": {
+      "description": "Uses correct MCP tool for company+date search",
+      "status": "PASSED",
+      "validation_method": "Tool invocation logs",
+      "expected_tool": "search_invoices_by_company_name_and_date"
+    },
+    "search_results": {
+      "description": "Returns structured invoice details",
+      "status": "PASSED",
+      "validation_method": "Response format validation",
+      "regex_pattern": "Factura.*\\d+|📋.*Factura|💰.*Valor"
+    },
+    "download_links": {
+      "description": "Provides download options for found invoices",
+      "status": "PASSED",
+      "validation_method": "Response contains download links",
+      "regex_pattern": "http|download|descarga|zip|PDF"
+    }
+  },
+  "technical_details": {
+    "script_location": "scripts/test_comercializadora_pimentel_oct2023.ps1",
+    "api_endpoint": "http://localhost:8001/run",
+    "session_management": {
+      "session_creation": "POST /apps/{appName}/users/{userId}/sessions/{sessionId}",
+      "query_execution": "POST /run",
+      "timeout": "300 seconds"
+    },
+    "request_structure": {
+      "appName": "gcp-invoice-agent-app",
+      "userId": "victor-local",
+      "newMessage": {
+        "role": "user",
+        "parts": [{"text": "dame las facturas de COMERCIALIZADORA PIMENTEL para octubre 2023"}]
+      }
+    }
+  },
+  "case_sensitivity_testing": {
+    "purpose": "Validate UPPER() normalization in BigQuery queries",
+    "baseline_test": "This test with UPPERCASE company name",
+    "companion_test": "test_comercializadora_pimentel_minusculas_oct2023.ps1",
+    "expected_behavior": "Both tests should return identical results",
+    "bigquery_normalization": "UPPER() function should handle case differences"
+  },
+  "business_context": {
+    "real_company": "COMERCIALIZADORA PIMENTEL SPA",
+    "known_invoice": "Expected invoice from 2023-10-30",
+    "user_workflow": "Common search pattern: company + specific month/year",
+    "criticality": "HIGH - Core functionality for invoice search"
+  },
+  "automation_details": {
+    "powershell_script": {
+      "session_id_pattern": "comercializadora-pimentel-oct2023-{timestamp}",
+      "validation_steps": [
+        "Company name recognition",
+        "Date period recognition", 
+        "Tool selection verification",
+        "Invoice details display",
+        "Download links generation"
+      ],
+      "success_criteria": "All validations show ✅ status"
+    },
+    "regression_testing": {
+      "frequency": "Before each release",
+      "execution_time": "~30 seconds",
+      "dependencies": ["MCP Toolbox running", "ADK Agent running"]
+    }
+  }
+}
