@@ -46,12 +46,12 @@ def check_mcp_toolbox_health() -> bool:
 def check_adk_server_health() -> bool:
     """Verifica que el servidor ADK esté funcionando"""
     try:
-        response = requests.get("http://localhost:8000/health", timeout=5)
+        response = requests.get("http://localhost:8001/list-apps", timeout=5)
         return response.status_code == 200
     except:
         # Intentar endpoint alternativo
         try:
-            response = requests.get("http://localhost:8000/", timeout=5)
+            response = requests.get("http://localhost:8001/", timeout=5)
             return response.status_code in [200, 404]  # 404 es aceptable para el root
         except:
             return False

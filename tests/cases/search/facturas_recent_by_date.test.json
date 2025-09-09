@@ -15,7 +15,7 @@
             "2024",
             "facturas más recientes",
             "ordenadas por fecha",
-            "proxy",
+            "storage.googleapis.com",
             "fecha"
         ],
         "should_not_contain": [
@@ -44,7 +44,7 @@
             ]
         },
         "test_criteria": {
-            "proxy_urls": "Deben incluir http://localhost:8011/gcs?url=",
+            "signed_urls": "Deben incluir storage.googleapis.com URLs firmadas",
             "date_ordering": "Facturas ordenadas por fecha más reciente primero",
             "limit_functionality": "Exactamente 10 facturas o menos",
             "response_format": "JSON con estructura de facturas esperada",
@@ -52,5 +52,5 @@
             "chronological_order": "Fechas en orden descendente (más nueva -> más vieja)"
         }
     },
-    "query": "Dame las 10 facturas más recientes"
+    "query": "Busca las 10 facturas más recientes ordenadas por fecha descendente"
 }

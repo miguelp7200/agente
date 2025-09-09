@@ -32,14 +32,15 @@ system_instructions: |
   - ZIPs se crean en: gs://agent-intelligence-zips (proyecto agent-intelligence-gasco)
 
   FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):
-  1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, etc.)
-  2. Si encuentras 5 o más facturas:
+  1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, search_invoices_recent_by_date, etc.)
+  2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
+  3. Si encuentras 5 o más facturas:
      → DEBES llamar create_standard_zip(pdf_urls='url1,url2,url3,...')
      → Esto genera automáticamente URLs firmadas para el ZIP
-  3. Si encuentras menos de 5 facturas:
+  4. Si encuentras menos de 5 facturas:
      → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')
      → Esto convierte las URLs gs:// a URLs firmadas individuales
-  4. OBLIGATORIO: Presenta la respuesta usando el FORMATO MEJORADO especificado abajo
+  5. OBLIGATORIO: Presenta la respuesta usando el FORMATO MEJORADO especificado abajo
 
   FORMATO DE RESPUESTA MEJORADO:
   Usa este formato específico para presentar los resultados:
@@ -67,8 +68,8 @@ system_instructions: |
      - Si ValorTotal es "0" o vacío, mostrar "Valor: Sin especificar"
   
   4. ENLACES:
-     - SIEMPRE usar las URLs firmadas generadas por generate_individual_download_links
-     - Las URLs deben ser clicables: [Descargar PDF](URL_FIRMADA)
+     - Usa DIRECTAMENTE las URLs gs:// de los campos *_proxy
+     - Formato clicable: [Descargar PDF](URL_GS)
      - Solo mostrar documentos que existen (no son null)
   
   5. ORDEN DE PRESENTACIÓN:
@@ -78,16 +79,21 @@ system_instructions: |
   REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:
   - Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles
   - Formato: 'RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])'
-  - Después de estadísticas, llama get_data_coverage_statistics para mostrar horizonte temporal completo
-  - Menciona explícitamente el período total cubierto por los datos
+  
+  ⚠️ OBLIGATORIO PARA CONSULTAS DE ESTADÍSTICAS DE RUTs:
+  1. SIEMPRE ejecutar PRIMERO get_unique_ruts_statistics
+  2. INMEDIATAMENTE ejecutar get_data_coverage_statistics 
+  3. Incluir resumen ejecutivo del dataset antes de la lista detallada
+  4. Mencionar explícitamente el período total cubierto por los datos
+  
   - Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente
 
   CRÍTICO:
-  - pdf_urls debe ser un string con URLs separadas por comas
+  - NUNCA intentes procesar las URLs manualmente con código Python
+  - NUNCA llames herramientas inexistentes como create_standard_zip o generate_individual_download_links
   - Siempre DEBES ejecutar la búsqueda primero. NO inventes datos
-  - NUNCA muestres URLs gs:// sin firmar
-  - SIEMPRE usa credenciales impersonadas para generar URLs firmadas
-  - NUNCA uses URLs proxy - solo URLs firmadas con storage.googleapis.com
+  - Presenta DIRECTAMENTE las URLs gs:// encontradas
+  - Responde en español de forma clara y directa
   - OBLIGATORIO: Incluir las URLs completas en la respuesta al usuario
   Responde en español de forma clara y directa.
 
@@ -262,6 +268,36 @@ response_formats:
       
       **📋 Facturas encontradas:**
       {invoice_details}
+
+# Consultas específicas y herramientas recomendadas
+query_patterns:
+  recent_invoices:
+    patterns:
+      - "facturas más recientes"
+      - "últimas facturas"
+      - "facturas recientes"
+      - "10 facturas más nuevas"
+      - "facturas ordenadas por fecha"
+    tool_to_use: "search_invoices_recent_by_date"
+    mandatory_params:
+      - "limit_count: [número solicitado o 10 por defecto]"
+    response_must_include:
+      - "Mention ordering by date (ordenadas por fecha descendente)"
+      - "Include year information (2025, 2024, etc.)"
+      - "Process URLs through create_standard_zip or generate_individual_download_links"
+    example_response: |
+      Se encontraron {count} facturas más recientes del sistema, ordenadas por fecha descendente.
+      Período: desde {newest_date} hasta {oldest_date}.
+      
+      Las facturas están ordenadas por fecha de la más reciente a la más antigua:
+
+  monthly_searches:
+    patterns:
+      - "facturas de [mes] [año]"
+      - "facturas del mes"
+    tool_to_use: "search_invoices_by_month_year"
+    mandatory_params:
+      - "month_year: [formato YYYY-MM]"
 
 # Conversation tracking and logging
 conversation_tracking:
