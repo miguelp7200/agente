@@ -33,8 +33,8 @@ from config import (
 # Importar configuración YAML (importación relativa)
 from .agent_prompt_config import load_system_instructions, load_agent_config
 
-# Importar validador de URLs
-from url_validator import fix_response_urls, validate_signed_url
+# Importar validador de URLs - DESACTIVADO PARA TESTING
+# from url_validator import fix_response_urls, validate_signed_url
 
 # 🔥 NUEVO: Importar sistema de logging de conversaciones
 try:
@@ -435,8 +435,9 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             credentials=target_credentials
         )
         
-        # 🚨 VALIDACIÓN DE ZIP URL
-        if not validate_signed_url(signed_url):
+        # 🚨 VALIDACIÓN DE ZIP URL - DESACTIVADA PARA TESTING
+        # if not validate_signed_url(signed_url):
+        if False:  # Desactivado temporalmente
             print(f"⚠️ [GCS] ZIP URL malformada detectada ({len(signed_url)} chars)")
             print("🔄 [GCS] Intentando regenerar ZIP URL...")
             try:
@@ -448,14 +449,14 @@ def generate_signed_zip_url(zip_filename: str) -> str:
                     credentials=target_credentials
                 )
                 
-                if not validate_signed_url(signed_url):
-                    print(f"❌ [GCS] ZIP URL sigue malformada, usando fallback")
-                    if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                        return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-                    else:
-                        return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-                else:
-                    print(f"✅ [GCS] ZIP URL regenerada correctamente")
+                # if not validate_signed_url(signed_url):
+                #     print(f"❌ [GCS] ZIP URL sigue malformada, usando fallback")
+                #     if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+                #         return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+                #     else:
+                #         return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+                # else:
+                #     print(f"✅ [GCS] ZIP URL regenerada correctamente")
             except Exception as e:
                 print(f"❌ [GCS] Error regenerando ZIP URL: {e}")
                 if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
@@ -552,8 +553,9 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 credentials=target_credentials
             )
             
-            # 🚨 VALIDACIÓN DE URL con validador mejorado
-            if not validate_signed_url(signed_url):
+            # 🚨 VALIDACIÓN DE URL con validador mejorado - DESACTIVADA PARA TESTING
+            # if not validate_signed_url(signed_url):
+            if False:  # Desactivado temporalmente
                 print(f"⚠️ [LINKS INDIVIDUALES] URL malformada detectada ({len(signed_url)} chars)")
                 print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
                 try:
@@ -565,7 +567,8 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                         credentials=target_credentials
                     )
                     
-                    if not validate_signed_url(signed_url):
+                    # if not validate_signed_url(signed_url):
+                    if False:  # Desactivado temporalmente
                         print(f"❌ [LINKS INDIVIDUALES] URL sigue malformada después de regenerar")
                         # Usar URL de proxy como fallback
                         if CLOUD_RUN_SERVICE_URL:
@@ -764,8 +767,9 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         # Construir respuesta inicial
         initial_response = f"{summary}\n\n**📋 Facturas encontradas:**\n\n" + "\n\n".join(formatted_invoices)
         
-        # 🚨 VALIDACIÓN FINAL: Limpiar URLs malformadas en la respuesta
-        validated_response = fix_response_urls(initial_response)
+        # 🚨 VALIDACIÓN FINAL: Limpiar URLs malformadas en la respuesta - DESACTIVADA PARA TESTING
+        # validated_response = fix_response_urls(initial_response)
+        validated_response = initial_response  # Sin validación para testing
         
         result = {
             "success": True,

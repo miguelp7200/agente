@@ -1,0 +1,61 @@
+{
+  "name": "Desglose de Facturas por Año",
+  "description": "Test para validar la capacidad del sistema de proporcionar un desglose anual específico del total de facturas",
+  "version": "1.0.0",
+  "query": "dime de las 8972 cuantas facturas corresponden a cada año",
+  "expected_behavior": {
+    "must_execute_tools": [
+      "get_yearly_invoice_statistics"
+    ],
+    "functional_response": true,
+    "accurate_data": true,
+    "no_errors": true
+  },
+  "validation_criteria": {
+    "response_content": {
+      "should_contain": [
+        "año",
+        "facturas",
+        "2017",
+        "2018", 
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
+        "total"
+      ],
+      "should_not_contain": [
+        "error",
+        "no puedo",
+        "disculpa",
+        "herramientas actuales",
+        "no puedo proporcionarte el número exacto"
+      ]
+    },
+    "data_validation": {
+      "must_include_years": [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+      "must_show_count_per_year": true,
+      "total_should_equal": 8972
+    }
+  },
+  "test_metadata": {
+    "category": "statistics",
+    "priority": "high",
+    "complexity": "medium",
+    "creation_date": "2025-09-09",
+    "user_request_origin": "Client asked: 'dime de las 8972 cuantas facturas corresponden a cada año'",
+    "business_value": "Essential for temporal analysis and data distribution understanding"
+  },
+  "expected_response_format": {
+    "structure": "yearly_breakdown",
+    "elements": [
+      "Header with total confirmation",
+      "Year-by-year breakdown with counts",
+      "Percentage distribution (optional)",
+      "Summary validation"
+    ]
+  }
+}

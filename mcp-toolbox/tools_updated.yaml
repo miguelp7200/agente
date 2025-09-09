@@ -1477,6 +1477,40 @@ tools:
       Proporciona contexto temporal completo del dataset de facturas.
       Incluye fechas de inicio/fin, total de RUTs unicos, facturas totales, anos cubiertos y estadisticas temporales.
 
+  get_yearly_invoice_statistics:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT
+        EXTRACT(YEAR FROM fecha) as Ano,
+        COUNT(*) as Total_Facturas,
+        COUNT(DISTINCT Rut) as RUTs_Distintos,
+        COUNT(DISTINCT Solicitante) as Solicitantes_Distintos,
+        MIN(fecha) as Primera_Factura,
+        MAX(fecha) as Ultima_Factura,
+        ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`), 2) as Porcentaje_Total,
+        COALESCE(
+          SUM(
+            (SELECT SUM(detalle.ValorTotal)
+             FROM UNNEST(DetallesFactura) AS detalle 
+             WHERE detalle.ValorTotal IS NOT NULL)
+          ), 0) as Valor_Total_Ano
+      FROM
+        `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+      GROUP BY EXTRACT(YEAR FROM fecha)
+      ORDER BY Ano ASC
+    description: |
+      Obtiene el desglose completo de facturas por año con estadísticas detalladas.
+      ESENCIAL para responder preguntas como "cuántas facturas hay por cada año" o "desglose anual".
+      Incluye:
+      - Número de facturas por año
+      - RUTs y solicitantes únicos por año
+      - Rango temporal (primera y última factura) de cada año
+      - Porcentaje que representa cada año del total
+      - Valor total monetario por año
+      
+      Usar cuando el usuario solicite distribución temporal anual de facturas.
+
 toolsets:
   gasco_invoice_search:
     - search_invoices
@@ -1509,6 +1543,7 @@ toolsets:
     - get_tributarias_by_solicitante
     - get_cedibles_by_solicitante
     - get_data_coverage_statistics
+    - get_yearly_invoice_statistics
 
   gasco_zip_management:
     - create_zip_record

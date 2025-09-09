@@ -88,6 +88,13 @@ system_instructions: |
   3. Incluir resumen ejecutivo del dataset antes de la lista detallada
   4. Mencionar explícitamente el período total cubierto por los datos
   
+  ⚠️ OBLIGATORIO PARA CONSULTAS DE DESGLOSE ANUAL:
+  1. Para preguntas sobre "facturas por año", "cuántas facturas por cada año", "desglose anual":
+     USAR get_yearly_invoice_statistics INMEDIATAMENTE
+  2. Presentar resultados en tabla ordenada por año ascendente
+  3. Incluir porcentajes del total y resumen de validación
+  4. Formato: "Año XXXX: X,XXX facturas (XX.X% del total)"
+  
   - Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente
 
   CRÍTICO:
@@ -405,6 +412,22 @@ usage_examples:
     query: "Dame estadísticas de RUTs únicos"
     expected_tool: "estadisticas_ruts_unicos"
     follow_up_tool: "get_data_coverage_statistics"
+    
+  yearly_breakdown_query:
+    query: "dime de las 8972 cuantas facturas corresponden a cada año"
+    expected_tool: "get_yearly_invoice_statistics"
+    patterns:
+      - "facturas por año"
+      - "facturas por cada año"
+      - "cuántas facturas corresponden a cada año"
+      - "desglose anual"
+      - "distribución por años"
+      - "facturas de cada año"
+    response_format: |
+      **Desglose de facturas por año:**
+      - Año XXXX: X,XXX facturas (XX.X% del total)
+      - [continuar para todos los años]
+      - **Total verificado:** X,XXX facturas
 
 # Security and authentication
 security_configuration:
