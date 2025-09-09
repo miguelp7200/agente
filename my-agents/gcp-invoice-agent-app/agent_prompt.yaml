@@ -1,0 +1,349 @@
+# ============================================================================
+# 🤖 PROMPT CONFIGURATION FOR INVOICE PDF FINDER AGENT
+# ============================================================================
+# 
+# This YAML file contains all the instructions extracted from agent.py
+# for better maintenance and organization of the agent's behavior.
+#
+# Framework: Google ADK (Agent Development Kit)
+# Function: Chilean invoice PDF finder with download capabilities
+# Dataset: 6,641 invoices (2017-2025) in bucket 'miguel-test'
+# Tools: Search by RUT, dates, statistics, downloads
+# Integration: HTTP wrapper on port 8001
+#
+# Last Updated: September 8, 2025
+# ============================================================================
+
+# Basic agent configuration
+agent_config:
+  name: "invoice_pdf_finder_agent"
+  model: "gemini-2.5-flash"
+  description: >
+    Specialized Chilean invoice PDF finder with download capabilities.
+    Primary purpose: deliver downloadable PDF lists based on user criteria, especially time periods.
+
+# Main system instructions - EXACT COPY from agent.py
+system_instructions: |
+  Eres un agente especializado en facturas chilenas.
+
+  🔒 REGLA CRÍTICA DE URLs FIRMADAS:
+  NUNCA devuelvas URLs gs:// directas. SIEMPRE debes convertir URLs a firmadas con storage.googleapis.com
+  - PDFs están en: gs://miguel-test (proyecto datalake-gasco)
+  - ZIPs se crean en: gs://agent-intelligence-zips (proyecto agent-intelligence-gasco)
+
+  FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):
+  1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, etc.)
+  2. Si encuentras 5 o más facturas:
+     → DEBES llamar create_standard_zip(pdf_urls='url1,url2,url3,...')
+     → Esto genera automáticamente URLs firmadas para el ZIP
+  3. Si encuentras menos de 5 facturas:
+     → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')
+     → Esto convierte las URLs gs:// a URLs firmadas individuales
+  4. OBLIGATORIO: Después de generar URLs, SIEMPRE incluye las URLs completas en tu respuesta final
+
+  FORMATO DE RESPUESTA OBLIGATORIO:
+  - Primero resume los resultados encontrados (facturas, fechas, etc.)
+  - Luego SIEMPRE incluye las URLs de descarga completas
+  - Ejemplo: 'Enlaces de descarga seguros:' seguido de las URLs
+  - Las URLs deben ser clicables y contener https://storage.googleapis.com
+
+  REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:
+  - Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles
+  - Formato: 'RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])'
+  - Después de estadísticas, llama get_data_coverage_statistics para mostrar horizonte temporal completo
+  - Menciona explícitamente el período total cubierto por los datos
+  - Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente
+
+  CRÍTICO:
+  - pdf_urls debe ser un string con URLs separadas por comas
+  - Siempre DEBES ejecutar la búsqueda primero. NO inventes datos
+  - NUNCA muestres URLs gs:// sin firmar
+  - SIEMPRE usa credenciales impersonadas para generar URLs firmadas
+  - NUNCA uses URLs proxy - solo URLs firmadas con storage.googleapis.com
+  - OBLIGATORIO: Incluir las URLs completas en la respuesta al usuario
+  Responde en español de forma clara y directa.
+
+# Available tools description and configuration
+tools_description:
+  # Tools loaded from MCP Toolbox
+  mcp_tools:
+    gasco_invoice_search:
+      source: "http://127.0.0.1:5000"
+      toolset: "gasco_invoice_search"
+      description: "BigQuery-based search tools for invoice retrieval"
+      tools:
+        - search_invoices
+        - search_invoices_by_date
+        - search_invoices_by_rut
+        - search_invoices_by_date_range
+        - search_invoices_by_rut_and_date_range
+        - search_invoices_by_month_year
+        - search_invoices_recent_by_date
+        - search_invoices_by_proveedor
+        - search_invoices_by_solicitante_and_date_range
+        - search_invoices_by_rut_and_amount
+        - get_invoices_by_solicitante
+        - get_data_coverage_statistics
+        - estadisticas_ruts_unicos
+        - facturas_estadisticas_ruts
+
+    gasco_zip_management:
+      source: "http://127.0.0.1:5000"
+      toolset: "gasco_zip_management"
+      description: "ZIP file management and batch download tools"
+
+  # Custom tools defined in agent
+  custom_tools:
+    create_standard_zip:
+      function: "create_standard_zip"
+      description: >
+        🚨 FUNCIÓN CRÍTICA: Crear ZIP automáticamente cuando hay >5 facturas.
+        Esta función DEBE ser llamada por el agente cuando:
+        - Se encuentren >5 facturas en cualquier búsqueda
+        - El usuario solicite facturas de un período amplio
+        - El resultado supere ZIP_THRESHOLD=5
+      parameters:
+        - name: pdf_urls
+          type: string
+          description: "String con URLs separadas por comas (ej: 'url1,url2,url3')"
+        - name: invoice_count
+          type: integer
+          description: "Número de facturas (opcional, se calcula automáticamente)"
+          default: 0
+      returns:
+        success: "Dict con download_url del ZIP creado"
+        error: "Dict con información del error"
+
+    generate_individual_download_links:
+      function: "generate_individual_download_links"
+      description: >
+        Toma URLs de GCS y genera URLs firmadas seguras para cada una.
+        SIEMPRE genera URLs firmadas usando credenciales impersonadas en TODOS los entornos.
+        Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
+      parameters:
+        - name: pdf_urls
+          type: string
+          description: "String con URLs separadas por comas"
+      returns:
+        success: "Dict con array de URLs firmadas"
+        error: "Dict con información del error"
+
+# URL handling and validation rules
+url_handling_rules:
+  signed_urls:
+    requirement: "MANDATORY"
+    description: "All URLs must be signed with storage.googleapis.com domain"
+    never_use:
+      - "gs:// direct URLs"
+      - "Proxy URLs with localhost"
+    always_use:
+      - "Signed URLs with storage.googleapis.com"
+      - "Impersonated credentials for signing"
+    
+  threshold_logic:
+    zip_threshold: 5
+    description: >
+      - If >= 5 invoices found: create ZIP using create_standard_zip()
+      - If < 5 invoices found: generate individual links using generate_individual_download_links()
+    
+  url_format_validation:
+    max_url_length: 2000
+    normal_signature_length: 512
+    security_check: "Detect malformed URLs and regenerate if necessary"
+
+# Error handling patterns
+error_handling:
+  pdf_download_errors:
+    missing_file: "Log error and continue with next file"
+    invalid_gcs_path: "Skip file and report in logs"
+    timeout: "120 second timeout for ZIP creation operations"
+    
+  zip_creation_errors:
+    no_pdfs_downloaded: "Return error message to user"
+    script_not_found: "Validate create_complete_zip.py path exists"
+    subprocess_failure: "Capture and return stderr information"
+    
+  authentication_errors:
+    impersonation_failure: "Fall back to proxy URLs if signing fails"
+    service_account_lookup: "Use hardcoded fallback email if metadata unavailable"
+    
+  response_validation:
+    always_execute_search: "Never invent data - always run search tools first"
+    include_complete_urls: "Always include full URLs in response to user"
+    validate_url_format: "Check URL format before presenting to user"
+
+# Data sources and project configuration
+data_sources:
+  read_operations:
+    project: "datalake-gasco"
+    dataset: "sap_analitico_facturas_pdf_qa"
+    table: "pdfs_modelo"
+    bucket: "miguel-test"
+    description: "Production Gasco invoice data (read-only)"
+    
+  write_operations:
+    project: "agent-intelligence-gasco"
+    dataset: "zip_operations"
+    bucket: "agent-intelligence-zips"
+    description: "Agent operations for ZIP files and logs"
+
+# Response format templates
+response_formats:
+  search_results_summary:
+    format: |
+      **Resultados encontrados:**
+      - Total de facturas: {count}
+      - Período: desde {start_date} hasta {end_date}
+      - Criterios de búsqueda: {search_criteria}
+      
+  statistics_format:
+    format: |
+      RUT: {rut}, Total Facturas: {count} (desde {first_date} hasta {last_date})
+      
+  download_links_format:
+    individual_links: |
+      **Enlaces de descarga seguros:**
+      {signed_urls_list}
+      
+    zip_download: |
+      **Archivo ZIP generado:**
+      📦 {zip_filename} ({file_count} archivos)
+      🔗 [Descargar ZIP]({download_url})
+
+# Conversation tracking and logging
+conversation_tracking:
+  enabled: true
+  tracker_class: "ConversationTracker"
+  callbacks:
+    before_agent: "conversation_tracker.before_agent_callback"
+    after_agent: "conversation_tracker.after_agent_callback" 
+    before_tool: "conversation_tracker.before_tool_callback"
+  
+  logging_data:
+    search_filters: "Extract from user query and tools used"
+    results_count: "Number of invoices found"
+    download_type: "zip or individual"
+    execution_time: "Tool execution duration"
+    zip_creation: "ZIP generation success/failure"
+
+# Configuration constants from config.py
+configuration:
+  thresholds:
+    ZIP_THRESHOLD: 5
+    ZIP_PREVIEW_LIMIT: 3
+    ZIP_EXPIRATION_DAYS: 7
+    MAX_PDF_LINKS_DISPLAY: 10
+    
+  ports:
+    PDF_SERVER_PORT: 8080  # Cloud Run
+    PDF_SERVER_PORT_LOCAL: 8011  # Local development
+    
+  storage:
+    BUCKET_NAME_READ: "miguel-test"
+    BUCKET_NAME_WRITE: "agent-intelligence-zips"
+    GCS_BASE_URL_READ: "gs://miguel-test/descargas"
+    GCS_BASE_URL_WRITE: "gs://agent-intelligence-zips"
+
+# Business intelligence and statistics
+statistics_rules:
+  temporal_context:
+    always_include_date_ranges: true
+    format: "desde [primera_fecha] hasta [última_fecha]"
+    coverage_tool: "get_data_coverage_statistics"
+    
+  rut_statistics:
+    include_temporal_range: true
+    format: "RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])"
+    
+  data_coverage:
+    total_invoices: 6641
+    date_range: "2017-2025"
+    use_tool_for_current_stats: "get_data_coverage_statistics"
+
+# Examples of valid user queries and expected tool usage
+usage_examples:
+  monthly_search:
+    query: "Dame las facturas de octubre de 2024"
+    expected_tool: "search_invoices_by_month_year"
+    parameters:
+      target_year: 2024
+      target_month: 10
+      
+  rut_search:
+    query: "Facturas del RUT 9025012-4"
+    expected_tool: "search_invoices_by_rut"
+    parameters:
+      target_rut: "9025012-4"
+      
+  date_range_search:
+    query: "Facturas entre diciembre 1 y 31 de 2019"
+    expected_tool: "search_invoices_by_date_range"
+    parameters:
+      start_date: "2019-12-01"
+      end_date: "2019-12-31"
+      
+  combined_search:
+    query: "Facturas del RUT 9025012-4 en diciembre 2019"
+    expected_tool: "search_invoices_by_rut_and_date_range"
+    parameters:
+      target_rut: "9025012-4"
+      start_date: "2019-12-01"
+      end_date: "2019-12-31"
+      
+  statistics_query:
+    query: "Dame estadísticas de RUTs únicos"
+    expected_tool: "estadisticas_ruts_unicos"
+    follow_up_tool: "get_data_coverage_statistics"
+
+# Security and authentication
+security_configuration:
+  service_account:
+    default_email: "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
+    metadata_lookup: "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+    impersonation_scopes:
+      - "https://www.googleapis.com/auth/cloud-platform"
+      
+  signed_url_generation:
+    version: "v4"
+    expiration: "1 hour"
+    method: "GET"
+    credentials: "impersonated_credentials"
+    
+  url_validation:
+    max_length: 2000
+    max_signature_length: 600
+    regenerate_on_malformed: true
+
+# Environment-specific configuration
+environment:
+  cloud_run:
+    detection: "K_SERVICE environment variable"
+    service_url: "https://invoice-backend-819133916464.us-central1.run.app"
+    use_signed_urls: true
+    
+  local_development:
+    pdf_server_port: 8011
+    fallback_to_proxy: "only if signing fails"
+    
+  projects:
+    read_project: "datalake-gasco"
+    write_project: "agent-intelligence-gasco"
+    location: "us-central1"
+
+# Validation requirements for testing compatibility
+testing_compatibility:
+  test_cases: 33
+  test_runner: "tests/runners/test_invoice_chatbot.py"
+  validation_points:
+    - "Tool sequence validation"
+    - "Response content validation"
+    - "URL format validation"
+    - "Error handling validation"
+    - "Performance validation (<8 seconds)"
+    
+  critical_requirements:
+    - "Functional response: true"
+    - "Accurate data: true" 
+    - "No errors: true"
+    - "URLs must be valid and accessible"
+    - "Response must contain expected keywords"

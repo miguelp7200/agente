@@ -30,6 +30,9 @@ from config import (
     IS_CLOUD_RUN,
 )
 
+# Importar configuración YAML (importación relativa)
+from .agent_prompt_config import load_system_instructions, load_agent_config
+
 # 🔥 NUEVO: Importar sistema de logging de conversaciones
 try:
     # Intento 1: Importar desde el mismo directorio que este archivo (ADK context)
@@ -577,51 +580,18 @@ zip_tool = FunctionTool(create_standard_zip)
 # <--- ADICIÓN 3: Envolver la nueva función como una herramienta para el agente --->
 individual_links_tool = FunctionTool(generate_individual_download_links)
 
+# Cargar configuración desde YAML
+agent_config = load_agent_config()
+system_instructions = load_system_instructions()
+
 
 root_agent = Agent(
-    name="invoice_pdf_finder_agent",
-    model="gemini-2.5-flash", # <--- ADICIÓN 4: Pequeña sugerencia de modelo, puedes revertirla a gemini-2.5-flash
-    description=(
-        "Specialized Chilean invoice PDF finder with download capabilities. "
-        "Primary purpose: deliver downloadable PDF lists based on user criteria, especially time periods."
-    ),
+    name=agent_config['name'],
+    model=agent_config['model'],
+    description=agent_config['description'],
     # <--- ADICIÓN 5: Añadir AMBAS herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
-    instruction=(
-        "Eres un agente especializado en facturas chilenas.\n\n"
-        "🔒 REGLA CRÍTICA DE URLs FIRMADAS:\n"
-        "NUNCA devuelvas URLs gs:// directas. SIEMPRE debes convertir URLs a firmadas con storage.googleapis.com\n"
-        "- PDFs están en: gs://miguel-test (proyecto datalake-gasco)\n"
-        "- ZIPs se crean en: gs://agent-intelligence-zips (proyecto agent-intelligence-gasco)\n\n"
-        "FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):\n"
-        "1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, etc.)\n"
-        "2. Si encuentras 5 o más facturas:\n"
-        "   → DEBES llamar create_standard_zip(pdf_urls='url1,url2,url3,...')\n"
-        "   → Esto genera automáticamente URLs firmadas para el ZIP\n"
-        "3. Si encuentras menos de 5 facturas:\n"
-        "   → DEBES llamar generate_individual_download_links(pdf_urls='url1,url2,url3,...')\n"
-        "   → Esto convierte las URLs gs:// a URLs firmadas individuales\n"
-        "4. OBLIGATORIO: Después de generar URLs, SIEMPRE incluye las URLs completas en tu respuesta final\n\n"
-        "FORMATO DE RESPUESTA OBLIGATORIO:\n"
-        "- Primero resume los resultados encontrados (facturas, fechas, etc.)\n"
-        "- Luego SIEMPRE incluye las URLs de descarga completas\n"
-        "- Ejemplo: 'Enlaces de descarga seguros:' seguido de las URLs\n"
-        "- Las URLs deben ser clicables y contener https://storage.googleapis.com\n\n"
-        "REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:\n"
-        "- Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles\n"
-        "- Formato: 'RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])'\n"
-        "- Después de estadísticas, llama get_data_coverage_statistics para mostrar horizonte temporal completo\n"
-        "- Menciona explícitamente el período total cubierto por los datos\n"
-        "- Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente\n\n"
-        "CRÍTICO:\n"
-        "- pdf_urls debe ser un string con URLs separadas por comas\n"
-        "- Siempre DEBES ejecutar la búsqueda primero. NO inventes datos\n"
-        "- NUNCA muestres URLs gs:// sin firmar\n"
-        "- SIEMPRE usa credenciales impersonadas para generar URLs firmadas\n"
-        "- NUNCA uses URLs proxy - solo URLs firmadas con storage.googleapis.com\n"
-        "- OBLIGATORIO: Incluir las URLs completas en la respuesta al usuario\n"
-        "Responde en español de forma clara y directa."
-    ),
+    instruction=system_instructions,  # ← Cargado desde agent_prompt.yaml
     before_agent_callback=conversation_tracker.before_agent_callback if conversation_tracker else None,
     after_agent_callback=conversation_tracker.after_agent_callback if conversation_tracker else None,
     before_tool_callback=conversation_tracker.before_tool_callback if conversation_tracker else None,
