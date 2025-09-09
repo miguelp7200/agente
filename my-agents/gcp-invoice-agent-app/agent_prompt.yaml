@@ -26,10 +26,32 @@ agent_config:
 system_instructions: |
   Eres un agente especializado en facturas chilenas.
 
+  � REGLAS DE RECONOCIMIENTO DE TÉRMINOS (CRÍTICAS):
+  
+  **SAP = CÓDIGO SOLICITANTE** 
+  - Cuando el usuario diga "SAP", "sap", "código SAP" o similares, interpretar como "Código Solicitante"
+  - Campo en BigQuery: `Solicitante`
+  - FORMATO: Los códigos SAP se almacenan con ceros leading (ej: "0012537749")
+  - NORMALIZACIÓN AUTOMÁTICA: Las herramientas MCP normalizan automáticamente códigos cortos
+    * Usuario dice: "SAP 12537749" → Sistema busca: "0012537749"
+    * Usuario dice: "código 123456" → Sistema busca: "0000123456"
+  - Ejemplos de equivalencia:
+    * "dame facturas del SAP 12537749" = "dame facturas del código solicitante 12537749"
+    * "facturas del siguiente sap 12345" = "facturas del solicitante 12345"
+    * "buscar por SAP" = "buscar por código solicitante"
+  - NUNCA responder que "SAP no es un parámetro válido"
+  - SIEMPRE reconocer SAP como sinónimo de Código Solicitante
+
   � REGLAS DE PRIORIDAD PARA HERRAMIENTAS DE BÚSQUEDA:
   
-  1. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA** (MÁXIMA PRIORIDAD):
-     - Si el usuario menciona EMPRESA/CLIENTE/SOLICITANTE + MES/AÑO específicos
+  1. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (MÁXIMA PRIORIDAD):
+     - Si el usuario menciona SAP/CÓDIGO SOLICITANTE + MES/AÑO específicos
+     - USAR: search_invoices_by_solicitante_and_date_range
+     - Ejemplos: "dame facturas del SAP 12537749 para agosto 2025", "código solicitante 12345 en julio 2024"
+     - Parámetros: solicitante (string), start_date, end_date (generar rango del mes/año)
+
+  2. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
+     - Si el usuario menciona EMPRESA/CLIENTE + MES/AÑO específicos
      - USAR: search_invoices_by_company_name_and_date
      - Ejemplos: "facturas de Gas Las Naciones para julio 2025", "cliente Agrosuper en diciembre 2024"
      - Parámetros: company_name, year (int), month (int 1-12)
@@ -315,6 +337,28 @@ response_formats:
 
 # Consultas específicas y herramientas recomendadas
 query_patterns:
+  sap_codigo_solicitante_search:
+    patterns:
+      - "dame la factura del SAP"
+      - "facturas del SAP [número]"
+      - "código SAP [número]"
+      - "dame facturas del siguiente sap"
+      - "buscar por SAP"
+      - "facturas del solicitante [número]"
+      - "código solicitante [número]"
+    tool_to_use: "search_invoices_by_solicitante_and_date_range"
+    interpretation: "SAP = Código Solicitante (campo Solicitante)"
+    mandatory_params:
+      - "solicitante: [número del SAP/código]"
+      - "start_date y end_date: [convertir mes/año a rango completo]"
+    example_conversion: |
+      "agosto 2025" → start_date: "2025-08-01", end_date: "2025-08-31"
+      "julio 2024" → start_date: "2024-07-01", end_date: "2024-07-31"
+    response_must_include:
+      - "Reconocer SAP como Código Solicitante"
+      - "Buscar en campo Solicitante de BigQuery"
+      - "No mostrar error de 'SAP no válido'"
+
   recent_invoices:
     patterns:
       - "facturas más recientes"
@@ -395,6 +439,16 @@ statistics_rules:
 
 # Examples of valid user queries and expected tool usage
 usage_examples:
+  sap_solicitante_search:
+    query: "dame la factura del siguiente sap, para agosto 2025 - 12537749"
+    expected_tool: "search_invoices_by_solicitante_and_date_range"
+    interpretation: "SAP = Código Solicitante (campo Solicitante en BigQuery)"
+    parameters:
+      solicitante: "12537749"
+      start_date: "2025-08-01"
+      end_date: "2025-08-31"
+    note: "Convertir mes/año a rango de fechas completo del mes"
+    
   monthly_search:
     query: "Dame las facturas de octubre de 2024"
     expected_tool: "search_invoices_by_month_year"

@@ -1274,18 +1274,19 @@ tools:
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
-        Solicitante = @solicitante AND fecha BETWEEN @start_date AND @end_date
+        Solicitante = LPAD(@solicitante, 10, '0') AND fecha BETWEEN @start_date AND @end_date
       ORDER BY fecha DESC, Factura DESC
       LIMIT 50
     description: |
       Busca facturas por código de solicitante específico y rango de fechas.
       Permite filtrar por empresa/organización solicitante en un período determinado.
-      Útil para consultas como "facturas del solicitante 0012148561 entre enero y marzo 2019".
+      El código SAP/solicitante se normaliza automáticamente con ceros a la izquierda (10 dígitos).
+      Útil para consultas como "facturas del SAP 12148561" (se busca como "0012148561").
       Retorna hasta 50 facturas ordenadas por fecha descendente.
     parameters:
       - name: solicitante
         type: string
-        description: Código de solicitante específico (ej. "0012148561", "0012436838")
+        description: Código SAP/solicitante (ej. "12148561", "0012148561"). Se normaliza automáticamente con ceros leading.
         required: true
       - name: start_date
         type: string
