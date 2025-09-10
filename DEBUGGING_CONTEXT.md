@@ -94,6 +94,36 @@ DESPUÉS (>3 facturas):
 🔗 [Descargar ZIP con todas las facturas](URL_ZIP)
 ```
 
+### ❌ **PROBLEMA 5: Error de URLs Proxy en Generación de ZIP**
+**Issue técnico:** Sistema usaba URLs proxy de CloudRun incompatibles con create_standard_zip local
+
+**Root Cause:** El agente seleccionaba `get_invoices_with_proxy_links` que genera URLs proxy (`https://invoice-backend-819133916464.us-central1.run.app/invoice/`) en lugar de URLs directas de GCS
+
+**Problema específico observado:**
+- Búsquedas históricas por solicitante fallaban en crear ZIP
+- Error: `❌ Error: No se pudo descargar ningún PDF desde GCS`
+- URLs proxy de CloudRun no accesibles desde entorno local
+- create_standard_zip requiere URLs directas de GCS para funcionar
+
+**Solución implementada:**
+- ✅ Actualizado `my-agents/gcp-invoice-agent-app/agent_prompt.yaml`:
+  - Regla específica: búsquedas por solicitante sin fechas → usar `get_invoices_with_all_pdf_links`
+  - Herramienta agregada a tools list con descripción detallada
+  - Documentación clara sobre URLs directas vs proxy URLs
+- ✅ **TESTING:** Script `scripts/test_solicitante_0012537749_todas_facturas.ps1` validó corrección
+- ✅ **RESULTADO:** ✅ PASSED - 9/9 validaciones exitosas, ZIP con storage.googleapis.com URL
+
+**Comparación Before/After:**
+```
+ANTES (Error):
+❌ get_invoices_with_proxy_links → CloudRun URLs → create_standard_zip FAIL
+Error: No se pudo descargar ningún PDF desde GCS
+
+DESPUÉS (Éxito):
+✅ get_invoices_with_all_pdf_links → GCS URLs directas → create_standard_zip SUCCESS
+📦 ZIP: https://storage.googleapis.com/agent-intelligence-zips/zip_*.zip
+```
+
 ## 🛠️ **Arquitectura Técnica Validada**
 
 ### **Flujo de Consulta Exitoso:**
@@ -262,9 +292,24 @@ El Test Automation Framework complementa perfectamente el sistema MCP core:
 # Environment: https://invoice-backend-yuhrx5x2ra-uc.a.run.app (Production CloudRun)
 ```
 
+### **🆕 Nuevos Tests Implementados (2025-09-10):**
+```powershell
+# 7. Solicitante Historical Search (CRÍTICO - Resuelve PROBLEMA 5)
+.\scripts\test_solicitante_0012537749_todas_facturas.ps1
+# Query: "para el solicitante 0012537749 traeme todas las facturas que tengas"
+# Result: ✅ PASSED - 9/9 validaciones exitosas, ZIP generado correctamente
+# Fix aplicado: get_invoices_with_all_pdf_links → URLs directas GCS funcionando
+
+# 8. Monthly Statistics 2025
+.\scripts\test_estadisticas_mensuales_2025.ps1
+# Query: "cuantas facturas tienes por mes durante 2025"
+# Result: ✅ Preparado para validación de estadísticas mensuales
+# Test case: tests/cases/statistics/test_estadisticas_mensuales_2025.json
+```
+
 ### **Test Pendiente:**
 ```powershell
-# 7. Reference Search (Automatizado en framework)
+# 9. Reference Search (Automatizado en framework)
 .\scripts\test_factura_referencia_8677072.ps1
 # Query: "me puedes traer la factura referencia 8677072"
 # Status: Disponible como script automatizado en tests/automation/curl-tests/
@@ -536,11 +581,13 @@ RESPONSE_FORMATS_IMPLEMENTED:
 ✅ **PROBLEMA 2:** Normalización Códigos SAP → **RESUELTO**  
 ✅ **PROBLEMA 3:** Terminología CF/SF → **RESUELTO**  
 ✅ **PROBLEMA 4:** Formato Respuesta Sobrecargado → **RESUELTO**  
+✅ **🆕 PROBLEMA 5:** Error URLs Proxy en ZIP → **RESUELTO**
 ✅ **🆕 AUTOMATIZACIÓN:** Test Automation Framework → **IMPLEMENTADO**
    - 📊 42 scripts curl generados automáticamente
    - 🚀 Multi-ambiente (Local/CloudRun/Staging)
    - 📈 Análisis de resultados + reportes HTML
    - ✅ Validación exitosa contra production CloudRun
    - 🔄 CI/CD ready con exit codes y métricas
+   - 🧪 Testing suite completo con casos de regresión
 
 **Ready para producción, testing masivo, y integración CI/CD.**
