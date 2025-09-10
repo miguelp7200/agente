@@ -826,20 +826,20 @@ tools:
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
-        (COALESCE(@solicitante_code, '') = '' OR Solicitante = @solicitante_code)
+        Solicitante = @solicitante_code
       ORDER BY Factura DESC
       LIMIT 50
     description: |
-      Obtiene facturas con TODOS los enlaces específicos de PDFs disponibles.
-      Genera URLs directas para cada tipo de PDF: Tributaria CF/SF, Cedible CF/SF, Documento Térmico.
-      Usa esta herramienta cuando necesites mostrar TODOS los PDFs disponibles para una factura.
+      Obtiene facturas con TODOS los enlaces específicos de PDFs disponibles para un solicitante específico.
+      Genera URLs directas de GCS para cada tipo de PDF: Tributaria CF/SF, Cedible CF/SF, Documento Térmico.
+      Usa esta herramienta cuando necesites mostrar TODOS los PDFs disponibles para facturas de un solicitante.
       Incluye un resumen visual de los PDFs disponibles.
-      Filtra solo por solicitante_code si se proporciona.
+      CRÍTICO: Siempre requiere solicitante_code - NO retorna todas las facturas sin filtro.
     parameters:
       - name: solicitante_code
         type: string
-        description: Código de solicitante específico (ej. "0012148561"). Opcional.
-        required: false
+        description: Código de solicitante específico (ej. "0012537749"). REQUERIDO.
+        required: true
 
   get_multiple_pdf_downloads:
     kind: bigquery-sql

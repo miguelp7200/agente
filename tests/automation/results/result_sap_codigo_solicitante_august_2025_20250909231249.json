@@ -1,0 +1,11 @@
+{
+  "urls_found": 0,
+  "execution_time": 30.9902444,
+  "query": "dame la factura del siguiente sap, para agosto 2025 - 12537749",
+  "environment": "CloudRun",
+  "timestamp": "2025-09-09T23:12:49",
+  "test_name": "Sap Codigo Solicitante August 2025",
+  "test_case": "sap_codigo_solicitante_august_2025",
+  "result": "PASSED",
+  "response_length": 4756
+}

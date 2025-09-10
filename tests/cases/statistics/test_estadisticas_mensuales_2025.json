@@ -1,0 +1,218 @@
+{
+  "test_case": "estadisticas_mensuales_2025",
+  "description": "Test monthly invoice statistics breakdown for year 2025",
+  "category": "statistics",
+  "subcategory": "monthly_temporal_analysis",
+  "created_date": "2025-09-10",
+  "test_data": {
+    "input": {
+      "query": "cuantas facturas tienes por mes durante 2025",
+      "year_filter": "2025",
+      "temporal_granularity": "monthly",
+      "scope": "complete_year",
+      "aggregation_type": "count_by_month"
+    },
+    "expected_behavior": {
+      "should_execute_statistics_tools": true,
+      "should_show_monthly_breakdown": true,
+      "should_include_totals": true,
+      "should_handle_partial_year_data": true,
+      "should_format_structured_response": true,
+      "expected_primary_tool": "get_monthly_invoice_statistics"
+    },
+    "predicted_results": {
+      "response_type": "statistical_breakdown",
+      "data_granularity": "month_by_month",
+      "expected_months": [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+      ],
+      "expected_format": "structured_list_with_counts",
+      "should_include_aggregated_total": true,
+      "partial_year_handling": "show_available_data_note_future_months"
+    }
+  },
+  "validation_criteria": {
+    "year_recognition": {
+      "description": "System recognizes 2025 as target year filter",
+      "status": "PENDING",
+      "validation_method": "Response contains '2025' references"
+    },
+    "monthly_granularity": {
+      "description": "Provides month-by-month breakdown not just annual total",
+      "status": "PENDING", 
+      "validation_method": "Response contains multiple month names with associated counts"
+    },
+    "statistics_tool_usage": {
+      "description": "Uses appropriate MCP statistics tools",
+      "status": "PENDING",
+      "validation_method": "Tool logs show get_monthly_invoice_statistics or similar"
+    },
+    "structured_response": {
+      "description": "Response formatted as clear statistical breakdown",
+      "status": "PENDING",
+      "validation_method": "Response uses structured format with emojis/organization"
+    },
+    "quantitative_data": {
+      "description": "Includes specific numerical counts for each month",
+      "status": "PENDING",
+      "validation_method": "Response contains multiple numbers paired with months"
+    },
+    "completeness_handling": {
+      "description": "Appropriately handles partial year data (current date context)",
+      "status": "PENDING",
+      "validation_method": "Response acknowledges current vs future months if applicable"
+    }
+  },
+  "technical_details": {
+    "mcp_toolbox_expected": {
+      "primary_tool": "get_monthly_invoice_statistics",
+      "parameters": {
+        "year": "2025",
+        "aggregation": "monthly"
+      },
+      "fallback_tools": [
+        "get_yearly_invoice_statistics",
+        "search_invoices_by_date_range"
+      ],
+      "bigquery_aggregation": "GROUP BY EXTRACT(MONTH FROM fecha), EXTRACT(YEAR FROM fecha)"
+    },
+    "agent_behavior": {
+      "prompt_recognition": "Should identify temporal analysis request",
+      "tool_selection": "Statistics-focused tools over search tools",
+      "response_formatting": "Structured statistical presentation"
+    },
+    "expected_response_structure": {
+      "header": "Estadísticas mensuales 2025",
+      "monthly_breakdown": "Enero: X facturas, Febrero: Y facturas, etc.",
+      "aggregated_total": "Total 2025: Z facturas",
+      "data_context": "Note about data availability period"
+    }
+  },
+  "business_context": {
+    "user_intent": "Temporal analysis of invoice distribution across 2025",
+    "expected_use_case": "Business intelligence and capacity planning",
+    "data_granularity": "Monthly level detail required",
+    "analytical_value": "Understanding seasonal patterns and volume trends"
+  },
+  "data_expectations": {
+    "dataset_context": {
+      "total_invoices": "6,641 (entire dataset 2017-2025)",
+      "year_2025_subset": "unknown - to be determined by test",
+      "current_date_context": "September 2025 - partial year data expected",
+      "months_with_data": "enero through septiembre (actual data)",
+      "future_months": "octubre through diciembre (may show 0 or note unavailable)"
+    },
+    "expected_patterns": {
+      "non_zero_months": "enero through septiembre should have counts",
+      "possible_zero_months": "octubre through diciembre may be 0",
+      "peak_months": "to be determined from actual data",
+      "total_format": "sum of all monthly counts"
+    }
+  },
+  "validation_rules": {
+    "must_contain": [
+      "2025",
+      "facturas",
+      "mes",
+      "total"
+    ],
+    "should_contain_months": [
+      "enero", "febrero", "marzo", "abril", "mayo", "junio",
+      "julio", "agosto", "septiembre"
+    ],
+    "must_not_contain": [
+      "error",
+      "no puedo",
+      "disculpa",
+      "herramientas actuales",
+      "no encontré"
+    ],
+    "numerical_validation": {
+      "min_numbers_expected": 5,
+      "should_sum_consistently": true,
+      "non_negative_values": true
+    }
+  },
+  "regression_prevention": {
+    "related_functionality": [
+      "Annual statistics (working)",
+      "Date-based search (working)",
+      "Temporal aggregation tools"
+    ],
+    "critical_validations": [
+      "No errors about unavailable statistics tools",
+      "Proper temporal filtering for 2025 only",
+      "Structured response format maintained",
+      "Monthly granularity preserved"
+    ],
+    "test_automation": {
+      "script_location": "scripts/test_estadisticas_mensuales_2025.ps1",
+      "can_be_automated": true,
+      "automation_category": "statistics",
+      "recommended_frequency": "Monthly (to validate current month data)"
+    }
+  },
+  "success_metrics": {
+    "functional_requirements": [
+      "Recognizes 2025 year filter correctly",
+      "Provides monthly breakdown not just annual total",
+      "Uses appropriate statistics tools",
+      "Returns structured, readable format",
+      "Includes numerical data for each month",
+      "Handles partial year context appropriately"
+    ],
+    "quality_indicators": [
+      "No error messages about tool limitations",
+      "Consistent numerical formatting",
+      "Logical month ordering (enero to diciembre)",
+      "Appropriate aggregation and totals",
+      "Professional statistical presentation"
+    ]
+  },
+  "test_environment": {
+    "local_backend": "http://localhost:8001",
+    "mcp_toolbox": "http://localhost:5000",
+    "bigquery_dataset": "datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
+    "current_context": "September 2025 - testing with partial year data",
+    "expected_data_months": "2025-01 through 2025-09",
+    "future_months_handling": "should note or show 0 for 2025-10 through 2025-12"
+  },
+  "expected_response_format": {
+    "example_structure": [
+      "📊 Estadísticas mensuales para 2025:",
+      "• Enero: 123 facturas",
+      "• Febrero: 145 facturas", 
+      "• Marzo: 167 facturas",
+      "...",
+      "📈 Total año 2025: 1,234 facturas"
+    ],
+    "formatting_elements": [
+      "Statistical emojis (📊, 📈)",
+      "Bullet points or numbered list",
+      "Month names in Spanish",
+      "Numerical counts for each month",
+      "Aggregated total with clear labeling"
+    ]
+  },
+  "automation_integration": {
+    "curl_script_compatible": true,
+    "can_generate_curl": true,
+    "test_runner_category": "statistics",
+    "environment_variants": [
+      "localhost:8001",
+      "CloudRun production",
+      "staging environment"
+    ],
+    "expected_curl_outcome": {
+      "response_size": "medium (structured statistical data)",
+      "execution_time": "< 10 seconds",
+      "success_indicators": [
+        "Monthly breakdown visible",
+        "Numerical data present",
+        "No error messages",
+        "2025 filter applied correctly"
+      ]
+    }
+  }
+}

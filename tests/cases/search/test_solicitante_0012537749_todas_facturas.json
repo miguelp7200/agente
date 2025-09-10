@@ -1,0 +1,167 @@
+{
+  "test_case": "solicitante_0012537749_todas_facturas",
+  "description": "Test comprehensive invoice search for solicitante 0012537749 without date filters",
+  "category": "search",
+  "subcategory": "solicitante_historical",
+  "created_date": "2025-09-10",
+  "test_data": {
+    "input": {
+      "query": "para el solicitante 0012537749 traeme todas las facturas que tengas",
+      "solicitante_code": "0012537749",
+      "search_scope": "historical_complete",
+      "date_filter": "none",
+      "expected_normalization": "not_required"
+    },
+    "expected_behavior": {
+      "should_recognize_solicitante": true,
+      "should_find_invoices": true,
+      "should_show_historical_data": true,
+      "should_apply_zip_threshold": true,
+      "should_generate_download_links": true,
+      "expected_tool": "search_invoices_by_proveedor"
+    },
+    "predicted_results": {
+      "search_type": "complete_historical",
+      "expected_invoice_count": "multiple",
+      "expected_format": "depends_on_count",
+      "zip_threshold_logic": "if_more_than_3_invoices",
+      "expected_client_info": "should_display",
+      "cf_sf_terminology": "con_fondo_sin_fondo"
+    }
+  },
+  "validation_criteria": {
+    "solicitante_recognition": {
+      "description": "System recognizes complete 10-digit solicitante code",
+      "status": "PENDING",
+      "validation_method": "Response contains 'solicitante 0012537749' reference"
+    },
+    "historical_search": {
+      "description": "Searches all invoices without date constraints",
+      "status": "PENDING", 
+      "validation_method": "No date filtering applied in BigQuery query"
+    },
+    "search_execution": {
+      "description": "Correct MCP tool selection for solicitante-based search",
+      "status": "PENDING",
+      "validation_method": "Tool invocation logs show search_invoices_by_proveedor"
+    },
+    "response_format": {
+      "description": "Applies ZIP threshold logic correctly based on invoice count",
+      "status": "PENDING",
+      "validation_method": "Response format matches count (≤3=individual, >3=ZIP)"
+    },
+    "cf_sf_terminology": {
+      "description": "Uses correct 'con fondo/sin fondo' terminology",
+      "status": "PENDING",
+      "validation_method": "Response contains 'con fondo' and 'sin fondo' not 'con firma'"
+    }
+  },
+  "technical_details": {
+    "mcp_toolbox_expected": {
+      "tool_invocation": "search_invoices_by_proveedor",
+      "parameters": {
+        "proveedor_code": "0012537749"
+      },
+      "bigquery_table": "datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
+      "no_lpad_required": "code already has 10 digits"
+    },
+    "agent_behavior": {
+      "prompt_recognition": "Should recognize solicitante code format",
+      "tool_selection": "Solicitante-based search without date filter",
+      "response_formatting": "Conditional based on invoice count"
+    },
+    "zip_threshold_logic": {
+      "threshold_value": 3,
+      "individual_format": "≤3 invoices → individual PDF links",
+      "zip_format": ">3 invoices → summarized list + ZIP download"
+    }
+  },
+  "business_context": {
+    "user_intent": "Comprehensive historical search for specific solicitante",
+    "expected_use_case": "Client wants complete invoice history for solicitante",
+    "data_scope": "All available invoices from 2017-2025 dataset",
+    "download_preference": "Automatic ZIP for multiple results"
+  },
+  "regression_prevention": {
+    "related_issues": [
+      "SAP recognition (resolved)",
+      "Code normalization (not needed for 10-digit codes)",
+      "CF/SF terminology (must use con fondo/sin fondo)",
+      "ZIP threshold implementation (must trigger at >3 invoices)"
+    ],
+    "critical_validations": [
+      "No 'SAP no es parámetro válido' errors",
+      "Correct terminology usage",
+      "Proper ZIP threshold application",
+      "Complete historical search scope"
+    ],
+    "test_automation": {
+      "script_location": "scripts/test_solicitante_0012537749_todas_facturas.ps1",
+      "can_be_automated": true,
+      "automation_category": "search",
+      "recommended_frequency": "Before each release"
+    }
+  },
+  "success_metrics": {
+    "functional_requirements": [
+      "Recognizes 10-digit solicitante code without normalization",
+      "Performs historical search without date constraints",
+      "Returns all available invoices for solicitante",
+      "Applies correct response format based on count",
+      "Generates appropriate download links"
+    ],
+    "quality_indicators": [
+      "No error messages about invalid parameters",
+      "Structured response with client information",
+      "Correct CF/SF terminology usage",
+      "Appropriate ZIP vs individual link logic",
+      "Complete invoice details displayed"
+    ]
+  },
+  "test_environment": {
+    "local_backend": "http://localhost:8001",
+    "mcp_toolbox": "http://localhost:5000",
+    "bigquery_dataset": "datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
+    "gcs_bucket": "miguel-test",
+    "zip_threshold": 3,
+    "signed_url_timeout": 3600
+  },
+  "expected_response_elements": {
+    "should_contain": [
+      "0012537749",
+      "solicitante",
+      "facturas encontradas",
+      "descarga",
+      "con fondo",
+      "sin fondo"
+    ],
+    "should_not_contain": [
+      "no encontré",
+      "parámetro no válido",
+      "con firma",
+      "sin firma",
+      "error"
+    ],
+    "conditional_elements": {
+      "if_multiple_invoices": [
+        "ZIP",
+        "descarga completa",
+        "resumen"
+      ],
+      "if_few_invoices": [
+        "PDF individual",
+        "enlaces individuales"
+      ]
+    }
+  },
+  "automation_integration": {
+    "curl_script_compatible": true,
+    "can_generate_curl": true,
+    "test_runner_category": "search",
+    "environment_variants": [
+      "localhost:8001",
+      "CloudRun production",
+      "staging environment"
+    ]
+  }
+}

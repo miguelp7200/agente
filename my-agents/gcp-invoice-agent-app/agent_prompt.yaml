@@ -68,6 +68,12 @@ system_instructions: |
   2. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
      - USAR: search_invoices_by_proveedor O search_invoices_by_cliente
      - Solo cuando NO se mencione mes/año específico
+
+  2.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
+     - Ejemplos: "para el solicitante 0012537749 traeme todas las facturas", "todas las facturas del SAP 12345"
+     - USAR: get_invoices_with_all_pdf_links (en lugar de search_invoices_by_proveedor)
+     - Esta herramienta proporciona URLs directas de GCS que funcionan con create_standard_zip
+     - Parámetro: solicitante_code
   
   3. **OTRAS BÚSQUEDAS**:
      - Continuar con las reglas normales de herramientas
@@ -220,6 +226,7 @@ tools_description:
         - search_invoices_by_solicitante_and_date_range
         - search_invoices_by_rut_and_amount
         - get_invoices_by_solicitante
+        - get_invoices_with_all_pdf_links
         - get_data_coverage_statistics
         - estadisticas_ruts_unicos
         - facturas_estadisticas_ruts
@@ -263,6 +270,21 @@ tools_description:
           description: "String con URLs separadas por comas"
       returns:
         success: "Dict con array de URLs firmadas"
+        error: "Dict con información del error"
+
+    get_invoices_with_all_pdf_links:
+      function: "get_invoices_with_all_pdf_links"
+      description: >
+        Busca facturas por código de solicitante y retorna URLs DIRECTAS de GCS para cada tipo de PDF.
+        Esta herramienta es CRÍTICA para búsquedas históricas por solicitante sin filtros de fecha.
+        Genera URLs directas que funcionan correctamente con create_standard_zip.
+        USAR en lugar de get_invoices_with_proxy_links para búsquedas por solicitante sin fechas.
+      parameters:
+        - name: solicitante_code
+          type: string
+          description: "Código de solicitante de 10 dígitos (ej: '0012537749')"
+      returns:
+        success: "Array con facturas y URLs directas de GCS para cada tipo de PDF"
         error: "Dict con información del error"
 
 # URL handling and validation rules
