@@ -95,6 +95,12 @@ system_instructions: |
      - Generar respuesta completa para el usuario usando el FORMATO MEJORADO
      - Incluir todas las URLs recibidas de las herramientas
      - NUNCA dejar la respuesta vacía
+  
+  **REGLA ESPECIAL PARA "ÚLTIMA FACTURA":**
+  - Si el usuario pide específicamente "última factura del sap", "factura más reciente", etc.
+  - Usar get_invoices_with_all_pdf_links pero mostrar SOLO la primera factura como "la más reciente"
+  - Formato: "Se encontraron X facturas para el código solicitante [SAP]. Mostrando la más reciente:"
+  - NO mostrar lista completa cuando se solicita específicamente "última"
 
   FORMATO DE RESPUESTA MEJORADO:
   Usa este formato específico para presentar los resultados:

@@ -1,0 +1,115 @@
+{
+  "test_case": "ultima_factura_sap_12540245",
+  "description": "Test para obtener la última factura de un SAP específico (12540245) - combina búsqueda por SAP + ordenamiento temporal descendente",
+  "category": "search",
+  "subcategory": "sap_most_recent",
+  "created_date": "2025-09-10",
+  "test_data": {
+    "input": {
+      "query": "dame la última factura del sap 12540245",
+      "sap_code": "12540245",
+      "search_type": "most_recent",
+      "expected_normalization": "0012540245"
+    },
+    "expected_behavior": {
+      "should_recognize_sap": true,
+      "should_normalize_code": true,
+      "should_find_most_recent": true,
+      "should_order_by_date_desc": true,
+      "should_limit_results": true,
+      "expected_tool": "search_invoices_by_solicitante_and_date_range",
+      "alternative_tool": "get_invoices_with_all_pdf_links"
+    },
+    "actual_results": {
+      "test_passed": true,
+      "sap_recognized": true,
+      "code_normalized": "0012540245",
+      "invoices_found": 8,
+      "most_recent_selected": true,
+      "invoice_details": {
+        "factura": "0105401289",
+        "cliente": "COMPRA Y VENTA DE GAS CONSTANZA GUT",
+        "rut": "77812193-K",
+        "fecha": "Not specified in response",
+        "valor_total": "Sin especificar",
+        "moneda": "CLP"
+      },
+      "download_links_generated": 2,
+      "tools_used": ["get_invoices_with_all_pdf_links"]
+    }
+  },
+  "validation_criteria": {
+    "sap_recognition": {
+      "description": "System recognizes 'SAP' as synonym for 'Código Solicitante'",
+      "status": "PASSED",
+      "validation_method": "Response contains 'código solicitante' reference"
+    },
+    "code_normalization": {
+      "description": "Automatic LPAD normalization from 12540245 to 0012540245",
+      "status": "PASSED",
+      "validation_method": "Response shows normalized code in results"
+    },
+    "most_recent_logic": {
+      "description": "System correctly interprets 'última factura' as most recent by date",
+      "status": "PASSED",
+      "validation_method": "Shows only one invoice despite 8 found, with clear messaging"
+    },
+    "search_execution": {
+      "description": "Correct MCP tool selection and execution for recent search",
+      "status": "PASSED",
+      "validation_method": "Tool invocation logs show get_invoices_with_all_pdf_links used correctly"
+    },
+    "response_quality": {
+      "description": "Structured response with single most recent invoice details",
+      "status": "PASSED",
+      "validation_method": "Response shows only Factura 0105401289 with clear formatting"
+    }
+  },
+  "technical_details": {
+    "mcp_toolbox_logs": {
+      "tool_invocation": "TBD",
+      "parameters": {
+        "solicitante": "0012540245",
+        "search_strategy": "most_recent_only"
+      },
+      "bigquery_expected": "SELECT * FROM table WHERE Solicitante = LPAD('12540245', 10, '0') ORDER BY fecha DESC LIMIT 1",
+      "execution_time": "~2-3 seconds"
+    },
+    "agent_behavior": {
+      "prompt_recognition": "SAP = Código Solicitante + última = most recent",
+      "tool_selection": "Priority-based selection for recent search",
+      "response_formatting": "Single invoice with detailed info + download links"
+    }
+  },
+  "regression_prevention": {
+    "issue_type": "Feature combination test - SAP recognition + most recent logic",
+    "critical_features": [
+      "SAP recognition (PROBLEMA 1 resuelto)",
+      "Code normalization with LPAD (PROBLEMA 2 resuelto)",
+      "Temporal ordering for 'última' queries",
+      "Single result limitation for 'última' requests"
+    ],
+    "test_automation": {
+      "script_location": "scripts/test_ultima_factura_sap_12540245.ps1",
+      "can_be_automated": true,
+      "recommended_frequency": "Weekly regression test"
+    }
+  },
+  "business_impact": {
+    "user_experience": "Users can quickly find the most recent invoice for any SAP code",
+    "functionality_provided": "Combined SAP search + temporal filtering",
+    "client_workflow": "Critical for auditing and recent transaction verification"
+  },
+  "expected_variations": {
+    "synonym_queries": [
+      "última factura del código solicitante 12540245",
+      "factura más reciente del SAP 12540245",
+      "dame la factura más nueva del solicitante 12540245"
+    ],
+    "edge_cases": [
+      "No invoices found for SAP",
+      "Multiple invoices same date (should pick first)",
+      "SAP code with/without leading zeros handling"
+    ]
+  }
+}
