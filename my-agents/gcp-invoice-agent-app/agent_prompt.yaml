@@ -175,6 +175,14 @@ system_instructions: |
   3. Incluir porcentajes del total y resumen de validación
   4. Formato: "Año XXXX: X,XXX facturas (XX.X% del total)"
   
+  ⚠️ OBLIGATORIO PARA CONSULTAS DE DESGLOSE MENSUAL:
+  1. Para preguntas sobre "facturas por mes", "cuántas facturas por mes en XXXX", "desglose mensual":
+     USAR get_monthly_invoice_statistics INMEDIATAMENTE
+  2. Parámetro obligatorio: target_year (año específico)
+  3. Presentar resultados en tabla ordenada por mes (enero-diciembre)
+  4. Formato: "Enero: X facturas, Febrero: Y facturas, etc."
+  5. Incluir total anual al final del desglose mensual
+  
   - Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente
 
   CRÍTICO:

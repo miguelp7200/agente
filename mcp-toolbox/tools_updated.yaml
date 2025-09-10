@@ -1512,6 +1512,58 @@ tools:
       
       Usar cuando el usuario solicite distribución temporal anual de facturas.
 
+  get_monthly_invoice_statistics:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT
+        year_num as Ano,
+        month_num as Mes,
+        CASE month_num
+          WHEN 1 THEN 'Enero'
+          WHEN 2 THEN 'Febrero'
+          WHEN 3 THEN 'Marzo'
+          WHEN 4 THEN 'Abril'
+          WHEN 5 THEN 'Mayo'
+          WHEN 6 THEN 'Junio'
+          WHEN 7 THEN 'Julio'
+          WHEN 8 THEN 'Agosto'
+          WHEN 9 THEN 'Septiembre'
+          WHEN 10 THEN 'Octubre'
+          WHEN 11 THEN 'Noviembre'
+          WHEN 12 THEN 'Diciembre'
+        END as Nombre_Mes,
+        COUNT(*) as Total_Facturas,
+        COUNT(DISTINCT Rut) as RUTs_Distintos,
+        COUNT(DISTINCT Solicitante) as Solicitantes_Distintos,
+        MIN(fecha) as Primera_Factura_Mes,
+        MAX(fecha) as Ultima_Factura_Mes
+      FROM (
+        SELECT 
+          *,
+          EXTRACT(YEAR FROM fecha) as year_num,
+          EXTRACT(MONTH FROM fecha) as month_num
+        FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+        WHERE EXTRACT(YEAR FROM fecha) = @target_year
+      )
+      GROUP BY year_num, month_num
+      ORDER BY month_num ASC
+    description: |
+      Obtiene el desglose completo de facturas por mes dentro de un año específico.
+      ESENCIAL para responder preguntas como "cuántas facturas hay por mes en 2025" o "desglose mensual de 2024".
+      Incluye:
+      - Número de facturas por mes
+      - RUTs y solicitantes únicos por mes
+      - Rango temporal (primera y última factura) de cada mes
+      - Nombres de meses en español
+      
+      Usar cuando el usuario solicite distribución mensual de facturas dentro de un año específico.
+    parameters:
+      - name: target_year
+        type: integer
+        description: Año para el cual obtener estadísticas mensuales (ej. 2025, 2024)
+        required: true
+
   search_invoices_by_company_name_and_date:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1592,6 +1644,7 @@ toolsets:
     - search_invoices_by_cliente
     - search_invoices_by_minimum_amount
     - get_invoice_statistics
+    - get_monthly_invoice_statistics
     - get_invoices_with_pdf_info
     - get_invoices_with_proxy_links
     - get_invoices_with_all_pdf_links
