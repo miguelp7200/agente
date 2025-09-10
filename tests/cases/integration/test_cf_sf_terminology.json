@@ -1,0 +1,83 @@
+{
+    "name": "Test: CF/SF Terminology Correction",
+    "description": "Valida que el chatbot use terminología correcta 'con fondo/sin fondo' en lugar de 'con firma/sin firma' cuando se refiere al logo de Gasco en facturas CF/SF",
+    "query": "dame todas las facturas tributarias del SAP 12537749, tanto CF como SF",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "con fondo",
+                "sin fondo",
+                "logo Gasco",
+                "Copia Tributaria con Fondo",
+                "Copia Tributaria sin Fondo"
+            ],
+            "should_not_contain": [
+                "con firma",
+                "sin firma"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": [
+                {
+                    "tool_name": "search_invoices_by_solicitante",
+                    "description": "Debe buscar facturas por código solicitante SAP 12537749"
+                }
+            ],
+            "sequence_required": true
+        },
+        "functional_requirements": {
+            "should_find_invoices": true,
+            "should_provide_download_links": true,
+            "should_show_invoice_details": true,
+            "should_include_both_cf_sf": true
+        }
+    },
+    "metadata": {
+        "category": "terminology_validation",
+        "priority": "high",
+        "created_date": "2025-09-09",
+        "test_type": "cf_sf_correction",
+        "expected_execution_time": "< 30 segundos",
+        "validation_requirements": {
+            "correct_terminology": true,
+            "no_incorrect_terminology": true,
+            "invoice_search_functional": true,
+            "both_document_types_mentioned": true
+        },
+        "related_issue": "CF/SF terminology confusion - Eric's clarification that CF/SF refers to Gasco logo background, not digital signatures",
+        "regression_notes": {
+            "files_modified": [
+                "agent.py - document mapping dictionary updated",
+                "agent_prompt.yaml - CF/SF terminology section added", 
+                "tools_updated.yaml - BigQuery tool descriptions corrected",
+                "DEBUGGING_CONTEXT.md - Problem 3 documentation added"
+            ],
+            "commit_hash": "64b060e",
+            "lines_changed": 893,
+            "impact": "All CF/SF references in the system now correctly use 'con fondo/sin fondo' terminology"
+        }
+    },
+    "test_results": {
+        "execution_date": "2025-09-09T20:58:28",
+        "session_id": "cf-sf-test-20250909205828",
+        "status": "PASSED",
+        "summary": "✅ CF/SF terminology correction works correctly",
+        "detailed_validation": {
+            "terminology_check": {
+                "incorrect_terminology_found": false,
+                "correct_terminology_instances": 16,
+                "specific_corrections": [
+                    "Uses 'Copia Tributaria con Fondo' (con logo Gasco)",
+                    "Uses 'Copia Tributaria sin Fondo' (sin logo)",
+                    "No instances of 'con firma/sin firma' found"
+                ]
+            },
+            "functional_check": {
+                "invoices_found": 8,
+                "client_found": "CENTRAL GAS SPA (RUT: 76747198-K)",
+                "download_zip_provided": true,
+                "both_cf_sf_documents": true
+            }
+        }
+    }
+}
