@@ -269,6 +269,54 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 # Validación esperada: Todos deben mostrar ✅ en validaciones finales
 ```
 
+## 🔧 **Configuración de Entorno para Continuar**
+
+### **Variables de Entorno Críticas (.env):**
+```bash
+# ZIP Generation Settings  
+ZIP_THRESHOLD=3  # Genera ZIP automático cuando >3 facturas (antes era 5)
+
+# Google Cloud Configuration
+GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json"
+PROJECT_ID="datalake-gasco"
+DATASET_ID="sap_analitico_facturas_pdf_qa"
+TABLE_ID="pdfs_modelo"
+
+# Storage Configuration
+GCS_BUCKET_PDFS="miguel-test"
+GCS_BUCKET_ZIPS="agent-intelligence-zips"
+SIGNED_URL_EXPIRATION=3600  # 1 hora para URLs firmadas
+```
+
+### **Estructura de Archivos Clave:**
+```
+invoice-backend/
+├── .env                           # ← ZIP_THRESHOLD=3 (CRÍTICO)
+├── mcp-toolbox/
+│   ├── tools_updated.yaml         # ← Herramientas BigQuery con LPAD normalization
+│   └── toolbox.exe                # ← MCP Server localhost:5000
+├── my-agents/
+│   └── gcp-invoice-agent-app/
+│       ├── agent_prompt.yaml      # ← Lógica condicional 3 vs >3 facturas
+│       └── agent.py              # ← CF/SF mapping corregido
+└── scripts/
+    └── test_*.ps1                # ← Suite de tests automatizados
+```
+
+### **Estado de Servidores Requerido:**
+```powershell
+# Verificar que estén corriendo ANTES de continuar:
+# 1. MCP Toolbox (puerto 5000)
+Get-Process | Where-Object {$_.ProcessName -eq "toolbox"}
+
+# 2. ADK Agent (puerto 8001) 
+Get-Process | Where-Object {$_.ProcessName -eq "python" -and $_.Path -like "*agent*"}
+
+# 3. URLs de verificación:
+# http://localhost:5000/ui (MCP Toolbox UI)
+# http://localhost:8001/health (ADK Agent health check)
+```
+
 ## 📚 **Documentación Completa**
 
 - **Tests JSON:** `tests/cases/search/test_suite_index.json`
@@ -276,6 +324,53 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 - **Configuración MCP:** `mcp-toolbox/tools_updated.yaml`
 - **Agent prompt:** `my-agents/gcp-invoice-agent-app/agent_prompt.yaml`
 - **Commit history:** Todos los cambios documentados en git
+
+## 🚨 **Información Crítica para Nuevo Chat**
+
+### **Últimas Acciones Realizadas (2025-09-09):**
+```bash
+# Git commits más recientes:
+git log --oneline -3
+# feat: Implementar ZIP automático para >3 facturas (commit más reciente)
+# fix: Corregir terminología CF/SF a "con fondo/sin fondo" 
+# feat: Implementar normalización automática códigos SAP
+```
+
+### **Archivos Modificados Recientemente:**
+1. **`.env`** - ZIP_THRESHOLD cambiado de 5 a 3
+2. **`agent_prompt.yaml`** - Lógica condicional actualizada para >3 facturas  
+3. **`tools_updated.yaml`** - Normalización LPAD y descripciones CF/SF
+4. **`agent.py`** - Mapping de documentos CF/SF corregido
+
+### **Casos de Uso Completamente Validados:**
+```yaml
+QUERY_PATTERNS_WORKING:
+  sap_search: "dame la factura del SAP 12537749 para agosto 2025"
+  company_search: "facturas de COMERCIALIZADORA PIMENTEL octubre 2023" 
+  case_insensitive: "comercializadora pimentel" (minúsculas funciona)
+  cf_sf_terminology: "facturas tributarias del SAP 12537749, tanto CF como SF"
+  zip_threshold: "todas las facturas del SAP 12537749" (>3 → ZIP automático)
+
+RESPONSE_FORMATS_IMPLEMENTED:
+  detailed_format: "≤3 facturas → Enlaces individuales + información completa"
+  resumido_format: ">3 facturas → Lista resumida + ZIP único"
+  terminology_correct: "CF = con fondo, SF = sin fondo (NO firma)"
+```
+
+### **Contexto Técnico Inmediato:**
+- **Total facturas en dataset:** 6,641 (período 2017-2025)
+- **BigQuery table:** `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+- **GCS bucket PDFs:** `miguel-test` 
+- **GCS bucket ZIPs:** `agent-intelligence-zips`
+- **Code normalization:** `LPAD(@solicitante, 10, '0')` funcionando
+- **URL signing:** 3600s timeout para descarga de PDFs
+
+### **Próximos Temas Sugeridos:**
+1. **Ejecutar test pendiente:** `test_factura_referencia_8677072.ps1` 
+2. **Optimizar búsquedas por RUT** (si el cliente lo requiere)
+3. **Implementar búsquedas por rango de fechas** más flexibles
+4. **Mejorar manejo de consultas ambiguas**
+5. **Agregar validaciones adicionales** para edge cases
 
 ---
 
