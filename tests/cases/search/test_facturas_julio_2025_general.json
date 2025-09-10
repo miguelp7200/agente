@@ -1,0 +1,162 @@
+{
+  "test_case": "facturas_julio_2025_general",
+  "description": "Test general search for all invoices in July 2025 without specific company or solicitante filters",
+  "category": "search",
+  "subcategory": "monthly_search",
+  "created_date": "2025-09-10",
+  "test_data": {
+    "input": {
+      "query": "dame las facturas de Julio 2025",
+      "target_year": 2025,
+      "target_month": 7,
+      "search_scope": "monthly_general",
+      "filter_type": "temporal_only",
+      "expected_tool_usage": "search_invoices_by_month_year"
+    },
+    "expected_behavior": {
+      "should_recognize_month": true,
+      "should_recognize_year": true,
+      "should_find_invoices": true,
+      "should_show_multiple_results": true,
+      "should_apply_zip_threshold": true,
+      "should_generate_download_links": true,
+      "expected_primary_tool": "search_invoices_by_month_year"
+    },
+    "predicted_results": {
+      "search_type": "monthly_temporal",
+      "expected_invoice_count": "multiple",
+      "expected_format": "depends_on_count",
+      "zip_threshold_logic": "if_more_than_3_invoices",
+      "expected_time_filter": "2025-07-01 to 2025-07-31",
+      "proxy_urls": "should_use_proxy_links"
+    }
+  },
+  "validation_criteria": {
+    "month_recognition": {
+      "description": "System recognizes 'Julio' as month 7",
+      "status": "PENDING",
+      "validation_method": "Response contains julio/july/07 reference"
+    },
+    "year_recognition": {
+      "description": "System recognizes 2025 as target year",
+      "status": "PENDING", 
+      "validation_method": "Response contains '2025' reference"
+    },
+    "tool_selection": {
+      "description": "Correct MCP tool selection for month/year search",
+      "status": "PENDING",
+      "validation_method": "Uses search_invoices_by_month_year tool"
+    },
+    "temporal_filtering": {
+      "description": "Applies correct temporal filtering for July 2025",
+      "status": "PENDING",
+      "validation_method": "BigQuery WHERE EXTRACT(YEAR FROM fecha) = 2025 AND EXTRACT(MONTH FROM fecha) = 7"
+    },
+    "response_formatting": {
+      "description": "Proper response format based on result count",
+      "status": "PENDING",
+      "validation_method": "ZIP for >3 invoices, individual links for ≤3"
+    },
+    "download_links": {
+      "description": "Generate appropriate download options",
+      "status": "PENDING",
+      "validation_method": "Contains proxy URLs or ZIP download link"
+    }
+  },
+  "technical_requirements": {
+    "mcp_tool": "search_invoices_by_month_year",
+    "bigquery_query_pattern": "EXTRACT(YEAR FROM fecha) = @target_year AND EXTRACT(MONTH FROM fecha) = @target_month",
+    "expected_parameters": {
+      "target_year": 2025,
+      "target_month": 7
+    },
+    "response_elements": [
+      "Structured invoice list with dates",
+      "Client information for each invoice",
+      "Appropriate download mechanism",
+      "July 2025 temporal context",
+      "Invoice count summary"
+    ]
+  },
+  "success_metrics": {
+    "functional_requirements": [
+      "Recognizes month name 'Julio' as July (month 7)",
+      "Recognizes year 2025 correctly",
+      "Performs monthly search without other filters",
+      "Returns invoices within July 2025 date range",
+      "Applies correct response format based on count",
+      "Generates appropriate download links"
+    ],
+    "quality_indicators": [
+      "No error messages about invalid parameters",
+      "Clear temporal filtering explanation",
+      "Structured response with invoice details",
+      "Correct CF/SF terminology usage", 
+      "Appropriate ZIP vs individual link logic",
+      "Complete invoice details displayed"
+    ]
+  },
+  "test_environment": {
+    "local_backend": "http://localhost:8001",
+    "mcp_toolbox": "http://localhost:5000",
+    "bigquery_dataset": "datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
+    "gcs_bucket": "miguel-test",
+    "zip_threshold": 3,
+    "signed_url_timeout": 3600
+  },
+  "expected_response_elements": {
+    "should_contain": [
+      "julio",
+      "2025",
+      "facturas encontradas",
+      "descarga",
+      "con fondo",
+      "sin fondo"
+    ],
+    "should_not_contain": [
+      "no encontré",
+      "parámetro no válido",
+      "con firma",
+      "sin firma",
+      "error"
+    ],
+    "conditional_elements": {
+      "if_multiple_invoices": [
+        "ZIP",
+        "descarga completa",
+        "resumen"
+      ],
+      "if_few_invoices": [
+        "PDF individual", 
+        "enlaces individuales"
+      ]
+    }
+  },
+  "automation_integration": {
+    "curl_script_compatible": true,
+    "can_generate_curl": true,
+    "test_runner_category": "search",
+    "environment_variants": [
+      "localhost:8001",
+      "CloudRun production",
+      "staging environment"
+    ]
+  },
+  "business_context": {
+    "user_intent": "General temporal search for monthly invoice analysis",
+    "expected_use_case": "Monthly reporting and period-specific invoice review",
+    "data_granularity": "Month-level filtering without client restrictions",
+    "analytical_value": "Understanding invoice volume and distribution for July 2025"
+  },
+  "edge_cases": {
+    "partial_month_data": "July 2025 may have partial data if current date is within the month",
+    "no_invoices_found": "Should handle gracefully if no invoices exist for July 2025",
+    "large_result_set": "Should apply ZIP threshold appropriately for many results",
+    "spanish_month_name": "Should recognize 'Julio' as month name in Spanish"
+  },
+  "related_tests": [
+    "test_estadisticas_mensuales_2025.json",
+    "facturas_empresa_fecha.test.json",
+    "test_sap_codigo_solicitante_august_2025.json"
+  ]
+}

@@ -51,6 +51,17 @@ system_instructions: |
     * "Copia Cedible SF" = "Copia Cedible sin Fondo (sin logo)"
   - El fondo se refiere al logo corporativo de Gasco, no a firmas digitales
 
+  **BÚSQUEDAS MENSUALES GENERALES** (OBLIGATORIO RECONOCER):
+  - Cuando el usuario pida facturas SOLO por mes/año SIN especificar empresa/SAP
+  - Patrones obligatorios a reconocer:
+    * "dame las facturas de Julio 2025"
+    * "facturas de octubre 2024"
+    * "facturas del mes de diciembre 2019"
+    * "dame las facturas de [MES] [AÑO]"
+  - USAR INMEDIATAMENTE: search_invoices_by_month_year
+  - Mapeo de meses en español: enero=1, febrero=2, marzo=3, abril=4, mayo=5, junio=6, julio=7, agosto=8, septiembre=9, octubre=10, noviembre=11, diciembre=12
+  - NUNCA ignorar estas consultas - SIEMPRE responder con la herramienta correcta
+
   � REGLAS DE PRIORIDAD PARA HERRAMIENTAS DE BÚSQUEDA:
   
   1. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (MÁXIMA PRIORIDAD):
@@ -59,30 +70,37 @@ system_instructions: |
      - Ejemplos: "dame facturas del SAP 12537749 para agosto 2025", "código solicitante 12345 en julio 2024"
      - Parámetros: solicitante (string), start_date, end_date (generar rango del mes/año)
 
-  2. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
+  2. **BÚSQUEDA MENSUAL GENERAL** (NUEVA PRIORIDAD ALTA):
+     - Si el usuario solicita facturas SOLO por mes/año SIN especificar empresa/SAP
+     - USAR: search_invoices_by_month_year
+     - Ejemplos: "dame las facturas de Julio 2025", "facturas de octubre 2024", "facturas del mes de diciembre 2019"
+     - Parámetros: target_year (int), target_month (int 1-12)
+     - Mapeo de meses: enero=1, febrero=2, marzo=3, abril=4, mayo=5, junio=6, julio=7, agosto=8, septiembre=9, octubre=10, noviembre=11, diciembre=12
+
+  3. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
      - Si el usuario menciona EMPRESA/CLIENTE + MES/AÑO específicos
      - USAR: search_invoices_by_company_name_and_date
      - Ejemplos: "facturas de Gas Las Naciones para julio 2025", "cliente Agrosuper en diciembre 2024"
      - Parámetros: company_name, year (int), month (int 1-12)
   
-  2. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
+  4. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
      - USAR: search_invoices_by_proveedor O search_invoices_by_cliente
      - Solo cuando NO se mencione mes/año específico
 
-  2.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
+  4.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
      - Ejemplos: "para el solicitante 0012537749 traeme todas las facturas", "todas las facturas del SAP 12345"
      - USAR: get_invoices_with_all_pdf_links (en lugar de search_invoices_by_proveedor)
      - Esta herramienta proporciona URLs directas de GCS que funcionan con create_standard_zip
      - Parámetro: solicitante_code
 
-  2.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
+  4.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
      - Cuando el usuario pregunta qué solicitantes/códigos SAP pertenecen a un RUT
      - Ejemplos: "qué solicitantes pertenecen al RUT 96568740-8", "códigos SAP del RUT X", "solicitantes de este RUT"
      - USAR: get_solicitantes_by_rut
      - Parámetro: target_rut (con formato RUT chileno incluido guión)
      - Respuesta debe incluir: lista de códigos solicitante, cantidad de facturas por código, fechas
   
-  3. **OTRAS BÚSQUEDAS**:
+  5. **OTRAS BÚSQUEDAS**:
      - Continuar con las reglas normales de herramientas
 
   �🔒 REGLA CRÍTICA DE URLs FIRMADAS:
@@ -212,6 +230,9 @@ system_instructions: |
   
   **PASO 2A: SI HAY MUCHAS FACTURAS (>3):**
   - INMEDIATAMENTE ejecutar: create_standard_zip(pdf_urls)
+  - PARÁMETROS CORRECTOS: pdf_urls como STRING con URLs separadas por comas
+  - NUNCA generar código Python manual
+  - NUNCA usar json.loads() o procesamiento manual de datos
   - Incluir URL del ZIP en la respuesta: "[Descargar ZIP](URL_FIRMADA)"
   - Usar formato de respuesta RESUMIDO (lista limpia + ZIP)
   - NUNCA usar "Facturas Individuales" cuando hay múltiples facturas
@@ -483,9 +504,13 @@ query_patterns:
     patterns:
       - "facturas de [mes] [año]"
       - "facturas del mes"
+      - "dame las facturas de julio 2025"
     tool_to_use: "search_invoices_by_month_year"
     mandatory_params:
-      - "month_year: [formato YYYY-MM]"
+      - "target_year: [año como entero]"
+      - "target_month: [mes como entero 1-12]"
+    special_handling: "Para múltiples resultados (>3), usar create_standard_zip automáticamente"
+    month_mapping: "Usar mapeo español: julio=7, agosto=8, etc."
 
 # Conversation tracking and logging
 conversation_tracking:
@@ -555,6 +580,14 @@ usage_examples:
     parameters:
       target_year: 2024
       target_month: 10
+      
+  monthly_search_july_2025:
+    query: "dame las facturas de Julio 2025"
+    expected_tool: "search_invoices_by_month_year"
+    parameters:
+      target_year: 2025
+      target_month: 7
+    note: "Julio debe mapearse a mes 7, sin filtros adicionales de empresa/solicitante"
       
   rut_search:
     query: "Facturas del RUT 9025012-4"
