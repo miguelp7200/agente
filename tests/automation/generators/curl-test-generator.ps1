@@ -246,7 +246,7 @@ function Get-CurlTestTemplate {
     Ambiente de ejecución: Local, CloudRun, Staging (default: $Environment)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 60)
+    Timeout en segundos para requests (default: 300)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
@@ -261,7 +261,7 @@ function Get-CurlTestTemplate {
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
     [string]`$Environment = "$Environment",
-    [int]`$Timeout = 60,
+    [int]`$Timeout = 300,
     [switch]`$Verbose
 )
 

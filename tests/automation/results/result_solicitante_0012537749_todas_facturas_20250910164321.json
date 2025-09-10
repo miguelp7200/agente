@@ -1,0 +1,11 @@
+{
+  "response_length": 3,
+  "environment": "Local",
+  "result": "PASSED",
+  "execution_time": 59.7912314,
+  "urls_found": 0,
+  "timestamp": "2025-09-10T16:43:21",
+  "query": "para el solicitante 0012537749 traeme todas las facturas que tengas",
+  "test_case": "solicitante_0012537749_todas_facturas",
+  "test_name": "Solicitante 0012537749 Todas Facturas"
+}

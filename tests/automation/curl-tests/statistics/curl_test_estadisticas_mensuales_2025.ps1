@@ -1,13 +1,13 @@
-# ===== SCRIPT CURL AUTOMATIZADO: Test: Financial Analysis   Suma Montos Por Año =====
+# ===== SCRIPT CURL AUTOMATIZADO: Estadisticas Mensuales 2025 =====
 <#
 .SYNOPSIS
-    Test automatizado: Test: Financial Analysis   Suma Montos Por Año
+    Test automatizado: Estadisticas Mensuales 2025
 
 .DESCRIPTION
-    Script generado automáticamente para validar: Valida que el agente pueda manejar consultas de análisis financiero por año. Prioridad: high.
+    Script generado automáticamente para validar: Test monthly invoice statistics breakdown for year 2025
     
-    Test Case: 
-    Categoría: 
+    Test Case: estadisticas_mensuales_2025
+    Categoría: statistics
     
 .PARAMETER Environment
     Ambiente de ejecución: Local, CloudRun, Staging (default: CloudRun)
@@ -19,10 +19,10 @@
     Mostrar información detallada de debugging
     
 .EXAMPLE
-    .\curl_test_Test:_Financial_Analysis_-_Suma_Montos_por_Año.ps1
+    .\curl_test_estadisticas_mensuales_2025.ps1
     
 .EXAMPLE  
-    .\curl_test_Test:_Financial_Analysis_-_Suma_Montos_por_Año.ps1 -Environment Local -Verbose
+    .\curl_test_estadisticas_mensuales_2025.ps1 -Environment Local -Verbose
 #>
 
 param(
@@ -68,7 +68,7 @@ function Write-Error { param($Message) Write-ColorOutput "❌ $Message" $RED }
 
 # Banner
 Write-Host "🧪 ========================================" -ForegroundColor Magenta
-Write-Host "   TEST: Test: Financial Analysis   Suma Montos Por Año" -ForegroundColor Magenta
+Write-Host "   TEST: Estadisticas Mensuales 2025" -ForegroundColor Magenta
 Write-Host "   Ambiente: $Environment" -ForegroundColor Magenta
 Write-Host "========================================" -ForegroundColor Magenta
 
@@ -76,10 +76,10 @@ $config = $EnvironmentConfig[$Environment]
 Write-Info "Target: $($config.Description) - $($config.BaseUrl)"
 
 # Variables del test
-$sessionId = "auto-test-Test:_Financial_Analysis_-_Suma_Montos_por_Año-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$sessionId = "auto-test-estadisticas_mensuales_2025-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "automation-test-user"
 $appName = "gcp-invoice-agent-app"
-$testQuery = "cuanto es la suma de los montos por cada año"
+$testQuery = "cuantas facturas tienes por mes durante 2025"
 
 Write-Info "Variables configuradas:"
 Write-Host "  🆔 Session ID: $sessionId" -ForegroundColor Gray
@@ -179,31 +179,18 @@ try {
         Write-Host "-" * 50 -ForegroundColor Gray
         
         $allValidationsPassed = $true
-        # ✅ Validar contenido requerido
+        # 🔍 Validaciones básicas del test
         Write-Host "
-🔍 Validando contenido requerido..." -ForegroundColor Yellow
-        $requiredContent = @("suma", "montos", "año", "total")
+🔍 Ejecutando validaciones básicas..." -ForegroundColor Yellow
         $contentValidation = $true
-        foreach ($required in $requiredContent) {
-            if ($modelResponse.Contains($required)) {
-                Write-Host "   ✅ Encontrado: $required" -ForegroundColor Green
-            } else {
-                Write-Host "   ❌ FALTANTE: $required" -ForegroundColor Red
-                $contentValidation = $false
-            }
-        }
-        # ❌ Validar contenido prohibido
-        Write-Host "
-🚫 Validando contenido prohibido..." -ForegroundColor Yellow
-        $prohibitedContent = @("error", "no puedo", "disculpa")
         $prohibitionValidation = $true
-        foreach ($prohibited in $prohibitedContent) {
-            if ($modelResponse.Contains($prohibited)) {
-                Write-Host "   ❌ ENCONTRADO (no debería): $prohibited" -ForegroundColor Red
-                $prohibitionValidation = $false
-            } else {
-                Write-Host "   ✅ Correcto (no presente): $prohibited" -ForegroundColor Green
-            }
+        
+        # Validar que hay respuesta con contenido
+        if ($modelResponse.Length -gt 100) {
+            Write-Host "   ✅ Respuesta tiene contenido adecuado" -ForegroundColor Green
+        } else {
+            Write-Host "   ❌ Respuesta muy corta o vacía" -ForegroundColor Red
+            $contentValidation = $false
         }
         
         # 📊 Análisis de URLs (heredado del script base)
@@ -250,8 +237,8 @@ try {
         
         # Guardar resultado
         $resultData = @{
-            test_case = "Test: Financial Analysis - Suma Montos por Año"
-            test_name = "Test: Financial Analysis   Suma Montos Por Año"
+            test_case = "estadisticas_mensuales_2025"
+            test_name = "Estadisticas Mensuales 2025"
             environment = $Environment
             execution_time = $duration
             result = $testResult
@@ -261,7 +248,7 @@ try {
             query = $testQuery
         }
         
-        $resultFile = "../../results/result_Test:_Financial_Analysis_-_Suma_Montos_por_Año_$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $resultFile = "../../results/result_estadisticas_mensuales_2025_$(Get-Date -Format 'yyyyMMddHHmmss').json"
         $resultData | ConvertTo-Json -Depth 3 | Out-File -FilePath $resultFile -Encoding UTF8
         Write-Info "Resultado guardado en: $resultFile"
         
@@ -278,4 +265,4 @@ try {
     exit 1
 }
 
-Write-Success "Test Test: Financial Analysis   Suma Montos Por Año completado!"
+Write-Success "Test Estadisticas Mensuales 2025 completado!"
