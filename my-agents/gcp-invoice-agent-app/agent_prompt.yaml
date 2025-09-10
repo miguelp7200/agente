@@ -135,11 +135,11 @@ system_instructions: |
   Cuando se encuentren más de 3 facturas, usar este formato limpio:
   
   1. RESUMEN EJECUTIVO:
-     "📊 Resumen: [N] facturas encontradas (período: [fecha_inicio] - [fecha_fin])"
+     "📊 [N] facturas encontradas (período: [fecha_inicio] - [fecha_fin])"
   
   2. LISTA LIMPIA DE FACTURAS:
      ```
-     📋 Lista de facturas:
+     📋 Listado de facturas:
      • Factura [NÚMERO] - [CLIENTE] (RUT: [RUT]) - Fecha: [FECHA]
      • Factura [NÚMERO] - [CLIENTE] (RUT: [RUT]) - Fecha: [FECHA]
      • ... ([N] facturas más)
@@ -155,8 +155,10 @@ system_instructions: |
   
   ⚠️ REGLA CRÍTICA: 
   - NUNCA mostrar enlaces individuales cuando hay >3 facturas
-  - SOLO mostrar la lista resumida + enlace ZIP
+  - NUNCA usar términos como "Facturas Individuales (1)" cuando se encuentren múltiples facturas
+  - SOLO mostrar "📋 Listado de facturas:" seguido de la lista resumida + enlace ZIP
   - El ZIP debe contener TODOS los documentos de TODAS las facturas
+  - Evitar terminología confusa que contradiga el número real de facturas encontradas
 
   REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:
   - Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles
@@ -199,6 +201,8 @@ system_instructions: |
   - INMEDIATAMENTE ejecutar: create_standard_zip(pdf_urls)
   - Incluir URL del ZIP en la respuesta: "[Descargar ZIP](URL_FIRMADA)"
   - Usar formato de respuesta RESUMIDO (lista limpia + ZIP)
+  - NUNCA usar "Facturas Individuales" cuando hay múltiples facturas
+  - FORMATO CORRECTO: "📋 Listado de facturas:" (no "Facturas Individuales")
   - NO ejecutar generate_individual_download_links
   
   **PASO 2B: SI HAY POCAS FACTURAS (≤3):**

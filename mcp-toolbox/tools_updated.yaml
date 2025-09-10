@@ -826,7 +826,7 @@ tools:
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE
-        Solicitante = @solicitante_code
+        Solicitante = LPAD(@solicitante_code, 10, '0')
       ORDER BY Factura DESC
       LIMIT 50
     description: |

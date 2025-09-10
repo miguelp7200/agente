@@ -4,7 +4,19 @@
 
 Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas chilenas** usando **MCP (Model Context Protocol)** con las siguientes tecnologías:
 
-- **Backend:** ADK Agent (Google Agent Development Kit) en `localhost:8001`
+- **Backend:** ADK Agent (Googl# 🆕 8. Monthly Statistics 2025
+.\scripts\test_estadisticas_mensuales_2025.ps1
+# Query: "cuantas facturas tienes por mes durante 2025"
+# Result: ✅ Preparado para validación de estadísticas mensuales
+# Test case: tests/cases/statistics/test_estadisticas_mensuales_2025.json
+
+# 🆕 9. Format Confusion + MCP LPAD Fix (CRÍTICO - Resuelve PROBLEMA 7)
+.\scripts\test_facturas_solicitante_12475626.ps1
+# Query: "dame las facturas para el solicitante 12475626"
+# Result: ✅ PASSED - 13 facturas encontradas, formato claro, ZIP coherente (65 archivos)
+# Fix aplicado: LPAD en get_invoices_with_all_pdf_links + terminología corregida
+# Validation: Normalización 12475626→0012475626 + "Listado de facturas" (no "Individuales")
+```t Development Kit) en `localhost:8001`
 - **MCP Server:** Toolbox en `localhost:5000` 
 - **Base de datos:** BigQuery `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
 - **Storage:** Google Cloud Storage bucket `miguel-test` para PDFs firmados
@@ -155,6 +167,58 @@ DESPUÉS (Funcionalidad completa):
 ```
 
 **Resultado final:** 9/9 validaciones exitosas, desglose mensual enero-septiembre 2025 con datos cuantitativos ricos
+
+### ❌ **PROBLEMA 7: Format Confusion + MCP Tool LPAD Missing**
+**Issue del cliente:** `"indica 12 facturas, luego abajo dice 1 individual y me pasa un zip con + de 30 facturas"`
+
+**Root Cause Doble:** 
+1. **Terminología confusa:** Agent prompt mostraba "Facturas Individuales (1)" para múltiples facturas
+2. **MCP Tool crítico sin LPAD:** `get_invoices_with_all_pdf_links` no aplicaba normalización automática
+
+**Problema específico observado:**
+- Cliente consulta: `"dame las facturas para el solicitante 12475626"`
+- Primera ejecución: Sistema respondía "No se encontraron facturas" (herramienta sin LPAD)
+- Después del fix: Sistema encuentra 13 facturas pero responde "Facturas Individuales (1)" (terminología confusa)
+- ZIP generado correctamente: 65 archivos = 13 facturas × 5 PDFs por factura
+- Cliente confundido por discrepancia entre "1 individual" vs "13 facturas encontradas"
+
+**Investigación técnica:**
+```sql
+-- BigQuery directo (funciona):
+SELECT * FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+WHERE Solicitante = '0012475626'
+-- Resultado: 13 facturas encontradas
+
+-- MCP Tool ANTES del fix (fallaba):
+get_invoices_with_all_pdf_links(solicitante_code: "12475626")
+-- Query: WHERE Solicitante = @solicitante_code  ← SIN LPAD!
+-- Resultado: "The query returned 0 rows"
+
+-- MCP Tool DESPUÉS del fix (funciona):
+get_invoices_with_all_pdf_links(solicitante_code: "12475626")
+-- Query: WHERE Solicitante = LPAD(@solicitante_code, 10, '0')  ← CON LPAD!
+-- Resultado: 13 facturas encontradas correctamente
+```
+
+**Solución implementada:**
+- ✅ **Fix 1 - MCP Tool:** Agregado `LPAD(@solicitante_code, 10, '0')` en `tools_updated.yaml`
+- ✅ **Fix 2 - Agent Prompt:** Eliminada terminología "Facturas Individuales (1)" para múltiples facturas
+- ✅ **Validación:** Script `test_facturas_solicitante_12475626.ps1` confirma funcionamiento correcto
+
+**Comparación Before/After:**
+```
+ANTES (Doble error):
+❌ MCP Tool: "The query returned 0 rows" (sin LPAD)
+❌ Si funcionara: "12 facturas encontradas" + "Facturas Individuales (1)" (confuso)
+
+DESPUÉS (Perfecto):
+✅ MCP Tool: "13 facturas encontradas" (con LPAD normalization)
+✅ Agent Prompt: "📋 Listado de facturas:" (terminología clara)
+✅ ZIP: 65 archivos = 13 facturas × 5 PDFs (matemática correcta)
+✅ Cliente: Respuesta clara y coherente
+```
+
+**Resultado final:** ✅ PASSED - Normalización automática + formato claro + ZIP coherente
 
 ## 🛠️ **Arquitectura Técnica Validada**
 
@@ -433,10 +497,11 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 
 ### **💡 Funcionalidades Core:**
 5. ~~**Ejecutar test pendiente:** `test_factura_referencia_8677072.ps1`~~ → **Automatizado en framework**
-6. **Implementar búsqueda por RUT** si no existe
-7. **Agregar búsqueda por rango de fechas** más flexible
-8. **Optimizar respuestas** para consultas ambiguas
-9. **Implementar caching** para consultas frecuentes
+6. ~~**Problema terminología confusa:** `"Facturas Individuales (1)"`~~ → **RESUELTO en PROBLEMA 7**
+7. **Implementar búsqueda por RUT** si no existe
+8. **Agregar búsqueda por rango de fechas** más flexible
+9. **Optimizar respuestas** para consultas ambiguas
+10. **Implementar caching** para consultas frecuentes
 
 ### **📊 Analytics y Monitoring:**
 10. **Establecer alertas automáticas** cuando pass rate < 90%
@@ -456,6 +521,8 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 - ✅ **UX mejorada:** ZIP automático para >3 facturas + formato resumido
 - ✅ **Interfaz limpia:** Eliminada sobrecarga visual de múltiples enlaces
 - ✅ **Cliente feedback implementado:** "siendo mas de 3 facturas, zip" ✅
+- ✅ **🆕 Format consistency:** Eliminada confusión "Facturas Individuales (1)" para múltiples facturas
+- ✅ **🆕 MCP Tools normalization:** Todas las herramientas aplican LPAD automáticamente
 
 ### **🚀 Test Automation Framework (Implementado 2025-09-10):**
 - ✅ **Automation Coverage:** 42/42 test cases convertidos a scripts ejecutables (100%)
@@ -569,10 +636,11 @@ git log --oneline -5
 
 ### **Archivos Modificados Recientemente:**
 1. **`.env`** - ZIP_THRESHOLD cambiado de 5 a 3
-2. **`agent_prompt.yaml`** - Lógica condicional actualizada para >3 facturas  
-3. **`tools_updated.yaml`** - Normalización LPAD y descripciones CF/SF
+2. **`agent_prompt.yaml`** - Lógica condicional actualizada para >3 facturas + terminología "Listado" corregida  
+3. **`tools_updated.yaml`** - Normalización LPAD y descripciones CF/SF + **LPAD en get_invoices_with_all_pdf_links**
 4. **`agent.py`** - Mapping de documentos CF/SF corregido
 5. **🆕 `tests/automation/`** - Framework completo de Test Automation implementado:
+6. **🆕 `scripts/test_facturas_solicitante_12475626.ps1`** - Test de validación PROBLEMA 7
    - `generators/curl-test-generator.ps1` - Generador automático de scripts
    - `curl-tests/` - 42 scripts ejecutables en 4 categorías
    - `analyze-test-results.ps1` - Sistema de análisis y reportes
@@ -617,7 +685,9 @@ RESPONSE_FORMATS_IMPLEMENTED:
 ✅ **PROBLEMA 3:** Terminología CF/SF → **RESUELTO**  
 ✅ **PROBLEMA 4:** Formato Respuesta Sobrecargado → **RESUELTO**  
 ✅ **🆕 PROBLEMA 5:** Error URLs Proxy en ZIP → **RESUELTO**  
-✅ **🆕 PROBLEMA 6:** Falta Estadísticas Mensuales → **RESUELTO**
+✅ **🆕 PROBLEMA 6:** Falta Estadísticas Mensuales → **RESUELTO**  
+✅ **🆕 PROBLEMA 7:** Format Confusion + MCP Tool LPAD Fix → **RESUELTO**
+✅ **🆕 PROBLEMA 7:** Format Confusion + MCP Tool LPAD Fix → **RESUELTO**
 ✅ **🆕 AUTOMATIZACIÓN:** Test Automation Framework → **IMPLEMENTADO**
    - 📊 42 scripts curl generados automáticamente
    - 🚀 Multi-ambiente (Local/CloudRun/Staging)
