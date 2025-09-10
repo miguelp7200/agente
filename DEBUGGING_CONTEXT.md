@@ -124,6 +124,38 @@ DESPUÉS (Éxito):
 📦 ZIP: https://storage.googleapis.com/agent-intelligence-zips/zip_*.zip
 ```
 
+### ❌ **PROBLEMA 6: Falta de Herramienta para Estadísticas Mensuales**
+**Issue funcional:** El agente no podía proporcionar desglose mensual de facturas dentro de un año específico
+
+**Root Cause:** No existía herramienta MCP específica para estadísticas mensuales, solo `get_yearly_invoice_statistics` para datos anuales
+
+**Problema específico observado:**
+- Consulta "cuántas facturas por mes durante 2025" fallaba
+- Agente respondía: "no puedo desglosar las facturas por mes dentro de un año específico"
+- Error BigQuery: `SELECT list expression references column fecha which is neither grouped nor aggregated at [5:27], invalidQuery`
+- Faltaba granularidad temporal mensual para análisis detallado
+
+**Solución implementada:**
+- ✅ Creada nueva herramienta: `get_monthly_invoice_statistics` en `tools_updated.yaml`
+- ✅ Consulta SQL optimizada con subconsulta para evitar errores GROUP BY
+- ✅ Parámetro `target_year` para especificar año de análisis
+- ✅ Actualizado `agent_prompt.yaml` con reglas para reconocer consultas mensuales
+- ✅ Agregada al toolset `gasco_invoice_search`
+- ✅ **TESTING:** Script `test_estadisticas_mensuales_2025.ps1` validó funcionalidad completa
+
+**Comparación Before/After:**
+```
+ANTES (Limitación):
+❌ get_yearly_invoice_statistics → Solo totales anuales
+❌ "no puedo desglosar las facturas por mes dentro de un año específico"
+
+DESPUÉS (Funcionalidad completa):
+✅ get_monthly_invoice_statistics → Desglose mensual granular
+✅ Enero: 294 facturas, Febrero: 318 facturas, ... Total: 3060 facturas
+```
+
+**Resultado final:** 9/9 validaciones exitosas, desglose mensual enero-septiembre 2025 con datos cuantitativos ricos
+
 ## 🛠️ **Arquitectura Técnica Validada**
 
 ### **Flujo de Consulta Exitoso:**
@@ -140,7 +172,9 @@ DESPUÉS (Éxito):
 1. **`search_invoices_by_solicitante_and_date_range`** - SAP + rango fechas ✅
 2. **`search_invoices_by_company_name_and_date`** - Empresa + fecha específica ✅
 3. **`get_yearly_invoice_statistics`** - Estadísticas anuales ✅
-4. **`generate_individual_download_links`** - URLs firmadas GCS ✅
+4. **`get_monthly_invoice_statistics`** - Estadísticas mensuales granulares ✅
+5. **`generate_individual_download_links`** - URLs firmadas GCS ✅
+6. **`get_invoices_with_all_pdf_links`** - URLs directas para ZIP ✅
 
 ### **Validaciones Implementadas:**
 - ✅ **Case-insensitive search:** `UPPER()` normalization en BigQuery
@@ -451,6 +485,7 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 .\scripts\test_cf_sf_terminology.ps1  # ✅ COMPLETED 2025-09-09
 .\scripts\test_zip_threshold_change.ps1  # ✅ COMPLETED 2025-09-09
 .\scripts\test_factura_referencia_8677072.ps1
+.\scripts\test_estadisticas_mensuales_2025.ps1  # ✅ COMPLETED 2025-09-10 - Análisis temporal granular
 
 # Validación esperada: Todos deben mostrar ✅ en validaciones finales
 ```
@@ -575,13 +610,14 @@ RESPONSE_FORMATS_IMPLEMENTED:
 
 ---
 
-**Estado actual (Actualizado 2025-09-10):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos + **Test Automation Framework** implementado:
+**Estado actual (Actualizado 2025-09-10):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos + **Test Automation Framework** + **Estadísticas Mensuales** implementados:
 
 ✅ **PROBLEMA 1:** SAP No Reconocido → **RESUELTO**  
 ✅ **PROBLEMA 2:** Normalización Códigos SAP → **RESUELTO**  
 ✅ **PROBLEMA 3:** Terminología CF/SF → **RESUELTO**  
 ✅ **PROBLEMA 4:** Formato Respuesta Sobrecargado → **RESUELTO**  
-✅ **🆕 PROBLEMA 5:** Error URLs Proxy en ZIP → **RESUELTO**
+✅ **🆕 PROBLEMA 5:** Error URLs Proxy en ZIP → **RESUELTO**  
+✅ **🆕 PROBLEMA 6:** Falta Estadísticas Mensuales → **RESUELTO**
 ✅ **🆕 AUTOMATIZACIÓN:** Test Automation Framework → **IMPLEMENTADO**
    - 📊 42 scripts curl generados automáticamente
    - 🚀 Multi-ambiente (Local/CloudRun/Staging)
