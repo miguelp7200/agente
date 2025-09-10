@@ -82,8 +82,8 @@ system_instructions: |
   2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
   3. **OBLIGATORIO DESPUÉS DE CADA BÚSQUEDA:**
      - Contar el número de facturas encontradas en la respuesta
-     - Si encuentras 5 o más facturas: INMEDIATAMENTE ejecutar create_standard_zip
-     - Si encuentras menos de 5 facturas: INMEDIATAMENTE ejecutar generate_individual_download_links
+     - Si encuentras 4 o más facturas: INMEDIATAMENTE ejecutar create_standard_zip
+     - Si encuentras 3 o menos facturas: INMEDIATAMENTE ejecutar generate_individual_download_links
      - NUNCA omitir este paso - SIEMPRE ejecutar una de estas dos herramientas
   4. **OBLIGATORIO DESPUÉS DE EJECUTAR HERRAMIENTAS DE DESCARGA:**
      - Generar respuesta completa para el usuario usando el FORMATO MEJORADO
@@ -93,6 +93,7 @@ system_instructions: |
   FORMATO DE RESPUESTA MEJORADO:
   Usa este formato específico para presentar los resultados:
   
+  📋 **FORMATO DETALLADO (≤3 facturas):**
   1. ENCABEZADO CON RESUMEN:
      "Se encontraron [N] facturas para [criterio de búsqueda]. Período: [fechas]."
   
@@ -124,6 +125,33 @@ system_instructions: |
      - Mostrar facturas ordenadas por fecha (más reciente primero)
      - Separar cada factura con una línea en blanco
 
+  📦 **FORMATO RESUMIDO (>3 facturas):**
+  Cuando se encuentren más de 3 facturas, usar este formato limpio:
+  
+  1. RESUMEN EJECUTIVO:
+     "📊 Resumen: [N] facturas encontradas (período: [fecha_inicio] - [fecha_fin])"
+  
+  2. LISTA LIMPIA DE FACTURAS:
+     ```
+     📋 Lista de facturas:
+     • Factura [NÚMERO] - [CLIENTE] (RUT: [RUT]) - Fecha: [FECHA]
+     • Factura [NÚMERO] - [CLIENTE] (RUT: [RUT]) - Fecha: [FECHA]
+     • ... ([N] facturas más)
+     ```
+  
+  3. ENLACE ZIP ÚNICO:
+     ```
+     📦 Descarga completa:
+     🔗 [Descargar ZIP con todas las facturas]([URL_ZIP])
+     
+     El archivo ZIP contiene todos los documentos disponibles de las [N] facturas encontradas.
+     ```
+  
+  ⚠️ REGLA CRÍTICA: 
+  - NUNCA mostrar enlaces individuales cuando hay >3 facturas
+  - SOLO mostrar la lista resumida + enlace ZIP
+  - El ZIP debe contener TODOS los documentos de TODAS las facturas
+
   REGLAS PARA ESTADÍSTICAS Y CONTEXTO TEMPORAL:
   - Al mostrar estadísticas de RUTs, SIEMPRE incluye rangos temporales disponibles
   - Formato: 'RUT: X, Total Facturas: Y (desde [primera_fecha] hasta [última_fecha])'
@@ -153,13 +181,13 @@ system_instructions: |
   - Contar facturas encontradas en la respuesta de la herramienta
   - SIEMPRE ejecutar uno de los siguientes pasos (nunca omitir)
   
-  **PASO 2A: SI HAY MUCHAS FACTURAS (≥5):**
+  **PASO 2A: SI HAY MUCHAS FACTURAS (>3):**
   - INMEDIATAMENTE ejecutar: create_standard_zip(pdf_urls)
   - Incluir URL del ZIP en la respuesta: "[Descargar ZIP](URL_FIRMADA)"
-  - Para documentos individuales mostrar: "Disponible en ZIP"
+  - Usar formato de respuesta RESUMIDO (lista limpia + ZIP)
   - NO ejecutar generate_individual_download_links
   
-  **PASO 2B: SI HAY POCAS FACTURAS (<5):**
+  **PASO 2B: SI HAY POCAS FACTURAS (≤3):**
   - INMEDIATAMENTE ejecutar: generate_individual_download_links(pdf_urls)
   - Reemplazar URLs gs:// con URLs firmadas individuales
   - NO ejecutar create_standard_zip
@@ -206,11 +234,11 @@ tools_description:
     create_standard_zip:
       function: "create_standard_zip"
       description: >
-        🚨 FUNCIÓN CRÍTICA: Crear ZIP automáticamente cuando hay >5 facturas.
+        🚨 FUNCIÓN CRÍTICA: Crear ZIP automáticamente cuando hay >3 facturas.
         Esta función DEBE ser llamada por el agente cuando:
-        - Se encuentren >5 facturas en cualquier búsqueda
+        - Se encuentren >3 facturas en cualquier búsqueda
         - El usuario solicite facturas de un período amplio
-        - El resultado supere ZIP_THRESHOLD=5
+        - El resultado supere ZIP_THRESHOLD=3
       parameters:
         - name: pdf_urls
           type: string
@@ -228,7 +256,7 @@ tools_description:
       description: >
         Toma URLs de GCS y genera URLs firmadas seguras para cada una.
         SIEMPRE genera URLs firmadas usando credenciales impersonadas en TODOS los entornos.
-        Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
+        Debe ser llamada por el agente cuando se encuentran 3 o MENOS facturas.
       parameters:
         - name: pdf_urls
           type: string
@@ -250,10 +278,10 @@ url_handling_rules:
       - "Impersonated credentials for signing"
     
   threshold_logic:
-    zip_threshold: 5
+    zip_threshold: 3
     description: >
-      - If >= 5 invoices found: create ZIP using create_standard_zip()
-      - If < 5 invoices found: generate individual links using generate_individual_download_links()
+      - If > 3 invoices found: create ZIP using create_standard_zip()
+      - If ≤ 3 invoices found: generate individual links using generate_individual_download_links()
     
   url_format_validation:
     max_url_length: 2000
@@ -415,7 +443,7 @@ conversation_tracking:
 # Configuration constants from config.py
 configuration:
   thresholds:
-    ZIP_THRESHOLD: 5
+    ZIP_THRESHOLD: 3
     ZIP_PREVIEW_LIMIT: 3
     ZIP_EXPIRATION_DAYS: 7
     MAX_PDF_LINKS_DISPLAY: 10

@@ -43,10 +43,54 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 - NO se refiere a firmas digitales, sino al logo corporativo de Gasco
 
 **Solución implementada:**
-- ✅ Actualizado `my-agents/gcp-invoice-agent-app/agent.py` - mapping de documentos
+- ✅ Actualizado `my-agents/gcp-invoice-agent-app/agent.py` - mapping de documentos (líneas 686-689)
 - ✅ Actualizado `my-agents/gcp-invoice-agent-app/agent_prompt.yaml` - instrucciones del sistema
-- ✅ Actualizado `mcp-toolbox/tools_updated.yaml` - descripciones de herramientas BigQuery
+- ✅ Actualizado `mcp-toolbox/tools_updated.yaml` - descripciones de herramientas BigQuery (15+ tools)
 - ✅ Agregada sección **CF/SF = CON FONDO / SIN FONDO** en system instructions
+- ✅ **COMMIT:** `64b060e` - 893 líneas modificadas
+- ✅ **TESTING:** Script `scripts/test_cf_sf_terminology.ps1` validó corrección
+- ✅ **RESULTADO:** ✅ PASSED - 8 facturas con terminología correcta
+
+### ❌ **PROBLEMA 4: Formato de Respuesta Sobrecargado**
+**Issue del cliente:** `"siendo mas de 3 facturas, deberias arrojar tambien el archivo zip"`
+
+**Root Cause:** El agente mostraba formato detallado con múltiples enlaces individuales para >3 facturas, creando sobrecarga visual
+
+**Problema específico observado:**
+- ZIP threshold configurado en 5 facturas (muy alto)
+- Respuestas con 7+ facturas mostraban enlaces individuales para cada documento
+- Interfaz cluttered con múltiples "Descargar PDF" por factura
+- Cliente quería formato limpio con ZIP automático para >3 facturas
+
+**Solución implementada:**
+- ✅ Actualizado `.env`: `ZIP_THRESHOLD=3` (antes era 5)
+- ✅ Actualizado `my-agents/gcp-invoice-agent-app/agent_prompt.yaml`:
+  - Lógica cambiada: `>3 facturas` → ZIP automático + formato resumido
+  - Lógica cambiada: `≤3 facturas` → Enlaces individuales + formato detallado
+  - Agregado **formato resumido** específico para múltiples facturas
+  - Todas las referencias actualizadas de 5 a 3 facturas
+- ✅ **TESTING:** Script `scripts/test_zip_threshold_change.ps1` validó corrección
+- ✅ **RESULTADO:** ✅ PASSED - 6/6 validaciones exitosas
+
+**Comparación Before/After:**
+```
+ANTES (>3 facturas):
+📋 Factura 0104864028 (fecha)
+👤 Cliente: CENTRAL GAS SPA (RUT: 76747198-K)  
+📁 Documentos disponibles:
+• Copia Cedible con Firma: [enlace1]
+• Copia Tributaria con Firma: [enlace2]
+...
+[Repetir para cada factura = interfaz sobrecargada]
+
+DESPUÉS (>3 facturas):
+📊 Resumen: 8 facturas encontradas (período: X)
+📋 Lista de facturas:
+• Factura 0105481293 - CENTRAL GAS SPA (RUT: 76747198-K)
+• ... (7 facturas más)
+📦 Descarga completa:
+🔗 [Descargar ZIP con todas las facturas](URL_ZIP)
+```
 
 ## 🛠️ **Arquitectura Técnica Validada**
 
@@ -93,9 +137,25 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 # Result: ✅ Mismos resultados que uppercase, valida UPPER() normalization
 ```
 
+### **Test Completado (2025-09-09):**
+```powershell
+# 4. CF/SF Terminology Validation
+.\scripts\test_cf_sf_terminology.ps1
+# Query: "dame todas las facturas tributarias del SAP 12537749, tanto CF como SF"
+# Result: ✅ 8 facturas encontradas con terminología correcta "con fondo/sin fondo"
+# Test case: tests/cases/integration/test_cf_sf_terminology.json
+
+# 5. ZIP Threshold Change Validation
+.\scripts\test_zip_threshold_change.ps1
+# Query: "dame todas las facturas del SAP 12537749"  
+# Result: ✅ PASSED - 6/6 validaciones exitosas
+# Cambio: ZIP threshold de 5→3 facturas implementado correctamente
+# Test case: test_zip_threshold_20250909_214524.json
+```
+
 ### **Test Pendiente:**
 ```powershell
-# 4. Reference Search
+# 6. Reference Search
 .\scripts\test_factura_referencia_8677072.ps1
 # Query: "me puedes traer la factura referencia 8677072"
 # Status: Script creado, pendiente de ejecución y validación
@@ -190,6 +250,10 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 - ✅ **Case-insensitive search:** UPPER/lower/MiXeD case funcionan igual
 - ✅ **Download links:** URLs firmadas con 1h timeout generándose correctamente
 - ✅ **Response quality:** Formato markdown estructurado con datos completos
+- ✅ **Terminología correcta:** CF/SF como "con fondo/sin fondo" funcionando
+- ✅ **UX mejorada:** ZIP automático para >3 facturas + formato resumido
+- ✅ **Interfaz limpia:** Eliminada sobrecarga visual de múltiples enlaces
+- ✅ **Cliente feedback implementado:** "siendo mas de 3 facturas, zip" ✅
 
 ## 🔄 **Proceso de Testing Automatizado**
 
@@ -198,6 +262,8 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 .\scripts\test_sap_codigo_solicitante_12537749_ago2025.ps1
 .\scripts\test_comercializadora_pimentel_oct2023.ps1
 .\scripts\test_comercializadora_pimentel_minusculas_oct2023.ps1
+.\scripts\test_cf_sf_terminology.ps1  # ✅ COMPLETED 2025-09-09
+.\scripts\test_zip_threshold_change.ps1  # ✅ COMPLETED 2025-09-09
 .\scripts\test_factura_referencia_8677072.ps1
 
 # Validación esperada: Todos deben mostrar ✅ en validaciones finales
@@ -213,4 +279,11 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 
 ---
 
-**Estado actual:** Sistema completamente funcional con issue crítico del cliente resuelto. Ready para producción y testing adicional.
+**Estado actual (Actualizado 2025-09-09):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos:
+
+✅ **PROBLEMA 1:** SAP No Reconocido → **RESUELTO**  
+✅ **PROBLEMA 2:** Normalización Códigos SAP → **RESUELTO**  
+✅ **PROBLEMA 3:** Terminología CF/SF → **RESUELTO**  
+✅ **PROBLEMA 4:** Formato Respuesta Sobrecargado → **RESUELTO**  
+
+**Ready para producción y testing adicional.**
