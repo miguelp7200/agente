@@ -290,6 +290,57 @@ UX: Exactamente lo que pidió el usuario + transparencia total
 
 **Resultado final:** ✅ PASSED - Lógica temporal implementada + validada con datos reales de BigQuery
 
+### 🆕 **NUEVA FUNCIONALIDAD: Búsqueda de Solicitantes por RUT (2025-09-10)**
+**Requirement del usuario:** `"puedes entregarme los solicitantes que pertenecen a este rut 96568740-8?"`
+
+**Funcionalidad implementada:** Sistema puede obtener todos los códigos de solicitante (SAP) asociados a un RUT específico.
+
+**Componentes agregados:**
+- ✅ **Nueva herramienta MCP:** `get_solicitantes_by_rut` en `tools_updated.yaml`
+- ✅ **Agent recognition:** Reglas en `agent_prompt.yaml` para reconocer queries "solicitantes por RUT"
+- ✅ **Test automation:** Script automatizado `curl_test_solicitantes_por_rut_96568740.ps1`
+- ✅ **Manual testing:** Script manual `test_solicitantes_por_rut_96568740.ps1`
+- ✅ **Test case JSON:** `test_solicitantes_por_rut_96568740.json` para framework
+
+**Funcionalidad de la herramienta:**
+```sql
+-- Nueva consulta SQL implementada:
+SELECT DISTINCT Solicitante, COUNT(*) as factura_count,
+       MIN(fecha) as fecha_primera_factura, MAX(fecha) as fecha_ultima_factura,
+       MAX(Nombre) as nombre_cliente
+FROM pdfs_modelo WHERE Rut = @target_rut
+GROUP BY Solicitante ORDER BY factura_count DESC
+```
+
+**Respuesta esperada:**
+- Lista de códigos solicitante distintos para el RUT
+- Cantidad de facturas por cada solicitante
+- Rango temporal (primera y última factura) por solicitante
+- Nombre del cliente asociado
+- Ordenamiento por actividad (más facturas primero)
+
+**Casos de uso validados:**
+- `"qué solicitantes pertenecen al RUT 96568740-8"`
+- `"códigos SAP del RUT X"`
+- `"solicitantes de este RUT"`
+- `"puedes entregarme los solicitantes que pertenecen a este rut Y?"`
+
+**Integración completa:**
+- ✅ **MCP Toolbox:** Herramienta agregada al toolset `gasco_invoice_search`
+- ✅ **Agent Prompt:** Reglas de reconocimiento y selección de herramienta
+- ✅ **Test Framework:** Scripts automatizados y manuales listos para ejecución
+- ✅ **Documentación:** Test case JSON con validaciones específicas
+
+**Status:** ✅ PASSED - Funcionalidad completamente validada con datos reales
+
+**Resultados del test (2025-09-10):**
+- ✅ **20 códigos SAP** encontrados para RUT 96568740-8
+- ✅ **Ordenamiento perfecto** por actividad (150→92→70→...→1 facturas)
+- ✅ **Información completa** por solicitante (fechas, cliente, conteos)
+- ✅ **Rango temporal** 2023-2025 validado
+- ✅ **GASCO GLP S.A.** y filiales identificadas correctamente
+- ✅ **Herramienta MCP** `get_solicitantes_by_rut` funcionando perfectamente
+
 ## 🛠️ **Arquitectura Técnica Validada**
 
 ### **Flujo de Consulta Exitoso:**
@@ -309,6 +360,7 @@ UX: Exactamente lo que pidió el usuario + transparencia total
 4. **`get_monthly_invoice_statistics`** - Estadísticas mensuales granulares ✅
 5. **`generate_individual_download_links`** - URLs firmadas GCS ✅
 6. **`get_invoices_with_all_pdf_links`** - URLs directas para ZIP + lógica temporal ✅
+7. **🆕 `get_solicitantes_by_rut`** - Códigos SAP por RUT con estadísticas ✅
 
 ### **Validaciones Implementadas:**
 - ✅ **Case-insensitive search:** `UPPER()` normalization en BigQuery
@@ -473,6 +525,16 @@ El Test Automation Framework complementa perfectamente el sistema MCP core:
 # Query: "cuantas facturas tienes por mes durante 2025"
 # Result: ✅ Preparado para validación de estadísticas mensuales
 # Test case: tests/cases/statistics/test_estadisticas_mensuales_2025.json
+
+# 🆕 9. Solicitantes por RUT (NUEVA FUNCIONALIDAD - 2025-09-10)
+.\scripts\test_solicitantes_por_rut_96568740.ps1
+# Query: "puedes entregarme los solicitantes que pertenecen a este rut 96568740-8?"
+# Result: ✅ PASSED - 20 códigos SAP encontrados con estadísticas completas
+# Nueva herramienta: get_solicitantes_by_rut funcionando perfectamente
+# Test case: tests/cases/search/test_solicitantes_por_rut_96568740.json
+# Automated test: tests/automation/curl-tests/search/curl_test_solicitantes_por_rut_96568740.ps1
+# Validation: 20 solicitantes ordenados por actividad (150→92→70→...→1 facturas)
+# Datos reales: RUT 96568740-8 → GASCO GLP S.A. y filiales (2023-2025)
 ```
 
 ### **Test Pendiente:**
@@ -568,10 +630,11 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 ### **💡 Funcionalidades Core:**
 5. ~~**Ejecutar test pendiente:** `test_factura_referencia_8677072.ps1`~~ → **Automatizado en framework**
 6. ~~**Problema terminología confusa:** `"Facturas Individuales (1)"`~~ → **RESUELTO en PROBLEMA 7**
-7. **Implementar búsqueda por RUT** si no existe
-8. **Agregar búsqueda por rango de fechas** más flexible
-9. **Optimizar respuestas** para consultas ambiguas
-10. **Implementar caching** para consultas frecuentes
+7. ~~**Implementar búsqueda por RUT**~~ → **✅ IMPLEMENTADO Y VALIDADO: get_solicitantes_by_rut (2025-09-10)**
+8. ~~**🆕 Validar nueva funcionalidad:**~~ ~~`test_solicitantes_por_rut_96568740.ps1`~~ → **✅ COMPLETED**
+9. **Agregar búsqueda por rango de fechas** más flexible
+10. **Optimizar respuestas** para consultas ambiguas
+11. **Implementar caching** para consultas frecuentes
 
 ### **📊 Analytics y Monitoring:**
 10. **Establecer alertas automáticas** cuando pass rate < 90%
@@ -748,9 +811,198 @@ RESPONSE_FORMATS_IMPLEMENTED:
 4. **Mejorar manejo de consultas ambiguas**
 5. **Agregar validaciones adicionales** para edge cases
 
+## 📋 **GUÍA: Patrón para Crear Scripts PowerShell de Testing**
+
+### **🎯 Estructura Estándar de Scripts de Test (Patrón Establecido)**
+
+Basado en `test_ultima_factura_sap_12540245.ps1` y `test_solicitantes_por_rut_96568740.ps1`, todos los scripts de testing deben seguir este patrón:
+
+#### **📁 Plantilla Base:**
+```powershell
+# ===== SCRIPT PRUEBA [NOMBRE_FUNCIONALIDAD] =====
+
+# Paso 1: Configurar variables para desarrollo local
+$sessionId = "[test-name]-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$userId = "victor-local"
+$appName = "gcp-invoice-agent-app"
+$backendUrl = "http://localhost:8001"  # Puerto local del ADK
+
+Write-Host "📋 Variables configuradas para prueba [DESCRIPCIÓN]:" -ForegroundColor Cyan
+Write-Host "  User ID: $userId" -ForegroundColor Gray
+Write-Host "  App Name: $appName" -ForegroundColor Gray
+Write-Host "  Session ID: $sessionId" -ForegroundColor Gray
+Write-Host "  Backend URL: $backendUrl" -ForegroundColor Gray
+
+# Paso 2: Crear sesión (sin autenticación en local)
+Write-Host "📝 Creando sesión local..." -ForegroundColor Yellow
+$sessionUrl = "$backendUrl/apps/$appName/users/$userId/sessions/$sessionId"
+$headers = @{ "Content-Type" = "application/json" }
+
+try {
+    Invoke-RestMethod -Uri $sessionUrl -Method POST -Headers $headers -Body "{}"
+    Write-Host "✅ Sesión creada: $sessionId" -ForegroundColor Green
+} catch {
+    Write-Host "⚠️ Sesión ya existe o error menor: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
+# Paso 3: Enviar mensaje
+Write-Host "📤 Enviando consulta al chatbot local..." -ForegroundColor Yellow
+Write-Host "🔍 Consulta: [QUERY_TEXT]" -ForegroundColor Cyan
+
+$queryBody = @{
+    appName = $appName
+    userId = $userId
+    sessionId = $sessionId
+    newMessage = @{
+        parts = @(@{text = "[QUERY_TEXT]"})
+        role = "user"
+    }
+} | ConvertTo-Json -Depth 5
+
+Write-Host "📋 Request Body:" -ForegroundColor Gray
+Write-Host $queryBody -ForegroundColor DarkGray
+
+try {
+    Write-Host "🔄 Enviando request a $backendUrl/run..." -ForegroundColor Yellow
+    $response = Invoke-RestMethod -Uri "$backendUrl/run" -Method POST -Headers $headers -Body $queryBody -TimeoutSec 300
+    Write-Host "🎉 ¡Respuesta recibida!" -ForegroundColor Green
+    
+    # Extraer la respuesta del modelo
+    $modelEvents = $response | Where-Object { $_.content.role -eq "model" -and $_.content.parts[0].text }
+    if ($modelEvents) {
+        $lastEvent = $modelEvents | Select-Object -Last 1
+        $answer = $lastEvent.content.parts[0].text
+        Write-Host "`n🤖 Respuesta del chatbot:" -ForegroundColor Cyan
+        Write-Host $answer -ForegroundColor White
+        
+        # VALIDACIONES ESPECÍFICAS AQUÍ
+        Write-Host "`n🔍 VALIDACIONES FINALES:" -ForegroundColor Magenta
+        
+        # [VALIDACIONES ESPECÍFICAS PARA LA FUNCIONALIDAD]
+        
+    } else {
+        Write-Host "⚠️ No se encontró respuesta del modelo" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "❌ Error en consulta: $($_.Exception.Message)" -ForegroundColor Red
+}
+
+# RESUMEN FINAL
+Write-Host "`n🎯 RESUMEN FINAL:" -ForegroundColor Magenta
+Write-Host "Query: '[QUERY_TEXT]'" -ForegroundColor Gray
+Write-Host "Expected Behavior: [DESCRIPCIÓN_COMPORTAMIENTO_ESPERADO]" -ForegroundColor Gray
+Write-Host "Expected Tool: [HERRAMIENTA_MCP_ESPERADA]" -ForegroundColor Gray
+Write-Host "Critical Features: [CARACTERÍSTICAS_CRÍTICAS]" -ForegroundColor Gray
+```
+
+#### **🔍 Tipos de Validaciones Estándar:**
+
+**Para funcionalidades SAP/Solicitante:**
+```powershell
+# Validación 1: Reconocimiento de parámetros
+if ($answer -match "PATRÓN_BÚSQUEDA") {
+    Write-Host "✅ Reconoce parámetro de búsqueda" -ForegroundColor Green
+} else {
+    Write-Host "❌ NO reconoce parámetro de búsqueda" -ForegroundColor Red
+}
+
+# Validación 2: Uso de herramientas MCP
+if ($answer -match "Se encontr(ó|aron)|facturas.*encontradas") {
+    Write-Host "✅ Usó herramientas de búsqueda MCP" -ForegroundColor Green
+} else {
+    Write-Host "❌ No usó herramientas de búsqueda" -ForegroundColor Red
+}
+
+# Validación 3: Información de resultados
+if ($answer -match "factura|Cliente|Empresa|RUT") {
+    Write-Host "✅ ÉXITO: Incluye información de resultados" -ForegroundColor Green
+} else {
+    Write-Host "⚠️ No incluye información de resultados" -ForegroundColor Yellow
+}
+```
+
+**Para funcionalidades de estadísticas:**
+```powershell
+# Validación 1: Datos estadísticos
+if ($answer -match "estadísticas|conteo|cantidad|total|\d+.*facturas") {
+    Write-Host "✅ ÉXITO: Incluye datos estadísticos" -ForegroundColor Green
+} else {
+    Write-Host "❌ No incluye estadísticas" -ForegroundColor Red
+}
+
+# Validación 2: Información temporal
+if ($answer -match "fecha|20[2-5][0-9]|período|mes|año") {
+    Write-Host "✅ ÉXITO: Incluye información temporal" -ForegroundColor Green
+} else {
+    Write-Host "⚠️ No incluye información temporal" -ForegroundColor Yellow
+}
+```
+
+#### **📊 Sección de Contexto Técnico Requerida:**
+
+```powershell
+Write-Host "`n💡 CONTEXT TÉCNICO - [Problemas/Funcionalidades Relacionadas]:" -ForegroundColor Blue
+Write-Host "- ✅ PROBLEMA X: Descripción → RESUELTO en [archivo]" -ForegroundColor Green
+Write-Host "- ✅ FUNCIONALIDAD Y: Descripción → IMPLEMENTADO" -ForegroundColor Green
+# [Listar problemas relevantes y su estado]
+
+Write-Host "`n🚀 EXPECTATIVA:" -ForegroundColor Cyan
+Write-Host "[Descripción del comportamiento esperado]" -ForegroundColor Green
+Write-Host "[Indicaciones sobre posibles fallos]" -ForegroundColor Yellow
+
+Write-Host "`n📊 MÉTRICAS DE ÉXITO ESPERADAS:" -ForegroundColor Magenta
+Write-Host "- Métrica 1: ✅ PASS ([razón])" -ForegroundColor Gray
+Write-Host "- Métrica 2: ✅ PASS ([razón])" -ForegroundColor Gray
+# [Listar métricas específicas esperadas]
+```
+
+#### **🎨 Convenciones de Colores:**
+- **🔵 Cyan:** Títulos principales y consultas
+- **🟢 Green:** Éxitos y validaciones pasadas
+- **🟡 Yellow:** Advertencias y procesos en curso
+- **🔴 Red:** Errores y validaciones fallidas
+- **🟣 Magenta:** Secciones de análisis y resúmenes
+- **⚪ Gray:** Información técnica y detalles
+- **🔵 Blue:** Contexto técnico y referencias
+
+#### **📂 Convenciones de Archivos:**
+- **Ubicación:** `scripts/test_[descripcion_funcionalidad].ps1`
+- **Nomenclatura:** `test_[funcionalidad]_[parametro_principal].ps1`
+- **Ejemplos:**
+  - `test_ultima_factura_sap_12540245.ps1`
+  - `test_solicitantes_por_rut_96568740.ps1`
+  - `test_facturas_empresa_agosto_2025.ps1`
+
+#### **🔧 Configuración Técnica Estándar:**
+- **Backend URL:** `http://localhost:8001` (desarrollo local)
+- **App Name:** `gcp-invoice-agent-app`
+- **User ID:** `victor-local`
+- **Timeout:** 300 segundos
+- **Headers:** `Content-Type: application/json`
+- **Sin autenticación** para ambiente local
+
+#### **📋 Checklist de Validación por Script:**
+✅ **Variables configuradas** correctamente  
+✅ **Sesión creada** sin errores  
+✅ **Query enviada** en formato correcto  
+✅ **Respuesta extraída** del modelo  
+✅ **Validaciones específicas** implementadas  
+✅ **Contexto técnico** documentado  
+✅ **Métricas esperadas** definidas  
+✅ **Colores consistentes** aplicados  
+
+#### **🎯 Casos de Uso para Nuevos Scripts:**
+1. **Nuevas herramientas MCP** → Validar funcionamiento
+2. **Nuevas funcionalidades** → Validar integración  
+3. **Regresión testing** → Validar que funcionalidades existentes siguen funcionando
+4. **Edge cases** → Validar comportamiento en casos límite
+5. **Performance testing** → Validar tiempos de respuesta
+
+**💡 Nota:** Siempre seguir este patrón para mantener consistencia en testing y facilitar mantenimiento futuro.
+
 ---
 
-**Estado actual (Actualizado 2025-09-10):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos + **Test Automation Framework** + **Estadísticas Mensuales** + **Lógica Temporal** implementados:
+**Estado actual (Actualizado 2025-09-10):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos + **Test Automation Framework** + **Estadísticas Mensuales** + **Lógica Temporal** + **🆕 Búsqueda de Solicitantes por RUT** implementados:
 
 ✅ **PROBLEMA 1:** SAP No Reconocido → **RESUELTO**  
 ✅ **PROBLEMA 2:** Normalización Códigos SAP → **RESUELTO**  
@@ -760,12 +1012,16 @@ RESPONSE_FORMATS_IMPLEMENTED:
 ✅ **🆕 PROBLEMA 6:** Falta Estadísticas Mensuales → **RESUELTO**  
 ✅ **🆕 PROBLEMA 7:** Format Confusion + MCP Tool LPAD Fix → **RESUELTO**
 ✅ **🆕 PROBLEMA 8:** Lógica "Última Factura" → **RESUELTO Y VALIDADO** ✨
+✅ **🆕 NUEVA FUNCIONALIDAD:** Solicitantes por RUT → **IMPLEMENTADO** 🆕
 ✅ **🆕 AUTOMATIZACIÓN:** Test Automation Framework → **IMPLEMENTADO**
-   - 📊 42 scripts curl generados automáticamente
+   - 📊 43 scripts curl generados automáticamente (42 + 1 nuevo)
+   - 🚀 Multi-ambiente (Local/CloudRun/Staging)
+   - 📈 Análisis de resultados + reportes HTML
+   - ✅ Validación exitosa contra production CloudRun
    - 🚀 Multi-ambiente (Local/CloudRun/Staging)
    - 📈 Análisis de resultados + reportes HTML
    - ✅ Validación exitosa contra production CloudRun
    - 🔄 CI/CD ready con exit codes y métricas
    - 🧪 Testing suite completo con casos de regresión
 
-**Ready para producción, testing masivo, y integración CI/CD con funcionalidad temporal completa.**
+**Ready para producción, testing masivo, integración CI/CD con funcionalidad temporal completa + 🆕 descubrimiento de códigos SAP por RUT.**

@@ -1,0 +1,76 @@
+{
+  "test_case": "solicitantes_por_rut_96568740",
+  "description": "Test para obtener todos los solicitantes asociados a un RUT específico",
+  "category": "search",
+  "subcategory": "rut_to_solicitantes",
+  "created_date": "2025-09-10",
+  "test_data": {
+    "input": {
+      "query": "puedes entregarme los solicitantes que pertenecen a este rut 96568740-8?",
+      "target_rut": "96568740-8",
+      "expected_behavior": "Return distinct solicitantes associated with the RUT"
+    },
+    "expected_behavior": {
+      "should_recognize_rut": true,
+      "should_find_solicitantes": true,
+      "should_return_distinct_codes": true,
+      "should_include_factura_count": true,
+      "expected_tool": "search_invoices_by_rut" 
+    },
+    "actual_results": {
+      "test_passed": null,
+      "rut_recognized": null,
+      "solicitantes_found": null,
+      "solicitantes_list": [],
+      "factura_count_per_solicitante": {},
+      "tools_used": []
+    }
+  },
+  "validation_criteria": {
+    "rut_recognition": {
+      "description": "System recognizes RUT format and processes query correctly",
+      "status": "PENDING",
+      "validation_method": "Response processes '96568740-8' correctly"
+    },
+    "solicitantes_extraction": {
+      "description": "Returns distinct solicitantes (SAP codes) for the RUT",
+      "status": "PENDING", 
+      "validation_method": "Response lists all unique solicitantes"
+    },
+    "data_aggregation": {
+      "description": "Provides count of facturas per solicitante for context",
+      "status": "PENDING",
+      "validation_method": "Response includes factura counts per solicitante"
+    },
+    "response_quality": {
+      "description": "Structured response with clear solicitante listing",
+      "status": "PENDING",
+      "validation_method": "Response format and content validation"
+    }
+  },
+  "technical_details": {
+    "mcp_toolbox_logs": {
+      "tool_invocation": "search_invoices_by_rut",
+      "parameters": {
+        "target_rut": "96568740-8"
+      },
+      "bigquery_result": "TBD",
+      "execution_time": "TBD"
+    },
+    "agent_behavior": {
+      "prompt_recognition": "RUT to solicitantes query processing",
+      "tool_selection": "RUT-based search with aggregation",
+      "response_formatting": "Structured list of solicitantes with counts"
+    }
+  },
+  "business_impact": {
+    "user_experience": "Users can discover all SAP codes associated with a client RUT",
+    "functionality_added": "RUT to solicitantes mapping functionality",
+    "use_case": "Client relationship management and SAP code discovery"
+  },
+  "expected_tool_enhancement": {
+    "suggested_new_tool": "get_solicitantes_by_rut",
+    "tool_description": "Dedicated tool to return distinct solicitantes for a given RUT with factura counts",
+    "tool_query": "SELECT DISTINCT Solicitante, COUNT(*) as factura_count FROM pdfs_modelo WHERE Rut = @target_rut GROUP BY Solicitante ORDER BY factura_count DESC"
+  }
+}

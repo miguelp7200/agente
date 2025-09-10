@@ -262,6 +262,33 @@ tools:
         type: string
         description: Fecha de fin en formato YYYY-MM-DD (ej. "2019-12-31")
 
+  get_solicitantes_by_rut:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT
+        DISTINCT Solicitante,
+        COUNT(*) as factura_count,
+        MIN(fecha) as fecha_primera_factura,
+        MAX(fecha) as fecha_ultima_factura,
+        MAX(Nombre) as nombre_cliente
+      FROM
+        `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+      WHERE
+        Rut = @target_rut
+      GROUP BY Solicitante
+      ORDER BY factura_count DESC, Solicitante ASC
+      LIMIT 20
+    description: |
+      Obtiene todos los códigos de solicitante (SAP) asociados a un RUT específico.
+      Muestra estadísticas para cada solicitante: cantidad de facturas, rango temporal y nombre del cliente.
+      Útil para consultas como "qué solicitantes pertenecen al RUT 96568740-8" o "códigos SAP del RUT X".
+      Ordena por cantidad de facturas (descendente) para mostrar los solicitantes más activos primero.
+    parameters:
+      - name: target_rut
+        type: string
+        description: RUT del cliente en formato con guión (ej. "96568740-8", "76341146-K")
+
   search_invoices_by_month_year:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1629,6 +1656,7 @@ toolsets:
     - search_invoices_by_rut
     - search_invoices_by_date_range
     - search_invoices_by_rut_and_date_range
+    - get_solicitantes_by_rut
     - search_invoices_by_month_year
     - search_invoices_by_multiple_ruts
     - search_invoices_recent_by_date

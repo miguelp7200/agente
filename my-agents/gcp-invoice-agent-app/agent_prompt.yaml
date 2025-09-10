@@ -74,6 +74,13 @@ system_instructions: |
      - USAR: get_invoices_with_all_pdf_links (en lugar de search_invoices_by_proveedor)
      - Esta herramienta proporciona URLs directas de GCS que funcionan con create_standard_zip
      - Parámetro: solicitante_code
+
+  2.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
+     - Cuando el usuario pregunta qué solicitantes/códigos SAP pertenecen a un RUT
+     - Ejemplos: "qué solicitantes pertenecen al RUT 96568740-8", "códigos SAP del RUT X", "solicitantes de este RUT"
+     - USAR: get_solicitantes_by_rut
+     - Parámetro: target_rut (con formato RUT chileno incluido guión)
+     - Respuesta debe incluir: lista de códigos solicitante, cantidad de facturas por código, fechas
   
   3. **OTRAS BÚSQUEDAS**:
      - Continuar con las reglas normales de herramientas
@@ -238,6 +245,7 @@ tools_description:
         - search_invoices_by_rut
         - search_invoices_by_date_range
         - search_invoices_by_rut_and_date_range
+        - get_solicitantes_by_rut
         - search_invoices_by_month_year
         - search_invoices_recent_by_date
         - search_invoices_by_proveedor
@@ -303,6 +311,21 @@ tools_description:
           description: "Código de solicitante de 10 dígitos (ej: '0012537749')"
       returns:
         success: "Array con facturas y URLs directas de GCS para cada tipo de PDF"
+        error: "Dict con información del error"
+
+    get_solicitantes_by_rut:
+      function: "get_solicitantes_by_rut"
+      description: >
+        Obtiene todos los códigos de solicitante (SAP) asociados a un RUT específico.
+        Muestra estadísticas para cada solicitante: cantidad de facturas, rango temporal y nombre del cliente.
+        Útil para descubrimiento de códigos SAP cuando el usuario solo conoce el RUT del cliente.
+        Ordena por cantidad de facturas para mostrar los solicitantes más activos primero.
+      parameters:
+        - name: target_rut
+          type: string
+          description: "RUT del cliente en formato chileno con guión (ej: '96568740-8', '76341146-K')"
+      returns:
+        success: "Array con solicitantes distintos, conteo de facturas y fechas por cada solicitante"
         error: "Dict con información del error"
 
 # URL handling and validation rules
