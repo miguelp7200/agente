@@ -5,7 +5,7 @@
 
 .DESCRIPTION
     Este script genera automáticamente scripts PowerShell con curl tests basados en 
-    los test cases JSON almacenados en tests/cases/. Cada script generado sigue el 
+    los test cases JSON almacenados en tests/cases/.     [int]$Timeout = 1200,ada script generado sigue el 
     patrón establecido en test_cloud_run_fix.ps1 pero con validaciones específicas
     según los criteria de cada test case.
 
@@ -246,7 +246,7 @@ function Get-CurlTestTemplate {
     Ambiente de ejecución: Local, CloudRun, Staging (default: $Environment)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 300)
+    Timeout en segundos para requests (default: 1200)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
@@ -261,7 +261,7 @@ function Get-CurlTestTemplate {
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
     [string]`$Environment = "$Environment",
-    [int]`$Timeout = 300,
+    [int]`$Timeout = 1200,
     [switch]`$Verbose
 )
 

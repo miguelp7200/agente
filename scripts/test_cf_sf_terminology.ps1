@@ -51,7 +51,7 @@ Write-Host "🚀 Enviando request al agente..." -ForegroundColor Green
 
 try {
     # Realizar la consulta
-    $response = Invoke-RestMethod -Uri "$EndpointUrl/run" -Method Post -Body $queryBody -ContentType "application/json" -TimeoutSec 300
+    $response = Invoke-RestMethod -Uri "$EndpointUrl/run" -Method Post -Body $queryBody -ContentType "application/json" -TimeoutSec 600
     
     Write-Host "✅ Response recibida exitosamente!" -ForegroundColor Green
     Write-Host ""

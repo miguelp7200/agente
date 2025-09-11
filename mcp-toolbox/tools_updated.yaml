@@ -35,7 +35,7 @@ tools:
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       ORDER BY Factura DESC
-      LIMIT 10
+      LIMIT 100
     description: |
       Busca y recupera información básica de facturas del dataset de producción de Gasco.
       Retorna hasta 10 facturas con campos esenciales incluyendo todas las rutas de archivos PDF disponibles.
@@ -82,7 +82,7 @@ tools:
       WHERE
         fecha = @target_date
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Busca facturas de una fecha específica con enlaces de descarga del proxy local.
       Proporciona la fecha en formato YYYY-MM-DD.
@@ -134,7 +134,7 @@ tools:
       WHERE
         Rut = @target_rut
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 1000
     description: |
       Busca facturas de un RUT específico del cliente con enlaces de descarga del proxy local.
       Proporciona el RUT en formato con guión.
@@ -187,7 +187,7 @@ tools:
         fecha >= @start_date
         AND fecha <= @end_date
       ORDER BY fecha DESC, Factura DESC
-      LIMIT 50
+      LIMIT 1000
     description: |
       Busca facturas dentro de un rango de fechas específico con enlaces de descarga del proxy local.
       Proporciona fechas en formato YYYY-MM-DD.
@@ -244,7 +244,7 @@ tools:
         AND fecha >= @start_date
         AND fecha <= @end_date
       ORDER BY fecha DESC, Factura DESC
-      LIMIT 30
+      LIMIT 15
     description: |
       Busca facturas de un RUT específico dentro de un rango de fechas con enlaces de descarga del proxy local.
       Combina filtrado por RUT del cliente y rango de fechas específico.
@@ -278,7 +278,7 @@ tools:
         Rut = @target_rut
       GROUP BY Solicitante
       ORDER BY factura_count DESC, Solicitante ASC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene todos los códigos de solicitante (SAP) asociados a un RUT específico.
       Muestra estadísticas para cada solicitante: cantidad de facturas, rango temporal y nombre del cliente.
@@ -387,7 +387,7 @@ tools:
       WHERE
         Rut IN UNNEST(SPLIT(@rut_list, ','))
       ORDER BY Rut, fecha DESC, Factura DESC
-      LIMIT 50
+      LIMIT 1000
     description: |
       Busca facturas de múltiples RUTs específicos con enlaces de descarga del proxy local.
       Utiliza funciones UNNEST y SPLIT para procesar una lista de RUTs separados por comas.
@@ -470,7 +470,7 @@ tools:
       WHERE
         UPPER(Solicitante) LIKE CONCAT('%', UPPER(@proveedor_name), '%')
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Busca facturas por nombre de proveedor/solicitante.
       Proporciona parte del nombre del proveedor y encontrará facturas coincidentes.
@@ -525,7 +525,7 @@ tools:
         Factura = @factura_number
         OR LTRIM(Factura, '0') = LTRIM(@factura_number, '0')
       ORDER BY Factura DESC
-      LIMIT 10
+      LIMIT 5
     description: |
       Busca facturas específicamente por el campo FACTURA (ID interno del sistema).
       Utiliza búsqueda exacta y también búsqueda sin ceros iniciales para mayor flexibilidad.
@@ -579,7 +579,7 @@ tools:
         Factura_Referencia = @referencia_number
         OR LTRIM(Factura_Referencia, '0') = LTRIM(@referencia_number, '0')
       ORDER BY Factura DESC
-      LIMIT 10
+      LIMIT 5
     description: |
       Busca facturas específicamente por el campo FACTURA_REFERENCIA (número visible en la factura).
       Utiliza búsqueda exacta y también búsqueda sin ceros iniciales para mayor flexibilidad.
@@ -647,7 +647,7 @@ tools:
           ELSE 4
         END,
         Factura DESC
-      LIMIT 10
+      LIMIT 5
     description: |
       Busca facturas en AMBOS campos (Factura Y Factura_Referencia) simultáneamente.
       Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia.
@@ -679,7 +679,7 @@ tools:
       WHERE
         UPPER(Nombre) LIKE CONCAT('%', UPPER(@cliente_name), '%')
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Busca facturas por nombre de cliente.
       Proporciona parte del nombre del cliente y encontrará facturas coincidentes.
@@ -712,7 +712,7 @@ tools:
         (SELECT SUM(CAST(detalle.ImporteTotal AS FLOAT64)) 
          FROM UNNEST(DetallesFactura) as detalle) >= @min_amount
       ORDER BY total_amount DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Busca facturas con un monto total mínimo.
       Proporciona el monto mínimo como un número.
@@ -763,7 +763,7 @@ tools:
       WHERE
         (COALESCE(@invoice_numbers, '') = '' OR Factura IN UNNEST(SPLIT(@invoice_numbers, ',')))
       ORDER BY Factura DESC
-      LIMIT 50
+      LIMIT 25
     description: |
       Obtiene información completa de facturas incluyendo todas las rutas de archivos PDF disponibles.
       Puede filtrar por números de factura específicos o retornar todas las facturas.
@@ -798,7 +798,7 @@ tools:
       WHERE
         (COALESCE(@solicitante_code, '') = '' OR Solicitante = @solicitante_code)
       ORDER BY Factura DESC
-      LIMIT 50
+      LIMIT 25
     description: |
       Obtiene facturas con URLs del proxy local ya formateadas para descargas directas.
       Esta herramienta genera automáticamente los enlaces de descarga correctos.
@@ -855,7 +855,7 @@ tools:
       WHERE
         Solicitante = LPAD(@solicitante_code, 10, '0')
       ORDER BY Factura DESC
-      LIMIT 50
+      LIMIT 25
     description: |
       Obtiene facturas con TODOS los enlaces específicos de PDFs disponibles para un solicitante específico.
       Genera URLs directas de GCS para cada tipo de PDF: Tributaria CF/SF, Cedible CF/SF, Documento Térmico.
@@ -983,7 +983,7 @@ tools:
       FROM
         `agent-intelligence-gasco.zip_operations.zip_files`
       ORDER BY created_at DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Lista los archivos ZIP más recientes generados por el sistema.
       Útil para mostrar historial de descargas al usuario.
@@ -1099,7 +1099,7 @@ tools:
         Solicitante = @solicitante_code
         AND Copia_Cedible_cf IS NOT NULL
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene facturas Cedible CON FONDO (logo Gasco) para un solicitante específico.
       Solo retorna facturas que tienen disponible la Copia Cedible Con Fondo.
@@ -1127,7 +1127,7 @@ tools:
         Solicitante = @solicitante_code
         AND Copia_Cedible_sf IS NOT NULL
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene facturas Cedible SIN FONDO (sin logo) para un solicitante específico.
       Solo retorna facturas que tienen disponible la Copia Cedible Sin Fondo.
@@ -1155,7 +1155,7 @@ tools:
         Solicitante = @solicitante_code
         AND Copia_Tributaria_cf IS NOT NULL
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene facturas Tributaria CON FONDO (logo Gasco) para un solicitante específico.
       Solo retorna facturas que tienen disponible la Copia Tributaria Con Fondo.
@@ -1183,7 +1183,7 @@ tools:
         Solicitante = @solicitante_code
         AND Copia_Tributaria_sf IS NOT NULL
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene facturas Tributaria SIN FONDO (sin logo) para un solicitante específico.
       Solo retorna facturas que tienen disponible la Copia Tributaria Sin Fondo.
@@ -1221,7 +1221,7 @@ tools:
         Solicitante = @solicitante_code
         AND (Copia_Tributaria_cf IS NOT NULL OR Copia_Tributaria_sf IS NOT NULL)
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene TODAS las facturas TRIBUTARIAS (con y sin firma) para un solicitante específico.
       Solo retorna facturas que tienen al menos una copia tributaria disponible.
@@ -1260,7 +1260,7 @@ tools:
         Solicitante = @solicitante_code
         AND (Copia_Cedible_cf IS NOT NULL OR Copia_Cedible_sf IS NOT NULL)
       ORDER BY Factura DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Obtiene TODAS las facturas CEDIBLES (con y sin firma) para un solicitante específico.
       Solo retorna facturas que tienen al menos una copia cedible disponible.
@@ -1303,7 +1303,7 @@ tools:
       WHERE
         Solicitante = LPAD(@solicitante, 10, '0') AND fecha BETWEEN @start_date AND @end_date
       ORDER BY fecha DESC, Factura DESC
-      LIMIT 50
+      LIMIT 25
     description: |
       Busca facturas por código de solicitante específico y rango de fechas.
       Permite filtrar por empresa/organización solicitante en un período determinado.
@@ -1414,7 +1414,7 @@ tools:
       WHERE
         valor_total_calculado >= @min_amount
       ORDER BY valor_total_calculado DESC, fecha DESC
-      LIMIT 20
+      LIMIT 10
     description: |
       Busca facturas de un RUT específico que superen un monto mínimo.
       Calcula el valor total sumando todos los ítems de detallesFactura.
@@ -1625,7 +1625,7 @@ tools:
         AND EXTRACT(YEAR FROM fecha) = @year
         AND EXTRACT(MONTH FROM fecha) = @month
       ORDER BY fecha DESC, Factura DESC
-      LIMIT 30
+      LIMIT 1000
     description: |
       Busca facturas por nombre de empresa/solicitante/cliente y mes/año específicos.
       ESENCIAL para consultas como "facturas de Gas las Naciones en julio 2025".

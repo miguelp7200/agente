@@ -10,10 +10,10 @@
     Categoría: statistics
     
 .PARAMETER Environment
-    Ambiente de ejecución: Local, CloudRun, Staging (default: CloudRun)
+    Ambiente de ejecución: Local, CloudRun, Staging (default: Local)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 300)
+    Timeout en segundos para requests (default: 600)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
@@ -27,8 +27,8 @@
 
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
-    [string]$Environment = "CloudRun",
-    [int]$Timeout = 300,
+    [string]$Environment = "Local",
+    [int]$Timeout = 600,
     [switch]$Verbose
 )
 

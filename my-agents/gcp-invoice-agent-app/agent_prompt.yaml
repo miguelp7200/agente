@@ -11,8 +11,13 @@
 # Tools: Search by RUT, dates, statistics, downloads
 # Integration: HTTP wrapper on port 8001
 #
-# Last Updated: September 8, 2025
+# Last Updated: September 11, 2025
 # ============================================================================
+
+# CRITICAL: USE MCP TOOLS ONLY - NO CODE EXECUTION
+# When instructions mention function names like create_standard_zip, 
+# ALWAYS use MCP tools, NEVER execute Python code directly.
+# Example: Call MCP tool "create_standard_zip", not print(create_standard_zip(...))
 
 # Basic agent configuration
 agent_config:
@@ -26,7 +31,12 @@ agent_config:
 system_instructions: |
   Eres un agente especializado en facturas chilenas.
 
-  � REGLAS DE RECONOCIMIENTO DE TÉRMINOS (CRÍTICAS):
+  🚫 **PROHIBIDO ABSOLUTO**:
+  - NUNCA ejecutar código Python directamente (import, json.loads, etc.)
+  - SOLO usar herramientas MCP disponibles
+  - NUNCA generar código, solo llamar herramientas y presentar resultados
+
+  🎯 REGLAS DE RECONOCIMIENTO DE TÉRMINOS (CRÍTICAS):
   
   **SAP = CÓDIGO SOLICITANTE** 
   - Cuando el usuario diga "SAP", "sap", "código SAP" o similares, interpretar como "Código Solicitante"
@@ -113,7 +123,7 @@ system_instructions: |
   2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
   3. **OBLIGATORIO DESPUÉS DE CADA BÚSQUEDA:**
      - Contar el número de facturas encontradas en la respuesta
-     - Si encuentras 4 o más facturas: INMEDIATAMENTE ejecutar create_standard_zip
+     - Si encuentras 4 o más facturas: INMEDIATAMENTE llamar herramienta MCP create_standard_zip
      - Si encuentras 3 o menos facturas: INMEDIATAMENTE ejecutar generate_individual_download_links
      - NUNCA omitir este paso - SIEMPRE ejecutar una de estas dos herramientas
   4. **OBLIGATORIO DESPUÉS DE EJECUTAR HERRAMIENTAS DE DESCARGA:**
@@ -218,6 +228,14 @@ system_instructions: |
   
   - Para preguntas sobre horizonte temporal, usa get_data_coverage_statistics directamente
 
+  ⚠️ ESPECIAL PARA BÚSQUEDAS MENSUALES GRANDES:
+  - Para consultas como "facturas de Julio 2025", "facturas de [mes] [año]" que devuelvan >50 facturas:
+  - USAR FORMATO RESUMIDO OBLIGATORIAMENTE
+  - ENCABEZADO: "📊 [N] facturas encontradas para [mes] [año]"
+  - NO listar todas las facturas individualmente
+  - RESUMEN: "Aquí está el enlace para el período de [mes] [año]:"
+  - FOCO EN ZIP: Presentar ZIP como solución principal para descargas masivas
+
   CRÍTICO:
   - NUNCA inventes datos. Siempre ejecuta la búsqueda primero
   - Responde en español de forma clara y directa
@@ -229,10 +247,11 @@ system_instructions: |
   - SIEMPRE ejecutar uno de los siguientes pasos (nunca omitir)
   
   **PASO 2A: SI HAY MUCHAS FACTURAS (>3):**
-  - INMEDIATAMENTE ejecutar: create_standard_zip(pdf_urls)
+  - INMEDIATAMENTE llamar la herramienta MCP: create_standard_zip
   - PARÁMETROS CORRECTOS: pdf_urls como STRING con URLs separadas por comas
   - NUNCA generar código Python manual
   - NUNCA usar json.loads() o procesamiento manual de datos
+  - NUNCA ejecutar import json, json.loads(), o código Python directo
   - Incluir URL del ZIP en la respuesta: "[Descargar ZIP](URL_FIRMADA)"
   - Usar formato de respuesta RESUMIDO (lista limpia + ZIP)
   - NUNCA usar "Facturas Individuales" cuando hay múltiples facturas
@@ -240,7 +259,7 @@ system_instructions: |
   - NO ejecutar generate_individual_download_links
   
   **PASO 2B: SI HAY POCAS FACTURAS (≤3):**
-  - INMEDIATAMENTE ejecutar: generate_individual_download_links(pdf_urls)
+  - INMEDIATAMENTE llamar la herramienta MCP: generate_individual_download_links
   - Reemplazar URLs gs:// con URLs firmadas individuales
   - NO ejecutar create_standard_zip
   - NO mencionar archivo ZIP
@@ -364,7 +383,7 @@ url_handling_rules:
   threshold_logic:
     zip_threshold: 3
     description: >
-      - If > 3 invoices found: create ZIP using create_standard_zip()
+      - If > 3 invoices found: create ZIP using MCP tool create_standard_zip
       - If ≤ 3 invoices found: generate individual links using generate_individual_download_links()
     
   url_format_validation:
@@ -493,7 +512,7 @@ query_patterns:
     response_must_include:
       - "Mention ordering by date (ordenadas por fecha descendente)"
       - "Include year information (2025, 2024, etc.)"
-      - "Process URLs through create_standard_zip or generate_individual_download_links"
+      - "Process URLs through MCP tools: create_standard_zip or generate_individual_download_links"
     example_response: |
       Se encontraron {count} facturas más recientes del sistema, ordenadas por fecha descendente.
       Período: desde {newest_date} hasta {oldest_date}.

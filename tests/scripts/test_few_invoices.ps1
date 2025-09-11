@@ -60,7 +60,7 @@ $startTime = Get-Date
 
 try {
     $runUrl = "$BACKEND_URL/apps/$APP_NAME/users/$USER_ID/sessions/$SESSION_ID/run"
-    $response = Invoke-RestMethod -Uri $runUrl -Method POST -Body $requestBody -Headers $headers -TimeoutSec 300
+    $response = Invoke-RestMethod -Uri $runUrl -Method POST -Body $requestBody -Headers $headers -TimeoutSec 600
     
     $endTime = Get-Date
     $duration = ($endTime - $startTime).TotalSeconds

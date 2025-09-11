@@ -246,9 +246,9 @@ function Send-QueryToBackend {
         $jsonBody = $requestBody | ConvertTo-Json -Depth 5
         
         # Enviar request con timeout de 5 minutos para consultas complejas
-        Write-DiagnosisLog "⏱️ Enviando consulta (timeout: 300s para procesamiento completo)..." "INFO" $BackendName
+        Write-DiagnosisLog "⏱️ Enviando consulta (timeout: 600s para procesamiento completo)..." "INFO" $BackendName
         $startTime = Get-Date
-        $response = Invoke-RestMethod -Uri "$BackendUrl/run" -Method POST -Body $jsonBody -Headers $Headers -TimeoutSec 300
+        $response = Invoke-RestMethod -Uri "$BackendUrl/run" -Method POST -Body $jsonBody -Headers $Headers -TimeoutSec 600
         $endTime = Get-Date
         $responseTime = ($endTime - $startTime).TotalMilliseconds
         

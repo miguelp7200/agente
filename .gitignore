@@ -6,6 +6,7 @@ diagnosis_results/
 
 # Ignorar outputs temporales de tests
 tests/outputs/
+tests/results/
 *.test.json
 *.debug.log
 

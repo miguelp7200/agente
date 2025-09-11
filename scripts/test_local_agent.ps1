@@ -43,7 +43,7 @@ Write-Host $queryBody -ForegroundColor DarkGray
 
 try {
     Write-Host "`n⏳ Enviando request..." -ForegroundColor Yellow
-    $response = Invoke-RestMethod -Uri "$backendUrl/run" -Method POST -Headers $headers -Body $queryBody -TimeoutSec 300
+    $response = Invoke-RestMethod -Uri "$backendUrl/run" -Method POST -Headers $headers -Body $queryBody -TimeoutSec 600
     
     Write-Host "🎉 ¡Respuesta recibida!" -ForegroundColor Green
     

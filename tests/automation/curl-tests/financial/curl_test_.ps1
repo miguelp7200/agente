@@ -10,10 +10,10 @@
     Categoría: 
     
 .PARAMETER Environment
-    Ambiente de ejecución: Local, CloudRun, Staging (default: CloudRun)
+    Ambiente de ejecución: Local, CloudRun, Staging (default: Local)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 300)
+    Timeout en segundos para requests (default: 600)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
@@ -27,8 +27,8 @@
 
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
-    [string]$Environment = "CloudRun",
-    [int]$Timeout = 300,
+    [string]$Environment = "Local",
+    [int]$Timeout = 600,
     [switch]$Verbose
 )
 
@@ -76,7 +76,7 @@ $config = $EnvironmentConfig[$Environment]
 Write-Info "Target: $($config.Description) - $($config.BaseUrl)"
 
 # Variables del test
-$sessionId = "auto-test-Test:_Financial_Analysis_-_Suma_Montos_por_Año-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$sessionId = "auto-test-Financial-Analysis-Suma-Montos-por-Ano-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "automation-test-user"
 $appName = "gcp-invoice-agent-app"
 $testQuery = "cuanto es la suma de los montos por cada año"
@@ -168,10 +168,13 @@ try {
     }
     
     if ($modelResponse) {
-        if ($Verbose) {
-            Write-Info "Respuesta del modelo:"
-            Write-Host $modelResponse -ForegroundColor White
-        }
+        # 📝 MOSTRAR RESPUESTA COMPLETA DEL CHATBOT
+        Write-Host "
+📝 RESPUESTA DEL CHATBOT:" -ForegroundColor Cyan
+        Write-Host "=" * 80 -ForegroundColor Gray
+        Write-Host $modelResponse -ForegroundColor White
+        Write-Host "=" * 80 -ForegroundColor Gray
+        Write-Host "📏 Longitud: $($modelResponse.Length) caracteres" -ForegroundColor Gray
         
         # 🔍 VALIDACIONES ESPECÍFICAS DEL TEST
         Write-Host "
@@ -250,7 +253,7 @@ try {
         
         # Guardar resultado
         $resultData = @{
-            test_case = "Test: Financial Analysis - Suma Montos por Año"
+            test_case = "Financial_Analysis_Suma_Montos_por_Ano"
             test_name = "Test: Financial Analysis   Suma Montos Por Año"
             environment = $Environment
             execution_time = $duration
@@ -261,7 +264,7 @@ try {
             query = $testQuery
         }
         
-        $resultFile = "../../results/result_Test:_Financial_Analysis_-_Suma_Montos_por_Año_$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $resultFile = "../../results/result_Financial_Analysis_Suma_Montos_por_Ano_$(Get-Date -Format 'yyyyMMddHHmmss').json"
         $resultData | ConvertTo-Json -Depth 3 | Out-File -FilePath $resultFile -Encoding UTF8
         Write-Info "Resultado guardado en: $resultFile"
         

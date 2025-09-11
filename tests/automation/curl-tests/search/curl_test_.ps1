@@ -10,10 +10,10 @@
     Categoría: 
     
 .PARAMETER Environment
-    Ambiente de ejecución: Local, CloudRun, Staging (default: CloudRun)
+    Ambiente de ejecución: Local, CloudRun, Staging (default: Local)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 300)
+    Timeout en segundos para requests (default: 600)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
@@ -27,8 +27,8 @@
 
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
-    [string]$Environment = "CloudRun",
-    [int]$Timeout = 300,
+    [string]$Environment = "Local",
+    [int]$Timeout = 600,
     [switch]$Verbose
 )
 
@@ -76,7 +76,7 @@ $config = $EnvironmentConfig[$Environment]
 Write-Info "Target: $($config.Description) - $($config.BaseUrl)"
 
 # Variables del test
-$sessionId = "auto-test-Test:_Última_Factura_Registrada-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$sessionId = "auto-test-Ultima-Factura-Registrada-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "automation-test-user"
 $appName = "gcp-invoice-agent-app"
 $testQuery = "dame la última factura registrada"
@@ -250,7 +250,7 @@ try {
         
         # Guardar resultado
         $resultData = @{
-            test_case = "Test: Última Factura Registrada"
+            test_case = "Ultima_Factura_Registrada"
             test_name = "Test: Última Factura Registrada"
             environment = $Environment
             execution_time = $duration
@@ -261,7 +261,7 @@ try {
             query = $testQuery
         }
         
-        $resultFile = "../../results/result_Test:_Última_Factura_Registrada_$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $resultFile = "../../results/result_Ultima_Factura_Registrada_$(Get-Date -Format 'yyyyMMddHHmmss').json"
         $resultData | ConvertTo-Json -Depth 3 | Out-File -FilePath $resultFile -Encoding UTF8
         Write-Info "Resultado guardado en: $resultFile"
         
