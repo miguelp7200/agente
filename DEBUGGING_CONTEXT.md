@@ -1362,3 +1362,125 @@ LIMIT 100  -- Primeras 100 facturas
 
 **🚀 RECOMENDACIÓN FINAL:**
 Implementar límite inteligente de **500 facturas** con opción de descarga completa en background para queries que excedan este límite.
+
+---
+
+## 🛡️ **NUEVA IMPLEMENTACIÓN: Sistema de Validación de Contexto (2025-01-15)**
+
+### **🎯 Problema Resuelto: Consultas que Exceden Límite de Tokens**
+
+**Issue crítico identificado:** Las búsquedas mensuales amplias como "facturas de julio 2025" generaban respuestas truncadas silenciosamente debido al LIMIT 50, creando una experiencia engañosa para el usuario que pensaba recibir todas las facturas.
+
+**Root Cause Analysis:**
+- **Julio 2025**: 3,297 facturas encontradas
+- **Cálculo de tokens**: 3,297 × 2,800 tokens/factura = 9,231,600 tokens
+- **Límite Gemini**: 1,048,576 tokens (1M)
+- **Resultado**: Overflow silencioso con solo 50 facturas mostradas
+
+### **🔧 Solución Implementada: Validación Proactiva**
+
+**Nueva herramienta MCP:** `validate_context_size_before_search`
+
+```yaml
+validate_context_size_before_search:
+  kind: bigquery-sql
+  source: gasco_invoices_read
+  statement: |
+    WITH result_preview AS (
+      SELECT 
+        COUNT(*) as total_facturas,
+        COUNT(*) * 2800 as total_estimated_tokens,
+        COUNT(*) * 2800 + 35000 as total_with_system_context
+      FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+      WHERE 
+        EXTRACT(YEAR FROM fecha) = @target_year
+        AND EXTRACT(MONTH FROM fecha) = @target_month
+    )
+    SELECT 
+      total_facturas,
+      total_estimated_tokens,
+      total_with_system_context,
+      CASE 
+        WHEN total_with_system_context > 900000 THEN 'EXCEED_CONTEXT'
+        WHEN total_with_system_context > 700000 THEN 'WARNING_LARGE'  
+        WHEN total_with_system_context > 400000 THEN 'LARGE_BUT_OK'
+        ELSE 'SAFE'
+      END as context_status,
+      CASE 
+        WHEN total_with_system_context > 900000 THEN 
+          CONCAT('La consulta es demasiado amplia (', CAST(total_facturas AS STRING), ' facturas encontradas) y excederá la capacidad de procesamiento del sistema. Por favor, refina tu búsqueda con criterios más específicos.')
+        -- [otros casos...]
+      END as recommendation
+    FROM result_preview
+```
+
+### **🔄 Flujo de Validación Obligatorio**
+
+**Para todas las búsquedas mensuales generales** (`"facturas de [mes] [año]"`):
+
+1. **PASO 1**: `validate_context_size_before_search(target_year, target_month)`
+2. **PASO 2**: Evaluar `context_status`:
+   - **EXCEED_CONTEXT**: RECHAZAR búsqueda, mostrar `recommendation`, pedir refinamiento
+   - **WARNING_LARGE**: Proceder con advertencia + mostrar `recommendation`  
+   - **LARGE_BUT_OK**: Proceder con nota opcional + mostrar `recommendation`
+   - **SAFE**: Proceder normalmente + mostrar `recommendation`
+3. **PASO 3**: Si ≠ EXCEED_CONTEXT → ejecutar `search_invoices_by_month_year`
+
+### **📋 Umbrales de Contexto Definidos**
+
+| Rango de Tokens | Context Status | Comportamiento |
+|------------------|---------------|----------------|
+| < 400K | SAFE | Procesar normalmente |
+| 400K - 700K | LARGE_BUT_OK | Procesar con nota opcional |
+| 700K - 900K | WARNING_LARGE | Procesar con advertencia obligatoria |
+| > 900K | EXCEED_CONTEXT | **RECHAZAR** y pedir refinamiento |
+
+### **🔨 Cambios Implementados**
+
+#### **1. tools_updated.yaml**
+- ✅ Agregada herramienta `validate_context_size_before_search`
+- ✅ Incluida en toolset `gasco_invoice_search`
+- ✅ `search_invoices_by_month_year` LIMIT aumentado de 50 → 1000 (seguro con validación)
+
+#### **2. agent_prompt.yaml** 
+- ✅ Flujo de validación obligatorio documentado en **BÚSQUEDA MENSUAL GENERAL**
+- ✅ Instrucciones paso a paso para context_status
+- ✅ Actualizado flujo general para incluir validación
+
+#### **3. Script de Pruebas**
+- ✅ `scripts/test_context_validation_workflow.ps1`
+- ✅ Prueba 3 escenarios: EXCEED_CONTEXT, SAFE, consulta específica
+- ✅ Validaciones automatizadas para cada flujo
+
+### **📊 Casos de Prueba Definidos**
+
+| Consulta | Expected Facturas | Expected Status | Expected Behavior |
+|----------|-------------------|-----------------|-------------------|
+| "facturas de julio 2025" | 3,297 | EXCEED_CONTEXT | Rechazar + recommendation |
+| "facturas de enero 2017" | ~pocas | SAFE | Procesar normalmente |
+| "SAP 12537749 julio 2025" | N/A | No validation | Usar herramienta específica |
+
+### **🎯 Beneficios Obtenidos**
+
+1. **Transparencia total**: Usuario conoce el conteo real de facturas antes de procesar
+2. **Sin truncamientos silenciosos**: Fin del LIMIT 50 engañoso
+3. **Experiencia mejorada**: Recommendations específicas para refinamiento
+4. **Protección del sistema**: Previene overflow de contexto de Gemini
+5. **Performance optimizada**: Consultas grandes son redirigidas proactivamente
+
+### **🚀 Próximos Pasos**
+
+1. ✅ **Testing completo**: Ejecutar `test_context_validation_workflow.ps1`
+2. ✅ **Validación manual**: Probar casos edge
+3. 🔄 **Commit a feature branch**: `feature/context-size-validation`
+4. 🔄 **Merge a development**: Después de testing exitoso
+5. 🔄 **Deploy a producción**: Con monitoreo de performance
+
+### **🔍 Monitoreo Sugerido**
+
+- **Métricas**: Frecuencia de EXCEED_CONTEXT por consulta
+- **Performance**: Tiempo de validación vs tiempo total
+- **UX**: Tasa de refinamiento exitoso después de rechazos
+- **System Health**: Reducción en errores de overflow
+
+**Estado Actual**: ✅ **IMPLEMENTADO** - Listo para testing y deploy

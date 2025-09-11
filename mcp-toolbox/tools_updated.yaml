@@ -331,13 +331,23 @@ tools:
         EXTRACT(YEAR FROM fecha) = @target_year
         AND EXTRACT(MONTH FROM fecha) = @target_month
       ORDER BY fecha DESC, Factura DESC
-      LIMIT 50
+      LIMIT 1000
     description: |
+      🔗 DEBE USARSE DESPUÉS DE validate_context_size_before_search para búsquedas mensuales.
+      
       Busca facturas de un mes y año específicos con enlaces de descarga del proxy local.
       Utiliza funciones EXTRACT para filtrar por mes y año de forma precisa.
+      
+      ⚠️ FLUJO OBLIGATORIO:
+      1. Ejecutar validate_context_size_before_search(target_year, target_month)
+      2. Si context_status = "EXCEED_CONTEXT": RECHAZAR búsqueda y mostrar recommendation
+      3. Si otro status: Proceder con esta herramienta
+      
       Proporciona el año como entero (ej. 2019) y el mes como entero (1-12).
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna hasta 1000 facturas más recientes con URLs del proxy local listas para descargar.
       Útil para consultas como "Facturas de diciembre 2019" o "Facturas de noviembre 2022".
+      
+      LIMIT aumentado a 1000 gracias a validación previa que previene overflow de contexto.
     parameters:
       - name: target_year
         type: integer
@@ -1649,6 +1659,81 @@ tools:
         type: integer
         description: Mes de las facturas (1-12, donde 7=julio)
 
+  validate_context_size_before_search:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      WITH result_preview AS (
+        SELECT 
+          COUNT(*) as total_facturas,
+          -- Estimación de tokens por factura basada en estructura real
+          -- Campos básicos: ~200 chars = ~50 tokens
+          -- URLs PDF (5): ~1000 chars = ~250 tokens  
+          -- DetallesFactura (crítico): promedio 5-15 ítems × 300-800 chars = ~375-3000 tokens
+          -- Total estimado por factura: ~625-3250 tokens (usamos 2800 como estimación conservadora)
+          COUNT(*) * 800 as estimated_tokens_basic_fields,
+          COUNT(*) * 2000 as estimated_tokens_details,
+          COUNT(*) * 2800 as total_estimated_tokens,
+          -- Agregar contexto del sistema (~35K tokens)
+          COUNT(*) * 2800 + 35000 as total_with_system_context
+        FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+        WHERE 
+          EXTRACT(YEAR FROM fecha) = @target_year
+          AND EXTRACT(MONTH FROM fecha) = @target_month
+      )
+      SELECT 
+        total_facturas,
+        total_estimated_tokens,
+        total_with_system_context,
+        CASE 
+          WHEN total_with_system_context > 900000 THEN 'EXCEED_CONTEXT'
+          WHEN total_with_system_context > 700000 THEN 'WARNING_LARGE'  
+          WHEN total_with_system_context > 400000 THEN 'LARGE_BUT_OK'
+          ELSE 'SAFE'
+        END as context_status,
+        CASE 
+          WHEN total_with_system_context > 900000 THEN 
+            CONCAT('La consulta es demasiado amplia (', CAST(total_facturas AS STRING), ' facturas encontradas) y excederá la capacidad de procesamiento del sistema. Por favor, refina tu búsqueda con criterios más específicos.')
+          WHEN total_with_system_context > 700000 THEN 
+            CONCAT('Consulta grande detectada (', CAST(total_facturas AS STRING), ' facturas). Considera refinar los criterios de búsqueda para obtener resultados más rápidos y precisos.')
+          WHEN total_with_system_context > 400000 THEN
+            CONCAT('Consulta moderadamente grande (', CAST(total_facturas AS STRING), ' facturas). Se procesará normalmente pero puede tomar tiempo adicional.')
+          ELSE 
+            CONCAT('Consulta dentro de límites seguros (', CAST(total_facturas AS STRING), ' facturas). Procesamiento eficiente esperado.')
+        END as recommendation,
+        ROUND(total_with_system_context / 1048576.0 * 100, 1) as context_usage_percentage
+      FROM result_preview
+    description: |
+      🚨 HERRAMIENTA CRÍTICA: Valida si una consulta mensual excederá la ventana de contexto de Gemini.
+      
+      DEBE ejecutarse ANTES de search_invoices_by_month_year para consultas amplias como:
+      - "facturas de julio 2025"
+      - "dame las facturas de [mes] [año]" 
+      - Cualquier búsqueda mensual sin filtros específicos
+      
+      Funcionalidad:
+      - Cuenta facturas exactas para el mes/año solicitado
+      - Estima tokens basado en estructura real de datos (2800 tokens/factura + 35K sistema)
+      - Evalúa si excederá límite de contexto de Gemini (1M tokens)
+      - Proporciona recomendación específica con conteo real
+      
+      Estados de contexto:
+      - SAFE (<400K tokens): Procesar normalmente
+      - LARGE_BUT_OK (400K-700K): Procesar con advertencia opcional
+      - WARNING_LARGE (700K-900K): Procesar con advertencia obligatoria  
+      - EXCEED_CONTEXT (>900K tokens): RECHAZAR y solicitar refinamiento
+      
+      Usar esta herramienta SIEMPRE antes de búsquedas mensuales amplias.
+    parameters:
+      - name: target_year
+        type: integer
+        description: Año de las facturas a validar (ej. 2025, 2024)
+        required: true
+      - name: target_month
+        type: integer
+        description: Mes de las facturas a validar (1-12, donde 7=julio)
+        required: true
+
 toolsets:
   gasco_invoice_search:
     - search_invoices
@@ -1657,6 +1742,7 @@ toolsets:
     - search_invoices_by_date_range
     - search_invoices_by_rut_and_date_range
     - get_solicitantes_by_rut
+    - validate_context_size_before_search
     - search_invoices_by_month_year
     - search_invoices_by_multiple_ruts
     - search_invoices_recent_by_date

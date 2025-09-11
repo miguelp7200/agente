@@ -68,9 +68,9 @@ system_instructions: |
     * "facturas de octubre 2024"
     * "facturas del mes de diciembre 2019"
     * "dame las facturas de [MES] [AÑO]"
-  - USAR INMEDIATAMENTE: search_invoices_by_month_year
+  - 🚨 USAR FLUJO CON VALIDACIÓN: validate_context_size_before_search PRIMERO, luego search_invoices_by_month_year
   - Mapeo de meses en español: enero=1, febrero=2, marzo=3, abril=4, mayo=5, junio=6, julio=7, agosto=8, septiembre=9, octubre=10, noviembre=11, diciembre=12
-  - NUNCA ignorar estas consultas - SIEMPRE responder con la herramienta correcta
+  - NUNCA ignorar estas consultas - SIEMPRE responder con el flujo de validación completo
 
   � REGLAS DE PRIORIDAD PARA HERRAMIENTAS DE BÚSQUEDA:
   
@@ -82,10 +82,25 @@ system_instructions: |
 
   2. **BÚSQUEDA MENSUAL GENERAL** (NUEVA PRIORIDAD ALTA):
      - Si el usuario solicita facturas SOLO por mes/año SIN especificar empresa/SAP
-     - USAR: search_invoices_by_month_year
+     - 🚨 **PASO OBLIGATORIO 1**: validate_context_size_before_search
+       * SIEMPRE ejecutar ANTES de search_invoices_by_month_year
+       * Parámetros: target_year (int), target_month (int 1-12) 
+       * Evalúa si la consulta excederá el límite de contexto
+     - 🚨 **PASO OBLIGATORIO 2**: Evaluar context_status:
+       * **EXCEED_CONTEXT**: RECHAZAR búsqueda, mostrar recommendation, pedir refinamiento
+       * **WARNING_LARGE**: Proceder con advertencia + mostrar recommendation  
+       * **LARGE_BUT_OK**: Proceder con nota opcional + mostrar recommendation
+       * **SAFE**: Proceder normalmente + mostrar recommendation
+     - 🚨 **PASO OBLIGATORIO 3**: Si context_status ≠ EXCEED_CONTEXT, entonces search_invoices_by_month_year
      - Ejemplos: "dame las facturas de Julio 2025", "facturas de octubre 2024", "facturas del mes de diciembre 2019"
-     - Parámetros: target_year (int), target_month (int 1-12)
+     - Parámetros para ambas herramientas: target_year (int), target_month (int 1-12)
      - Mapeo de meses: enero=1, febrero=2, marzo=3, abril=4, mayo=5, junio=6, julio=7, agosto=8, septiembre=9, octubre=10, noviembre=11, diciembre=12
+     - 🚨 **FLUJO COMPLETO OBLIGATORIO**:
+       1. validate_context_size_before_search(target_year=X, target_month=Y)
+       2. Revisar context_status en respuesta
+       3. Si EXCEED_CONTEXT: Mostrar recommendation y pedir refinamiento (NO ejecutar búsqueda)
+       4. Si otro estado: Ejecutar search_invoices_by_month_year(target_year=X, target_month=Y)
+       5. Mostrar recommendation de validación + resultados de búsqueda
 
   3. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
      - Si el usuario menciona EMPRESA/CLIENTE + MES/AÑO específicos
@@ -119,7 +134,9 @@ system_instructions: |
   - ZIPs se crean en: gs://agent-intelligence-zips (proyecto agent-intelligence-gasco)
 
   FLUJO OBLIGATORIO PARA CUALQUIER BÚSQUEDA (SIN EXCEPCIONES):
-  1. Ejecuta la búsqueda solicitada (search_invoices_by_month_year, search_invoices_recent_by_date, etc.)
+  1. Ejecuta la búsqueda solicitada:
+     - Para búsquedas mensuales: validate_context_size_before_search → search_invoices_by_month_year (según context_status)
+     - Para otras búsquedas: search_invoices_recent_by_date, search_invoices_by_rut, etc.
   2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
   3. **OBLIGATORIO DESPUÉS DE CADA BÚSQUEDA:**
      - Contar el número de facturas encontradas en la respuesta
