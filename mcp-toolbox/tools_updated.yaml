@@ -35,7 +35,7 @@ tools:
       FROM
         `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       ORDER BY Factura DESC
-      LIMIT 100
+      LIMIT 50
     description: |
       Busca y recupera información básica de facturas del dataset de producción de Gasco.
       Retorna hasta 10 facturas con campos esenciales incluyendo todas las rutas de archivos PDF disponibles.
@@ -136,10 +136,19 @@ tools:
       ORDER BY Factura DESC
       LIMIT 1000
     description: |
+      🔗 RECOMENDACIÓN: Usar validate_rut_context_size ANTES para RUTs con muchas facturas.
+      
       Busca facturas de un RUT específico del cliente con enlaces de descarga del proxy local.
       Proporciona el RUT en formato con guión.
       Retorna facturas con URLs del proxy local listas para descargar.
+      
+      ⚠️ FLUJO RECOMENDADO para RUTs desconocidos:
+      1. Ejecutar validate_rut_context_size(target_rut) primero
+      2. Si context_status = "EXCEED_CONTEXT": Sugerir filtros adicionales
+      3. Si otro status: Proceder con esta herramienta
+      
       Útil para consultas como "Facturas del RUT 9025012-4" o "Facturas de María Torres".
+      LIMIT de 1000 facturas - usar validación para RUTs con mucha actividad.
     parameters:
       - name: target_rut
         type: string
@@ -189,10 +198,19 @@ tools:
       ORDER BY fecha DESC, Factura DESC
       LIMIT 1000
     description: |
+      🔗 RECOMENDACIÓN: Usar validate_date_range_context_size ANTES para rangos amplios.
+      
       Busca facturas dentro de un rango de fechas específico con enlaces de descarga del proxy local.
       Proporciona fechas en formato YYYY-MM-DD.
       Retorna facturas con URLs del proxy local listas para descargar.
+      
+      ⚠️ FLUJO RECOMENDADO para rangos amplios (>30 días):
+      1. Ejecutar validate_date_range_context_size(start_date, end_date) primero
+      2. Si context_status = "EXCEED_CONTEXT": Sugerir rango más pequeño
+      3. Si otro status: Proceder con esta herramienta
+      
       Útil para consultas como "Facturas entre 2019-12-01 y 2019-12-31".
+      LIMIT de 1000 facturas - usar validación para rangos con mucha actividad.
     parameters:
       - name: start_date
         type: string
@@ -1734,6 +1752,125 @@ tools:
         description: Mes de las facturas a validar (1-12, donde 7=julio)
         required: true
 
+  validate_rut_context_size:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      WITH result_preview AS (
+        SELECT 
+          COUNT(*) as total_facturas,
+          COUNT(*) * 2800 as total_estimated_tokens,
+          COUNT(*) * 2800 + 35000 as total_with_system_context,
+          @target_rut as rut_consulta
+        FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+        WHERE Rut = @target_rut
+      )
+      SELECT 
+        total_facturas,
+        total_estimated_tokens,
+        total_with_system_context,
+        rut_consulta,
+        CASE 
+          WHEN total_with_system_context > 900000 THEN 'EXCEED_CONTEXT'
+          WHEN total_with_system_context > 700000 THEN 'WARNING_LARGE'  
+          WHEN total_with_system_context > 400000 THEN 'LARGE_BUT_OK'
+          ELSE 'SAFE'
+        END as context_status,
+        CASE 
+          WHEN total_with_system_context > 900000 THEN 
+            CONCAT('El RUT ', @target_rut, ' tiene demasiadas facturas (', CAST(total_facturas AS STRING), ') y excederá la capacidad del sistema. Agrega filtros de fecha o usa búsquedas más específicas.')
+          WHEN total_with_system_context > 700000 THEN 
+            CONCAT('RUT con muchas facturas detectado (', CAST(total_facturas AS STRING), '). Considera agregar filtros de fecha para obtener resultados más rápidos.')
+          WHEN total_with_system_context > 400000 THEN
+            CONCAT('RUT con cantidad moderada de facturas (', CAST(total_facturas AS STRING), '). Se procesará normalmente pero puede tomar tiempo adicional.')
+          ELSE 
+            CONCAT('Consulta por RUT dentro de límites seguros (', CAST(total_facturas AS STRING), ' facturas). Procesamiento eficiente esperado.')
+        END as recommendation,
+        ROUND(total_with_system_context / 1048576.0 * 100, 1) as context_usage_percentage
+      FROM result_preview
+    description: |
+      🚨 VALIDADOR CRÍTICO: Valida si una búsqueda por RUT excederá la ventana de contexto de Gemini.
+      
+      DEBE ejecutarse ANTES de search_invoices_by_rut para RUTs con muchas facturas.
+      Útil para consultas como "facturas del RUT 96568740-8" sin filtros adicionales.
+      
+      Funcionalidad:
+      - Cuenta facturas exactas para el RUT solicitado
+      - Estima tokens (2800 tokens/factura + 35K sistema)
+      - Evalúa si excederá límite de contexto de Gemini (1M tokens)
+      - Proporciona recomendación específica para refinar búsqueda
+      
+      Usar cuando el usuario solicite facturas de un RUT sin filtros adicionales.
+    parameters:
+      - name: target_rut
+        type: string
+        description: RUT del cliente a validar (ej. "96568740-8", "76341146-K")
+        required: true
+
+  validate_date_range_context_size:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      WITH result_preview AS (
+        SELECT 
+          COUNT(*) as total_facturas,
+          COUNT(*) * 2800 as total_estimated_tokens,
+          COUNT(*) * 2800 + 35000 as total_with_system_context,
+          @start_date as fecha_inicio,
+          @end_date as fecha_fin,
+          DATE_DIFF(DATE(@end_date), DATE(@start_date), DAY) as dias_rango
+        FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+        WHERE fecha >= @start_date AND fecha <= @end_date
+      )
+      SELECT 
+        total_facturas,
+        total_estimated_tokens,
+        total_with_system_context,
+        fecha_inicio,
+        fecha_fin,
+        dias_rango,
+        CASE 
+          WHEN total_with_system_context > 900000 THEN 'EXCEED_CONTEXT'
+          WHEN total_with_system_context > 700000 THEN 'WARNING_LARGE'  
+          WHEN total_with_system_context > 400000 THEN 'LARGE_BUT_OK'
+          ELSE 'SAFE'
+        END as context_status,
+        CASE 
+          WHEN total_with_system_context > 900000 THEN 
+            CONCAT('El rango de fechas ', @start_date, ' a ', @end_date, ' contiene demasiadas facturas (', CAST(total_facturas AS STRING), ') y excederá la capacidad del sistema. Usa un rango más pequeño o agrega filtros específicos.')
+          WHEN total_with_system_context > 700000 THEN 
+            CONCAT('Rango de fechas amplio detectado (', CAST(total_facturas AS STRING), ' facturas en ', CAST(dias_rango AS STRING), ' días). Considera reducir el rango para resultados más rápidos.')
+          WHEN total_with_system_context > 400000 THEN
+            CONCAT('Rango de fechas moderado (', CAST(total_facturas AS STRING), ' facturas en ', CAST(dias_rango AS STRING), ' días). Se procesará normalmente pero puede tomar tiempo adicional.')
+          ELSE 
+            CONCAT('Consulta por rango de fechas dentro de límites seguros (', CAST(total_facturas AS STRING), ' facturas). Procesamiento eficiente esperado.')
+        END as recommendation,
+        ROUND(total_with_system_context / 1048576.0 * 100, 1) as context_usage_percentage
+      FROM result_preview
+    description: |
+      🚨 VALIDADOR CRÍTICO: Valida si una búsqueda por rango de fechas excederá la ventana de contexto de Gemini.
+      
+      DEBE ejecutarse ANTES de search_invoices_by_date_range para rangos amplios.
+      Útil para consultas como "facturas entre enero y diciembre 2025" sin filtros adicionales.
+      
+      Funcionalidad:
+      - Cuenta facturas exactas para el rango de fechas solicitado
+      - Calcula días del rango para contexto adicional
+      - Estima tokens (2800 tokens/factura + 35K sistema)
+      - Evalúa si excederá límite de contexto de Gemini (1M tokens)
+      - Proporciona recomendación específica con información del rango
+      
+      Usar cuando el usuario solicite facturas en rangos de fechas amplios.
+    parameters:
+      - name: start_date
+        type: string
+        description: Fecha de inicio en formato YYYY-MM-DD (ej. "2025-01-01")
+        required: true
+      - name: end_date
+        type: string
+        description: Fecha de fin en formato YYYY-MM-DD (ej. "2025-12-31")
+        required: true
+
 toolsets:
   gasco_invoice_search:
     - search_invoices
@@ -1743,6 +1880,8 @@ toolsets:
     - search_invoices_by_rut_and_date_range
     - get_solicitantes_by_rut
     - validate_context_size_before_search
+    - validate_rut_context_size
+    - validate_date_range_context_size
     - search_invoices_by_month_year
     - search_invoices_by_multiple_ruts
     - search_invoices_recent_by_date

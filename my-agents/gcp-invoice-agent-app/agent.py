@@ -636,17 +636,30 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         Dict con el formato mejorado de presentación
     """
     import json
-    
+    perf_log = {}
+    perf_log['perf_log_start_time'] = time.time()
     try:
         # Parsear datos de facturas
         if isinstance(invoice_data, str):
             invoices = json.loads(invoice_data)
         else:
             invoices = invoice_data
-            
         if not isinstance(invoices, list):
             return {"success": False, "error": "Formato de datos inválido"}
-            
+        perf_log['factura_count'] = len(invoices)
+        perf_log['chars_total'] = len(str(invoices))
+        try:
+            import tiktoken
+            enc = tiktoken.get_encoding('cl100k_base')
+            perf_log['tokens_total'] = len(enc.encode(str(invoices)))
+        except Exception:
+            perf_log['tokens_total'] = None
+        perf_log['chars_per_factura'] = perf_log['chars_total'] / perf_log['factura_count'] if perf_log['factura_count'] else 0
+        perf_log['tokens_per_factura'] = perf_log['tokens_total'] / perf_log['factura_count'] if perf_log['factura_count'] and perf_log['tokens_total'] else 0
+        perf_log['context_usage'] = {
+            'chars': perf_log['chars_total'],
+            'tokens': perf_log['tokens_total']
+        }
         enhanced_invoices = []
         total_amount = 0
         date_range = {"min": None, "max": None}
@@ -780,6 +793,28 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         }
         
         print(f"✅ [FORMATO] Generada presentación mejorada para {len(enhanced_invoices)} facturas")
+        # --- PERFORMANCE LOGGING BLOCK ---
+        perf_log['perf_log_end_time'] = time.time()
+        perf_log['perf_log_duration_ms'] = int((perf_log['perf_log_end_time'] - perf_log['perf_log_start_time']) * 1000)
+        perf_log['formatted_chars'] = len(validated_response)
+        try:
+            import tiktoken
+            enc = tiktoken.get_encoding('cl100k_base')
+            perf_log['formatted_tokens'] = len(enc.encode(validated_response))
+        except Exception:
+            perf_log['formatted_tokens'] = None
+        perf_log['formatted_chars_per_factura'] = perf_log['formatted_chars'] / perf_log['factura_count'] if perf_log['factura_count'] else 0
+        perf_log['formatted_tokens_per_factura'] = perf_log['formatted_tokens'] / perf_log['factura_count'] if perf_log['factura_count'] and perf_log['formatted_tokens'] else 0
+        perf_log['context_usage_formatted'] = {
+            'chars': perf_log['formatted_chars'],
+            'tokens': perf_log['formatted_tokens']
+        }
+        # Log to conversation_tracker if available
+        if 'conversation_tracker' in globals() and conversation_tracker is not None:
+            if hasattr(conversation_tracker, 'current_conversation') and conversation_tracker.current_conversation is not None:
+                conversation_tracker.current_conversation.update({'performance_stats': perf_log})
+        print(f"📊 [PERF LOG] {perf_log}")
+        # --- END PERFORMANCE LOGGING BLOCK ---
         return result
         
     except Exception as e:

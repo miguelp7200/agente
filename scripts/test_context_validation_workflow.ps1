@@ -13,7 +13,7 @@ Write-Host "  App Name: $appName" -ForegroundColor Gray
 Write-Host "  Session ID: $sessionId" -ForegroundColor Gray
 Write-Host "  Backend URL: $backendUrl" -ForegroundColor Gray
 
-# Función para crear sesión
+# Función para crear sesión y retornar headers
 function New-TestSession($sessionId) {
     Write-Host "📝 Creando sesión local..." -ForegroundColor Yellow
     $sessionUrl = "$backendUrl/apps/$appName/users/$userId/sessions/$sessionId"
@@ -25,15 +25,20 @@ function New-TestSession($sessionId) {
     } catch {
         Write-Host "⚠️ Sesión ya existe o error menor: $($_.Exception.Message)" -ForegroundColor Yellow
     }
-    return $headers
+    
+    # Retornar headers como hashtable fresco
+    return @{ "Content-Type" = "application/json" }
 }
 
 # Función para enviar consulta y validar respuesta
-function Test-ContextValidationQuery($query, $expectedBehavior, $headers) {
+function Test-ContextValidationQuery($query, $expectedBehavior, $sessionHeaders) {
     Write-Host "`n" + "="*80 -ForegroundColor Blue
     Write-Host "🔍 PROBANDO: $query" -ForegroundColor Cyan
     Write-Host "📋 ESPERADO: $expectedBehavior" -ForegroundColor Gray
     Write-Host "="*80 -ForegroundColor Blue
+    
+    # Asegurar headers frescos
+    $queryHeaders = @{ "Content-Type" = "application/json" }
     
     $queryBody = @{
         appName = $appName
@@ -47,9 +52,9 @@ function Test-ContextValidationQuery($query, $expectedBehavior, $headers) {
     
     try {
         Write-Host "🔄 Enviando request..." -ForegroundColor Yellow
-        $response = Invoke-RestMethod -Uri "$backendUrl/run" -Method POST -Headers $headers -Body $queryBody -TimeoutSec 2000
+        $response = Invoke-RestMethod -Uri "$backendUrl/run" -Method POST -Headers $queryHeaders -Body $queryBody -TimeoutSec 2000
         Write-Host "🎉 ¡Respuesta recibida!" -ForegroundColor Green
-        
+
         # Extraer la respuesta del modelo
         $modelEvents = $response | Where-Object { $_.content.role -eq "model" -and $_.content.parts[0].text }
         if ($modelEvents) {
@@ -57,7 +62,43 @@ function Test-ContextValidationQuery($query, $expectedBehavior, $headers) {
             $answer = $lastEvent.content.parts[0].text
             Write-Host "`n🤖 Respuesta del chatbot:" -ForegroundColor Cyan
             Write-Host $answer -ForegroundColor White
-            
+
+            # === LOG DE ESTADÍSTICAS DE DESEMPEÑO ===
+            $facturaRegex = '(Factura|RUT|Cliente|Empresa|PDF|descarga|Monto|Fecha|\d{7,})'
+            $facturaMatches = [regex]::Matches($answer, $facturaRegex)
+            $totalFacturas = $facturaMatches.Count
+            $totalChars = $answer.Length
+            $avgChars = if ($totalFacturas -gt 0) { [math]::Round($totalChars / $totalFacturas, 1) } else { 0 }
+            # Estimación de tokens: 4 caracteres por token (aprox)
+            $totalTokens = [math]::Round($totalChars / 4, 0)
+            $avgTokens = if ($totalFacturas -gt 0) { [math]::Round($totalTokens / $totalFacturas, 1) } else { 0 }
+
+            # Buscar porcentaje de uso de contexto si está en la respuesta
+            $contextUsage = 0
+            if ($answer -match 'context_usage_percentage.*?(\d+[.,]?\d*)') {
+                $contextUsage = $matches[1]
+            }
+
+            Write-Host "\n📊 Estadísticas de Desempeño:" -ForegroundColor Yellow
+            Write-Host "   • Total facturas PDF devueltas: $totalFacturas" -ForegroundColor White
+            Write-Host "   • Total caracteres en respuesta: $totalChars" -ForegroundColor White
+            Write-Host "   • Promedio caracteres/factura: $avgChars" -ForegroundColor White
+            Write-Host "   • Total tokens estimados: $totalTokens" -ForegroundColor White
+            Write-Host "   • Promedio tokens/factura: $avgTokens" -ForegroundColor White
+            Write-Host "   • Uso de contexto (%): $contextUsage" -ForegroundColor White
+
+            # Densidad de facturas por día (si hay fechas)
+            if ($answer -match 'dias_rango.*?(\d+)') {
+                $diasRango = [int]$matches[1]
+                $facturasPorDia = if ($diasRango -gt 0) { [math]::Round($totalFacturas / $diasRango, 2) } else { 0 }
+                Write-Host "   • Densidad facturas/día: $facturasPorDia" -ForegroundColor White
+            }
+
+            # Mostrar advertencia si el total de tokens excede 1M
+            if ($totalTokens -gt 1048576) {
+                Write-Host "   🚨 ¡Advertencia! Total de tokens excede el límite de Gemini (1M)" -ForegroundColor Red
+            }
+
             return $answer
         } else {
             Write-Host "⚠️ No se encontró respuesta del modelo" -ForegroundColor Yellow
@@ -168,7 +209,7 @@ function Run-ContextValidationTests() {
     
     # PRUEBA 1: Consulta que debe exceder el contexto (Julio 2025 - 3,297 facturas)
     Write-Host "`n📊 PRUEBA 1: Consulta que debe EXCEDER contexto" -ForegroundColor Blue
-    $answer1 = Test-ContextValidationQuery -query "dame las facturas de julio 2025" -expectedBehavior "EXCEED_CONTEXT - Debe rechazar y pedir refinamiento" -headers $headers
+    $answer1 = Test-ContextValidationQuery -query "dame las facturas de julio 2025" -expectedBehavior "EXCEED_CONTEXT - Debe rechazar y pedir refinamiento" -sessionHeaders $headers
     
     if ($answer1) {
         Test-ContextValidationFlow -answer $answer1 -queryType "EXCEED_CONTEXT"
@@ -176,7 +217,7 @@ function Run-ContextValidationTests() {
     
     # PRUEBA 2: Consulta que debe ser segura (mes con pocas facturas)
     Write-Host "`n📊 PRUEBA 2: Consulta que debe ser SEGURA" -ForegroundColor Blue
-    $answer2 = Test-ContextValidationQuery -query "dame las facturas de enero 2017" -expectedBehavior "SAFE - Debe procesar normalmente" -headers $headers
+    $answer2 = Test-ContextValidationQuery -query "dame las facturas de enero 2017" -expectedBehavior "SAFE - Debe procesar normalmente" -sessionHeaders $headers
     
     if ($answer2) {
         Test-ContextValidationFlow -answer $answer2 -queryType "SAFE"
@@ -184,7 +225,7 @@ function Run-ContextValidationTests() {
     
     # PRUEBA 3: Verificar que consultas específicas no usen validación 
     Write-Host "`n📊 PRUEBA 3: Consulta específica (sin validación)" -ForegroundColor Blue
-    $answer3 = Test-ContextValidationQuery -query "dame las facturas del SAP 12537749 de julio 2025" -expectedBehavior "NO debe usar validate_context_size_before_search" -headers $headers
+    $answer3 = Test-ContextValidationQuery -query "dame las facturas del SAP 12537749 de julio 2025" -expectedBehavior "NO debe usar validate_context_size_before_search" -sessionHeaders $headers
     
     if ($answer3) {
         Write-Host "`n🔍 VALIDACIONES PARA CONSULTA ESPECÍFICA:" -ForegroundColor Magenta

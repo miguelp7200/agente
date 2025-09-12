@@ -1,0 +1,45 @@
+{
+  "test_id": "validate_date_range_context_year_2025",
+  "description": "Validación de contexto para todo el año 2025 - Esperamos EXCEED_CONTEXT masivo",
+  "category": "context_validation",
+  "priority": "critical",
+  "tool_name": "validate_date_range_context_size",
+  "parameters": {
+    "start_date": "2025-01-01",
+    "end_date": "2025-12-31"
+  },
+  "expected_outcome": {
+    "context_status": "EXCEED_CONTEXT",
+    "should_block": true,
+    "minimum_facturas": 20000,
+    "context_usage_percentage": "> 300%",
+    "dias_rango": 365
+  },
+  "validation_criteria": {
+    "required_fields": [
+      "total_facturas",
+      "context_status", 
+      "recommendation",
+      "total_estimated_tokens",
+      "context_usage_percentage",
+      "fecha_inicio",
+      "fecha_fin",
+      "dias_rango"
+    ],
+    "blocking_statuses": ["EXCEED_CONTEXT"],
+    "expected_dias_rango": 365
+  },
+  "business_context": {
+    "scenario": "Usuario solicita todas las facturas de un año completo sin filtros",
+    "risk": "Crítico - Consulta masiva que definitivamente excederá contexto de Gemini",
+    "mitigation": "Sistema debe rechazar inmediatamente y sugerir filtros específicos (mes, RUT, monto)"
+  },
+  "test_data": {
+    "created": "2025-09-11",
+    "last_updated": "2025-09-11",
+    "related_tests": [
+      "test_facturas_julio_2025_general.json",
+      "test_validate_rut_context_gasco.json"
+    ]
+  }
+}

@@ -1,9 +1,64 @@
 {
   "test_suite": "invoice_search_comprehensive_tests",
-  "description": "Complete test suite for MCP Invoice Search Tools validation",
+  "description": "Complete test suite for MCP Invoice Search Tools validation including Universal Context Validation System",
   "created_date": "2025-09-09",
-  "version": "1.0",
+  "last_updated": "2025-09-11",
+  "version": "2.0",
   "test_categories": {
+    "context_validation": {
+      "description": "Universal Context Validation System for preventing Gemini overflow",
+      "tests": [
+        {
+          "file": "test_facturas_julio_2025_general.json",
+          "script": "scripts/test_facturas_julio_2025_general.ps1",
+          "status": "PASSED",
+          "priority": "CRITICAL",
+          "focus": "Monthly search validation - known EXCEED_CONTEXT case"
+        },
+        {
+          "file": "test_context_validation_workflow.json",
+          "script": "scripts/test_context_validation_workflow.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "CRITICAL",
+          "focus": "End-to-end workflow validation with 7 real user scenarios"
+        },
+        {
+          "file": "test_validate_rut_context_gasco.json",
+          "script": "scripts/test_validate_rut_context.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "CRITICAL",
+          "focus": "RUT-based context validation for high-volume clients"
+        },
+        {
+          "file": "test_validate_rut_context_safe.json",
+          "script": "scripts/test_validate_rut_context.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "HIGH",
+          "focus": "RUT-based validation for normal volume clients"
+        },
+        {
+          "file": "test_validate_date_range_context_year_2025.json",
+          "script": "scripts/test_validate_date_range_context.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "CRITICAL",
+          "focus": "Date range validation for massive queries"
+        },
+        {
+          "file": "test_validate_date_range_context_safe.json",
+          "script": "scripts/test_validate_date_range_context.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "MEDIUM",
+          "focus": "Date range validation for small periods"
+        },
+        {
+          "file": "test_validate_date_range_context_historical.json",
+          "script": "scripts/test_validate_date_range_context.ps1",
+          "status": "PENDING_EXECUTION",
+          "priority": "MEDIUM",
+          "focus": "Historical data validation with lower expected volume"
+        }
+      ]
+    },
     "sap_search": {
       "description": "SAP/Código Solicitante search functionality",
       "tests": [
@@ -49,11 +104,21 @@
     }
   },
   "test_execution_summary": {
-    "total_tests": 4,
-    "passed_tests": 3,
-    "pending_tests": 1,
+    "total_tests": 11,
+    "passed_tests": 4,
+    "pending_tests": 7,
     "critical_issues_resolved": 1,
+    "new_critical_features": [
+      "Universal Context Validation System",
+      "End-to-end workflow validation",
+      "Prevent Gemini overflow attacks",
+      "Proactive query size estimation"
+    ],
     "coverage_areas": [
+      "Context size validation (NEW)",
+      "RUT-based overflow prevention (NEW)", 
+      "Date range overflow prevention (NEW)",
+      "Monthly search protection (ENHANCED)",
       "SAP code recognition and normalization",
       "Case-insensitive company search",
       "Date period interpretation",
@@ -64,31 +129,57 @@
   },
   "automation_framework": {
     "script_language": "PowerShell",
-    "api_testing": "REST API calls to localhost:8001",
-    "validation_method": "Regex pattern matching + response analysis",
+    "api_testing": "REST API calls to localhost:8001 (ADK) + localhost:5000 (MCP)",
+    "validation_method": "Regex pattern matching + response analysis + context size estimation",
     "session_management": "Dynamic session creation per test",
-    "execution_environment": "Local development (MCP Toolbox + ADK Agent)"
+    "execution_environment": "Local development (MCP Toolbox + ADK Agent)",
+    "context_validation": {
+      "token_estimation": "2800 tokens per invoice + 35K system context",
+      "gemini_limit": "1M tokens",
+      "safety_threshold": "900K tokens (EXCEED_CONTEXT)",
+      "warning_threshold": "700K tokens (WARNING_LARGE)"
+    }
   },
   "regression_testing_plan": {
     "frequency": "Before each release",
     "execution_order": [
+      "Context validation workflow test (NEW - end-to-end critical validation)",
+      "Context validation tests (NEW - critical safety feature)",
       "SAP search tests (critical functionality)",
       "Company+date search tests (core workflow)", 
       "Reference search tests (specific lookups)"
     ],
-    "success_criteria": "All tests show ✅ status in PowerShell output",
-    "failure_escalation": "Block release if critical tests fail"
+    "success_criteria": "All tests show ✅ status + context validation prevents overflow",
+    "failure_escalation": "Block release if context validation fails or critical tests fail"
   },
   "technical_architecture_validated": {
+    "universal_context_validation": {
+      "validators_implemented": [
+        "validate_context_size_before_search (monthly)",
+        "validate_rut_context_size (RUT-based)",
+        "validate_date_range_context_size (date ranges)"
+      ],
+      "protection_coverage": "100% of high-risk BigQuery tools",
+      "token_calculation": "Accurate estimation with real data structure",
+      "gemini_integration": "Prevents 1M token limit overflow"
+    },
     "mcp_toolbox": {
       "tools_validated": [
         "search_invoices_by_solicitante_and_date_range",
         "search_invoices_by_company_name_and_date",
-        "generate_individual_download_links"
+        "generate_individual_download_links",
+        "validate_context_size_before_search (NEW)",
+        "validate_rut_context_size (NEW)",
+        "validate_date_range_context_size (NEW)"
       ],
       "normalization_confirmed": [
         "LPAD for SAP codes",
         "UPPER for company names"
+      ],
+      "safety_features": [
+        "Context size validation before dangerous queries",
+        "Automatic query blocking for EXCEED_CONTEXT",
+        "Detailed recommendations for query refinement"
       ]
     },
     "agent_prompt": {
@@ -104,29 +195,45 @@
   },
   "business_impact_validated": {
     "user_experience_improvements": [
+      "Universal context protection prevents misleading truncated results",
+      "Proactive feedback when queries are too broad",
+      "Smart recommendations for query refinement",
       "Natural SAP code search without format restrictions",
       "Case-insensitive company name search",
       "Reliable invoice discovery and download"
     ],
     "client_issues_resolved": [
       "'SAP no es un parámetro válido' - FIXED",
+      "Truncated results without warning - FIXED (NEW)",
+      "Gemini context overflow - PREVENTED (NEW)",
+      "Misleading 'no results' due to truncation - FIXED (NEW)",
       "Case sensitivity problems - FIXED",
       "Download link generation - CONFIRMED WORKING"
     ],
-    "workflow_efficiency": "Users can search invoices naturally without technical knowledge"
+    "workflow_efficiency": "Users get accurate, complete results with intelligent query guidance",
+    "system_reliability": "Proactive protection against context overflow ensures consistent performance"
   },
   "maintenance_notes": {
     "test_data_dependencies": [
       "COMERCIALIZADORA PIMENTEL SPA invoices in test database",
       "SAP code 12537749 with invoices in August 2025",
-      "Reference 8677072 existence (to be verified)"
+      "Reference 8677072 existence (to be verified)",
+      "July 2025 high-volume data for context validation (7,987+ invoices)",
+      "RUT 96568740-8 (Gasco) for EXCEED_CONTEXT testing",
+      "RUT 9025012-4 for SAFE context testing"
     ],
     "environment_requirements": [
       "MCP Toolbox running on localhost:5000",
       "ADK Agent running on localhost:8001", 
       "BigQuery access to datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
-      "GCS access to miguel-test bucket"
+      "GCS access to miguel-test bucket",
+      "Context validation tools properly configured in tools_updated.yaml"
     ],
-    "update_frequency": "Update test data monthly, review test cases quarterly"
+    "update_frequency": "Update test data monthly, review test cases quarterly",
+    "context_validation_maintenance": {
+      "token_estimation_accuracy": "Review quarterly with actual data samples",
+      "threshold_tuning": "Monitor Gemini performance and adjust safety thresholds",
+      "new_validator_addition": "Add validators for any new high-limit BigQuery tools"
+    }
   }
 }

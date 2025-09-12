@@ -1,0 +1,45 @@
+{
+  "test_id": "validate_date_range_context_historical",
+  "description": "Validación de contexto para período histórico (diciembre 2019) - Esperamos SAFE/LARGE_BUT_OK",
+  "category": "context_validation",
+  "priority": "medium",
+  "tool_name": "validate_date_range_context_size",
+  "parameters": {
+    "start_date": "2019-12-01",
+    "end_date": "2019-12-31"
+  },
+  "expected_outcome": {
+    "context_status": "SAFE_OR_LARGE_BUT_OK",
+    "should_block": false,
+    "maximum_facturas": 1000,
+    "context_usage_percentage": "< 50%",
+    "dias_rango": 31
+  },
+  "validation_criteria": {
+    "required_fields": [
+      "total_facturas",
+      "context_status", 
+      "recommendation",
+      "total_estimated_tokens",
+      "context_usage_percentage",
+      "fecha_inicio",
+      "fecha_fin",
+      "dias_rango"
+    ],
+    "acceptable_statuses": ["SAFE", "LARGE_BUT_OK", "WARNING_LARGE"],
+    "expected_dias_rango": 31
+  },
+  "business_context": {
+    "scenario": "Usuario solicita facturas de un mes histórico con menor volumen",
+    "risk": "Moderado - Período histórico generalmente tiene menos facturas que períodos recientes",
+    "expected_behavior": "Sistema debe proceder, posiblemente con advertencia si el volumen es alto"
+  },
+  "test_data": {
+    "created": "2025-09-11",
+    "last_updated": "2025-09-11",
+    "related_tests": [
+      "facturas_rango_fechas_diciembre_2019.test.json",
+      "facturas_mes_year_diciembre_2019.test.json"
+    ]
+  }
+}

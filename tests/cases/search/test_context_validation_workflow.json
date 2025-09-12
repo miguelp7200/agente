@@ -1,0 +1,257 @@
+{
+  "test_id": "context_validation_workflow_complete",
+  "description": "Flujo completo de validación de contexto - Escenarios reales de usuario con diferentes workflows",
+  "category": "context_validation_workflow",
+  "priority": "critical",
+  "tool_name": "multiple_validators_workflow",
+  "test_type": "end_to_end_workflow",
+  "scenarios": [
+    {
+      "scenario_id": "monthly_exceed_workflow",
+      "name": "Monthly Search - EXCEED_CONTEXT Flow",
+      "description": "Usuario pide 'facturas de julio 2025' → validación → bloqueo → refinamiento",
+      "user_query_simulation": "Dame las facturas de julio 2025",
+      "expected_workflow": "BLOCK_AND_SUGGEST_REFINEMENT",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_context_size_before_search",
+          "parameters": {
+            "target_year": 2025,
+            "target_month": 7
+          },
+          "expected_result": "EXCEED_CONTEXT",
+          "business_impact": "Prevent misleading truncated results for high-volume months"
+        }
+      ]
+    },
+    {
+      "scenario_id": "rut_high_volume_workflow",
+      "name": "RUT Search - HIGH_VOLUME Flow",
+      "description": "Usuario pide 'facturas del RUT 96568740-8' → validación → bloqueo → sugerir filtros",
+      "user_query_simulation": "Busca las facturas del RUT 96568740-8",
+      "expected_workflow": "BLOCK_AND_SUGGEST_DATE_FILTERS",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_rut_context_size",
+          "parameters": {
+            "target_rut": "96568740-8"
+          },
+          "expected_result": "EXCEED_CONTEXT",
+          "business_impact": "Prevent system overload from corporate RUT with thousands of invoices"
+        }
+      ]
+    },
+    {
+      "scenario_id": "date_range_massive_workflow",
+      "name": "Date Range - MASSIVE_QUERY Flow",
+      "description": "Usuario pide 'facturas de todo 2025' → validación → bloqueo inmediato",
+      "user_query_simulation": "Necesito todas las facturas del año 2025",
+      "expected_workflow": "BLOCK_IMMEDIATELY_MASSIVE_QUERY",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_date_range_context_size",
+          "parameters": {
+            "start_date": "2025-01-01",
+            "end_date": "2025-12-31"
+          },
+          "expected_result": "EXCEED_CONTEXT",
+          "business_impact": "Prevent massive queries that would crash the system"
+        }
+      ]
+    },
+    {
+      "scenario_id": "monthly_safe_workflow",
+      "name": "Safe Monthly Search - PROCEED Flow",
+      "description": "Usuario pide 'facturas de septiembre 2025' → validación → proceder normalmente",
+      "user_query_simulation": "Muéstrame las facturas de septiembre 2025",
+      "expected_workflow": "PROCEED_WITH_SEARCH",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_context_size_before_search",
+          "parameters": {
+            "target_year": 2025,
+            "target_month": 9
+          },
+          "expected_result": "SAFE",
+          "business_impact": "Allow efficient processing of manageable monthly queries"
+        }
+      ]
+    },
+    {
+      "scenario_id": "rut_small_workflow",
+      "name": "Small RUT Search - PROCEED Flow",
+      "description": "Usuario pide 'facturas del RUT 9025012-4' → validación → proceder",
+      "user_query_simulation": "Facturas del cliente RUT 9025012-4",
+      "expected_workflow": "PROCEED_WITH_SEARCH",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_rut_context_size",
+          "parameters": {
+            "target_rut": "9025012-4"
+          },
+          "expected_result": "SAFE_OR_LARGE_BUT_OK",
+          "business_impact": "Allow normal processing for individual/small business RUTs"
+        }
+      ]
+    },
+    {
+      "scenario_id": "date_range_small_workflow",
+      "name": "Small Date Range - PROCEED Flow",
+      "description": "Usuario pide 'facturas de hoy' → validación → proceder rápidamente",
+      "user_query_simulation": "Dame las facturas de hoy",
+      "expected_workflow": "PROCEED_IMMEDIATELY",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_date_range_context_size",
+          "parameters": {
+            "start_date": "2025-09-11",
+            "end_date": "2025-09-11"
+          },
+          "expected_result": "SAFE",
+          "business_impact": "Fast processing for daily queries with minimal data"
+        }
+      ]
+    },
+    {
+      "scenario_id": "historical_data_workflow",
+      "name": "Historical Search - WARNING Flow",
+      "description": "Usuario pide 'facturas de diciembre 2019' → validación → proceder con advertencia opcional",
+      "user_query_simulation": "Busco facturas de diciembre 2019",
+      "expected_workflow": "PROCEED_WITH_OPTIONAL_WARNING",
+      "validation_steps": [
+        {
+          "step": 1,
+          "action": "validate_date_range_context_size",
+          "parameters": {
+            "start_date": "2019-12-01",
+            "end_date": "2019-12-31"
+          },
+          "expected_result": "SAFE_OR_LARGE_BUT_OK",
+          "business_impact": "Handle historical data with typically lower volume"
+        }
+      ]
+    }
+  ],
+  "validation_criteria": {
+    "required_fields": [
+      "scenario_results",
+      "workflow_effectiveness_metrics",
+      "pattern_validation_results",
+      "system_score"
+    ],
+    "success_thresholds": {
+      "overall_system_score": ">= 90%",
+      "blocking_effectiveness": ">= 90%",
+      "proceeding_effectiveness": ">= 90%"
+    },
+    "pattern_validations": [
+      {
+        "pattern_name": "massive_query_blocking",
+        "description": "All massive queries (EXCEED_CONTEXT) must be blocked",
+        "success_criteria": "100% of EXCEED_CONTEXT queries blocked"
+      },
+      {
+        "pattern_name": "safe_query_processing",
+        "description": "All safe queries (SAFE/LARGE_BUT_OK) must proceed",
+        "success_criteria": "100% of safe queries processed"
+      },
+      {
+        "pattern_name": "response_gradation",
+        "description": "System must differentiate between query types",
+        "success_criteria": "Clear distinction between EXCEED_CONTEXT and SAFE responses"
+      }
+    ]
+  },
+  "expected_outcomes": {
+    "blocking_workflows": {
+      "count": 3,
+      "scenarios": [
+        "monthly_exceed_workflow",
+        "rut_high_volume_workflow", 
+        "date_range_massive_workflow"
+      ],
+      "expected_behavior": "All should be blocked with specific refinement suggestions"
+    },
+    "proceeding_workflows": {
+      "count": 4,
+      "scenarios": [
+        "monthly_safe_workflow",
+        "rut_small_workflow",
+        "date_range_small_workflow",
+        "historical_data_workflow"
+      ],
+      "expected_behavior": "All should proceed with appropriate processing signals"
+    }
+  },
+  "business_context": {
+    "primary_objective": "Validate complete user journey from query to system response",
+    "risk_mitigation": [
+      "Prevent Gemini context overflow in production",
+      "Ensure accurate results without truncation",
+      "Provide intelligent query refinement guidance",
+      "Maintain system performance under load"
+    ],
+    "user_experience_goals": [
+      "Clear feedback when queries are too broad",
+      "Fast processing for manageable queries",
+      "Helpful suggestions for query refinement",
+      "Consistent and predictable system behavior"
+    ]
+  },
+  "technical_architecture": {
+    "validation_flow": [
+      "User Query → Validator Selection → Context Estimation → Decision (BLOCK/PROCEED) → Response/Refinement",
+      "Multiple validator types working in harmony",
+      "Consistent token estimation across all validators",
+      "Intelligent workflow routing based on query characteristics"
+    ],
+    "integration_points": [
+      "MCP Toolbox (localhost:5000)",
+      "BigQuery datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo",
+      "Gemini 2.5-flash (1M token limit)",
+      "Universal Context Validation System"
+    ]
+  },
+  "test_execution": {
+    "script_file": "scripts/test_context_validation_workflow.ps1",
+    "execution_time_estimate": "5-8 minutes",
+    "output_format": "Detailed workflow analysis + JSON results",
+    "dependencies": [
+      "MCP Toolbox running on port 5000",
+      "All three validators (monthly, RUT, date_range) operational",
+      "Test data: July 2025 (high volume), RUT 96568740-8 (Gasco), current date"
+    ]
+  },
+  "success_criteria": {
+    "critical_requirements": [
+      "System score >= 90%",
+      "All blocking workflows working (EXCEED_CONTEXT properly blocked)",
+      "All proceeding workflows working (SAFE queries processed)",
+      "Pattern validation: 100% accuracy in workflow routing"
+    ],
+    "performance_metrics": [
+      "Response time < 30 seconds per validation",
+      "Clear differentiation between query types",
+      "Accurate token estimation for all scenarios",
+      "Helpful refinement recommendations"
+    ]
+  },
+  "test_data": {
+    "created": "2025-09-11",
+    "last_updated": "2025-09-11",
+    "version": "1.0",
+    "related_tests": [
+      "test_facturas_julio_2025_general.json",
+      "test_validate_rut_context_gasco.json",
+      "test_validate_date_range_context_year_2025.json",
+      "test_universal_context_validation.json"
+    ],
+    "test_environment": "Local development with full MCP stack"
+  }
+}

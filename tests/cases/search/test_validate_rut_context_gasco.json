@@ -1,0 +1,40 @@
+{
+  "test_id": "validate_rut_context_gasco",
+  "description": "Validación de contexto para RUT de Gasco (96568740-8) - Esperamos EXCEED_CONTEXT",
+  "category": "context_validation",
+  "priority": "critical",
+  "tool_name": "validate_rut_context_size",
+  "parameters": {
+    "target_rut": "96568740-8"
+  },
+  "expected_outcome": {
+    "context_status": "EXCEED_CONTEXT",
+    "should_block": true,
+    "minimum_facturas": 5000,
+    "context_usage_percentage": "> 90%"
+  },
+  "validation_criteria": {
+    "required_fields": [
+      "total_facturas",
+      "context_status", 
+      "recommendation",
+      "total_estimated_tokens",
+      "context_usage_percentage"
+    ],
+    "context_status_values": ["EXCEED_CONTEXT", "WARNING_LARGE", "LARGE_BUT_OK", "SAFE"],
+    "blocking_statuses": ["EXCEED_CONTEXT"]
+  },
+  "business_context": {
+    "scenario": "Usuario solicita facturas del RUT principal de Gasco sin filtros adicionales",
+    "risk": "Alto - RUT corporativo con miles de facturas puede exceder contexto de Gemini",
+    "mitigation": "Sistema debe rechazar y sugerir filtros específicos (fechas, montos, etc.)"
+  },
+  "test_data": {
+    "created": "2025-09-11",
+    "last_updated": "2025-09-11",
+    "related_tests": [
+      "test_facturas_julio_2025_general.json",
+      "test_validate_date_range_context_year_2025.json"
+    ]
+  }
+}

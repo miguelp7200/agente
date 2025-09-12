@@ -1,0 +1,39 @@
+{
+  "test_id": "validate_rut_context_safe",
+  "description": "Validación de contexto para RUT con pocas facturas - Esperamos SAFE",
+  "category": "context_validation",
+  "priority": "high",
+  "tool_name": "validate_rut_context_size",
+  "parameters": {
+    "target_rut": "9025012-4"
+  },
+  "expected_outcome": {
+    "context_status": "SAFE_OR_LARGE_BUT_OK",
+    "should_block": false,
+    "maximum_facturas": 200,
+    "context_usage_percentage": "< 40%"
+  },
+  "validation_criteria": {
+    "required_fields": [
+      "total_facturas",
+      "context_status", 
+      "recommendation",
+      "total_estimated_tokens",
+      "context_usage_percentage"
+    ],
+    "safe_statuses": ["SAFE", "LARGE_BUT_OK"],
+    "blocking_statuses": ["EXCEED_CONTEXT"]
+  },
+  "business_context": {
+    "scenario": "Usuario solicita facturas de RUT individual con actividad normal",
+    "risk": "Bajo - RUT personal/pequeña empresa con volumen manejable",
+    "expected_behavior": "Sistema debe proceder con la búsqueda normal"
+  },
+  "test_data": {
+    "created": "2025-09-11",
+    "last_updated": "2025-09-11",
+    "related_tests": [
+      "facturas_rut_especifico_9025012-4.test.json"
+    ]
+  }
+}

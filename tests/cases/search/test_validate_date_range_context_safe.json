@@ -1,0 +1,44 @@
+{
+  "test_id": "validate_date_range_context_safe",
+  "description": "Validación de contexto para rango de fechas pequeño - Esperamos SAFE",
+  "category": "context_validation",
+  "priority": "medium",
+  "tool_name": "validate_date_range_context_size",
+  "parameters": {
+    "start_date": "2025-09-10",
+    "end_date": "2025-09-11"
+  },
+  "expected_outcome": {
+    "context_status": "SAFE",
+    "should_block": false,
+    "maximum_facturas": 50,
+    "context_usage_percentage": "< 5%",
+    "dias_rango": 2
+  },
+  "validation_criteria": {
+    "required_fields": [
+      "total_facturas",
+      "context_status", 
+      "recommendation",
+      "total_estimated_tokens",
+      "context_usage_percentage",
+      "fecha_inicio",
+      "fecha_fin",
+      "dias_rango"
+    ],
+    "safe_statuses": ["SAFE", "LARGE_BUT_OK"],
+    "expected_dias_rango": 2
+  },
+  "business_context": {
+    "scenario": "Usuario solicita facturas de un rango muy específico (pocos días)",
+    "risk": "Muy bajo - Rango pequeño garantiza volumen manejable",
+    "expected_behavior": "Sistema debe proceder con búsqueda normal"
+  },
+  "test_data": {
+    "created": "2025-09-11",
+    "last_updated": "2025-09-11",
+    "related_tests": [
+      "facturas_fecha_especifica_2023-12-26.test.json"
+    ]
+  }
+}
