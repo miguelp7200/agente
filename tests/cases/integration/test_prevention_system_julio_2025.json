@@ -1,0 +1,77 @@
+{
+  "test_id": "test_prevention_system_julio_2025",
+  "category": "integration",
+  "name": "Sistema de Prevención - Consulta Julio 2025",
+  "description": "Valida que el sistema de prevención rechace consultas que excedan el límite de tokens del contexto",
+  "priority": "critical",
+  "tags": ["token-validation", "prevention-system", "context-limit", "july-2025"],
+  "query": "dame las facturas de julio 2025",
+  "expected_behavior": {
+    "should_execute_search": false,
+    "should_activate_prevention": true,
+    "expected_tool": "validate_context_size_before_search",
+    "context_status": "EXCEED_CONTEXT",
+    "estimated_invoices": "~7987",
+    "estimated_tokens": "~2000000"
+  },
+  "validations": [
+    {
+      "type": "prevention_activated",
+      "description": "El sistema debe detectar y rechazar la consulta por exceder límites",
+      "success_patterns": [
+        "excede.*capacidad|demasiado.*amplia|muy.*grande|supera.*límite",
+        "refina.*búsqueda|criterios.*específicos"
+      ],
+      "failure_patterns": [
+        "Se encontr(ó|aron).*facturas",
+        "Factura.*\\d+"
+      ]
+    },
+    {
+      "type": "context_awareness",
+      "description": "El sistema debe reconocer julio 2025 y mostrar cantidad de facturas",
+      "success_patterns": [
+        "7.*987|7987|julio.*2025",
+        "\\d+.*facturas"
+      ]
+    },
+    {
+      "type": "helpful_guidance", 
+      "description": "Debe proporcionar sugerencias para refinar la búsqueda",
+      "success_patterns": [
+        "rango.*fechas.*corto|RUT.*específico|solicitante.*particular",
+        "criterios.*específicos"
+      ]
+    },
+    {
+      "type": "no_results_shown",
+      "description": "No debe mostrar resultados de facturas cuando rechaza",
+      "failure_patterns": [
+        "Cliente.*\\d+|RUT.*\\d+",
+        "descarga|PDF|ZIP"
+      ]
+    }
+  ],
+  "technical_details": {
+    "mcp_tool_sequence": [
+      "validate_context_size_before_search (julio 2025)",
+      "→ context_status: EXCEED_CONTEXT", 
+      "→ NO ejecutar search_invoices_by_month_year"
+    ],
+    "token_calculation": "7987 facturas × 250 tokens + 35000 sistema = ~2,032,750 tokens vs límite 1,000,000",
+    "expected_logs": [
+      "validate_context_size_before_search tool invocation",
+      "context_status: EXCEED_CONTEXT",
+      "recommendation message displayed"
+    ]
+  },
+  "performance": {
+    "timeout_seconds": 60,
+    "expected_response_time": "< 30s",
+    "memory_usage": "low"
+  },
+  "environments": ["local", "staging", "production"],
+  "author": "victor-copilot",
+  "created_date": "2025-09-12",
+  "last_updated": "2025-09-12"
+}

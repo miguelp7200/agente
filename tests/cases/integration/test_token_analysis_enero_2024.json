@@ -1,0 +1,108 @@
+{
+  "test_id": "test_token_analysis_enero_2024",
+  "category": "integration",
+  "name": "Token Analysis - Enero 2024 (Mes Histórico)",
+  "description": "Valida el sistema de conteo oficial de tokens en un mes con datos históricos reales para comparar estimaciones vs conteo oficial",
+  "priority": "medium",
+  "tags": ["token-analysis", "historical-data", "vertex-ai-validation", "january-2024"],
+  "query": "dame las facturas de enero 2024",
+  "expected_behavior": {
+    "should_execute_search": true,
+    "should_activate_prevention": false,
+    "expected_tool": "validate_context_size_before_search → search_invoices_by_month_year",
+    "context_status": "SAFE o LARGE_BUT_OK",
+    "estimated_invoices": "~100-500 (mes histórico)",
+    "estimated_tokens": "~25000-125000"
+  },
+  "validations": [
+    {
+      "type": "search_execution_success",
+      "description": "La búsqueda debe ejecutarse sin ser rechazada",
+      "success_patterns": [
+        "Se encontr(ó|aron)|facturas.*encontradas|\\d+.*facturas"
+      ],
+      "failure_patterns": [
+        "demasiado amplia|exceder.*capacidad|refina.*búsqueda"
+      ]
+    },
+    {
+      "type": "date_recognition",
+      "description": "Debe reconocer correctamente enero 2024",
+      "success_patterns": [
+        "enero|january|mes.*1|01.*2024",
+        "2024"
+      ]
+    },
+    {
+      "type": "invoice_information",
+      "description": "Debe incluir información detallada de las facturas encontradas",
+      "success_patterns": [
+        "factura|Cliente|Empresa|RUT|Nombre",
+        "descarga|PDF|ZIP|http|enlace"
+      ]
+    },
+    {
+      "type": "token_analysis_activation",
+      "description": "Debe activar el análisis de tokens (verificar en logs del servidor ADK)",
+      "log_patterns": [
+        "\\[TOKEN ANALYSIS - INPUT_DATA\\]",
+        "\\[TOKEN ANALYSIS - FINAL_RESPONSE\\]", 
+        "\\[TOKEN COUNTER\\] Contados \\d+ tokens oficiales",
+        "📊.*Facturas.*Caracteres.*Tokens.*factura"
+      ]
+    },
+    {
+      "type": "performance_metrics",
+      "description": "Debe generar métricas detalladas de performance y contexto",
+      "log_patterns": [
+        "📊.*Uso contexto.*%",
+        "🚦.*Estado.*SEGURO",
+        "📈.*Tokens/factura.*\\d+",
+        "🔤.*Caracteres.*\\d+"
+      ]
+    }
+  ],
+  "technical_details": {
+    "mcp_tool_sequence": [
+      "validate_context_size_before_search (enero 2024)",
+      "→ COUNT(*) from BigQuery para enero 2024",
+      "→ estimación: facturas × 250 + 35000 sistema",
+      "→ context_status: probablemente SAFE/LARGE_BUT_OK",
+      "→ search_invoices_by_month_year",
+      "→ format_enhanced_invoice_response",
+      "→ log_token_analysis() con count_tokens_official()"
+    ],
+    "token_validation": {
+      "mcp_estimation": "~250 tokens por factura (optimizado)",
+      "vertex_ai_official": "GenerativeModel.count_tokens() real",
+      "performance_target": "estimación debe estar ±20% del oficial",
+      "context_efficiency": "< 15% del límite de 1M tokens"
+    },
+    "expected_logs": [
+      "🔍 [TOKEN ANALYSIS - INPUT_DATA] con métricas de entrada",
+      "🔍 [TOKEN ANALYSIS - FINAL_RESPONSE] con métricas de salida", 
+      "✅ [TOKEN COUNTER] Contados X tokens oficiales",
+      "📊 Facturas: N",
+      "🔤 Caracteres: X,XXX",
+      "🪙 Tokens: X,XXX",
+      "📈 Tokens/factura: XX.X",
+      "📊 Uso contexto: XX.X%",
+      "🚦 Estado: ✅ SEGURO"
+    ]
+  },
+  "performance": {
+    "timeout_seconds": 300,
+    "expected_response_time": "< 120s",
+    "memory_usage": "moderate",
+    "token_metrics": {
+      "expected_range": "25000-125000 tokens",
+      "context_usage": "2-12%",
+      "tokens_per_invoice": "200-400 average",
+      "baseline_comparison": "vs tiktoken estimate (anterior)"
+    }
+  },
+  "environments": ["local", "staging", "production"],
+  "author": "victor-copilot",
+  "created_date": "2025-09-12", 
+  "last_updated": "2025-09-12"
+}

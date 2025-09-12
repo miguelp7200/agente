@@ -1,0 +1,92 @@
+{
+  "test_id": "test_token_analysis_diciembre_2025",
+  "category": "integration",
+  "name": "Token Analysis - Diciembre 2025 (Mes Futuro)",
+  "description": "Valida el conteo de tokens para un mes futuro con pocas/ninguna facturas para confirmar estimaciones vs realidad",
+  "priority": "medium",
+  "tags": ["token-analysis", "future-month", "small-dataset", "december-2025"],
+  "query": "dame las facturas de diciembre 2025",
+  "expected_behavior": {
+    "should_execute_search": true,
+    "should_activate_prevention": false,
+    "expected_tool": "validate_context_size_before_search → search_invoices_by_month_year",
+    "context_status": "SAFE",
+    "estimated_invoices": "0-10 (mes futuro)",
+    "estimated_tokens": "~0-2500"
+  },
+  "validations": [
+    {
+      "type": "search_not_rejected",
+      "description": "La búsqueda no debe ser rechazada por límites (mes futuro = pocas facturas)",
+      "success_patterns": [
+        "Se encontr(ó|aron)|facturas.*encontradas|\\d+.*facturas",
+        "No se encontr|0.*facturas"
+      ],
+      "failure_patterns": [
+        "demasiado amplia|exceder.*capacidad|refina.*búsqueda"
+      ]
+    },
+    {
+      "type": "date_recognition",
+      "description": "Debe reconocer correctamente diciembre 2025",
+      "success_patterns": [
+        "diciembre|december|mes.*12|12.*2025",
+        "2025"
+      ]
+    },
+    {
+      "type": "token_logging_present",
+      "description": "Si hay resultados, debe activar el logging de tokens (verificar logs)",
+      "log_patterns": [
+        "\\[TOKEN ANALYSIS - INPUT_DATA\\]",
+        "\\[TOKEN ANALYSIS - FINAL_RESPONSE\\]",
+        "\\[TOKEN COUNTER\\] Contados \\d+ tokens oficiales",
+        "📊.*facturas.*tokens.*caracteres"
+      ]
+    },
+    {
+      "type": "realistic_token_estimate",
+      "description": "Los tokens calculados deben ser realistas (~250 por factura vs 2800 anterior)",
+      "validation_notes": [
+        "Si 5 facturas: ~1,250 tokens (nuevo) vs ~14,000 tokens (anterior)",
+        "Verificar en logs: estimación MCP vs conteo oficial Vertex AI",
+        "Diferencia debe ser minimal para consultas pequeñas"
+      ]
+    }
+  ],
+  "technical_details": {
+    "mcp_tool_sequence": [
+      "validate_context_size_before_search (diciembre 2025)",
+      "→ context_status: SAFE (pocas facturas)",
+      "→ search_invoices_by_month_year",
+      "→ format_enhanced_invoice_response",
+      "→ log_token_analysis() si hay resultados"
+    ],
+    "token_validation": {
+      "mcp_estimation_new": "facturas × 250 tokens",
+      "mcp_estimation_old": "facturas × 2800 tokens (antes del fix)",
+      "vertex_ai_official": "count_tokens() real",
+      "comparison_target": "nuevo estimate debe estar ~90% más cerca del official"
+    },
+    "expected_logs": [
+      "📊 Facturas encontradas: N",
+      "📐 Estimación MCP (250/factura): X tokens",
+      "🎯 Conteo oficial Vertex AI: Y tokens",
+      "📊 [PERF LOG] token_analysis: {...}"
+    ]
+  },
+  "performance": {
+    "timeout_seconds": 120,
+    "expected_response_time": "< 30s",
+    "memory_usage": "minimal",
+    "token_metrics": {
+      "expected_range": "100-5000 tokens",
+      "context_usage": "< 1%",
+      "efficiency_target": "250 tokens/factura average"
+    }
+  },
+  "environments": ["local", "staging", "production"],
+  "author": "victor-copilot", 
+  "created_date": "2025-09-12",
+  "last_updated": "2025-09-12"
+}

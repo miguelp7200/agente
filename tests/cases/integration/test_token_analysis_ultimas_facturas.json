@@ -1,0 +1,105 @@
+{
+  "test_id": "test_token_analysis_ultimas_facturas",
+  "category": "integration",
+  "name": "Token Analysis - Últimas Facturas (Consulta General)",
+  "description": "Valida el sistema de conteo de tokens para consultas generales que deberían encontrar pocas facturas y activar análisis detallado",
+  "priority": "medium",
+  "tags": ["token-analysis", "general-query", "recent-invoices", "format-validation"],
+  "query": "dame las últimas 5 facturas",
+  "expected_behavior": {
+    "should_execute_search": true,
+    "should_activate_prevention": false,
+    "expected_tool": "search_invoices (general) o similar",
+    "context_status": "SAFE",
+    "estimated_invoices": "~5",
+    "estimated_tokens": "~1250-2500"
+  },
+  "validations": [
+    {
+      "type": "invoices_found",
+      "description": "Debe encontrar facturas recientes (activa TOKEN ANALYSIS)",
+      "success_patterns": [
+        "Se encontr(ó|aron)|facturas.*encontradas|\\d+.*facturas"
+      ],
+      "failure_patterns": [
+        "No se encontr|0 facturas"
+      ]
+    },
+    {
+      "type": "download_options",
+      "description": "Debe incluir opciones de descarga para las facturas encontradas",
+      "success_patterns": [
+        "descarga|PDF|ZIP|http|enlace"
+      ]
+    },
+    {
+      "type": "detailed_invoice_info",
+      "description": "Debe incluir información detallada de las facturas",
+      "success_patterns": [
+        "Cliente|Empresa|RUT|Nombre|Fecha"
+      ]
+    },
+    {
+      "type": "token_analysis_logs",
+      "description": "Debe activar el logging detallado de análisis de tokens (verificar en logs del servidor)",
+      "log_patterns": [
+        "\\[TOKEN ANALYSIS - INPUT_DATA\\]",
+        "\\[TOKEN ANALYSIS - FINAL_RESPONSE\\]",
+        "\\[TOKEN COUNTER\\] Contados \\d+ tokens oficiales",
+        "📊.*\\[PERF LOG\\].*token_analysis"
+      ]
+    },
+    {
+      "type": "realistic_metrics",
+      "description": "Las métricas de tokens deben ser realistas para pocas facturas",
+      "validation_notes": [
+        "5 facturas debería resultar en ~1,250-2,500 tokens total",
+        "Tokens por factura: ~250-500 promedio",
+        "Uso de contexto: < 1% del límite de 1M",
+        "Estado: SEGURO sin warnings"
+      ]
+    }
+  ],
+  "technical_details": {
+    "mcp_tool_sequence": [
+      "search_invoices o herramienta similar",
+      "→ format_enhanced_invoice_response",
+      "→ log_token_analysis() con métricas detalladas",
+      "→ count_tokens_official() de Vertex AI"
+    ],
+    "token_validation": {
+      "input_data_tokens": "tokens de los datos raw de facturas",
+      "output_response_tokens": "tokens de la respuesta formateada final",
+      "official_count": "using GenerativeModel.count_tokens()",
+      "performance_metrics": "tiempo de formateo, eficiencia"
+    },
+    "expected_logs": [
+      "🔍 [TOKEN ANALYSIS - INPUT_DATA]",
+      "  📊 Facturas: X",
+      "  🔤 Caracteres: X,XXX", 
+      "  🪙 Tokens: X,XXX",
+      "  📈 Tokens/factura: XX.X",
+      "  📊 Uso contexto: X.X%",
+      "  🚦 Estado: ✅ SEGURO",
+      "🔍 [TOKEN ANALYSIS - FINAL_RESPONSE]",
+      "  (métricas similares para respuesta formateada)",
+      "✅ [TOKEN COUNTER] Contados X tokens oficiales",
+      "📊 [PERF LOG] {token_analysis: {...}}"
+    ]
+  },
+  "performance": {
+    "timeout_seconds": 120,
+    "expected_response_time": "< 60s",
+    "memory_usage": "low",
+    "token_metrics": {
+      "expected_range": "1000-5000 tokens",
+      "context_usage": "< 1%",
+      "tokens_per_invoice": "250-500",
+      "format_efficiency": "respuesta formateada vs datos raw"
+    }
+  },
+  "environments": ["local", "staging", "production"],
+  "author": "victor-copilot",
+  "created_date": "2025-09-12",
+  "last_updated": "2025-09-12"
+}

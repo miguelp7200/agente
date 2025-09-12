@@ -1,34 +1,34 @@
-# ===== SCRIPT CURL AUTOMATIZADO: Test: CF/SF Terminology Correction =====
+# ===== SCRIPT CURL AUTOMATIZADO: Token Analysis   Últimas Facturas (Consulta General) =====
 <#
 .SYNOPSIS
-    Test automatizado: Test: CF/SF Terminology Correction
+    Test automatizado: Token Analysis   Últimas Facturas (Consulta General)
 
 .DESCRIPTION
-    Script generado automáticamente para validar: Valida que el chatbot use terminología correcta 'con fondo/sin fondo' en lugar de 'con firma/sin firma' cuando se refiere al logo de Gasco en facturas CF/SF
+    Script generado automáticamente para validar: Valida el sistema de conteo de tokens para consultas generales que deberían encontrar pocas facturas y activar análisis detallado
     
     Test Case: 
-    Categoría: 
+    Categoría: integration
     
 .PARAMETER Environment
-    Ambiente de ejecución: Local, CloudRun, Staging (default: Local)
+    Ambiente de ejecución: Local, CloudRun, Staging (default: CloudRun)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 600)
+    Timeout en segundos para requests (default: 1200)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
     
 .EXAMPLE
-    .\curl_test_Test:_CF/SF_Terminology_Correction.ps1
+    .\curl_test_Token_Analysis_-_Últimas_Facturas_(Consulta_General).ps1
     
 .EXAMPLE  
-    .\curl_test_Test:_CF/SF_Terminology_Correction.ps1 -Environment Local -Verbose
+    .\curl_test_Token_Analysis_-_Últimas_Facturas_(Consulta_General).ps1 -Environment Local -Verbose
 #>
 
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
-    [string]$Environment = "Local",
-    [int]$Timeout = 600,
+    [string]$Environment = "CloudRun",
+    [int]$Timeout = 1200,
     [switch]$Verbose
 )
 
@@ -68,7 +68,7 @@ function Write-Error { param($Message) Write-ColorOutput "❌ $Message" $RED }
 
 # Banner
 Write-Host "🧪 ========================================" -ForegroundColor Magenta
-Write-Host "   TEST: Test: CF/SF Terminology Correction" -ForegroundColor Magenta
+Write-Host "   TEST: Token Analysis   Últimas Facturas (Consulta General)" -ForegroundColor Magenta
 Write-Host "   Ambiente: $Environment" -ForegroundColor Magenta
 Write-Host "========================================" -ForegroundColor Magenta
 
@@ -76,10 +76,10 @@ $config = $EnvironmentConfig[$Environment]
 Write-Info "Target: $($config.Description) - $($config.BaseUrl)"
 
 # Variables del test
-$sessionId = "auto-test-CF-SF-Terminology-Correction-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$sessionId = "auto-test-Token_Analysis_-_Últimas_Facturas_(Consulta_General)-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "automation-test-user"
 $appName = "gcp-invoice-agent-app"
-$testQuery = "dame todas las facturas tributarias del SAP 12537749, tanto CF como SF"
+$testQuery = "dame las últimas 5 facturas"
 
 Write-Info "Variables configuradas:"
 Write-Host "  🆔 Session ID: $sessionId" -ForegroundColor Gray
@@ -179,31 +179,18 @@ try {
         Write-Host "-" * 50 -ForegroundColor Gray
         
         $allValidationsPassed = $true
-        # ✅ Validar contenido requerido
+        # 🔍 Validaciones básicas del test
         Write-Host "
-🔍 Validando contenido requerido..." -ForegroundColor Yellow
-        $requiredContent = @("con fondo", "sin fondo", "logo Gasco", "Copia Tributaria con Fondo", "Copia Tributaria sin Fondo")
+🔍 Ejecutando validaciones básicas..." -ForegroundColor Yellow
         $contentValidation = $true
-        foreach ($required in $requiredContent) {
-            if ($modelResponse.Contains($required)) {
-                Write-Host "   ✅ Encontrado: $required" -ForegroundColor Green
-            } else {
-                Write-Host "   ❌ FALTANTE: $required" -ForegroundColor Red
-                $contentValidation = $false
-            }
-        }
-        # ❌ Validar contenido prohibido
-        Write-Host "
-🚫 Validando contenido prohibido..." -ForegroundColor Yellow
-        $prohibitedContent = @("con firma", "sin firma")
         $prohibitionValidation = $true
-        foreach ($prohibited in $prohibitedContent) {
-            if ($modelResponse.Contains($prohibited)) {
-                Write-Host "   ❌ ENCONTRADO (no debería): $prohibited" -ForegroundColor Red
-                $prohibitionValidation = $false
-            } else {
-                Write-Host "   ✅ Correcto (no presente): $prohibited" -ForegroundColor Green
-            }
+        
+        # Validar que hay respuesta con contenido
+        if ($modelResponse.Length -gt 100) {
+            Write-Host "   ✅ Respuesta tiene contenido adecuado" -ForegroundColor Green
+        } else {
+            Write-Host "   ❌ Respuesta muy corta o vacía" -ForegroundColor Red
+            $contentValidation = $false
         }
         
         # 📊 Análisis de URLs (heredado del script base)
@@ -250,8 +237,8 @@ try {
         
         # Guardar resultado
         $resultData = @{
-            test_case = "CF_SF_Terminology_Correction"
-            test_name = "Test: CF/SF Terminology Correction"
+            test_case = "Token Analysis - Últimas Facturas (Consulta General)"
+            test_name = "Token Analysis   Últimas Facturas (Consulta General)"
             environment = $Environment
             execution_time = $duration
             result = $testResult
@@ -261,7 +248,7 @@ try {
             query = $testQuery
         }
         
-        $resultFile = "../../results/result_CF_SF_Terminology_Correction_$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $resultFile = "../../results/result_Token_Analysis_-_Últimas_Facturas_(Consulta_General)_$(Get-Date -Format 'yyyyMMddHHmmss').json"
         $resultData | ConvertTo-Json -Depth 3 | Out-File -FilePath $resultFile -Encoding UTF8
         Write-Info "Resultado guardado en: $resultFile"
         
@@ -278,4 +265,4 @@ try {
     exit 1
 }
 
-Write-Success "Test Test: CF/SF Terminology Correction completado!"
+Write-Success "Test Token Analysis   Últimas Facturas (Consulta General) completado!"

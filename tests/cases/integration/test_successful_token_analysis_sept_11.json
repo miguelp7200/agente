@@ -1,0 +1,89 @@
+{
+  "test_id": "test_successful_token_analysis_sept_11",
+  "category": "integration", 
+  "name": "Token Analysis - Consulta Exitosa Septiembre 11",
+  "description": "Valida el sistema de conteo oficial de tokens con Vertex AI para consultas pequeñas que pasan la validación",
+  "priority": "high",
+  "tags": ["token-analysis", "vertex-ai", "small-query", "september-2025"],
+  "query": "dame las facturas del 11 de septiembre de 2025",
+  "expected_behavior": {
+    "should_execute_search": true,
+    "should_activate_prevention": false,
+    "expected_tool": "search_invoices_by_date_range",
+    "context_status": "SAFE",
+    "estimated_invoices": "~3-5",
+    "estimated_tokens": "~1000-2000"
+  },
+  "validations": [
+    {
+      "type": "search_executed",
+      "description": "La búsqueda debe ejecutarse exitosamente con resultados",
+      "success_patterns": [
+        "Se encontr(ó|aron)|facturas.*encontradas",
+        "Factura.*\\d+"
+      ],
+      "failure_patterns": [
+        "excede.*capacidad|demasiado.*amplia"
+      ]
+    },
+    {
+      "type": "invoice_data_present",
+      "description": "Debe contener información detallada de las facturas encontradas",
+      "success_patterns": [
+        "factura|Factura|Cliente|RUT|Nombre|PDF",
+        "empresa|solicitante"
+      ]
+    },
+    {
+      "type": "token_analysis_logging",
+      "description": "Debe activar el logging de análisis de tokens (verificar en logs del servidor)",
+      "log_patterns": [
+        "\\[TOKEN ANALYSIS\\]",
+        "count_tokens_official",
+        "prompt_token_count|total_token_count",
+        "log_token_analysis"
+      ]
+    },
+    {
+      "type": "date_recognition",
+      "description": "Debe reconocer correctamente la fecha específica",
+      "success_patterns": [
+        "11.*septiembre|septiembre.*11",
+        "2025"
+      ]
+    }
+  ],
+  "technical_details": {
+    "mcp_tool_sequence": [
+      "search_invoices_by_date_range (2025-09-11)",
+      "→ format_enhanced_invoice_response",
+      "→ log_token_analysis() activation",
+      "→ count_tokens_official() llamada"
+    ],
+    "token_validation": {
+      "official_vertex_ai": "usar count_tokens() de GenerativeModel",
+      "mcp_estimation": "~250 tokens por factura",
+      "comparison_expected": "official count vs tiktoken vs MCP estimate"
+    },
+    "expected_logs": [
+      "🔍 [TOKEN ANALYSIS - INPUT_DATA]",
+      "🔍 [TOKEN ANALYSIS - FINAL_RESPONSE]", 
+      "✅ [TOKEN COUNTER] Contados X tokens oficiales",
+      "📊 [PERF LOG] token_analysis metrics"
+    ]
+  },
+  "performance": {
+    "timeout_seconds": 120,
+    "expected_response_time": "< 60s",
+    "memory_usage": "low",
+    "token_metrics": {
+      "expected_range": "1000-15000 tokens",
+      "context_usage": "< 2%",
+      "tokens_per_invoice": "~250-500"
+    }
+  },
+  "environments": ["local", "staging", "production"],
+  "author": "victor-copilot",
+  "created_date": "2025-09-12",
+  "last_updated": "2025-09-12"
+}
