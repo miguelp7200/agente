@@ -15,29 +15,18 @@
 .PARAMETER Parallel
     Ejecutar tests en paralelo (experimental)
     
-.PARAMETER ShowResponses
-    Mostrar las respuestas completas del chatbot en cada test
-    
-.PARAMETER PauseBetweenTests
-    Pausar entre tests para revisar las respuestas
-    
 .EXAMPLE
     .\run-all-curl-tests.ps1
     
 .EXAMPLE
     .\run-all-curl-tests.ps1 -Category search -Environment Local
-    
-.EXAMPLE
-    .\run-all-curl-tests.ps1 -ShowResponses -PauseBetweenTests
 #>
 
 param(
     [string]$Category = "",
     [ValidateSet("Local", "CloudRun", "Staging")]
     [string]$Environment = "CloudRun",
-    [switch]$Parallel,
-    [switch]$ShowResponses,
-    [switch]$PauseBetweenTests
+    [switch]$Parallel
 )
 
 Write-Host "🚀 EJECUTOR MASIVO DE TESTS CURL" -ForegroundColor Magenta
@@ -59,14 +48,6 @@ if (-not $testScripts) {
 Write-Host "🧪 Scripts encontrados: $($testScripts.Count)" -ForegroundColor Green
 Write-Host "🌐 Ambiente: $Environment" -ForegroundColor Cyan
 
-if ($ShowResponses) {
-    Write-Host "📝 Modo: Mostrando respuestas completas" -ForegroundColor Yellow
-}
-
-if ($PauseBetweenTests) {
-    Write-Host "⏸️  Modo: Pausas entre tests activadas" -ForegroundColor Yellow
-}
-
 $passed = 0
 $failed = 0
 $startTime = Get-Date
@@ -77,28 +58,12 @@ foreach ($script in $testScripts) {
     Write-Host "🧪 Ejecutando: $($script.Name)" -ForegroundColor Yellow
     
     try {
-        # Preparar argumentos adicionales
-        if ($ShowResponses) {
-            & $script.FullName -Environment $Environment -Verbose
-        } else {
-            & $script.FullName -Environment $Environment
-        }
-        
+        & $script.FullName -Environment $Environment
         if ($LASTEXITCODE -eq 0) {
             $passed++
-            Write-Host "✅ TEST COMPLETADO EXITOSAMENTE" -ForegroundColor Green
         } else {
             $failed++
-            Write-Host "❌ TEST FALLÓ" -ForegroundColor Red
         }
-        
-        # Pausa entre tests si está activada
-        if ($PauseBetweenTests -and $script -ne $testScripts[-1]) {
-            Write-Host "
-⏸️  Presiona cualquier tecla para continuar con el siguiente test..." -ForegroundColor Yellow
-            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-        }
-        
     } catch {
         Write-Host "❌ Error ejecutando $($script.Name): $($_.Exception.Message)" -ForegroundColor Red
         $failed++

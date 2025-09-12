@@ -10,10 +10,10 @@
     Categoría: 
     
 .PARAMETER Environment
-    Ambiente de ejecución: Local, CloudRun, Staging (default: Local)
+    Ambiente de ejecución: Local, CloudRun, Staging (default: CloudRun)
     
 .PARAMETER Timeout  
-    Timeout en segundos para requests (default: 600)
+    Timeout en segundos para requests (default: 1200)
     
 .PARAMETER Verbose
     Mostrar información detallada de debugging
@@ -27,8 +27,8 @@
 
 param(
     [ValidateSet("Local", "CloudRun", "Staging")]
-    [string]$Environment = "Local",
-    [int]$Timeout = 600,
+    [string]$Environment = "CloudRun",
+    [int]$Timeout = 1200,
     [switch]$Verbose
 )
 
@@ -76,7 +76,7 @@ $config = $EnvironmentConfig[$Environment]
 Write-Info "Target: $($config.Description) - $($config.BaseUrl)"
 
 # Variables del test
-$sessionId = "auto-test-Total-de-Facturas-en-el-Sistema-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$sessionId = "auto-test-Test:_Total_de_Facturas_en_el_Sistema-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "automation-test-user"
 $appName = "gcp-invoice-agent-app"
 $testQuery = "cuantas facturas tenemos en total en nuestro sistema"
@@ -250,7 +250,7 @@ try {
         
         # Guardar resultado
         $resultData = @{
-            test_case = "Total_de_Facturas_en_el_Sistema"
+            test_case = "Test: Total de Facturas en el Sistema"
             test_name = "Test: Total De Facturas En El Sistema"
             environment = $Environment
             execution_time = $duration
@@ -261,7 +261,7 @@ try {
             query = $testQuery
         }
         
-        $resultFile = "../../results/result_Total_de_Facturas_en_el_Sistema_$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $resultFile = "../../results/result_Test:_Total_de_Facturas_en_el_Sistema_$(Get-Date -Format 'yyyyMMddHHmmss').json"
         $resultData | ConvertTo-Json -Depth 3 | Out-File -FilePath $resultFile -Encoding UTF8
         Write-Info "Resultado guardado en: $resultFile"
         
