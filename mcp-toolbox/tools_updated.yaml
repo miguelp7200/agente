@@ -1684,16 +1684,16 @@ tools:
       WITH result_preview AS (
         SELECT 
           COUNT(*) as total_facturas,
-          -- Estimación de tokens por factura basada en estructura real
-          -- Campos básicos: ~200 chars = ~50 tokens
-          -- URLs PDF (5): ~1000 chars = ~250 tokens  
-          -- DetallesFactura (crítico): promedio 5-15 ítems × 300-800 chars = ~375-3000 tokens
-          -- Total estimado por factura: ~625-3250 tokens (usamos 2800 como estimación conservadora)
-          COUNT(*) * 800 as estimated_tokens_basic_fields,
-          COUNT(*) * 2000 as estimated_tokens_details,
-          COUNT(*) * 2800 as total_estimated_tokens,
+          -- Estimación de tokens por factura basada en estructura real de URLs
+          -- Metadatos básicos por factura: ~50 tokens (número, solicitante, cliente)
+          -- URLs PDF (5 por factura): ~150 tokens (URLs de GCS)
+          -- Formato de respuesta: ~50 tokens adicionales por factura
+          -- Total estimado por factura: ~250 tokens (realista para listas de URLs)
+          COUNT(*) * 50 as estimated_tokens_metadata,
+          COUNT(*) * 150 as estimated_tokens_urls,
+          COUNT(*) * 250 as total_estimated_tokens,
           -- Agregar contexto del sistema (~35K tokens)
-          COUNT(*) * 2800 + 35000 as total_with_system_context
+          COUNT(*) * 250 + 35000 as total_with_system_context
         FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
         WHERE 
           EXTRACT(YEAR FROM fecha) = @target_year
@@ -1704,17 +1704,17 @@ tools:
         total_estimated_tokens,
         total_with_system_context,
         CASE 
-          WHEN total_with_system_context > 900000 THEN 'EXCEED_CONTEXT'
-          WHEN total_with_system_context > 700000 THEN 'WARNING_LARGE'  
-          WHEN total_with_system_context > 400000 THEN 'LARGE_BUT_OK'
+          WHEN total_with_system_context > 1000000 THEN 'EXCEED_CONTEXT'
+          WHEN total_with_system_context > 800000 THEN 'WARNING_LARGE'  
+          WHEN total_with_system_context > 500000 THEN 'LARGE_BUT_OK'
           ELSE 'SAFE'
         END as context_status,
         CASE 
-          WHEN total_with_system_context > 900000 THEN 
+          WHEN total_with_system_context > 1000000 THEN 
             CONCAT('La consulta es demasiado amplia (', CAST(total_facturas AS STRING), ' facturas encontradas) y excederá la capacidad de procesamiento del sistema. Por favor, refina tu búsqueda con criterios más específicos.')
-          WHEN total_with_system_context > 700000 THEN 
+          WHEN total_with_system_context > 800000 THEN 
             CONCAT('Consulta grande detectada (', CAST(total_facturas AS STRING), ' facturas). Considera refinar los criterios de búsqueda para obtener resultados más rápidos y precisos.')
-          WHEN total_with_system_context > 400000 THEN
+          WHEN total_with_system_context > 500000 THEN
             CONCAT('Consulta moderadamente grande (', CAST(total_facturas AS STRING), ' facturas). Se procesará normalmente pero puede tomar tiempo adicional.')
           ELSE 
             CONCAT('Consulta dentro de límites seguros (', CAST(total_facturas AS STRING), ' facturas). Procesamiento eficiente esperado.')

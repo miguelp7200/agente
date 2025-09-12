@@ -15,6 +15,7 @@ from google.cloud import storage
 from datetime import datetime, timedelta
 import google.auth
 from google.auth import impersonated_credentials
+from vertexai.generative_models import GenerativeModel
 
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -28,6 +29,7 @@ from config import (
     CLOUD_RUN_SERVICE_URL,
     BUCKET_NAME_WRITE,
     IS_CLOUD_RUN,
+    VERTEX_AI_MODEL,
 )
 
 # Importar configuración YAML (importación relativa)
@@ -61,6 +63,14 @@ except ImportError:
 # 🤖 AGENTE INTELIGENTE PARA BÚSQUEDA Y DESCARGA DE FACTURAS PDF
 # ============================================================================ 
 
+# Inicializar modelo oficial de Vertex AI para conteo de tokens
+try:
+    token_counter_model = GenerativeModel(VERTEX_AI_MODEL)
+    print(f"✅ [TOKEN COUNTER] Modelo oficial inicializado: {VERTEX_AI_MODEL}")
+except Exception as e:
+    print(f"⚠️ [TOKEN COUNTER] Error inicializando modelo: {e}")
+    token_counter_model = None
+
 # Conectar al servidor MCP Toolbox
 toolbox = ToolboxSyncClient("http://127.0.0.1:5000")
 
@@ -72,6 +82,106 @@ zip_management_tools = toolbox.load_toolset("gasco_zip_management")
 
 # Combinar todas las herramientas
 tools = invoice_search_tools + zip_management_tools
+
+
+def count_tokens_official(text: str) -> int:
+    """
+    Cuenta tokens usando la API oficial de Vertex AI Count Tokens.
+    Reemplaza el sistema manual de tiktoken con el método oficial.
+    
+    Args:
+        text: Texto para contar tokens
+        
+    Returns:
+        Número de tokens según el modelo oficial
+    """
+    if not token_counter_model:
+        print("⚠️ [TOKEN COUNTER] Modelo no disponible, retornando 0")
+        return 0
+        
+    try:
+        # Usar el método oficial count_tokens del modelo
+        response = token_counter_model.count_tokens(text)
+        token_count = response.total_tokens
+        print(f"✅ [TOKEN COUNTER] Contados {token_count} tokens oficiales")
+        return token_count
+    except Exception as e:
+        print(f"❌ [TOKEN COUNTER] Error contando tokens: {e}")
+        # Fallback: estimación básica de tokens (dividir palabras por 0.75)
+        words = len(text.split())
+        estimated_tokens = int(words / 0.75)
+        print(f"🔄 [TOKEN COUNTER] Usando estimación: {estimated_tokens} tokens")
+        return estimated_tokens
+
+
+def log_token_analysis(response_data: str, invoice_count: int, source: str = "AGENT_RESPONSE") -> dict:
+    """
+    Analiza y registra el uso de tokens para monitoreo.
+    
+    Args:
+        response_data: Datos de respuesta a analizar
+        invoice_count: Número de facturas en la respuesta
+        source: Fuente del análisis para logging
+        
+    Returns:
+        Dict con métricas detalladas de tokens
+    """
+    try:
+        # Contar tokens oficiales
+        total_tokens = count_tokens_official(response_data)
+        chars_total = len(response_data)
+        
+        # Calcular métricas por factura
+        tokens_per_invoice = total_tokens / invoice_count if invoice_count > 0 else 0
+        chars_per_invoice = chars_total / invoice_count if invoice_count > 0 else 0
+        
+        # Calcular porcentaje de uso del contexto (1M tokens = 100%)
+        context_usage_percent = (total_tokens / 1_000_000) * 100
+        
+        # Determinar estado del contexto
+        if total_tokens > 1_000_000:
+            status = "❌ EXCEDE_LIMITE"
+        elif total_tokens > 800_000:
+            status = "⚠️ ADVERTENCIA_GRANDE"
+        elif total_tokens > 500_000:
+            status = "🟡 GRANDE_PERO_OK"
+        else:
+            status = "✅ SEGURO"
+            
+        metrics = {
+            "source": source,
+            "invoice_count": invoice_count,
+            "total_tokens": total_tokens,
+            "total_chars": chars_total,
+            "tokens_per_invoice": round(tokens_per_invoice, 2),
+            "chars_per_invoice": round(chars_per_invoice, 2),
+            "context_usage_percent": round(context_usage_percent, 2),
+            "status": status,
+            "gemini_limit": 1_000_000,
+            "is_within_limit": total_tokens <= 1_000_000
+        }
+        
+        # Log detallado para monitoreo
+        print(f"🔍 [TOKEN ANALYSIS - {source}]")
+        print(f"   📊 Facturas: {invoice_count}")
+        print(f"   🔤 Caracteres: {chars_total:,}")
+        print(f"   🪙 Tokens: {total_tokens:,}")
+        print(f"   📈 Tokens/factura: {tokens_per_invoice:.1f}")
+        print(f"   📊 Uso contexto: {context_usage_percent:.1f}%")
+        print(f"   🚦 Estado: {status}")
+        print(f"   ✅ Dentro límite: {'Sí' if metrics['is_within_limit'] else 'No'}")
+        
+        return metrics
+        
+    except Exception as e:
+        print(f"❌ [TOKEN ANALYSIS] Error analizando tokens: {e}")
+        return {
+            "source": source,
+            "error": str(e),
+            "invoice_count": invoice_count,
+            "total_tokens": 0,
+            "status": "❌ ERROR"
+        }
 
 
 def download_pdfs_from_gcs(pdf_urls, samples_dir):
@@ -646,14 +756,14 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
             invoices = invoice_data
         if not isinstance(invoices, list):
             return {"success": False, "error": "Formato de datos inválido"}
+        
+        # ANÁLISIS DE TOKENS - DATOS ENTRADA
+        input_metrics = log_token_analysis(str(invoices), len(invoices), "INPUT_DATA")
+        
         perf_log['factura_count'] = len(invoices)
         perf_log['chars_total'] = len(str(invoices))
-        try:
-            import tiktoken
-            enc = tiktoken.get_encoding('cl100k_base')
-            perf_log['tokens_total'] = len(enc.encode(str(invoices)))
-        except Exception:
-            perf_log['tokens_total'] = None
+        # Usar método oficial de Vertex AI para conteo de tokens
+        perf_log['tokens_total'] = input_metrics['total_tokens']
         perf_log['chars_per_factura'] = perf_log['chars_total'] / perf_log['factura_count'] if perf_log['factura_count'] else 0
         perf_log['tokens_per_factura'] = perf_log['tokens_total'] / perf_log['factura_count'] if perf_log['factura_count'] and perf_log['tokens_total'] else 0
         perf_log['context_usage'] = {
@@ -784,12 +894,19 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         # validated_response = fix_response_urls(initial_response)
         validated_response = initial_response  # Sin validación para testing
         
+        # ANÁLISIS DE TOKENS - RESPUESTA FINAL
+        output_metrics = log_token_analysis(validated_response, len(enhanced_invoices), "FINAL_RESPONSE")
+        
         result = {
             "success": True,
             "formatted_response": validated_response,
             "invoice_count": len(enhanced_invoices),
             "total_amount": total_amount,
-            "date_range": date_range_str
+            "date_range": date_range_str,
+            "token_metrics": {
+                "input": input_metrics,
+                "output": output_metrics
+            }
         }
         
         print(f"✅ [FORMATO] Generada presentación mejorada para {len(enhanced_invoices)} facturas")
@@ -797,18 +914,24 @@ def format_enhanced_invoice_response(invoice_data: str, include_amounts: bool = 
         perf_log['perf_log_end_time'] = time.time()
         perf_log['perf_log_duration_ms'] = int((perf_log['perf_log_end_time'] - perf_log['perf_log_start_time']) * 1000)
         perf_log['formatted_chars'] = len(validated_response)
-        try:
-            import tiktoken
-            enc = tiktoken.get_encoding('cl100k_base')
-            perf_log['formatted_tokens'] = len(enc.encode(validated_response))
-        except Exception:
-            perf_log['formatted_tokens'] = None
+        # Usar método oficial de Vertex AI para conteo de tokens
+        perf_log['formatted_tokens'] = output_metrics['total_tokens']
         perf_log['formatted_chars_per_factura'] = perf_log['formatted_chars'] / perf_log['factura_count'] if perf_log['factura_count'] else 0
         perf_log['formatted_tokens_per_factura'] = perf_log['formatted_tokens'] / perf_log['factura_count'] if perf_log['factura_count'] and perf_log['formatted_tokens'] else 0
         perf_log['context_usage_formatted'] = {
             'chars': perf_log['formatted_chars'],
             'tokens': perf_log['formatted_tokens']
         }
+        # Agregar métricas de tokens al perf_log
+        perf_log['token_analysis'] = {
+            'input_tokens': input_metrics['total_tokens'],
+            'output_tokens': output_metrics['total_tokens'],
+            'input_usage_percent': input_metrics['context_usage_percent'],
+            'output_usage_percent': output_metrics['context_usage_percent'],
+            'input_status': input_metrics['status'],
+            'output_status': output_metrics['status']
+        }
+        
         # Log to conversation_tracker if available
         if 'conversation_tracker' in globals() and conversation_tracker is not None:
             if hasattr(conversation_tracker, 'current_conversation') and conversation_tracker.current_conversation is not None:
