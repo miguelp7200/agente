@@ -2203,3 +2203,113 @@ def log_token_analysis(self, response_text, invoice_count):
 6. **Testing automático** ejecutándose sin fallos
 
 **Estado actual**: ✅ **LISTO PARA PRODUCCIÓN** - Todos los criterios técnicos cumplidos, pendiente solo deploy y validación final del cliente.
+
+---
+
+## 🔍 **ESTRATEGIA DE VALIDACIÓN DE CONSULTAS - INVENTARIO Y VERIFICACIÓN SISTEMÁTICA (2025-09-15)**
+
+### **🎯 Objetivo de la Validación Sistemática**
+
+Debido a la complejidad del sistema con múltiples capas (scripts PowerShell, queries SQL, test cases JSON, herramientas MCP), se implementó una **estrategia de validación cruzada** para garantizar la consistencia entre:
+
+1. **Respuestas del sistema** (scripts PowerShell)
+2. **Datos reales en BigQuery** (queries SQL)
+3. **Expectativas documentadas** (test cases JSON)
+
+### **📋 Metodología del Inventario de Queries**
+
+**Archivo central**: `QUERY_INVENTORY.md` (en desarrollo en branch `feature/query-validation-inventory`)
+
+**Estructura del inventario**:
+- ✅ **Categorización por funcionalidad** (SAP, temporal, financiero, estadísticas, etc.)
+- ✅ **IDs únicos** para cada query (Q001, Q002, etc.)
+- ✅ **Correlación triple**: Script ↔ SQL ↔ JSON
+- ✅ **Sistema de tracking** con checkboxes markdown
+- ✅ **Links directos** a archivos relevantes
+- ✅ **Workflow de validación** paso a paso
+
+### **🔄 Proceso de Validación Manual**
+
+**Workflow sistemático por query**:
+1. **Ejecutar script PowerShell** → Obtener respuesta del sistema
+2. **Ejecutar query SQL** en BigQuery → Obtener datos reales
+3. **Comparar resultados** → Identificar consistencia o discrepancias
+4. **Marcar checkbox** → Trackear progreso de validación
+5. **Documentar hallazgos** → Registrar issues o confirmaciones
+
+### **🗂️ Fuentes de Queries Identificadas**
+
+| Fuente | Cantidad | Propósito |
+|--------|----------|-----------|
+| **Scripts PowerShell** | 62 archivos | Testing manual con validaciones específicas |
+| **Queries SQL** | 14 archivos | Validación directa contra BigQuery |
+| **Test Cases JSON** | 48 archivos | Automatización y documentación |
+| **Total queries únicas** | ~75-80 | (después de deduplicación) |
+
+### **📊 Categorías de Validación Propuestas**
+
+#### **1. 🔍 BÚSQUEDAS POR SAP/SOLICITANTE**
+- Normalización LPAD
+- Reconocimiento de parámetros SAP
+- Herramientas MCP correctas
+
+#### **2. 🏢 BÚSQUEDAS POR EMPRESA**
+- Case-insensitive search
+- Búsqueda por nombre exacto vs parcial
+- Combinación empresa + fecha
+
+#### **3. 📅 BÚSQUEDAS TEMPORALES**
+- Rangos de fechas
+- Búsquedas mensuales/anuales
+- Lógica "última factura"
+
+#### **4. 💰 ANÁLISIS FINANCIERO**
+- Factura de mayor monto
+- Filtros por solicitante + período
+- Análisis de montos específicos
+
+#### **5. 📊 ESTADÍSTICAS**
+- Conteos mensuales/anuales
+- Estadísticas por RUT
+- Solicitantes por empresa
+
+#### **6. 🛡️ VALIDACIÓN DE CONTEXTO/TOKENS**
+- Sistema de prevención >1M tokens
+- Estimaciones realistas
+- Análisis de capacidad
+
+#### **7. 🔧 FUNCIONALIDADES ESPECIALES**
+- ZIP automático >3 facturas
+- Terminología CF/SF
+- URLs firmadas vs proxy
+
+### **✅ Beneficios de la Estrategia**
+
+1. **Detección de inconsistencias** entre sistema y datos reales
+2. **Validación de herramientas MCP** con casos reales
+3. **Verificación de lógica de negocio** implementada
+4. **Base para debugging** futuro y mantenimiento
+5. **Documentación de casos edge** no contemplados
+6. **Garantía de calidad** antes de releases
+
+### **🚧 Estado Actual de Implementación**
+
+- ✅ **Plan aprobado** y estrategia definida
+- ✅ **Branch creada**: `feature/query-validation-inventory`
+- 🔄 **En desarrollo**: Archivo `QUERY_INVENTORY.md`
+- 🔄 **Pending**: Análisis de 62 scripts + 14 SQL + 48 JSON
+- 🔄 **Pending**: Categorización y correlación
+- 🔄 **Pending**: Implementación de checkboxes y tracking
+
+### **🎯 Próximos Pasos**
+
+1. **Extraer todas las queries** de scripts PowerShell
+2. **Mapear correlaciones** con SQL y JSON existentes
+3. **Crear estructura markdown** con sistema de tracking
+4. **Identificar gaps** (queries sin SQL o viceversa)
+5. **Ejecutar validación sistemática** query por query
+6. **Documentar hallazgos** y resolver discrepancias
+
+**Branch de trabajo**: `feature/query-validation-inventory`
+**Estimación**: 2-3 días para implementación completa del inventario
+**Beneficio esperado**: 100% de confianza en consistencia sistema ↔ datos reales
