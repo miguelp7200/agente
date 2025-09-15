@@ -17,13 +17,22 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 # Fix aplicado: LPAD en get_invoices_with_all_pdf_links + terminología corregida
 # Validation: Normalización 12475626→0012475626 + "Listado de facturas" (no "Individuales")
 
-# 🆕 10. Última Factura por SAP (CRÍTICO - Resuelve PROBLEMA 8)
-.\scripts\test_ultima_factura_sap_12540245.ps1
-# Query: "dame la última factura del sap 12540245"
-# Result: ✅ PASSED - Solo factura más reciente (0105401289), lógica temporal implementada
-# Fix aplicado: Reconocimiento de patterns "última" + filtrado inteligente en respuesta
-# Validation: BigQuery ORDER BY fecha DESC confirmada - 0105401289 (2025-07-15) ES la más reciente
-# UX: "Se encontraron 8 facturas... Mostrando la más reciente:" (transparencia + precisión)
+# 🆕 11. Financial Analysis - Mayor Monto (NUEVA FUNCIONALIDAD CRÍTICA)
+.\scripts\test_factura_mayor_monto_solicitante_0012141289_septiembre.ps1
+.\scripts\test_factura_mayor_monto_con_año_especifico.ps1
+# Query Examples: 
+#   "del solicitante 0012141289, para el mes de septiembre, cual es la factura de mayor monto"
+#   "del solicitante 0012141289, para septiembre 2024, cual es la factura de mayor monto"
+# Result: ✅ PASSED - Nueva herramienta MCP implementada con lógica de año dinámico
+# Fix aplicado: search_invoices_by_solicitante_max_amount_in_month + get_current_date + UNNEST optimización
+# Validation 2025: Factura 0105505395 - $15,904,111 CLP (Sept 2025)
+# Validation 2024: Factura 0104800037 - $702,407,050 CLP (Sept 2024)
+# Features: 
+#   ✅ Prioridad máxima para patterns "mayor monto" + solicitante + mes
+#   ✅ Año dinámico: Sin año → usa actual (2025), Con año → usa especificado
+#   ✅ SQL optimizado BigQuery: UNNEST + GROUP BY + ORDER BY total_amount DESC LIMIT 1
+#   ✅ Tool sequence: get_current_date → search_invoices_by_solicitante_max_amount_in_month
+#   ✅ Validado con PDFs reales descargados y verificados contra base de datos
 ```t Development Kit) en `localhost:8001`
 - **MCP Server:** Toolbox en `localhost:5000` 
 - **Base de datos:** BigQuery `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
@@ -392,6 +401,15 @@ GROUP BY Solicitante ORDER BY factura_count DESC
 7. **🆕 `get_solicitantes_by_rut`** - Códigos SAP por RUT con estadísticas ✅
 8. **🆕 `search_invoices_by_minimum_amount`** - Facturas por monto mínimo (ORDER BY monto DESC) ✅
 9. **🆕 `search_invoices_by_rut_and_amount`** - RUT + monto mínimo combinados ✅
+10. **🆕 `search_invoices_by_solicitante_max_amount_in_month`** - **NUEVA FUNCIONALIDAD CRÍTICA** 🎯
+    - **Análisis financiero**: Factura de mayor monto por solicitante + mes específico
+    - **Lógica de año dinámico**: Sin año → usa actual (2025), Con año → usa especificado
+    - **SQL optimizado**: UNNEST + GROUP BY + ORDER BY total_amount DESC LIMIT 1
+    - **Validado**: Sept 2025 ($15.9M), Sept 2024 ($702.4M) ✅
+11. **🆕 `get_current_date`** - **HERRAMIENTA DE SOPORTE** 📅
+    - **Obtiene año actual dinámicamente** desde BigQuery
+    - **Usado automáticamente** para consultas temporales sin año especificado
+    - **Respuesta estructurada**: current_year, current_month, current_day, formatted_date ✅
 
 ### **Validaciones Implementadas:**
 - ✅ **Case-insensitive search:** `UPPER()` normalization en BigQuery
@@ -1747,6 +1765,12 @@ def log_token_analysis(self, response_text, invoice_count):
 5. **Scripts de testing manual** para debugging y validación ad-hoc
 6. **Documentación técnica completa** actualizada con métricas reales
 7. **Logging detallado** para monitoreo en tiempo real
+8. **🆕 ANÁLISIS FINANCIERO AVANZADO:** 
+   - **Nueva herramienta MCP** `search_invoices_by_solicitante_max_amount_in_month`
+   - **Lógica de año dinámico** con `get_current_date` automático
+   - **SQL optimizado BigQuery** con UNNEST + GROUP BY + ORDER BY DESC LIMIT 1
+   - **Prioridad máxima** para patterns "mayor monto" + solicitante + mes
+   - **Validado con datos reales** y PDFs descargados (Sept 2025: $15.9M, Sept 2024: $702.4M)
 
 ### **🎯 Métricas de Rendimiento Confirmadas**
 
@@ -1758,6 +1782,9 @@ def log_token_analysis(self, response_text, invoice_count):
 | **Sistema prevención** | No implementado | ✅ Funcionando | Protección completa |
 | **Testing** | Manual/ad-hoc | ✅ Automatizado | Framework completo |
 | **Monitoreo** | Básico | ✅ Logging detallado | Métricas en tiempo real |
+| **🆕 Análisis financiero** | No disponible | ✅ Mayor monto por SAP+mes | Nueva capacidad |
+| **🆕 Año dinámico** | Hardcodeado | ✅ Automático vía BigQuery | Futuro-proof |
+| **🆕 SQL optimizado** | Subconsultas | ✅ UNNEST + GROUP BY | +Performance |
 
 ### **🔧 Próximos Pasos Recomendados**
 
