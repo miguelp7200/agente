@@ -1,10 +1,10 @@
-# ===== SCRIPT CURL AUTOMATIZADO: Test: Financial Analysis   Suma Montos Por Año =====
+# ===== SCRIPT CURL AUTOMATIZADO: Test: Factura De Mayor Monto   Solicitante Específico Septiembre =====
 <#
 .SYNOPSIS
-    Test automatizado: Test: Financial Analysis   Suma Montos Por Año
+    Test automatizado: Test: Factura De Mayor Monto   Solicitante Específico Septiembre
 
 .DESCRIPTION
-    Script generado automáticamente para validar: Valida que el agente pueda manejar consultas de análisis financiero por año. Prioridad: high.
+    Script generado automáticamente para validar: Valida búsqueda de factura con mayor monto para solicitante específico (0012141289 - GASCO GLP S.A. MAIPU) en mes específico (septiembre). Combina filtros de solicitante, temporal y análisis financiero.
     
     Test Case: 
     Categoría: 
@@ -19,10 +19,10 @@
     Mostrar información detallada de debugging
     
 .EXAMPLE
-    .\curl_test_Test:_Financial_Analysis_-_Suma_Montos_por_Año.ps1
+    .\curl_test_Test:_Factura_de_Mayor_Monto_-_Solicitante_Específico_Septiembre.ps1
     
 .EXAMPLE  
-    .\curl_test_Test:_Financial_Analysis_-_Suma_Montos_por_Año.ps1 -Environment Local -Verbose
+    .\curl_test_Test:_Factura_de_Mayor_Monto_-_Solicitante_Específico_Septiembre.ps1 -Environment Local -Verbose
 #>
 
 param(
@@ -68,7 +68,7 @@ function Write-Error { param($Message) Write-ColorOutput "❌ $Message" $RED }
 
 # Banner
 Write-Host "🧪 ========================================" -ForegroundColor Magenta
-Write-Host "   TEST: Test: Financial Analysis   Suma Montos Por Año" -ForegroundColor Magenta
+Write-Host "   TEST: Test: Factura De Mayor Monto   Solicitante Específico Septiembre" -ForegroundColor Magenta
 Write-Host "   Ambiente: $Environment" -ForegroundColor Magenta
 Write-Host "========================================" -ForegroundColor Magenta
 
@@ -76,10 +76,10 @@ $config = $EnvironmentConfig[$Environment]
 Write-Info "Target: $($config.Description) - $($config.BaseUrl)"
 
 # Variables del test
-$sessionId = "auto-test-Test:_Financial_Analysis_-_Suma_Montos_por_Año-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$sessionId = "auto-test-Test:_Factura_de_Mayor_Monto_-_Solicitante_Específico_Septiembre-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "automation-test-user"
 $appName = "gcp-invoice-agent-app"
-$testQuery = "cuanto es la suma de los montos por cada año"
+$testQuery = "del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto"
 
 Write-Info "Variables configuradas:"
 Write-Host "  🆔 Session ID: $sessionId" -ForegroundColor Gray
@@ -182,7 +182,7 @@ try {
         # ✅ Validar contenido requerido
         Write-Host "
 🔍 Validando contenido requerido..." -ForegroundColor Yellow
-        $requiredContent = @("suma", "montos", "año", "total")
+        $requiredContent = @("solicitante", "0012141289", "GASCO GLP", "MAIPU", "septiembre", "mayor monto", "factura", "monto", "$")
         $contentValidation = $true
         foreach ($required in $requiredContent) {
             if ($modelResponse.Contains($required)) {
@@ -195,7 +195,7 @@ try {
         # ❌ Validar contenido prohibido
         Write-Host "
 🚫 Validando contenido prohibido..." -ForegroundColor Yellow
-        $prohibitedContent = @("error", "no puedo", "disculpa")
+        $prohibitedContent = @("error", "no puedo", "disculpa", "no se encontraron", "SAP no es un parámetro válido")
         $prohibitionValidation = $true
         foreach ($prohibited in $prohibitedContent) {
             if ($modelResponse.Contains($prohibited)) {
@@ -250,8 +250,8 @@ try {
         
         # Guardar resultado
         $resultData = @{
-            test_case = "Test: Financial Analysis - Suma Montos por Año"
-            test_name = "Test: Financial Analysis   Suma Montos Por Año"
+            test_case = "Test: Factura de Mayor Monto - Solicitante Específico Septiembre"
+            test_name = "Test: Factura De Mayor Monto   Solicitante Específico Septiembre"
             environment = $Environment
             execution_time = $duration
             result = $testResult
@@ -261,7 +261,7 @@ try {
             query = $testQuery
         }
         
-        $resultFile = "../../results/result_Test:_Financial_Analysis_-_Suma_Montos_por_Año_$(Get-Date -Format 'yyyyMMddHHmmss').json"
+        $resultFile = "../../results/result_Test:_Factura_de_Mayor_Monto_-_Solicitante_Específico_Septiembre_$(Get-Date -Format 'yyyyMMddHHmmss').json"
         $resultData | ConvertTo-Json -Depth 3 | Out-File -FilePath $resultFile -Encoding UTF8
         Write-Info "Resultado guardado en: $resultFile"
         
@@ -278,4 +278,4 @@ try {
     exit 1
 }
 
-Write-Success "Test Test: Financial Analysis   Suma Montos Por Año completado!"
+Write-Success "Test Test: Factura De Mayor Monto   Solicitante Específico Septiembre completado!"

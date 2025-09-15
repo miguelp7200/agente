@@ -1,0 +1,65 @@
+{
+    "name": "Test: Factura de Mayor Monto - Solicitante Específico Septiembre",
+    "description": "Valida búsqueda de factura con mayor monto para solicitante específico (0012141289 - GASCO GLP S.A. MAIPU) en mes específico (septiembre). Combina filtros de solicitante, temporal y análisis financiero.",
+    "query": "del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto",
+    "validation_criteria": {
+        "response_content": {
+            "should_contain": [
+                "solicitante",
+                "0012141289",
+                "GASCO GLP",
+                "MAIPU",
+                "septiembre",
+                "mayor monto",
+                "factura",
+                "monto",
+                "$"
+            ],
+            "should_not_contain": [
+                "error",
+                "no puedo",
+                "disculpa",
+                "no se encontraron",
+                "SAP no es un parámetro válido"
+            ]
+        },
+        "tool_sequence": {
+            "expected_tools": [
+                "search_invoices_by_solicitante_and_date_range"
+            ],
+            "sequence_required": true,
+            "notes": "Debe usar herramienta de búsqueda por solicitante y luego identificar la factura de mayor monto en la respuesta"
+        },
+        "data_validation": {
+            "solicitante_normalization": "Debe reconocer 0012141289 como código SAP válido",
+            "temporal_filter": "Debe aplicar filtro para septiembre (mes 09)",
+            "financial_analysis": "Debe identificar y resaltar la factura de mayor monto",
+            "company_recognition": "Debe reconocer GASCO GLP S.A. (MAIPU) como nombre válido"
+        }
+    },
+    "metadata": {
+        "category": "financial_analysis",
+        "subcategory": "maximum_amount_analysis",
+        "priority": "high",
+        "created_date": "2025-09-15",
+        "test_type": "complex_query_validation",
+        "expected_execution_time": "< 60 segundos",
+        "validation_requirements": {
+            "functional_response": true,
+            "accurate_data": true,
+            "no_errors": true,
+            "solicitante_recognition": true,
+            "temporal_filtering": true,
+            "financial_analysis": true,
+            "amount_comparison": true
+        },
+        "technical_notes": {
+            "solicitante_code": "0012141289",
+            "company_name": "GASCO GLP S.A. (MAIPU)",
+            "month_filter": "09 (septiembre)",
+            "analysis_type": "MAX(monto) identification",
+            "expected_tool": "search_invoices_by_solicitante_and_date_range",
+            "expected_response_format": "Factura específica + monto + detalles"
+        }
+    }
+}

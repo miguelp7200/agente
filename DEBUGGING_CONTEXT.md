@@ -390,6 +390,8 @@ GROUP BY Solicitante ORDER BY factura_count DESC
 5. **`generate_individual_download_links`** - URLs firmadas GCS ✅
 6. **`get_invoices_with_all_pdf_links`** - URLs directas para ZIP + lógica temporal ✅
 7. **🆕 `get_solicitantes_by_rut`** - Códigos SAP por RUT con estadísticas ✅
+8. **🆕 `search_invoices_by_minimum_amount`** - Facturas por monto mínimo (ORDER BY monto DESC) ✅
+9. **🆕 `search_invoices_by_rut_and_amount`** - RUT + monto mínimo combinados ✅
 
 ### **Validaciones Implementadas:**
 - ✅ **Case-insensitive search:** `UPPER()` normalization en BigQuery
@@ -570,9 +572,23 @@ El Test Automation Framework complementa perfectamente el sistema MCP core:
 # Datos reales: RUT 96568740-8 → GASCO GLP S.A. y filiales (2023-2025)
 ```
 
+### **🆕 Nuevos Tests Implementados (2025-09-15):**
+```powershell
+# 10. Análisis Financiero: Factura de Mayor Monto por Solicitante (NUEVA FUNCIONALIDAD)
+.\scripts\test_factura_mayor_monto_solicitante_0012141289_septiembre.ps1
+# Query: "del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto"
+# Result: 🔄 EN TESTING - Combina búsqueda por solicitante + filtro temporal + análisis financiero
+# New functionality: Identificación de factura de mayor monto dentro de un conjunto filtrado
+# Test case: tests/cases/financial/test_factura_mayor_monto_solicitante_0012141289_septiembre.json
+# Automated test: tests/automation/curl-tests/financial/curl_test_.ps1
+# Expected tool: search_invoices_by_solicitante_and_date_range + análisis manual de montos
+# Validation: SAP recognition (0012141289), temporal filter (septiembre), financial analysis (MAX monto)
+# Company: GASCO GLP S.A. (MAIPU) - Validación de reconocimiento de empresa específica
+```
+
 ### **Test Pendiente:**
 ```powershell
-# 9. Reference Search (Automatizado en framework)
+# 11. Reference Search (Automatizado en framework)
 .\scripts\test_factura_referencia_8677072.ps1
 # Query: "me puedes traer la factura referencia 8677072"
 # Status: Disponible como script automatizado en tests/automation/curl-tests/
@@ -651,6 +667,17 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 ### **Estadísticas:**
 - ✅ `"dame un desglose anual de facturas"`
 - ✅ `"estadísticas por año"`
+
+### **🆕 Análisis Financiero (2025-09-15):**
+- 🔄 `"del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto"`
+- 🔄 `"factura de mayor monto del SAP X en [periodo]"`
+- 🔄 `"cual es la factura más cara de [solicitante/empresa] en [fecha]"`
+
+**Estrategia de implementación:**
+- **Herramienta MCP:** `search_invoices_by_solicitante_and_date_range` para filtrado inicial
+- **Análisis post-MCP:** El agente debe identificar monto máximo en los resultados
+- **Alternative tools:** `search_invoices_by_minimum_amount` para análisis por umbral
+- **Response format:** Destacar factura específica + monto + detalles de empresa
 
 ## 🎯 **Próximos Pasos Sugeridos**
 
