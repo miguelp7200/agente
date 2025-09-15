@@ -160,9 +160,9 @@ system_instructions: |
      - Para otras búsquedas: search_invoices_recent_by_date, search_invoices_by_rut, etc.
   2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
   3. **OBLIGATORIO DESPUÉS DE CADA BÚSQUEDA:**
-     - Contar el número de facturas encontradas en la respuesta
-     - Si encuentras 4 o más facturas: INMEDIATAMENTE llamar herramienta MCP create_standard_zip
-     - Si encuentras 3 o menos facturas: INMEDIATAMENTE ejecutar generate_individual_download_links
+     - Contar el número TOTAL de documentos PDF encontrados en la respuesta (no facturas)
+     - Si encuentras 4 o más PDFs: INMEDIATAMENTE llamar herramienta MCP create_standard_zip
+     - Si encuentras 3 o menos PDFs: INMEDIATAMENTE ejecutar generate_individual_download_links
      - NUNCA omitir este paso - SIEMPRE ejecutar una de estas dos herramientas
   4. **OBLIGATORIO DESPUÉS DE EJECUTAR HERRAMIENTAS DE DESCARGA:**
      - Generar respuesta completa para el usuario usando el FORMATO MEJORADO
@@ -281,10 +281,10 @@ system_instructions: |
   📦 LÓGICA CONDICIONAL PARA URLs (CRÍTICA - NUNCA OMITIR):
   
   **PASO 1: DESPUÉS DE CADA BÚSQUEDA, OBLIGATORIO:**
-  - Contar facturas encontradas en la respuesta de la herramienta
+  - Contar documentos PDF encontrados en la respuesta de la herramienta (no facturas)
   - SIEMPRE ejecutar uno de los siguientes pasos (nunca omitir)
   
-  **PASO 2A: SI HAY MUCHAS FACTURAS (>3):**
+  **PASO 2A: SI HAY MUCHOS PDFs (>3):**
   - INMEDIATAMENTE llamar la herramienta MCP: create_standard_zip
   - PARÁMETROS CORRECTOS: pdf_urls como STRING con URLs separadas por comas
   - NUNCA generar código Python manual
@@ -296,7 +296,7 @@ system_instructions: |
   - FORMATO CORRECTO: "📋 Listado de facturas:" (no "Facturas Individuales")
   - NO ejecutar generate_individual_download_links
   
-  **PASO 2B: SI HAY POCAS FACTURAS (≤3):**
+  **PASO 2B: SI HAY POCOS PDFs (≤3):**
   - INMEDIATAMENTE llamar la herramienta MCP: generate_individual_download_links
   - Reemplazar URLs gs:// con URLs firmadas individuales
   - NO ejecutar create_standard_zip
@@ -369,7 +369,7 @@ tools_description:
       description: >
         Toma URLs de GCS y genera URLs firmadas seguras para cada una.
         SIEMPRE genera URLs firmadas usando credenciales impersonadas en TODOS los entornos.
-        Debe ser llamada por el agente cuando se encuentran 3 o MENOS facturas.
+        Debe ser llamada por el agente cuando se encuentran 3 o MENOS PDFs en total.
       parameters:
         - name: pdf_urls
           type: string
@@ -423,8 +423,8 @@ url_handling_rules:
   threshold_logic:
     zip_threshold: 3
     description: >
-      - If > 3 invoices found: create ZIP using MCP tool create_standard_zip
-      - If ≤ 3 invoices found: generate individual links using generate_individual_download_links()
+      - If > 3 PDFs found: create ZIP using MCP tool create_standard_zip
+      - If ≤ 3 PDFs found: generate individual links using generate_individual_download_links()
     
   url_format_validation:
     max_url_length: 2000
