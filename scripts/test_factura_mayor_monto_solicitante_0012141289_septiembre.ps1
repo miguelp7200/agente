@@ -73,7 +73,7 @@ try {
         
         # Validación 3: Filtro temporal - septiembre
         if ($answer -match "septiembre|09|2025") {
-            Write-Host "✅ ÉXITO: Aplica filtro temporal de septiembre" -ForegroundColor Green
+            Write-Host "✅ ÉXITO: Aplica filtro temporal de septiembre 2025" -ForegroundColor Green
         } else {
             Write-Host "❌ ERROR: No aplica filtro temporal correcto" -ForegroundColor Red
         }
@@ -130,9 +130,9 @@ Write-Host "- 🆕 NUEVA FUNCIONALIDAD: Análisis financiero de mayor monto → 
 Write-Host "`n🚀 EXPECTATIVA:" -ForegroundColor Cyan
 Write-Host "Sistema debe:" -ForegroundColor Green
 Write-Host "1. Reconocer 0012141289 como código SAP válido (normalización automática)" -ForegroundColor Green
-Write-Host "2. Aplicar filtro temporal para septiembre 2025" -ForegroundColor Green
-Write-Host "3. Buscar facturas del solicitante usando search_invoices_by_solicitante_and_date_range" -ForegroundColor Green
-Write-Host "4. Identificar la factura con mayor monto de los resultados" -ForegroundColor Green
+Write-Host "2. Aplicar filtro temporal para septiembre 2025 (año actual por defecto)" -ForegroundColor Green
+Write-Host "3. Usar search_invoices_by_solicitante_max_amount_in_month directamente" -ForegroundColor Green
+Write-Host "4. Identificar la factura con mayor monto del mes específico" -ForegroundColor Green
 Write-Host "5. Mostrar factura específica + monto + detalles de GASCO GLP S.A. (MAIPU)" -ForegroundColor Green
 
 Write-Host "`n⚠️ POSIBLES FALLOS:" -ForegroundColor Yellow
@@ -142,15 +142,15 @@ Write-Host "- Si excede límite de tokens → Sistema de prevención debe activa
 
 Write-Host "`n📊 MÉTRICAS DE ÉXITO ESPERADAS:" -ForegroundColor Magenta
 Write-Host "- Reconocimiento SAP: ✅ PASS (0012141289 ya tiene 10 dígitos)" -ForegroundColor Gray
-Write-Host "- Filtro temporal: ✅ PASS (septiembre = mes 09)" -ForegroundColor Gray
-Write-Host "- Herramienta MCP: ✅ PASS (search_invoices_by_solicitante_and_date_range)" -ForegroundColor Gray
-Write-Host "- Análisis financiero: 🔄 VALIDAR (identificación de monto máximo)" -ForegroundColor Gray
+Write-Host "- Filtro temporal: ✅ PASS (septiembre = mes 09, año 2025 por defecto)" -ForegroundColor Gray
+Write-Host "- Herramienta MCP: ✅ PASS (search_invoices_by_solicitante_max_amount_in_month)" -ForegroundColor Gray
+Write-Host "- Análisis financiero: 🔄 VALIDAR (identificación de monto máximo directo)" -ForegroundColor Gray
 Write-Host "- Respuesta específica: 🔄 VALIDAR (factura + monto + empresa)" -ForegroundColor Gray
 Write-Host "- Performance: ✅ PASS (< 60 segundos esperado)" -ForegroundColor Gray
 
 # RESUMEN FINAL
 Write-Host "`n🎯 RESUMEN FINAL:" -ForegroundColor Magenta
 Write-Host "Query: 'del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto'" -ForegroundColor Gray
-Write-Host "Expected Behavior: Búsqueda por solicitante + filtro septiembre + análisis de monto máximo" -ForegroundColor Gray
-Write-Host "Expected Tool: search_invoices_by_solicitante_and_date_range" -ForegroundColor Gray
-Write-Host "Critical Features: SAP recognition, temporal filtering, financial analysis (MAX monto)" -ForegroundColor Gray
+Write-Host "Expected Behavior: Búsqueda por solicitante + filtro septiembre 2025 + análisis de monto máximo directo" -ForegroundColor Gray
+Write-Host "Expected Tool: search_invoices_by_solicitante_max_amount_in_month" -ForegroundColor Gray
+Write-Host "Critical Features: SAP recognition, temporal filtering (año actual), financial analysis (MAX monto)" -ForegroundColor Gray

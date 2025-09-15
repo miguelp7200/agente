@@ -1352,6 +1352,75 @@ tools:
         description: Fecha de fin en formato YYYY-MM-DD (ej. "2019-12-31")
         required: true
 
+  search_invoices_by_solicitante_max_amount_in_month:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT 
+        Factura,
+        Solicitante,
+        Rut,
+        Nombre,
+        fecha,
+        SUM(CAST(detalle.ValorTotal AS NUMERIC)) as total_amount,
+        CASE WHEN Copia_Cedible_cf IS NOT NULL 
+             THEN Copia_Cedible_cf 
+             ELSE NULL END as Copia_Cedible_cf_proxy,
+        CASE WHEN Copia_Cedible_sf IS NOT NULL 
+             THEN Copia_Cedible_sf 
+             ELSE NULL END as Copia_Cedible_sf_proxy,
+        CASE WHEN Copia_Tributaria_cf IS NOT NULL 
+             THEN Copia_Tributaria_cf 
+             ELSE NULL END as Copia_Tributaria_cf_proxy,
+        CASE WHEN Copia_Tributaria_sf IS NOT NULL 
+             THEN Copia_Tributaria_sf 
+             ELSE NULL END as Copia_Tributaria_sf_proxy,
+        CASE WHEN Doc_Termico IS NOT NULL 
+             THEN Doc_Termico 
+             ELSE NULL END as Doc_Termico_proxy
+      FROM
+        `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`,
+        UNNEST(DetallesFactura) AS detalle
+      WHERE
+        Solicitante = LPAD(@solicitante, 10, '0') 
+        AND EXTRACT(YEAR FROM fecha) = @target_year
+        AND EXTRACT(MONTH FROM fecha) = @target_month
+      GROUP BY 
+        Factura, 
+        Solicitante, 
+        Rut,
+        Nombre, 
+        fecha,
+        Copia_Cedible_cf,
+        Copia_Cedible_sf,
+        Copia_Tributaria_cf,
+        Copia_Tributaria_sf,
+        Doc_Termico
+      ORDER BY 
+        total_amount DESC, 
+        fecha DESC
+      LIMIT 1
+    description: |
+      Busca la factura de MAYOR MONTO para un solicitante específico en un mes y año determinado.
+      Ideal para consultas como "cuál es la factura de mayor monto del solicitante X en septiembre 2025".
+      El código SAP/solicitante se normaliza automáticamente con ceros a la izquierda (10 dígitos).
+      Retorna solo UNA factura: la de mayor monto total en el período especificado.
+      Usa UNNEST con GROUP BY para cálculo eficiente del monto total por factura.
+      Incluye todas las rutas de PDF disponibles para descarga.
+    parameters:
+      - name: solicitante
+        type: string
+        description: Código SAP/solicitante (ej. "12141289", "0012141289"). Se normaliza automáticamente con ceros leading.
+        required: true
+      - name: target_year
+        type: integer
+        description: Año específico (ej. 2025, 2024)
+        required: true
+      - name: target_month
+        type: integer
+        description: Mes específico (1-12, ej. 9 para septiembre)
+        required: true
+
   get_unique_ruts_statistics:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1871,6 +1940,22 @@ tools:
         description: Fecha de fin en formato YYYY-MM-DD (ej. "2025-12-31")
         required: true
 
+  get_current_date:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: |
+      SELECT 
+        CURRENT_DATE() as current_date,
+        EXTRACT(YEAR FROM CURRENT_DATE()) as current_year,
+        EXTRACT(MONTH FROM CURRENT_DATE()) as current_month,
+        EXTRACT(DAY FROM CURRENT_DATE()) as current_day,
+        FORMAT_DATE('%Y-%m-%d', CURRENT_DATE()) as formatted_date,
+        FORMAT_DATE('%B %Y', CURRENT_DATE()) as month_year_text
+    description: |
+      Obtiene la fecha actual del sistema BigQuery para usar en consultas que requieren año por defecto.
+      Útil cuando el usuario no especifica año en consultas temporales.
+      Retorna: fecha actual, año actual, mes actual, día actual, y formatos legibles.
+      
 toolsets:
   gasco_invoice_search:
     - search_invoices
@@ -1886,6 +1971,7 @@ toolsets:
     - search_invoices_by_multiple_ruts
     - search_invoices_recent_by_date
     - search_invoices_by_solicitante_and_date_range
+    - search_invoices_by_solicitante_max_amount_in_month
     - get_unique_ruts_statistics
     - search_invoices_by_rut_and_amount
     - get_date_range_statistics
@@ -1910,6 +1996,7 @@ toolsets:
     - get_cedibles_by_solicitante
     - get_data_coverage_statistics
     - get_yearly_invoice_statistics
+    - get_current_date
 
   gasco_zip_management:
     - create_zip_record

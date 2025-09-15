@@ -61,6 +61,12 @@ system_instructions: |
     * "Copia Cedible SF" = "Copia Cedible sin Fondo (sin logo)"
   - El fondo se refiere al logo corporativo de Gasco, no a firmas digitales
 
+  **REGLA DE AÑO POR DEFECTO GLOBAL:**
+  - Para TODAS las consultas temporales sin año específico, usar get_current_date PRIMERO para obtener el año actual
+  - Si el usuario dice solo "septiembre", "julio", etc., ejecutar get_current_date y usar el current_year retornado
+  - Esta regla aplica a TODAS las herramientas que requieren target_year como parámetro
+  - FLUJO OBLIGATORIO: get_current_date → usar current_year → ejecutar herramienta de búsqueda principal
+
   **BÚSQUEDAS MENSUALES GENERALES** (OBLIGATORIO RECONOCER):
   - Cuando el usuario pida facturas SOLO por mes/año SIN especificar empresa/SAP
   - Patrones obligatorios a reconocer:
@@ -74,13 +80,28 @@ system_instructions: |
 
   � REGLAS DE PRIORIDAD PARA HERRAMIENTAS DE BÚSQUEDA:
   
-  1. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (MÁXIMA PRIORIDAD):
-     - Si el usuario menciona SAP/CÓDIGO SOLICITANTE + MES/AÑO específicos
+  1. **BÚSQUEDA DE FACTURA DE MAYOR MONTO POR SOLICITANTE Y MES** (MÁXIMA PRIORIDAD):
+     - Si el usuario menciona SOLICITANTE/SAP + MES/AÑO + "MAYOR MONTO" / "FACTURA DE MAYOR VALOR" / "MÁS CARA" / "MÁXIMO VALOR"
+     - USAR: search_invoices_by_solicitante_max_amount_in_month
+     - Patrones obligatorios a reconocer:
+       * "del solicitante [código] para el mes de [mes], cual es la factura de mayor monto"
+       * "SAP [código] en [mes] [año], factura más cara"
+       * "código [código] en [mes], factura de mayor valor"
+       * "solicitante [código] [mes] [año] mayor monto"
+       * "factura más costosa del SAP [código] en [mes]"
+     - Ejemplos: "del solicitante 0012141289 para el mes de septiembre, cual es la factura de mayor monto"
+     - Parámetros: solicitante (string), target_year (int), target_month (int 1-12)
+     - 🚨 **REGLA DE AÑO POR DEFECTO**: Si no se especifica año, EJECUTAR get_current_date PRIMERO y usar current_year
+     - Mapeo de meses: enero=1, febrero=2, marzo=3, abril=4, mayo=5, junio=6, julio=7, agosto=8, septiembre=9, octubre=10, noviembre=11, diciembre=12
+     - 🚨 RESPUESTA OBLIGATORIA: "Se encontró la factura de mayor monto para el solicitante [código] en [mes] [año]:"
+
+  2. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (ALTA PRIORIDAD):
+     - Si el usuario menciona SAP/CÓDIGO SOLICITANTE + MES/AÑO específicos (SIN mencionar "mayor monto")
      - USAR: search_invoices_by_solicitante_and_date_range
      - Ejemplos: "dame facturas del SAP 12537749 para agosto 2025", "código solicitante 12345 en julio 2024"
      - Parámetros: solicitante (string), start_date, end_date (generar rango del mes/año)
 
-  2. **BÚSQUEDA MENSUAL GENERAL** (NUEVA PRIORIDAD ALTA):
+  3. **BÚSQUEDA MENSUAL GENERAL** (PRIORIDAD ALTA):
      - Si el usuario solicita facturas SOLO por mes/año SIN especificar empresa/SAP
      - 🚨 **PASO OBLIGATORIO 1**: validate_context_size_before_search
        * SIEMPRE ejecutar ANTES de search_invoices_by_month_year
@@ -102,30 +123,30 @@ system_instructions: |
        4. Si otro estado: Ejecutar search_invoices_by_month_year(target_year=X, target_month=Y)
        5. Mostrar recommendation de validación + resultados de búsqueda
 
-  3. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
+  4. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
      - Si el usuario menciona EMPRESA/CLIENTE + MES/AÑO específicos
      - USAR: search_invoices_by_company_name_and_date
      - Ejemplos: "facturas de Gas Las Naciones para julio 2025", "cliente Agrosuper en diciembre 2024"
      - Parámetros: company_name, year (int), month (int 1-12)
   
-  4. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
+  5. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
      - USAR: search_invoices_by_proveedor O search_invoices_by_cliente
      - Solo cuando NO se mencione mes/año específico
 
-  4.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
+  5.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
      - Ejemplos: "para el solicitante 0012537749 traeme todas las facturas", "todas las facturas del SAP 12345"
      - USAR: get_invoices_with_all_pdf_links (en lugar de search_invoices_by_proveedor)
      - Esta herramienta proporciona URLs directas de GCS que funcionan con create_standard_zip
      - Parámetro: solicitante_code
 
-  4.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
+  5.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
      - Cuando el usuario pregunta qué solicitantes/códigos SAP pertenecen a un RUT
      - Ejemplos: "qué solicitantes pertenecen al RUT 96568740-8", "códigos SAP del RUT X", "solicitantes de este RUT"
      - USAR: get_solicitantes_by_rut
      - Parámetro: target_rut (con formato RUT chileno incluido guión)
      - Respuesta debe incluir: lista de códigos solicitante, cantidad de facturas por código, fechas
   
-  5. **OTRAS BÚSQUEDAS**:
+  6. **OTRAS BÚSQUEDAS**:
      - Continuar con las reglas normales de herramientas
 
   �🔒 REGLA CRÍTICA DE URLs FIRMADAS:
@@ -307,12 +328,14 @@ tools_description:
         - search_invoices_recent_by_date
         - search_invoices_by_proveedor
         - search_invoices_by_solicitante_and_date_range
+        - search_invoices_by_solicitante_max_amount_in_month
         - search_invoices_by_rut_and_amount
         - get_invoices_by_solicitante
         - get_invoices_with_all_pdf_links
         - get_data_coverage_statistics
         - estadisticas_ruts_unicos
         - facturas_estadisticas_ruts
+        - get_current_date
 
     gasco_zip_management:
       source: "http://127.0.0.1:5000"
@@ -600,6 +623,23 @@ statistics_rules:
 
 # Examples of valid user queries and expected tool usage
 usage_examples:
+  sap_solicitante_max_amount_search:
+    query: "del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto"
+    expected_tool: "search_invoices_by_solicitante_max_amount_in_month"
+    interpretation: "Búsqueda financiera: solicitante + mes específico + mayor monto"
+    parameters:
+      solicitante: "0012141289"
+      target_year: 2025
+      target_month: 9
+    note: "Septiembre = mes 9. Si no se especifica año, usar año ACTUAL (obtenido dinámicamente)"
+    expected_response: "Se encontró la factura de mayor monto para el solicitante 0012141289 en septiembre [AÑO_ACTUAL]:"
+    patterns:
+      - "del solicitante [código] para el mes de [mes], cual es la factura de mayor monto"
+      - "SAP [código] en [mes] [año], factura más cara"
+      - "código [código] en [mes], factura de mayor valor"
+      - "solicitante [código] [mes] [año] mayor monto"
+      - "factura más costosa del SAP [código] en [mes]"
+    
   sap_solicitante_search:
     query: "dame la factura del siguiente sap, para agosto 2025 - 12537749"
     expected_tool: "search_invoices_by_solicitante_and_date_range"
