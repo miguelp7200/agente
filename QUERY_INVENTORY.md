@@ -1,11 +1,18 @@
-# 🔍 **INVENTARIO DE QUERIES Y VALIDACIÓN SISTEMÁTICA**
+# 🔍 **INVENTARI- [x] **Q001**: "dame la factura del siguiente sap, para agosto 2025 - 12537749"
+  - 🔧 **Script**: `scripts/test_sap_codigo_solicitante_12537749_ago2025.ps1`
+  - 📊 **SQL**: `validation/Q001-sap-recognition/sql/validation_query_Q001_sap_12537749_agosto_2025.sql` ✅
+  - 📄 **JSON**: `tests/cases/search/test_sap_codigo_solicitante_august_2025.json`
+  - 🎯 **Herramienta MCP**: `search_invoices_by_solicitante_and_date_range`
+  - ✅ **Estado**: ✅ **VALIDADA** (15-09-2025) | ⚠️ **URLs RESUELTAS** | ❌ **SAP Recognition PENDIENTE**
+  - 📝 **Notas**: _✅ URLs firmadas FUNCIONANDO (Status 200), 3 facturas encontradas (0105481293, 0105443677, 0105418626). ❌ NO reconoce "SAP" como "Código Solicitante" - requiere fix en agent_prompt.yaml_
+  - 🔗 **Validación**: `validation/Q001-sap-recognition/` (scripts, SQL, reportes completos)RIES Y VALIDACIÓN SISTEMÁTICA**
 
 ## 📊 **ESTADO GENERAL**
 - **Total Queries**: 62 (de scripts PowerShell)
 - **Queries SQL**: 8 archivos de validación
 - **Test Cases JSON**: 48 archivos
-- **Validadas**: [ ] 0/62 (0%)
-- **Pendientes**: 62
+- **Validadas**: [x] 1/62 (1.6%)
+- **Pendientes**: 61
 - **Última actualización**: 15 septiembre 2025
 
 ---
@@ -14,13 +21,14 @@
 
 ### 1. 🔍 **BÚSQUEDAS POR SAP/SOLICITANTE**
 
-- [ ] **Q001**: "dame la factura del siguiente sap, para agosto 2025 - 12537749"
+- [x] **Q001**: "dame la factura del siguiente sap, para agosto 2025 - 12537749"
   - 🔧 **Script**: `scripts/test_sap_codigo_solicitante_12537749_ago2025.ps1`
-  - 📊 **SQL**: `sql_validation/[pendiente].sql`
+  - 📊 **SQL**: `sql_validation/validation_query_Q001_sap_12537749_agosto_2025.sql` ✅
   - 📄 **JSON**: `tests/cases/search/test_sap_codigo_solicitante_august_2025.json`
   - 🎯 **Herramienta MCP**: `search_invoices_by_solicitante_and_date_range`
-  - ✅ **Estado**: ❌ Pendiente
-  - 📝 **Notas**: _Testing de normalización LPAD_
+  - ✅ **Estado**: ✅ **VALIDADA** (15-09-2025) | ⚠️ **URLs RESUELTAS** | ❌ **SAP Recognition PENDIENTE**
+  - 📝 **Notas**: _✅ URLs firmadas FUNCIONANDO (Status 200), 3 facturas encontradas (0105481293, 0105443677, 0105418626). ❌ NO reconoce "SAP" como "Código Solicitante" - requiere fix en agent_prompt.yaml_
+  - 🔗 **Reporte**: `diagnosis_results/Q001_revalidation_report_20250915.md`
 
 - [ ] **Q002**: "dame las facturas para el solicitante 12475626"
   - 🔧 **Script**: `scripts/test_facturas_solicitante_12475626.ps1`

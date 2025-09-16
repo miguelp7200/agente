@@ -921,22 +921,50 @@ system_instructions: |
 
 ## 📊 **Esquema de Base de Datos BigQuery**
 
-```json
-{
-  "Factura": "STRING - Número único (clave principal)",
-  "Solicitante": "STRING - Código SAP con ceros leading (ej: 0012537749)",
-  "Factura_Referencia": "STRING - Número de referencia",
-  "Rut": "STRING - RUT del cliente",
-  "Nombre": "STRING - Razón social del cliente", 
-  "fecha": "DATE - Fecha de emisión",
-  "DetallesFactura": "RECORD REPEATED - Líneas de factura",
-  "Copia_Tributaria_cf": "STRING - Ruta PDF tributaria con fondo (logo Gasco)",
-  "Copia_Cedible_cf": "STRING - Ruta PDF cedible con fondo (logo Gasco)",
-  "Copia_Tributaria_sf": "STRING - Ruta PDF tributaria sin fondo (sin logo)",
-  "Copia_Cedible_sf": "STRING - Ruta PDF cedible sin fondo (sin logo)",
-  "Doc_Termico": "STRING - Ruta PDF térmico"
-}
-```
+**Tabla:** `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+
+### **Campos Principales**
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `Factura` | STRING | Número único que identifica la factura, proveniente del sistema SAP. **Clave principal de la tabla** |
+| `Solicitante` | STRING | Nombre de la persona o entidad que solicitó la factura. Formato con ceros leading (ej: 0012537749) |
+| `Factura_Referencia` | STRING | Número de factura de referencia, utilizado en casos como notas de crédito/débito o correcciones |
+| `Rut` | STRING | Rol Único Tributario (RUT) del cliente asociado a la factura |
+| `Nombre` | STRING | Nombre o Razón Social del cliente al que se emitió la factura |
+| `fecha` | DATE | Fecha de emisión de la factura |
+
+### **Detalles de Factura (REPEATED RECORD)**
+
+`DetallesFactura` - Array que contiene el detalle de cada línea o ítem de la factura:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `Factura_Pos` | STRING | Número de posición o línea del ítem dentro de la factura |
+| `Material` | STRING | Código o identificador del producto o material facturado |
+| `ValorTotal` | NUMERIC | Valor total de la línea de la factura (Cantidad * Precio Unitario) |
+| `Cantidad` | NUMERIC | Cantidad del material facturado en esta línea |
+| `CantidadUnidad` | STRING | Unidad de medida para la cantidad (ej: KG, UN, L) |
+| `Peso` | NUMERIC | Peso del material facturado |
+| `PesoUnidad` | STRING | Unidad de medida para el peso (ej: KG, T) |
+| `Moneda` | STRING | Moneda en la que se expresa el valor total (ej: CLP, USD) |
+
+### **Archivos PDF**
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `Copia_Tributaria_cf` | STRING | Ruta o identificador del archivo PDF correspondiente a la 'Copia Tributaria con Fondo' |
+| `Copia_Cedible_cf` | STRING | Ruta o identificador del archivo PDF correspondiente a la 'Copia Cedible con Fondo' |
+| `Copia_Tributaria_sf` | STRING | Ruta o identificador del archivo PDF correspondiente a la 'Copia Tributaria sin Fondo' (borrador o copia simple) |
+| `Copia_Cedible_sf` | STRING | Ruta o identificador del archivo PDF correspondiente a la 'Copia Cedible sin Fondo' (borrador o copia simple) |
+| `Doc_Termico` | STRING | Ruta o identificador del documento en formato para impresora térmica |
+
+### **Notas Técnicas**
+- **Total de campos:** 13 campos principales + 8 subcampos en DetallesFactura
+- **Clave primaria:** Factura (STRING)
+- **Campo de fecha:** fecha (DATE) para filtros temporales
+- **Normalización SAP:** Solicitante usa LPAD con ceros (10 dígitos)
+- **Estructura anidada:** DetallesFactura es REPEATED RECORD para múltiples líneas
 
 ## 🚀 **Setup para Continuar Desarrollo**
 
@@ -2313,3 +2341,95 @@ Debido a la complejidad del sistema con múltiples capas (scripts PowerShell, qu
 **Branch de trabajo**: `feature/query-validation-inventory`
 **Estimación**: 2-3 días para implementación completa del inventario
 **Beneficio esperado**: 100% de confianza en consistencia sistema ↔ datos reales
+
+---
+
+## 🗂️ **ORGANIZACIÓN REPOSITORIO Q001 - NUEVA ESTRUCTURA** 
+
+### 📅 **Fecha**: 15 septiembre 2025 21:30
+### 🎯 **Contexto**: Organización de archivos después de validación exitosa Q001
+
+**Durante la validación Q001 se crearon múltiples archivos de diagnóstico y validación. Para mantener el repositorio organizado y escalable para las 61 queries restantes, se implementó una nueva estructura organizacional.**
+
+### ✅ **ESTRUCTURA CREADA**
+
+```
+📁 validation/                    # ← NUEVO: Directorio principal validaciones
+└── 📁 Q001-sap-recognition/      # ← NUEVO: Validación específica Q001
+    ├── 📁 scripts/               # Scripts específicos Q001
+    │   ├── debug_signed_urls_diagnosis.ps1           # Diagnóstico URLs firmadas
+    │   └── Q001_final_validation_bigquery_match.ps1  # Validación final vs BigQuery
+    ├── 📁 sql/                   # Queries SQL específicos Q001  
+    │   ├── debug_signed_urls_failing_Q001.sql        # Debug URLs problemáticas
+    │   └── validation_query_Q001_sap_12537749_agosto_2025.sql  # Query principal
+    ├── 📁 reports/               # Reportes y análisis Q001
+    │   └── Q001_revalidation_report_20250915.md      # Reporte detallado final
+    └── README.md                 # ← NUEVO: Documentación completa Q001
+
+📁 scripts/
+└── 📁 context-validation/        # ← NUEVO: Scripts contexto general reorganizados
+    ├── test_context_validation_workflow.ps1           # (11 scripts movidos)
+    ├── test_universal_context_validation.ps1
+    ├── test_validate_date_range_context.ps1
+    ├── test_validate_rut_context.ps1
+    ├── test_factura_mayor_monto_con_año_especifico.ps1
+    ├── test_factura_mayor_monto_solicitante_0012141289_septiembre.ps1
+    ├── test_tokens_diciembre_2025.ps1
+    ├── test_tokens_enero_2024.ps1
+    ├── test_tokens_ultimas_facturas.ps1
+    ├── test_prevention_system.ps1
+    └── test_successful_token_analysis.ps1
+```
+
+### 🎯 **OBJETIVOS ALCANZADOS**
+
+1. **✅ Separación Clara**: Validaciones específicas vs herramientas generales
+2. **✅ Escalabilidad**: Estructura replicable para Q002-Q062
+3. **✅ Documentación**: README.md completo por validación
+4. **✅ Mantenibilidad**: Referencias actualizadas en QUERY_INVENTORY.md
+5. **✅ Limpieza**: Scripts temporales organizados apropiadamente
+
+### 📋 **ARCHIVOS REORGANIZADOS**
+
+#### Movidos a `validation/Q001-sap-recognition/`:
+- **Scripts (2)**: Diagnóstico URLs firmadas + validación final BigQuery
+- **SQL (2)**: Debug URLs + query validación principal  
+- **Reports (1)**: Reporte completo revalidación Q001
+- **Docs (1)**: README.md con documentación completa
+
+#### Movidos a `scripts/context-validation/`:
+- **Scripts contexto (11)**: Tests de validación general reorganizados
+
+#### Actualizados:
+- **QUERY_INVENTORY.md**: Referencias actualizadas a nueva estructura
+- **Q001 Status**: Apunta a `validation/Q001-sap-recognition/`
+
+### 🔄 **TEMPLATE PARA FUTURAS VALIDACIONES**
+
+La estructura `validation/Q00X-[descripcion]/` será replicada para cada query:
+
+```
+validation/Q002-solicitante-search/
+├── scripts/
+├── sql/ 
+├── reports/
+└── README.md
+```
+
+### 🚀 **BENEFICIOS INMEDIATOS**
+
+1. **Navegación Simplificada**: Cada validación auto-contenida
+2. **Documentación Centralizada**: README por query con contexto completo
+3. **Escalabilidad Probada**: Estructura lista para 61 queries restantes
+4. **Mantenimiento Facilitado**: Separación clara responsabilidades
+5. **Collaboration Ready**: Estructura clara para múltiples desarrolladores
+
+### 📊 **ESTADO POST-ORGANIZACIÓN**
+
+- ✅ **Q001**: Validada y documentada completamente
+- ✅ **Estructura**: Preparada para Q002-Q062
+- ✅ **Referencias**: Actualizadas en documentación principal
+- ✅ **Limpieza**: Archivos temporales organizados
+- 🚀 **Ready**: Para commit y continuación validación sistemática
+
+**Próximo paso**: Continuar con Q002 usando nueva estructura establecida.
