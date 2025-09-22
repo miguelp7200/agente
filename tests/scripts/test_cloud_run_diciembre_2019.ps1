@@ -60,6 +60,10 @@ try {
     Write-Host "`n🔍 DEBUG: Estructura de respuesta recibida:" -ForegroundColor Yellow
     Write-Host "Total de eventos: $($response.Count)" -ForegroundColor Gray
     
+    # DEBUG ADICIONAL: Mostrar toda la respuesta cruda
+    Write-Host "`n🔍 DEBUG COMPLETO: Respuesta cruda recibida:" -ForegroundColor Yellow
+    $response | ConvertTo-Json -Depth 10 | Write-Host -ForegroundColor Gray
+    
     # Buscar respuesta del modelo en diferentes estructuras posibles
     $modelResponse = $null
     
@@ -98,6 +102,11 @@ try {
     if ($modelResponse) {
         Write-Host "`n🤖 Respuesta del chatbot:" -ForegroundColor Cyan
         Write-Host $modelResponse -ForegroundColor White
+        
+        # Verificar si la respuesta está realmente vacía
+        if ([string]::IsNullOrWhiteSpace($modelResponse)) {
+            Write-Host "⚠️  RESPUESTA VACÍA: La respuesta del modelo está vacía o solo contiene espacios" -ForegroundColor Yellow
+        }
         
         # 🔍 ANÁLISIS ESPECÍFICO PARA DICIEMBRE 2019
         Write-Host "`n🔍 ANÁLISIS ESPECÍFICO DE DICIEMBRE 2019:" -ForegroundColor Magenta

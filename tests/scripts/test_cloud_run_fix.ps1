@@ -26,7 +26,7 @@ $sessionUrl = "$backendUrl/apps/$appName/users/$userId/sessions/$sessionId"
 $headers = @{ "Authorization" = "Bearer $token"; "Content-Type" = "application/json" }
 
 try {
-    $sessionResponse = Invoke-RestMethod -Uri $sessionUrl -Method POST -Headers $headers -Body "{}"
+    Invoke-RestMethod -Uri $sessionUrl -Method POST -Headers $headers -Body "{}" | Out-Null
     Write-Host "✅ Sesión creada: $sessionId" -ForegroundColor Green
 } catch {
     Write-Host "⚠️ Sesión ya existe o error menor" -ForegroundColor Yellow
@@ -60,6 +60,10 @@ try {
     Write-Host "`n🔍 DEBUG: Estructura de respuesta recibida:" -ForegroundColor Yellow
     Write-Host "Total de eventos: $($response.Count)" -ForegroundColor Gray
     
+    # DEBUG ADICIONAL: Mostrar toda la respuesta cruda
+    Write-Host "`n🔍 DEBUG COMPLETO: Respuesta cruda recibida:" -ForegroundColor Yellow
+    $response | ConvertTo-Json -Depth 10 | Write-Host -ForegroundColor Gray
+    
     # Buscar respuesta del modelo en diferentes estructuras posibles
     $modelResponse = $null
     
@@ -81,14 +85,14 @@ try {
     
     # Método 3: Buscar en cualquier evento que tenga texto
     if (-not $modelResponse) {
-        foreach ($event in $response) {
-            if ($event.text) {
-                $modelResponse = $event.text
+        foreach ($responseEvent in $response) {
+            if ($responseEvent.text) {
+                $modelResponse = $responseEvent.text
                 Write-Host "✅ Respuesta encontrada en event.text" -ForegroundColor Green
                 break
             }
-            if ($event.content -and $event.content.text) {
-                $modelResponse = $event.content.text
+            if ($responseEvent.content -and $responseEvent.content.text) {
+                $modelResponse = $responseEvent.content.text
                 Write-Host "✅ Respuesta encontrada en event.content.text" -ForegroundColor Green
                 break
             }
@@ -98,6 +102,11 @@ try {
     if ($modelResponse) {
         Write-Host "`n🤖 Respuesta del chatbot:" -ForegroundColor Cyan
         Write-Host $modelResponse -ForegroundColor White
+        
+        # Verificar si la respuesta está realmente vacía
+        if ([string]::IsNullOrWhiteSpace($modelResponse)) {
+            Write-Host "⚠️  RESPUESTA VACÍA: La respuesta del modelo está vacía o solo contiene espacios" -ForegroundColor Yellow
+        }
         
         # 🔍 ANÁLISIS DETALLADO DE URLs
         Write-Host "`n🔍 ANÁLISIS DETALLADO DE URLs:" -ForegroundColor Magenta
@@ -181,20 +190,20 @@ try {
         # Debug: Mostrar estructura de todos los eventos
         Write-Host "`n🔍 DEBUG: Estructura de eventos:" -ForegroundColor Yellow
         for ($i = 0; $i -lt [Math]::Min(3, $response.Count); $i++) {
-            $event = $response[$i]
+            $responseEvent = $response[$i]
             Write-Host "  Evento $($i + 1):" -ForegroundColor Gray
-            if ($event.content) {
-                Write-Host "    - content.role: $($event.content.role)" -ForegroundColor Gray
-                if ($event.content.parts) {
-                    Write-Host "    - content.parts count: $($event.content.parts.Count)" -ForegroundColor Gray
-                    if ($event.content.parts[0]) {
-                        $partKeys = ($event.content.parts[0] | Get-Member -MemberType NoteProperty).Name
+            if ($responseEvent.content) {
+                Write-Host "    - content.role: $($responseEvent.content.role)" -ForegroundColor Gray
+                if ($responseEvent.content.parts) {
+                    Write-Host "    - content.parts count: $($responseEvent.content.parts.Count)" -ForegroundColor Gray
+                    if ($responseEvent.content.parts[0]) {
+                        $partKeys = ($responseEvent.content.parts[0] | Get-Member -MemberType NoteProperty).Name
                         Write-Host "    - part keys: $($partKeys -join ', ')" -ForegroundColor Gray
                     }
                 }
             }
-            if ($event.text) {
-                Write-Host "    - text length: $($event.text.Length)" -ForegroundColor Gray
+            if ($responseEvent.text) {
+                Write-Host "    - text length: $($responseEvent.text.Length)" -ForegroundColor Gray
             }
         }
     }

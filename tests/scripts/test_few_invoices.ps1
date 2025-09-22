@@ -68,10 +68,20 @@ try {
     Write-Host "🎉 ¡Respuesta recibida en $([math]::Round($duration, 2)) segundos!" -ForegroundColor Green
     Write-Host ""
     
+    # DEBUG ADICIONAL: Mostrar toda la respuesta cruda
+    Write-Host "🔍 DEBUG COMPLETO: Respuesta cruda recibida:" -ForegroundColor Yellow
+    $response | ConvertTo-Json -Depth 10 | Write-Host -ForegroundColor Gray
+    Write-Host ""
+    
     if ($response.response) {
         Write-Host "🤖 Respuesta del chatbot:" -ForegroundColor Cyan
         Write-Host $response.response -ForegroundColor White
         Write-Host ""
+        
+        # Verificar si la respuesta está realmente vacía
+        if ([string]::IsNullOrWhiteSpace($response.response)) {
+            Write-Host "⚠️  RESPUESTA VACÍA: La respuesta del modelo está vacía o solo contiene espacios" -ForegroundColor Yellow
+        }
         
         # Análisis de URLs
         Write-Host "🔍 ANÁLISIS DE URLs EN LA RESPUESTA:" -ForegroundColor Yellow
@@ -114,8 +124,8 @@ try {
         Write-Host "📊 Eventos recibidos: $($response.events.Count)" -ForegroundColor Cyan
         
         Write-Host "🔍 Estructura de respuesta:" -ForegroundColor Yellow
-        foreach($event in $response.events) {
-            Write-Host "   Role: $($event.role)" -ForegroundColor Gray
+        foreach($responseEvent in $response.events) {
+            Write-Host "   Role: $($responseEvent.role)" -ForegroundColor Gray
         }
     }
     
