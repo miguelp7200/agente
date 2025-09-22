@@ -37,6 +37,11 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 - **MCP Server:** Toolbox en `localhost:5000` 
 - **Base de datos:** BigQuery `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
 - **Storage:** Google Cloud Storage bucket `miguel-test` para PDFs firmados
+- **🆕 Estabilidad GCS:** Sistema completo de estabilidad para signed URLs (`src/gcs_stability/`)
+  - ⏰ Compensación automática de clock skew
+  - 🔄 Retry exponencial para SignatureDoesNotMatch
+  - 📊 Monitoreo JSON estructurado
+  - 🌍 Configuración UTC forzada
 - **Dataset:** 6,641 facturas (2017-2025)
 - **🆕 Test Automation Framework:** 59+ scripts curl generados automáticamente con visualización de respuestas
 - **🆕 Token Validation Tests:** 5 test cases JSON específicos para validación del sistema de tokens oficial
@@ -107,6 +112,76 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 - ✅ **Control de versiones:** Todos los cambios confirmados en repositorio
 
 **Impacto:** Sistema más robusto con manejo automático de múltiples PDFs y herramientas de validación SQL estructuradas
+
+### 🆕 **PROBLEMA 13: Estabilidad de Google Cloud Storage Signed URLs** [22/09/2025]
+**Issue crítico:** Errores intermitentes `SignatureDoesNotMatch` en URLs firmadas de Google Cloud Storage que causan fallos aleatorios en descargas de PDFs
+
+**Root Cause:** Desincronización temporal (clock skew) entre servidor local y servidores de Google Cloud, provocando que las firmas generadas sean inválidas por diferencias de timestamp
+
+**Problema específico observado:**
+- URLs firmadas que funcionan inmediatamente después de generarse fallan después de 10-15 minutos
+- Error: `SignatureDoesNotMatch: The request signature we calculated does not match the signature you provided`
+- Comportamiento intermitente: a veces funciona, a veces falla sin patrón predecible
+- Impacto en experiencia del usuario: PDFs no descargables de forma consistente
+
+**Solución implementada:**
+- ✅ **Módulo de sincronización temporal** (`src/gcs_stability/gcs_time_sync.py`):
+  - Detección automática de clock skew con servidores de Google Cloud
+  - Función `verify_time_sync()` que compara tiempo local vs. tiempo del servidor GCS
+  - Cálculo automático de buffer de compensación temporal
+
+- ✅ **Generación robusta de URLs** (`src/gcs_stability/gcs_stable_urls.py`):
+  - Compensación automática de clock skew en tiempo de expiración
+  - Validación de formato de URLs generadas
+  - Soporte para batch generation optimizado
+
+- ✅ **Lógica de retry exponencial** (`src/gcs_stability/gcs_retry_logic.py`):
+  - Decorator `@retry_on_signature_error` para funciones críticas
+  - Clase `RetryableSignedURLDownloader` con exponential backoff
+  - Máximo 3 reintentos con delay progresivo (2s, 4s, 8s)
+
+- ✅ **Servicio centralizado estable** (`src/gcs_stability/signed_url_service.py`):
+  - Clase `SignedURLService` que integra todas las mejoras de estabilidad
+  - API unificada: `generate_download_url()`, `generate_download_urls_batch()`
+  - Estadísticas operacionales: URLs generadas, retries ejecutados, errores recuperados
+
+- ✅ **Configuración de entorno UTC** (`src/gcs_stability/environment_config.py`):
+  - Configuración automática de timezone UTC (crítico para estabilidad temporal)
+  - Validación de credenciales de Google Cloud
+  - Variables de entorno optimizadas para signed URLs
+
+- ✅ **Monitoreo estructurado** (`src/gcs_stability/gcs_monitoring.py`):
+  - Logging JSON estructurado con contexto temporal
+  - Métricas thread-safe: `SignedURLMetrics`
+  - Decorator `@monitor_signed_url_operation` para observabilidad
+
+- ✅ **Integración completa en agent.py**:
+  - Función `generate_individual_download_links()` mejorada con detección automática
+  - Fallback robusto: si módulos de estabilidad fallan, usa implementación legacy
+  - Configuración automática del entorno al inicio de cada operación
+
+- ✅ **Variables de configuración** (config.py):
+  - `SIGNED_URL_EXPIRATION_HOURS=24` (duración de URLs)
+  - `SIGNED_URL_BUFFER_MINUTES=5` (compensación de clock skew)
+  - `MAX_SIGNATURE_RETRIES=3` (intentos máximos)
+  - `TIME_SYNC_TIMEOUT=10` (timeout para verificación temporal)
+  - `SIGNED_URL_MONITORING_ENABLED=true` (activar logging)
+
+**Características técnicas avanzadas:**
+- 🕐 **Compensación temporal automática**: Buffer de 5 minutos para clock skew
+- 🔄 **Retry inteligente**: Solo reintenta en errores `SignatureDoesNotMatch` específicos
+- 📊 **Observabilidad completa**: Métricas de rendimiento y logs estructurados
+- 🛡️ **Compatibilidad garantizada**: Fallback automático a implementación original
+- ⚡ **Performance optimizado**: Batch generation para múltiples URLs
+- 🌍 **Timezone UTC forzado**: Elimina variabilidad por zona horaria local
+
+**Testing y validación:**
+- ✅ Simulación de clock skew para validar compensación automática
+- ✅ Testing de retry logic con errores inducidos
+- ✅ Validación de batch generation con múltiples URLs
+- ✅ Verificación de fallback a implementación legacy
+
+**Impacto:** Eliminación de errores intermitentes de SignatureDoesNotMatch, mejora significativa en confiabilidad de descarga de PDFs y experiencia de usuario más consistente
 
 ## 🧪 **SISTEMA INTEGRAL DE TESTING (4 CAPAS - 2025-09-15)**
 
@@ -545,6 +620,12 @@ GROUP BY Solicitante ORDER BY factura_count DESC
 3. **`get_yearly_invoice_statistics`** - Estadísticas anuales ✅
 4. **`get_monthly_invoice_statistics`** - Estadísticas mensuales granulares ✅
 5. **`generate_individual_download_links`** - URLs firmadas GCS ✅
+   - **🆕 ESTABILIDAD MEJORADA**: Sistema completo anti-clock skew implementado
+   - **🕐 Compensación temporal**: Buffer automático de 5 minutos
+   - **🔄 Retry exponencial**: Hasta 3 intentos para SignatureDoesNotMatch
+   - **📊 Monitoreo activo**: Logging JSON estructurado y métricas operacionales
+   - **🛡️ Fallback robusto**: Detección automática con implementación legacy
+   - **⚡ Performance**: Batch generation optimizada para múltiples URLs
 6. **`get_invoices_with_all_pdf_links`** - URLs directas para ZIP + lógica temporal ✅
 7. **🆕 `get_solicitantes_by_rut`** - Códigos SAP por RUT con estadísticas ✅
 8. **🆕 `search_invoices_by_minimum_amount`** - Facturas por monto mínimo (ORDER BY monto DESC) ✅

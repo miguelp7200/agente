@@ -30,7 +30,28 @@ from config import (
     BUCKET_NAME_WRITE,
     IS_CLOUD_RUN,
     VERTEX_AI_MODEL,
+    # Importar nuevas configuraciones para estabilidad de signed URLs
+    SIGNED_URL_EXPIRATION_HOURS,
+    SIGNED_URL_BUFFER_MINUTES,
+    MAX_SIGNATURE_RETRIES,
+    SIGNED_URL_MONITORING_ENABLED,
+    TIME_SYNC_TIMEOUT,
 )
+
+# Importar módulos de estabilidad GCS
+try:
+    from src.gcs_stability import (
+        SignedURLService,
+        configure_environment,
+        setup_signed_url_monitoring,
+        verify_time_sync
+    )
+    GCS_STABILITY_AVAILABLE = True
+    print("✅ Módulos de estabilidad GCS cargados exitosamente")
+except ImportError as e:
+    GCS_STABILITY_AVAILABLE = False
+    print(f"⚠️ Módulos de estabilidad GCS no disponibles: {e}")
+    print("⚠️ Usando implementación legacy para signed URLs")
 
 # Importar configuración YAML (importación relativa)
 from .agent_prompt_config import load_system_instructions, load_agent_config
@@ -634,14 +655,31 @@ def _is_valid_gcs_url(url: str) -> bool:
     return True
 
 
-# <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales --->
+# <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales con estabilidad GCS --->
 def generate_individual_download_links(pdf_urls: str) -> dict:
     """
-    Toma URLs de GCS y genera URLs firmadas seguras para cada una.
+    Toma URLs de GCS y genera URLs firmadas seguras para cada una con mejoras de estabilidad.
     SIEMPRE genera URLs firmadas usando credenciales impersonadas en TODOS los entornos.
+    Incorpora mejoras contra SignatureDoesNotMatch y clock skew.
     Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
     """
-    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces firmados...")
+    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces firmados con mejoras de estabilidad...")
+    
+    # Configurar entorno si los módulos de estabilidad están disponibles
+    if GCS_STABILITY_AVAILABLE:
+        try:
+            print("🔧 [ESTABILIDAD GCS] Configurando entorno...")
+            env_status = configure_environment()
+            if env_status['success']:
+                print("✅ [ESTABILIDAD GCS] Entorno configurado correctamente")
+                if SIGNED_URL_MONITORING_ENABLED:
+                    setup_signed_url_monitoring()
+                    print("✅ [ESTABILIDAD GCS] Monitoreo activado")
+            else:
+                print(f"⚠️ [ESTABILIDAD GCS] Advertencias en configuración: {env_status.get('warnings', [])}")
+        except Exception as e:
+            print(f"⚠️ [ESTABILIDAD GCS] Error configurando entorno: {e}")
+    
     pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
     if not pdf_urls_list:
         return {"success": False, "error": "No se proporcionaron URLs de PDF."}
@@ -705,6 +743,90 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             "error": f"Todas las URLs ({original_count}) fueron filtradas por ser problemáticas",
         }
 
+    # Usar servicio estable si está disponible
+    if GCS_STABILITY_AVAILABLE:
+        try:
+            print("🔗 [ESTABILIDAD GCS] Usando SignedURLService para generación estable...")
+            
+            # Verificar sincronización de tiempo
+            time_sync_info = verify_time_sync()
+            if not time_sync_info['synchronized']:
+                print(f"⚠️ [ESTABILIDAD GCS] Clock skew detectado: {time_sync_info['skew_seconds']}s")
+                print(f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {time_sync_info['buffer_minutes']}min")
+            else:
+                print(f"✅ [ESTABILIDAD GCS] Sincronización temporal OK")
+            
+            # Configurar credenciales impersonadas para el servicio
+            credentials, project = google.auth.default()
+            service_account_email = _get_service_account_email()
+            
+            target_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+            target_credentials = impersonated_credentials.Credentials(
+                source_credentials=credentials,
+                target_principal=service_account_email,
+                target_scopes=target_scopes,
+            )
+            
+            # Inicializar servicio de URLs estables
+            url_service = SignedURLService(
+                credentials=target_credentials,
+                bucket_name=BUCKET_NAME_READ
+            )
+            
+            # Generar URLs estables en batch
+            gs_urls = []
+            for url in pdf_urls_list:
+                # Extraer URL gs:// real del proxy si es necesario
+                actual_gs_url = url
+                if url.startswith("http") and "gcs?url=" in url:
+                    import urllib.parse
+                    parsed_url = urllib.parse.urlparse(url)
+                    query_params = urllib.parse.parse_qs(parsed_url.query)
+                    if "url" in query_params:
+                        actual_gs_url = query_params["url"][0]
+                        print(f"🔄 [ESTABILIDAD GCS] Extraída URL gs:// del proxy: {actual_gs_url}")
+                
+                if actual_gs_url.startswith("gs://"):
+                    gs_urls.append(actual_gs_url)
+                else:
+                    print(f"⚠️ [ESTABILIDAD GCS] URL no válida omitida: {url}")
+            
+            if not gs_urls:
+                return {"success": False, "error": "No se encontraron URLs gs:// válidas"}
+            
+            # Generar URLs firmadas con retry automático
+            stable_urls = url_service.generate_download_urls_batch(gs_urls)
+            
+            if not stable_urls:
+                return {"success": False, "error": "No se pudo generar ninguna URL estable"}
+            
+            # Obtener estadísticas del servicio
+            stats = url_service.get_service_stats()
+            print(f"� [ESTABILIDAD GCS] Estadísticas del servicio:")
+            print(f"   - URLs generadas: {stats['urls_generated']}")
+            print(f"   - Retries ejecutados: {stats['retries_executed']}")
+            print(f"   - Errores recuperados: {stats['errors_recovered']}")
+            
+            return {
+                "success": True,
+                "download_urls": stable_urls,
+                "message": f"Se generaron {len(stable_urls)} URLs estables con protección contra clock skew",
+                "stability_enabled": True,
+                "service_stats": stats,
+                "time_sync_info": time_sync_info
+            }
+            
+        except Exception as e:
+            print(f"❌ [ESTABILIDAD GCS] Error usando servicio estable: {e}")
+            print(f"⚠️ [ESTABILIDAD GCS] Fallback a implementación legacy...")
+
+    # Implementación legacy (fallback)
+    print("🔗 [LEGACY] Usando implementación legacy para signed URLs...")
+    return _generate_individual_download_links_legacy(pdf_urls_list)
+
+
+def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
+    """Implementación legacy de generación de URLs firmadas (sin mejoras de estabilidad)"""
     # Configurar credenciales impersonadas para firmar URLs
     try:
         credentials, project = google.auth.default()
@@ -731,109 +853,12 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
 
     for gs_url in pdf_urls_list:
         try:
-            # 🚨 VALIDACIÓN CRÍTICA: Verificar campos NULL antes de procesar
+            # � VALIDACIÓN CRÍTICA: Verificar campos NULL antes de procesar
             if gs_url is None or gs_url.strip() == "" or gs_url.upper() == "NULL":
                 print(
                     f"⚠️ [LINKS INDIVIDUALES] Campo NULL detectado, omitiendo: '{gs_url}'"
                 )
                 continue
-
-            # Extraer URL gs:// real del proxy si es necesario
-            actual_gs_url = gs_url
-            if gs_url.startswith("http") and "gcs?url=" in gs_url:
-                # URL de proxy: https://backend/gcs?url=gs://bucket/path
-                import urllib.parse
-
-                parsed_url = urllib.parse.urlparse(gs_url)
-                query_params = urllib.parse.parse_qs(parsed_url.query)
-                if "url" in query_params:
-                    actual_gs_url = query_params["url"][0]
-                    print(
-                        f"🔄 [LINKS INDIVIDUALES] Extraída URL gs:// del proxy: {actual_gs_url}"
-                    )
-
-            if not actual_gs_url.startswith("gs://"):
-                print(f"⚠️ [LINKS INDIVIDUALES] URL no válida, se omite: {gs_url}")
-                continue
-
-            # Extraer bucket y blob path de la URL gs://
-            parts = actual_gs_url.replace("gs://", "").split("/", 1)
-            bucket_name = parts[0]
-            blob_name = parts[1]
-
-            # Validar que es el bucket correcto para PDFs
-            if bucket_name != BUCKET_NAME_READ:
-                print(
-                    f"⚠️ [LINKS INDIVIDUALES] Bucket incorrecto {bucket_name}, esperado {BUCKET_NAME_READ}"
-                )
-                continue
-
-            bucket = storage_client.bucket(bucket_name)
-            blob = bucket.blob(blob_name)
-
-            if not blob.exists():
-                print(f"⚠️ [LINKS INDIVIDUALES] Objeto no encontrado: {actual_gs_url}")
-                continue
-
-            # SIEMPRE generar URL firmada usando credenciales impersonadas
-            expiration = datetime.utcnow() + timedelta(hours=1)
-            signed_url = blob.generate_signed_url(
-                version="v4",
-                expiration=expiration,
-                method="GET",
-                credentials=target_credentials,
-            )
-
-            # 🚨 VALIDACIÓN DE URL con validador mejorado - DESACTIVADA PARA TESTING
-            # if not validate_signed_url(signed_url):
-            if False:  # Desactivado temporalmente
-                print(
-                    f"⚠️ [LINKS INDIVIDUALES] URL malformada detectada ({len(signed_url)} chars)"
-                )
-                print("🔄 [LINKS INDIVIDUALES] Intentando regenerar URL...")
-                try:
-                    # Intentar regenerar una vez más
-                    signed_url = blob.generate_signed_url(
-                        version="v4",
-                        expiration=expiration,
-                        method="GET",
-                        credentials=target_credentials,
-                    )
-
-                    # if not validate_signed_url(signed_url):
-                    if False:  # Desactivado temporalmente
-                        print(
-                            f"❌ [LINKS INDIVIDUALES] URL sigue malformada después de regenerar"
-                        )
-                        # Usar URL de proxy como fallback
-                        if CLOUD_RUN_SERVICE_URL:
-                            signed_url = f"{CLOUD_RUN_SERVICE_URL}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                        else:
-                            signed_url = f"http://localhost:{PDF_SERVER_PORT}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                        print(
-                            f"🔄 [LINKS INDIVIDUALES] Usando URL de proxy: {signed_url}"
-                        )
-                    else:
-                        print(f"✅ [LINKS INDIVIDUALES] URL regenerada correctamente")
-                except Exception as e:
-                    print(f"❌ [LINKS INDIVIDUALES] Error regenerando URL: {e}")
-                    # Usar URL de proxy como fallback final
-                    if CLOUD_RUN_SERVICE_URL:
-                        signed_url = f"{CLOUD_RUN_SERVICE_URL}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                    else:
-                        signed_url = f"http://localhost:{PDF_SERVER_PORT}/proxy-pdf/{actual_gs_url.replace('gs://', '')}"
-                    print(
-                        f"🔄 [LINKS INDIVIDUALES] Usando URL de proxy como fallback: {signed_url}"
-                    )
-            else:
-                print(
-                    f"✅ [LINKS INDIVIDUALES] URL firmada válida generada ({len(signed_url)} chars)"
-                )
-
-            secure_links.append(signed_url)
-            print(
-                f"✅ [LINKS INDIVIDUALES] URL firmada generada para: {actual_gs_url} (longitud: {len(signed_url)})"
-            )
 
         except Exception as e:
             print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")

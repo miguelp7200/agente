@@ -160,14 +160,48 @@ ZIP_EXPIRATION_DAYS = int(os.getenv("ZIP_EXPIRATION_DAYS", "7"))
 
 # Configuración de timeouts para ZIP creation
 ZIP_CREATION_TIMEOUT = int(os.getenv("ZIP_CREATION_TIMEOUT", "900"))  # 15 minutos
-ZIP_DOWNLOAD_TIMEOUT = int(os.getenv("ZIP_DOWNLOAD_TIMEOUT", "300"))  # 5 minutos por PDF
-ZIP_MAX_CONCURRENT_DOWNLOADS = int(os.getenv("ZIP_MAX_CONCURRENT_DOWNLOADS", "10"))  # Descargas paralelas
+ZIP_DOWNLOAD_TIMEOUT = int(
+    os.getenv("ZIP_DOWNLOAD_TIMEOUT", "300")
+)  # 5 minutos por PDF
+ZIP_MAX_CONCURRENT_DOWNLOADS = int(
+    os.getenv("ZIP_MAX_CONCURRENT_DOWNLOADS", "10")
+)  # Descargas paralelas
 
 # Límite máximo de PDFs por ZIP para evitar timeouts
 ZIP_MAX_FILES = int(os.getenv("ZIP_MAX_FILES", "50"))
 
 # Usar URLs firmadas individuales en lugar de ZIP para conjuntos muy grandes
 USE_SIGNED_URLS_THRESHOLD = int(os.getenv("USE_SIGNED_URLS_THRESHOLD", "30"))
+
+# ==============================================
+# CONFIGURACIÓN DE SIGNED URLS - ESTABILIDAD
+# ==============================================
+
+# Configuración de timezone UTC para estabilidad de signed URLs
+TZ = os.getenv("TZ", "UTC")
+
+# Duración de expiración de signed URLs (en horas)
+SIGNED_URL_EXPIRATION_HOURS = int(os.getenv("SIGNED_URL_EXPIRATION_HOURS", "24"))
+
+# Buffer de tiempo para compensar clock skew (en minutos)
+SIGNED_URL_BUFFER_MINUTES = int(os.getenv("SIGNED_URL_BUFFER_MINUTES", "5"))
+
+# Configuración de retry para errores de signature
+MAX_SIGNATURE_RETRIES = int(os.getenv("MAX_SIGNATURE_RETRIES", "3"))
+SIGNATURE_RETRY_DELAY = int(os.getenv("SIGNATURE_RETRY_DELAY", "2"))
+SIGNATURE_RETRY_BACKOFF = float(os.getenv("SIGNATURE_RETRY_BACKOFF", "2.0"))
+
+# Configuración de monitoreo de signed URLs
+SIGNED_URL_MONITORING_ENABLED = (
+    os.getenv("SIGNED_URL_MONITORING_ENABLED", "true").lower() == "true"
+)
+SIGNED_URL_LOG_LEVEL = os.getenv("SIGNED_URL_LOG_LEVEL", "INFO")
+
+# Timeout para verificación de sincronización de tiempo (en segundos)
+TIME_SYNC_TIMEOUT = int(os.getenv("TIME_SYNC_TIMEOUT", "10"))
+
+# Threshold para diferencia temporal aceptable (en segundos)
+TIME_SYNC_THRESHOLD = int(os.getenv("TIME_SYNC_THRESHOLD", "300"))  # 5 minutos
 
 # ==============================================
 # CONFIGURACIÓN DE VISUALIZACIÓN EN CHAT
@@ -210,7 +244,9 @@ ZIPS_DIR.mkdir(exist_ok=True)
 IS_CLOUD_RUN = os.getenv("K_SERVICE") is not None
 
 # URL del servicio en Cloud Run (para URLs de descarga)
-CLOUD_RUN_SERVICE_URL = os.getenv("CLOUD_RUN_SERVICE_URL", "https://invoice-backend-819133916464.us-central1.run.app")
+CLOUD_RUN_SERVICE_URL = os.getenv(
+    "CLOUD_RUN_SERVICE_URL", "https://invoice-backend-819133916464.us-central1.run.app"
+)
 
 # Configuraciones específicas para Cloud Run
 if IS_CLOUD_RUN:
@@ -256,6 +292,27 @@ def validate_config():
     if not LOCATION:
         errors.append("LOCATION no está configurado")
 
+    # Validar configuración de signed URLs
+    if (
+        SIGNED_URL_EXPIRATION_HOURS <= 0 or SIGNED_URL_EXPIRATION_HOURS > 168
+    ):  # Max 7 días
+        errors.append(
+            f"SIGNED_URL_EXPIRATION_HOURS debe estar entre 1 y 168: {SIGNED_URL_EXPIRATION_HOURS}"
+        )
+
+    if SIGNED_URL_BUFFER_MINUTES < 0 or SIGNED_URL_BUFFER_MINUTES > 60:
+        errors.append(
+            f"SIGNED_URL_BUFFER_MINUTES debe estar entre 0 y 60: {SIGNED_URL_BUFFER_MINUTES}"
+        )
+
+    if MAX_SIGNATURE_RETRIES < 0 or MAX_SIGNATURE_RETRIES > 10:
+        errors.append(
+            f"MAX_SIGNATURE_RETRIES debe estar entre 0 y 10: {MAX_SIGNATURE_RETRIES}"
+        )
+
+    if TIME_SYNC_TIMEOUT <= 0 or TIME_SYNC_TIMEOUT > 60:
+        errors.append(f"TIME_SYNC_TIMEOUT debe estar entre 1 y 60: {TIME_SYNC_TIMEOUT}")
+
     if errors:
         raise ValueError(f"Errores de configuración: {', '.join(errors)}")
 
@@ -279,6 +336,13 @@ def validate_config():
     print(f"      - Max PDF links: {MAX_PDF_LINKS_DISPLAY}")
     print(f"      - ZIP threshold: {ZIP_THRESHOLD}")
     print(f"      - ZIP preview: {ZIP_PREVIEW_LIMIT}")
+    print(f"   [SIGNED URLs ESTABILIDAD]:")
+    print(f"      - Timezone: {TZ}")
+    print(f"      - Expiración: {SIGNED_URL_EXPIRATION_HOURS}h")
+    print(f"      - Buffer: {SIGNED_URL_BUFFER_MINUTES}min")
+    print(f"      - Max retries: {MAX_SIGNATURE_RETRIES}")
+    print(f"      - Monitoreo: {SIGNED_URL_MONITORING_ENABLED}")
+    print(f"      - Time sync timeout: {TIME_SYNC_TIMEOUT}s")
 
 
 # Ejecutar validación al importar
