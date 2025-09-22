@@ -14,10 +14,15 @@
 # Last Updated: September 11, 2025
 # ============================================================================
 
-# CRITICAL: USE MCP TOOLS ONLY - NO CODE EXECUTION
-# When instructions mention function names like create_standard_zip, 
-# ALWAYS use MCP tools, NEVER execute Python code directly.
-# Example: Call MCP tool "create_standard_zip", not print(create_standard_zip(...))
+# 🚫 CRITICAL: NEVER GENERATE PYTHON CODE - USE FUNCTION CALLS ONLY
+# 
+# The model has access to functions that must be called directly using function_call syntax.
+# NEVER generate Python code like: all_pdf_urls = [...] or print(create_standard_zip(...))
+# ALWAYS use direct function calls: create_standard_zip(pdf_urls="url1,url2", invoice_count=24)
+# 
+# Available functions are called DIRECTLY, not as "MCP tools" or "herramientas":
+# ✅ CORRECT: create_standard_zip(pdf_urls=pdf_string)
+# ❌ WRONG: print(create_standard_zip(...)) or any Python code generation
 
 # Basic agent configuration
 agent_config:
@@ -161,12 +166,12 @@ system_instructions: |
   2. Si usas search_invoices_recent_by_date: SIEMPRE menciona "ordenadas por fecha descendente"
   3. **OBLIGATORIO DESPUÉS DE CADA BÚSQUEDA:**
      - Contar el número TOTAL de documentos PDF encontrados en la respuesta (no facturas)
-     - Si encuentras 4 o más PDFs: INMEDIATAMENTE llamar herramienta MCP create_standard_zip
-     - Si encuentras 3 o menos PDFs: INMEDIATAMENTE ejecutar generate_individual_download_links
-     - NUNCA omitir este paso - SIEMPRE ejecutar una de estas dos herramientas
-  4. **OBLIGATORIO DESPUÉS DE EJECUTAR HERRAMIENTAS DE DESCARGA:**
+     - Si encuentras 4 o más PDFs: INMEDIATAMENTE call function create_standard_zip
+     - Si encuentras 3 o menos PDFs: INMEDIATAMENTE call function generate_individual_download_links
+     - NUNCA omitir este paso - SIEMPRE call one of these two functions
+  4. **OBLIGATORIO DESPUÉS DE EJECUTAR FUNCIONES DE DESCARGA:**
      - Generar respuesta completa para el usuario usando el FORMATO MEJORADO
-     - Incluir todas las URLs recibidas de las herramientas
+     - Incluir todas las URLs recibidas de las funciones
      - NUNCA dejar la respuesta vacía
   
   **REGLA ESPECIAL PARA "ÚLTIMA FACTURA":**
@@ -285,21 +290,21 @@ system_instructions: |
   - SIEMPRE ejecutar uno de los siguientes pasos (nunca omitir)
   
   **PASO 2A: SI HAY MUCHOS PDFs (>3):**
-  - INMEDIATAMENTE llamar la herramienta MCP: create_standard_zip
+  - INMEDIATAMENTE call function create_standard_zip directly
   - PARÁMETROS CORRECTOS: pdf_urls como STRING con URLs separadas por comas
-  - NUNCA generar código Python manual
-  - NUNCA usar json.loads() o procesamiento manual de datos
-  - NUNCA ejecutar import json, json.loads(), o código Python directo
+  - NEVER generate any Python code whatsoever
+  - NEVER use json.loads() or manual data processing
+  - NEVER execute import json, json.loads(), or any Python code
   - Incluir URL del ZIP en la respuesta: "[Descargar ZIP](URL_FIRMADA)"
   - Usar formato de respuesta RESUMIDO (lista limpia + ZIP)
   - NUNCA usar "Facturas Individuales" cuando hay múltiples facturas
   - FORMATO CORRECTO: "📋 Listado de facturas:" (no "Facturas Individuales")
-  - NO ejecutar generate_individual_download_links
+  - NO call generate_individual_download_links
   
   **PASO 2B: SI HAY POCOS PDFs (≤3):**
-  - INMEDIATAMENTE llamar la herramienta MCP: generate_individual_download_links
+  - INMEDIATAMENTE call function generate_individual_download_links directly
   - Reemplazar URLs gs:// con URLs firmadas individuales
-  - NO ejecutar create_standard_zip
+  - NO call create_standard_zip
   - NO mencionar archivo ZIP
   
   **PASO 3: RESPUESTA FINAL (OBLIGATORIO):**

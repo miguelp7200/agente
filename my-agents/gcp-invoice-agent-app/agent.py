@@ -44,8 +44,9 @@ try:
         SignedURLService,
         configure_environment,
         setup_signed_url_monitoring,
-        verify_time_sync
+        verify_time_sync,
     )
+
     GCS_STABILITY_AVAILABLE = True
     print("✅ Módulos de estabilidad GCS cargados exitosamente")
 except ImportError as e:
@@ -562,8 +563,8 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             else:
                 return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-        # Generar signed URL válida por 1 hora con credenciales impersonadas
-        expiration = datetime.utcnow() + timedelta(hours=1)
+        # Generar signed URL válida usando configuración de SIGNED_URL_EXPIRATION_HOURS
+        expiration = datetime.utcnow() + timedelta(hours=SIGNED_URL_EXPIRATION_HOURS)
 
         signed_url = blob.generate_signed_url(
             version="v4",
@@ -663,23 +664,27 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     Incorpora mejoras contra SignatureDoesNotMatch y clock skew.
     Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
     """
-    print(f"🔗 [LINKS INDIVIDUALES] Generando enlaces firmados con mejoras de estabilidad...")
-    
+    print(
+        f"🔗 [LINKS INDIVIDUALES] Generando enlaces firmados con mejoras de estabilidad..."
+    )
+
     # Configurar entorno si los módulos de estabilidad están disponibles
     if GCS_STABILITY_AVAILABLE:
         try:
             print("🔧 [ESTABILIDAD GCS] Configurando entorno...")
             env_status = configure_environment()
-            if env_status['success']:
+            if env_status["success"]:
                 print("✅ [ESTABILIDAD GCS] Entorno configurado correctamente")
                 if SIGNED_URL_MONITORING_ENABLED:
                     setup_signed_url_monitoring()
                     print("✅ [ESTABILIDAD GCS] Monitoreo activado")
             else:
-                print(f"⚠️ [ESTABILIDAD GCS] Advertencias en configuración: {env_status.get('warnings', [])}")
+                print(
+                    f"⚠️ [ESTABILIDAD GCS] Advertencias en configuración: {env_status.get('warnings', [])}"
+                )
         except Exception as e:
             print(f"⚠️ [ESTABILIDAD GCS] Error configurando entorno: {e}")
-    
+
     pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
     if not pdf_urls_list:
         return {"success": False, "error": "No se proporcionaron URLs de PDF."}
@@ -746,33 +751,40 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     # Usar servicio estable si está disponible
     if GCS_STABILITY_AVAILABLE:
         try:
-            print("🔗 [ESTABILIDAD GCS] Usando SignedURLService para generación estable...")
-            
+            print(
+                "🔗 [ESTABILIDAD GCS] Usando SignedURLService para generación estable..."
+            )
+
             # Verificar sincronización de tiempo
             time_sync_info = verify_time_sync()
-            if not time_sync_info['synchronized']:
-                print(f"⚠️ [ESTABILIDAD GCS] Clock skew detectado: {time_sync_info['skew_seconds']}s")
-                print(f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {time_sync_info['buffer_minutes']}min")
+            if not time_sync_info["synchronized"]:
+                print(
+                    f"⚠️ [ESTABILIDAD GCS] Clock skew detectado: {time_sync_info['skew_seconds']}s"
+                )
+                print(
+                    f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {time_sync_info['buffer_minutes']}min"
+                )
             else:
                 print(f"✅ [ESTABILIDAD GCS] Sincronización temporal OK")
-            
+
             # Configurar credenciales impersonadas para el servicio
             credentials, project = google.auth.default()
             service_account_email = _get_service_account_email()
-            
+
             target_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
             target_credentials = impersonated_credentials.Credentials(
                 source_credentials=credentials,
                 target_principal=service_account_email,
                 target_scopes=target_scopes,
             )
-            
-            # Inicializar servicio de URLs estables
+
+            # Inicializar servicio de URLs estables con configuración correcta
             url_service = SignedURLService(
                 credentials=target_credentials,
-                bucket_name=BUCKET_NAME_READ
+                bucket_name=BUCKET_NAME_READ,
+                default_expiration_hours=SIGNED_URL_EXPIRATION_HOURS,
             )
-            
+
             # Generar URLs estables en batch
             gs_urls = []
             for url in pdf_urls_list:
@@ -780,42 +792,75 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 actual_gs_url = url
                 if url.startswith("http") and "gcs?url=" in url:
                     import urllib.parse
+
                     parsed_url = urllib.parse.urlparse(url)
                     query_params = urllib.parse.parse_qs(parsed_url.query)
                     if "url" in query_params:
                         actual_gs_url = query_params["url"][0]
-                        print(f"🔄 [ESTABILIDAD GCS] Extraída URL gs:// del proxy: {actual_gs_url}")
-                
+                        print(
+                            f"🔄 [ESTABILIDAD GCS] Extraída URL gs:// del proxy: {actual_gs_url}"
+                        )
+
                 if actual_gs_url.startswith("gs://"):
                     gs_urls.append(actual_gs_url)
                 else:
                     print(f"⚠️ [ESTABILIDAD GCS] URL no válida omitida: {url}")
-            
+
             if not gs_urls:
-                return {"success": False, "error": "No se encontraron URLs gs:// válidas"}
-            
+                return {
+                    "success": False,
+                    "error": "No se encontraron URLs gs:// válidas",
+                }
+
+            # Extraer bucket_name y blob_names de las URLs gs://
+            bucket_name = None
+            blob_names = []
+
+            for gs_url in gs_urls:
+                if gs_url.startswith("gs://"):
+                    # Formato: gs://bucket-name/path/to/file.pdf
+                    parts = gs_url[5:].split("/", 1)  # Remover 'gs://' y dividir
+                    if len(parts) == 2:
+                        url_bucket, blob_name = parts
+                        if bucket_name is None:
+                            bucket_name = url_bucket
+                        elif bucket_name != url_bucket:
+                            print(
+                                f"⚠️ [ESTABILIDAD GCS] Múltiples buckets detectados: {bucket_name} vs {url_bucket}"
+                            )
+                        blob_names.append(blob_name)
+
+            if not bucket_name or not blob_names:
+                return {
+                    "success": False,
+                    "error": "No se pudieron extraer bucket y blob names válidos",
+                }
+
             # Generar URLs firmadas con retry automático
-            stable_urls = url_service.generate_download_urls_batch(gs_urls)
-            
+            stable_urls = url_service.generate_batch_urls(bucket_name, blob_names)
+
             if not stable_urls:
-                return {"success": False, "error": "No se pudo generar ninguna URL estable"}
-            
+                return {
+                    "success": False,
+                    "error": "No se pudo generar ninguna URL estable",
+                }
+
             # Obtener estadísticas del servicio
             stats = url_service.get_service_stats()
             print(f"� [ESTABILIDAD GCS] Estadísticas del servicio:")
             print(f"   - URLs generadas: {stats['urls_generated']}")
             print(f"   - Retries ejecutados: {stats['retries_executed']}")
             print(f"   - Errores recuperados: {stats['errors_recovered']}")
-            
+
             return {
                 "success": True,
                 "download_urls": stable_urls,
                 "message": f"Se generaron {len(stable_urls)} URLs estables con protección contra clock skew",
                 "stability_enabled": True,
                 "service_stats": stats,
-                "time_sync_info": time_sync_info
+                "time_sync_info": time_sync_info,
             }
-            
+
         except Exception as e:
             print(f"❌ [ESTABILIDAD GCS] Error usando servicio estable: {e}")
             print(f"⚠️ [ESTABILIDAD GCS] Fallback a implementación legacy...")

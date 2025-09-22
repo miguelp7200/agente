@@ -13,6 +13,13 @@ from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime, timezone
 import json
 
+# Importar configuración de signed URLs
+try:
+    from config import SIGNED_URL_EXPIRATION_HOURS
+except ImportError:
+    # Fallback si no se puede importar config
+    SIGNED_URL_EXPIRATION_HOURS = 24
+
 from .gcs_time_sync import verify_time_sync, get_time_sync_info
 from .gcs_stable_urls import (
     generate_stable_signed_url,
@@ -41,7 +48,9 @@ class SignedURLService:
     def __init__(
         self,
         service_account_path: Optional[str] = None,
-        default_expiration_hours: int = 1,
+        credentials: Optional[Any] = None,
+        bucket_name: Optional[str] = None,
+        default_expiration_hours: Optional[int] = None,
         max_retries: int = 3,
         enable_monitoring: bool = True,
     ):
@@ -50,12 +59,18 @@ class SignedURLService:
 
         Args:
             service_account_path: Ruta al archivo de service account (opcional)
-            default_expiration_hours: Horas de expiración por defecto
+            credentials: Credenciales de GCP (opcional, para uso con impersonated credentials)
+            bucket_name: Nombre del bucket por defecto (opcional)
+            default_expiration_hours: Horas de expiración por defecto (usa configuración si None)
             max_retries: Número máximo de reintentos para descargas
             enable_monitoring: Si habilitar logging estructurado
         """
         self.service_account_path = service_account_path
-        self.default_expiration_hours = default_expiration_hours
+        self.credentials = credentials
+        self.bucket_name = bucket_name
+        self.default_expiration_hours = (
+            default_expiration_hours or SIGNED_URL_EXPIRATION_HOURS
+        )
         self.max_retries = max_retries
         self.enable_monitoring = enable_monitoring
 
@@ -404,10 +419,8 @@ if __name__ == "__main__":
 
     print("🎯 Testing SignedURLService...")
 
-    # Crear instancia del servicio
-    service = SignedURLService(
-        default_expiration_hours=1, max_retries=2, enable_monitoring=True
-    )
+    # Crear instancia del servicio (usa configuración de config.py)
+    service = SignedURLService(max_retries=2, enable_monitoring=True)
 
     # Test estado de sincronización
     sync_status = service.get_time_sync_status()
