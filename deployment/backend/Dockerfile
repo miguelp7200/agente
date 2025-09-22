@@ -33,9 +33,6 @@ COPY .env ./
 COPY deployment/backend/start_backend.sh ./
 RUN chmod +x start_backend.sh
 
-# Copiar servidor combinado para Cloud Run
-COPY combined_server.py ./
-
 # Hacer ejecutable el toolbox y verificar
 RUN chmod +x ./mcp-toolbox/toolbox
 RUN ls -la ./mcp-toolbox/toolbox

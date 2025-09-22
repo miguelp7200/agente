@@ -430,19 +430,26 @@ La URL del servicio en producción es: `https://invoice-backend-819133916464.us-
 
 Este proyecto es propiedad de Gasco y Option. Todos los derechos reservados.\\\ash
 
-# Prueba de endpoint de salud
-
-## 👥 Contacto y Soportecurl https://[URL_SERVICIO]/health
-
+# Listar aplicaciones disponibles (equivalente a health check)
+curl https://[URL_SERVICIO]/list-apps
 
 
-Para soporte técnico o consultas, contacta al equipo de desarrollo en [soporte-tech@option.cl](mailto:soporte-tech@option.cl).# Prueba de chat ADK
-curl -X POST https://[URL_SERVICIO]/api/chat \\
-  -H 'Content-Type: application/json' \\
-  -d '{\"message\": \"Muéstrame las facturas del mes pasado\"}'
+
+Para soporte técnico o consultas, contacta al equipo de desarrollo en [soporte-tech@option.cl](mailto:soporte-tech@option.cl).# Prueba del endpoint principal ADK
+curl -X POST https://[URL_SERVICIO]/run \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "appName": "gcp-invoice-agent-app",
+    "userId": "test-user", 
+    "sessionId": "test-session-123",
+    "newMessage": {
+      "parts": [{"text": "Muéstrame las facturas del mes pasado"}],
+      "role": "user"
+    }
+  }'
 \\\
 
-Para pruebas más completas, consulta los archivos en la carpeta \	ests/\.
+Para pruebas más completas, consulta los archivos en la carpeta `tests/`.
 
 ## 📊 Monitoreo
 
@@ -453,14 +460,18 @@ El backend está configurado para enviar logs a Google Cloud Logging. Puedes mon
 
 ## 🔗 Integración con Frontend
 
-El backend expone endpoints RESTful para la comunicación con el frontend:
+El backend expone endpoints RESTful basados en ADK para la comunicación con el frontend:
 
-- /api/chat: Endpoint principal del chatbot
-- /api/documents: Endpoint para la gestión de documentos
-- /api/health: Verificación del estado del sistema
-- /api/bigquery: Consultas directas a la base de datos
+- `/run`: Endpoint principal para ejecutar conversaciones con el chatbot
+- `/run_sse`: Endpoint para streaming server-sent events del chatbot
+- `/list-apps`: Lista las aplicaciones ADK disponibles
+- `/apps/{app_name}/users/{user_id}/sessions/{session_id}`: Gestión de sesiones de usuario
+- `/apps/{app_name}/users/{user_id}/sessions`: Crear y listar sesiones
+- `/gcs?url=`: Proxy para descargas con signed URLs (PDF/ZIP)
 
-Consulta la documentación completa de la API en [https://[URL_SERVICIO]/api/docs](https://[URL_SERVICIO]/api/docs).
+**Nota**: El sistema ADK no incluye endpoint `/health`. Para verificar estado usar `/list-apps`.
+
+Consulta la documentación completa de la API ADK en `docs/adk_api_documentation.json`.
 
 ## 🛠️ Solución de Problemas Comunes
 
