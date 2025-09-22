@@ -10,6 +10,11 @@ tests/results/
 *.test.json
 *.debug.log
 
+# Ignorar archivos de respuesta temporales de scripts de testing
+sap_query_response_*.txt
+*_query_response_*.txt
+*_response_*.txt
+
 # Ignorar archivos binarios grandes
 mcp-toolbox/toolbox
 mcp-toolbox/toolbox.exe
