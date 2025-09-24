@@ -38,6 +38,15 @@ from config import (
     TIME_SYNC_TIMEOUT,
 )
 
+# Importar sistema robusto de signed URLs
+try:
+    from src.gcs_stability.signed_url_service import SignedURLService
+    from src.gcs_stability.gcs_stable_urls import generate_stable_signed_url
+    ROBUST_SIGNED_URLS_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ [GCS] Sistema robusto de signed URLs no disponible: {e}")
+    ROBUST_SIGNED_URLS_AVAILABLE = False
+
 # Importar módulos de estabilidad GCS
 try:
     from src.gcs_stability import (
@@ -526,15 +535,46 @@ def _get_service_account_email():
 
 def generate_signed_zip_url(zip_filename: str) -> str:
     """
-    Genera una URL firmada de descarga desde Google Cloud Storage usando credenciales impersonadas.
+    Genera una URL firmada de descarga desde Google Cloud Storage usando el sistema robusto de estabilidad.
+
+    Esta función utiliza el sistema avanzado de src/gcs_stability/ que maneja automáticamente:
+    - Clock skew detection y compensación
+    - Buffer time automático
+    - Reintentos con backoff
+    - Monitoreo y logging estructurado
 
     Args:
         zip_filename: Nombre del archivo ZIP
 
     Returns:
-        URL firmada para descarga segura
+        URL firmada para descarga segura con compensación de clock skew
     """
     try:
+        # Usar sistema robusto si está disponible
+        if ROBUST_SIGNED_URLS_AVAILABLE:
+            print(f"🔧 [GCS] Usando sistema robusto para signed URL de {zip_filename}")
+
+            try:
+                # Generar URL con compensación automática de clock skew
+                signed_url = generate_stable_signed_url(
+                    bucket_name=BUCKET_NAME_WRITE,
+                    blob_name=zip_filename,
+                    expiration_hours=SIGNED_URL_EXPIRATION_HOURS,
+                    service_account_path=None,  # Usar credenciales por defecto
+                )
+
+                print(f"✅ [GCS] Signed URL estable generada para {zip_filename}")
+                print(f"🔗 [GCS] URL: {signed_url[:100]}...")
+
+                return signed_url
+
+            except Exception as robust_error:
+                print(f"⚠️ [GCS] Sistema robusto falló, usando fallback: {robust_error}")
+                # Continuar con implementación legacy como fallback
+        else:
+            print(f"⚠️ [GCS] Sistema robusto no disponible, usando implementación legacy")
+
+        # Fallback: implementación legacy con mejoras básicas
         # Obtener credenciales por defecto
         credentials, project = google.auth.default()
 
@@ -563,8 +603,9 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             else:
                 return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-        # Generar signed URL válida usando configuración de SIGNED_URL_EXPIRATION_HOURS
-        expiration = datetime.utcnow() + timedelta(hours=SIGNED_URL_EXPIRATION_HOURS)
+        # Generar signed URL con buffer time básico para compensar clock skew
+        buffer_minutes = SIGNED_URL_BUFFER_MINUTES if 'SIGNED_URL_BUFFER_MINUTES' in globals() else 5
+        expiration = datetime.utcnow() + timedelta(hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes)
 
         signed_url = blob.generate_signed_url(
             version="v4",
@@ -573,51 +614,21 @@ def generate_signed_zip_url(zip_filename: str) -> str:
             credentials=target_credentials,
         )
 
-        # 🚨 VALIDACIÓN DE ZIP URL - DESACTIVADA PARA TESTING
-        # if not validate_signed_url(signed_url):
-        if False:  # Desactivado temporalmente
-            print(f"⚠️ [GCS] ZIP URL malformada detectada ({len(signed_url)} chars)")
-            print("🔄 [GCS] Intentando regenerar ZIP URL...")
-            try:
-                # Intentar regenerar una vez más
-                signed_url = blob.generate_signed_url(
-                    version="v4",
-                    expiration=expiration,
-                    method="GET",
-                    credentials=target_credentials,
-                )
-
-                # if not validate_signed_url(signed_url):
-                #     print(f"❌ [GCS] ZIP URL sigue malformada, usando fallback")
-                #     if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                #         return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-                #     else:
-                #         return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-                # else:
-                #     print(f"✅ [GCS] ZIP URL regenerada correctamente")
-            except Exception as e:
-                print(f"❌ [GCS] Error regenerando ZIP URL: {e}")
-                if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                    return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-                else:
-                    return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-
-        print(
-            f"✅ [GCS] Signed URL generada para {zip_filename} con credenciales impersonadas"
-        )
-        print(
-            f"🔗 [GCS] URL: {signed_url[:100]}..."
-        )  # Solo mostrar inicio por seguridad
+        print(f"✅ [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)")
+        print(f"🔗 [GCS] URL: {signed_url[:100]}...")
 
         return signed_url
 
     except Exception as e:
-        print(f"❌ [GCS] Error generando signed URL con credenciales impersonadas: {e}")
-        # Fallback a URL de proxy si falla la signed URL
+        print(f"❌ [GCS] Error generando signed URL: {e}")
+        # Fallback a URL de proxy si falla completamente
         if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+            fallback_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
         else:
-            return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+            fallback_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+
+        print(f"🔄 [GCS] Usando URL de proxy como fallback: {fallback_url}")
+        return fallback_url
 
 
 # <--- FUNCIÓN AUXILIAR: Validador de URLs GCS --->
@@ -705,19 +716,19 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             # Llamar automáticamente a create_standard_zip
             zip_result = create_standard_zip(pdf_urls, pdf_count)
 
-            if zip_result.get("success") and zip_result.get("zip_url"):
+            if zip_result.get("success") and zip_result.get("download_url"):
                 print(
-                    f"✅ [INTERCEPTOR AUTO-ZIP] ZIP creado exitosamente: {zip_result['zip_url']}"
+                    f"✅ [INTERCEPTOR AUTO-ZIP] ZIP creado exitosamente: {zip_result['download_url']}"
                 )
 
                 # Retornar resultado en formato compatible con enlaces individuales
                 return {
                     "success": True,
-                    "download_urls": [zip_result["zip_url"]],  # Solo el ZIP
+                    "download_urls": [zip_result["download_url"]],  # Solo el ZIP
                     "message": f"Auto-ZIP creado con {pdf_count} PDFs (interceptado automáticamente)",
                     "zip_auto_created": True,
                     "original_pdf_count": pdf_count,
-                    "zip_url": zip_result["zip_url"],
+                    "zip_url": zip_result["download_url"],
                 }
             else:
                 print(f"❌ [INTERCEPTOR AUTO-ZIP] Error creando ZIP: {zip_result}")

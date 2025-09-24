@@ -137,6 +137,14 @@ Key tool categories with **token optimization** (all limits reduced 50% for perf
 - PDF access restricted to **invoice context only** (no arbitrary file downloads)
 - ZIP operations logged in BigQuery for audit trails
 
+### GCS Signed URL Stability System
+The system includes a robust signed URL generation module (`src/gcs_stability/`) that handles:
+- **Clock Skew Detection**: Automatic detection and compensation of time differences
+- **Buffer Time Management**: Intelligent buffer calculation based on sync status
+- **Retry Logic**: Automatic retries with exponential backoff for failed downloads
+- **Monitoring**: Structured logging and statistics for signed URL operations
+- **Fallback System**: Multi-tier fallback (robust → legacy → proxy) for maximum reliability
+
 ## Testing Framework
 
 ### Comprehensive Testing System (4 layers)
@@ -166,6 +174,9 @@ Key tool categories with **token optimization** (all limits reduced 50% for perf
 - ✅ **PDF Type Terminology**: Clear CF/SF (con/sin fondo) explanations
 - ✅ **ZIP Generation Issues**: Fixed proxy URLs and file counting
 - ✅ **GCS Signed URL Stability**: Complete retry system with clock skew compensation
+- ✅ **AUTO-ZIP Interceptor Bug**: Fixed download_url vs zip_url field inconsistency
+- ✅ **SignatureDoesNotMatch Errors**: Integrated robust signed URL system with automatic clock skew detection
+- ✅ **Dockerfile Missing Dependencies**: Added src/ directory to container for robust GCS stability modules
 
 ### Troubleshooting Commands
 ```bash

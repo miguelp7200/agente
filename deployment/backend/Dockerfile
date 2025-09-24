@@ -22,6 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar código fuente
 COPY my-agents/ ./my-agents/
 COPY mcp-toolbox/ ./mcp-toolbox/
+COPY src/ ./src/
 COPY local_pdf_server.py ./
 COPY config.py ./
 COPY create_complete_zip.py ./
