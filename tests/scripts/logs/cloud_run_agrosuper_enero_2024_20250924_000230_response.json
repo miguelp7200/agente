@@ -1,0 +1,214 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Cp4FAR_MhbYH-vLL4CwLf28oyIzCXb-xoLQnG473If_blfUXMhl8-NqrMv3tP1Qx2BiHZdAEOyYH7n87tsgXNS1dni-y6o4G_k2fLB4tdpNTpbaE5SMi_3imyw2-yZY1ghmV4CNn111Yqb_PSJWXMaibKdgKGBh76yZXVX0EByAHuCd5N69IkAbzJXcehsTjMELlVuvnCrbhnq-3hOEV5DB4bs5WAON3GQSGG3Faz8XOMwhYyanYEiH40ZFnuP2JVPHMRH36--f7EbuJ5s2jjlc0dpe3epGAYzfma2Wf7dzOo6ij-h3iF5oGk-zoaR5DWimoe63VRa_EjOmQ5ZedYw2noh5L-RB1safFW5NWlIUGZ6-lC2tuuxcwai9GPVNZSHWWa0FtHbHaU0WU0rPfjoxu6MEFSWS708fDa_IRNXbAM8A87ejbgfFtroDoKR21CXuTrjCKjr87RpiMpfUHU5T9gwoviocbP1ajR6d8n5QyB64t9vZ4Lnh2Ta_tAC8D9BlZAWHWUJqw5Ma3MaZuOfiVdD82s_XBjeBv-gVHT96okuTVgGYTs6BKz_DCwq7uYQhvn_2tegVZsJXLCjSnP3TBCjMY8G7BpBNd4BA1TZCGlaYMFdm1zHCfl5sRCeWm1gr484E55Obq2-2HNVS48rgblm-tZaib2PlIeowZ8Y_uOGQfuk4ZHbbVod4wm0RJbQZdcj7Qwh0EzH33rKlHpBN2dkB1iMPis3OhogGSA17ZfSGRp9MyIMHvheNWRFjuPoTPKDyhdAAAZ0q93sAOdTwgqawcO0ql4BWVt-CDrqBwrkEbjlBmcW1-Ng0jVNIlre4vE578uLdG8zJspbMTxi671Mf7HiUcBJAggnN0IZLat-ojAlpTM-XBwRbi2zq4GA==",
+          "functionCall": {
+            "id": "adk-28f41685-541a-49cd-a172-af527bc62af1",
+            "args": {
+              "year": 2024,
+              "month": 1,
+              "company_name": "Agrosuper"
+            },
+            "name": "search_invoices_by_company_name_and_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 22,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22
+        }
+      ],
+      "promptTokenCount": 11833,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11833
+        }
+      ],
+      "thoughtsTokenCount": 183,
+      "totalTokenCount": 12038,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-381fd68a-d8d8-4824-b1a0-46975c7ed599",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "longRunningToolIds": [],
+    "id": "c306be45-6a8c-4ed7-94fe-904d0ddd9e42",
+    "timestamp": 1758683008.01405
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-28f41685-541a-49cd-a172-af527bc62af1",
+            "name": "search_invoices_by_company_name_and_date",
+            "response": {
+              "result": "[{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"250\",\"CantidadUnidad\":\"L\",\"Factura_Pos\":\"000010\",\"Material\":\"GGN\",\"Moneda\":\"CLP\",\"Peso\":\"15871/125\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"306276\"}],\"Doc_Termico_proxy\":\"gs://miguel-test/descargas/0104335790/Doc_Termico.pdf\",\"Factura\":\"0104335790\",\"Nombre\":\"AGROSUPER COMERCIALIZADORA DE ALIME\",\"Rut\":\"79984240-8\",\"Solicitante\":\"0012448579\",\"fecha\":\"2024-01-23\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"220\",\"CantidadUnidad\":\"L\",\"Factura_Pos\":\"000010\",\"Material\":\"GGN\",\"Moneda\":\"CLP\",\"Peso\":\"27933/250\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"292535\"}],\"Doc_Termico_proxy\":\"gs://miguel-test/descargas/0104308435/Doc_Termico.pdf\",\"Factura\":\"0104308435\",\"Nombre\":\"AGROSUPER COMERCIALIZADORA DE ALIME\",\"Rut\":\"79984240-8\",\"Solicitante\":\"0012187571\",\"fecha\":\"2024-01-05\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-381fd68a-d8d8-4824-b1a0-46975c7ed599",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "id": "ba71c40e-b40e-4d8c-9db3-dbefbdd71266",
+    "timestamp": 1758683010.972145
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Cq8RAR_MhbaHoemYNCKv1gZD8T1Vmw5gNKAWkPQJmuU0zTudH2qxNugEFt3XTZ4fgnft7OTQd-a5ofIaVClnccZ1thZVQyvk8QQwiPdkCcGEVmYMi4GHcScFISHL0hOdt4JFeCEcPBQ5ghi4w5ZN7dp6yEVZKeDvuVUFJy183DwK5SqJwbkKNNeTHN9j7AzyGDtKB04VrVjqUMoqddEGWB0APEr3YB-OboyD-AIxR82CZR13gwzuN0nEN0NmRpyraFalej8aBQR0B-GENYojLEZogyJS0Z2FAiEH16tKInVFuFsYB66S2qvt0IXvz9stF9RcxCoW4F9yDSd67MG4axNPMAMae5Gqdx5L4HA64VI1Xsxh1_cx_4DzDWVRFh7P94QwdE6CyCh-CNuWMMPzNUen7W2G0SI6WlweyM3mTMmn-sg_vdIIFMNOVwGHTnYiLYG4eYcEnw9iUN8o6pBdNEFJyWP8TzY17zBuSv2kpTy_tzG7lWeg3cpVl38sj1pglql1j1xOgZQWqHed8dau_f6EMx7gfs8pu3P0nZQgtqPNPDZYX3wFrWpL4ytP9xnIIpUr4RT401LWHdr7VKGVOR4VBcS1yXFmRhsZWFoX0nPtCRPjSEzpHeU9yh693su3LtVh_p2ubTqioxUDcDZzMP_RAu15b742tbUnA6ks2zcKoA13cNd1bxnAv9454tics_2b3c9veLwhOTLXZfliVlESWAnuFF86hVSsoYuJ3lJ-6fiCpO0ot-zTgJziMxY4mQ0tQDWcigT15zse6RuE9pHsKw4X6gkpI2t9CuPB04-Yj9Mkz6a61fLY_9Vt13jz6CI1zb6Zyl50WB_uymJLuFDRUbuQVDg9VqqY_5FV8bSZa5yL2t0v0dPz4eO_WOpq6Sf7T5GCggv5w5JOxTq_Xco8jbb9jRki0hE5XIwZmaQ6mLlpJnVHrNxWjtspL-KBPBDxqKWcNfr6LmOtSXYFJ8Y5ifXMyexMC39IUr79H794vwdP0Mwbx73qyYdQ6Mmq-IdXzd5lUMimsAMKFQ4UgkQxIR20pHUCLSC3m0kjMsYkDiqOCwisS4g3U06mWwbLkgzT2gFEQDK9L9kDeTCQxu8UlJWuhReRACTgJtkFf5cLjih1uZRaSDuWCxDYhBM5G4IUIibl3C1s4UQ18s_2aZjyYQt37sn5zHWc0T_kHG7hra3LQ6IB94jHQgUfdcd9ecLUtNqNvftxwGBoGYwn7B6fok9C0xuVjDL00Ib2Jy1ec01gHFYVyghuEAg1Em5NBK5xL1Z5Eih5T27noPcJ6FBULq4i2nc6VjCGsP5V-zfOkMJe6_mYeA6RPtn1Lu_SXCmXnc-b5Goy9CFZAlbTIhiokYYRblLj1W2ufRCHzVjnFKHR05CQ9MbEkclgo53UKRWg_plop8onV_bR0ezZkVciq_9Yg_DmKDdFdbuVJNw04zQRSXso2xkhsl2K37JKTeO3ebp0S9t27YosMEyBYtvuqCicOwaQr8XStTSuM48EQamBxtS3NHZQLH9-DRhQIx3ZECZz5n59GWDcyBOh-K14jGgdV4zN0Uzb2xuokqKGP57hvK7zTZ58BPCAW54ASyZWJ3Kz4XVlTGqXrwIDyFHypp-Nx9nczZpErjklw8frA9UPKZGiAE545iIZWIA14kA9iF4YsPCKBDOWqIglwzAF9niuip1J3ZNb7vo-JmqiB3-5D5XUKHiCRkTMXzK_b5k5BOvdvKVrQs7yrpfb09y2NpdJKJPd5GGQaPE3oFgtuQxAgZBZ7ZXxL2g33kH6tTT4xwqL7eh8D3y5SAZIx7lVKZwwrhGSiNg1LdlWHJ9RrsUJ1BYXSiEJJVpe94hI3rIJDeKTGEkegaAFPRj8EgLHutKkLz0UEubNvIycTq4q2BQ58aFAbkt5McDV3Y6vQhO_mhTXG3fWJacQkv5WrVAEKBhF37pg_3xShB4HCwRS-0ClCwegXqGYdzJGuGyXRC6lFzghYl3SM2Y4BHQLV3RZlaQCZo5Fud_GqtMXiu21Cxahj5D3bfdOYGKHwgrry7tRzlo1OgwXsIQ-K4Lrane3cR2ghxtUrV-V0Tw6Uvd8jONaWQyZtAt76RP4s3_opxxI8e_S2qkqqo-Hep98lZzl7WMeJP3ASE1oxJCbJ95M9jfaeX1otU8bW_xHIY2FyL9sD3NIpYTJ1HEJJpf84UrY6t5OF21gwpqppOm8Gs5x5sqTEQ29gMuJQHbgWbopU_VW5C7sYX9hh43F8R6BgF2zmlQpdAO285IQvXnG-ge3FttsKf-2HZPhDthPnN_ZC7590ZT1KrtjvLMaJaHXuwYt5tZHu9w0QDSrwr_VtloUuQYVRL-ISUy2_hSTvTsb-bLzypxmrlwZukXLbDU-k_xQABt9718Vv_s7UDqUIuswfl-ZqC_bsKIZ203bwoxSx8fLGFciAd2dH2JfgeBrmcrGKfZ3C0MFahOn-SQXyhclXylmqZpd9K3UI8sJeqbQxa0HLtUOCP--1nLc0IL2mWa4aC730hEEHycxB9DqDVVF4U6NovVyrV5oVudH1wWEI1wlLbvLDi2M-91ihKOmx18GbN5FMcRl_HRgFRS3MgOkZNi8Lak_DFi9DdMxE1SnBgClOwi6D6c4HN4Ekfqlr74gsiPVzAt3XrLDUJImqLSMEcJ7bQHwxrO-HssqROMaGwFmd9dPA3WqSTPjC1jTVtlmxsVri6EzUBLtp8O81kPKy1REwpgyZrwavC18C7IejOHhnMQRzK0eNueiEs96n4SKRsJcvmqhMsWO1kRekdvEwtVTEpEn5aWggMpzTsjGw69FLZAhi35U1vlrZd7IZz9ZpOaUTFyfARIpzpbtrEeIZN1_PHtSE4vUzv7CPm4XNx1qjOvn3ovlEgHl-9dC7ggP02-SQ5xh5NLx_LmAUpFvfRtLYi6r2izx39GXD7wnxskHFp2Z5gLCAev-z--b0Kfk",
+          "functionCall": {
+            "id": "adk-482db303-8880-4cc2-83b3-bd5ea1541777",
+            "args": {
+              "pdf_urls": "gs://miguel-test/descargas/0104335790/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0104335790/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0104335790/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104335790/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104335790/Doc_Termico.pdf,gs://miguel-test/descargas/0104308435/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0104308435/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0104308435/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104308435/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104308435/Doc_Termico.pdf",
+              "invoice_count": 2
+            },
+            "name": "create_standard_zip"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11695
+        }
+      ],
+      "cachedContentTokenCount": 11695,
+      "candidatesTokenCount": 301,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 301
+        }
+      ],
+      "promptTokenCount": 12513,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 12694
+        }
+      ],
+      "thoughtsTokenCount": 966,
+      "totalTokenCount": 13780,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-381fd68a-d8d8-4824-b1a0-46975c7ed599",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "longRunningToolIds": [],
+    "id": "53b4bf7d-af1c-4fd5-b554-c7b84b65bc7a",
+    "timestamp": 1758683010.981654
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-482db303-8880-4cc2-83b3-bd5ea1541777",
+            "name": "create_standard_zip",
+            "response": {
+              "success": true,
+              "zip_id": "b9809eb4-1e1f-489a-b091-306c436dfae6",
+              "zip_filename": "zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip",
+              "download_url": "https://storage.googleapis.com/agent-intelligence-zips/zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250924%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250924T030343Z&X-Goog-Expires=86399&X-Goog-SignedHeaders=host&X-Goog-Signature=5851329e745c7563770bf1a737049310a04fc48f23ed6858055b97196b4a2efc6b9747b6fa0b779180a86bf93217643bf10d752eb8c19b7de9fdfef6adcddf000f1a441218fc1c213221f4cc46b28f93e90a078e78ca17516dbd13f25fe783b80c42936b0366b6ce34bc0ecf16dba83af46c8b3fdd19d8f3278b1c2d1f6bbbe4afbcaa16725738b84ca1eda34d3e7698a1afa68943164910b13df340efbad754d3211c6228c2945833fa9c04feae89e86029a3da685fec251ce5f19e3ba96d445754f3c99cb98f1e157ff96cbb2f20a7eb12e042d54fa2b57fe13e137eaabe474328ad2f147a49aeba88625fd2a996fccb5f5db7bed596827baeb086b206982b",
+              "files_included": 10,
+              "message": "✅ ZIP creado exitosamente: zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip con 10 archivos",
+              "stdout": "Ejecutandose en Cloud Run\nCONFIG Arquitectura dual validada:\n   [LECTURA]:\n      - Proyecto: datalake-gasco\n      - Dataset: sap_analitico_facturas_pdf_qa\n      - Bucket: miguel-test\n      - Tabla principal: pdfs_modelo\n   [ESCRITURA]:\n      - Proyecto: agent-intelligence-gasco\n      - Dataset: zip_operations\n      - Bucket: agent-intelligence-zips\n      - Tabla ZIPs: zip_files\n   [SERVICIOS]:\n      - Región: us-central1\n      - Puerto API: 8080\n      - Puerto PDF: 8080\n      - Cloud Run: True\n   [LIMITS]:\n      - Max PDF links: 10\n      - ZIP threshold: 3\n      - ZIP preview: 3\n   [SIGNED URLs ESTABILIDAD]:\n      - Timezone: UTC\n      - Expiración: 24h\n      - Buffer: 5min\n      - Max retries: 3\n      - Monitoreo: True\n      - Time sync timeout: 10s\n{\n  \"success\": true,\n  \"zip_id\": \"b9809eb4-1e1f-489a-b091-306c436dfae6\",\n  \"download_url\": \"https://invoice-backend-819133916464.us-central1.run.app/zips/zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip\",\n  \"zip_filename\": \"zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip\",\n  \"total_size_bytes\": 156811,\n  \"files_included\": 10,\n  \"files_missing\": 0,\n  \"generation_time_ms\": 10\n}\n\nZIP creado exitosamente!\nURL de descarga: https://invoice-backend-819133916464.us-central1.run.app/zips/zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip\n"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-381fd68a-d8d8-4824-b1a0-46975c7ed599",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "id": "d7fdb6be-a028-46ff-a295-8ff749f775e6",
+    "timestamp": 1758683023.316362
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CtMPAR_MhbYhDY45LA3OnxgcnIuj_ayf7PhHILj2aChghV0jYYXs3RXNxvPJ0iNIPFfsDekR2WfYmew_BPpvVXTPpTCLiPhrLo0qCfB6HxJ6jEK9Q6Mxm1_pXXaS8h-vplz5R0LWxrx_hZXhs1pVkfuRlaFZv59xGnk7eeLxRydQV3wJjMDDo15mLcu6Xe283FleJW-7r7rXnLrKtviiI8xtg34Bl3FrzLkdiREJWdI1oq3hes0bhKZFRLEgWG4Hz-71krENaUdPtG9M2A2DZqmQbVx0aLcP4hSMuuHukAII1Q45aAIfp_lRk5fE2fZ31DGnUYA6F6bXUkr5b7IfY0MTp6dctnX6ip0595DvsBp10RbMsM4fTi_j43n-3rovLXAk78vvdHPfjDnN_U2jao3MxkYp2TGdaApDNu7Y1zUsXNZI3z3cc1SCKzORGmfzWyks5W4iGy-lcbuZqZw2LIBSzAsHKn1brOy4PsCCr47ua1m_zg2sHFiBOFFiT9Jncuf5vIvR0QDKKE05VR96Syp7BiSFouoHLWNgcMbE1DrOJKrC9Ple3Wwb3UWIYMHS7mpvDWRr9CexOVlYhJFETHa4NowfnU_7v5QnwfFFU26QdeVtIX998Y23Qm1tvnPb4kryfWIpACGSH-DuSHolhCgraustUHZQURS6BSrIHsG99DyHc3Xo5XFsmE9LJqdK3t2fYU3Lui22FwJIRy0T-GOP9UbpEiGxXgDQo_cJ4kuBDSTI11j10_HLcM8Wcy1jEM71giMMET2u7AvszZkxM86o6hU3trIVg6TG8i27Z2leezClc744_TYas3AbyZF7ZkZqjCKL-UJfkN7HWQrB6SdFk-aRxEvBJ6Y4_k8azFUqUj6SMTv1WCs92NxC8Sqona8DrbLLQSHHAzLEaPVJtCN4IwYjkPB35RVOEBek2qKaWQUCUhlzVcH682O8YHymksdrnlQ_m51vtmJofvknrd9ktke2kzlHUi1fFKe0z_uzcOQmiiiujq_pK_UOntbiZyUpmVgnTXvqnTaim7zwiHvzKviO5zoOLIT-pkbn__DyuW9ghmS3Ij1Dy-wu44UJuOJogRxO4kJ-oHYhEn3xgvfNLZ0xb7yKzmZPRk81shyDydnyPW0CW83yiujjsDe5nCgUSGeEYVcLuhYw0BkK6-HMH2N4KQ84kBLHvE76sZlEY4GI791xNGlrsolc_tXDKkGm-hC0ApWd3m69vYolXMIHwEjw0sTmLe4dTs5YsHcWNltqSdtu9WVzJAUm9e6y1dGAqKU0BFn3rUcj-lVtdG2PVGjfp3Kg_cKoSCdJz4uXihUGCnZewJEL0QB5ZiczG2HJNp-XcHp6cU0mq30nRNMZvbhgtgWiL6IwlWeiz3vPnXBpFgD8Ldad7zRUxcef935jnLl7QxW3AgvHo82IarTmw60tOCs4mr8svVmzqmpe-XbGV3gB8JpYO3N3VsWw-Q_fGKf_bNET04D9f3p_Y2ygcWqbSyOi1vLIGuFiy-cu17dF319551lbBlba-b2Y7pETw2nIHePO62OkkmuAHaNoseG_NVlualDeWMTKSUNact11Ga7xQ--F4qKWcpNMz9xZWM8XOwunKLw0uKc3Zys5p41ulhZrDAj3LgC1S07-F-00Xh6624iRt9obI7FZoponQzReozVH7IOErPkPnlPthQmQDs9nhAA7-uGvnGr26lsnKBpI8J4B7vQsOpsxZBrNrImeHk-Rnw67maG8U7J0bUL4jomWXkIiuFxNTF3GJ-9jGwaLWdE3K1w7kduNcICu5R4FEVsw_79EC4BobZ4N1KsefTT8nUgoAiABKCSfdTKXRLhesUbFzBUuTSBo5d3YiW_SU-DJvpir6zpNJfeNkmsSqLgMb4xS8nmriyL9V_LSDo5BNxVWPvoHM6GVj9FMHmhx4EyAyUjbufG4DNBqJdCh4fY50drfMoxH1Gf3MJGncXYlaeE3Ag6aVibmWO19rFmaqCPHWzcpsMB_ZGv8VbScCMz-ihvQHo21MmBycZ7RwLTuePWoBtdRUV33cGWrsXhP5rd-CirzU8-ppStLsiqnTZt8jhAG2sH9dZfNOPusuTUN6V41B_Gb0bXTxSG9xXrjI-pq4QlA6xU08Eav9aM9JxIksj0c4GvvaFs1nkAZ8WgB-KkEQvCEvSz7HPFdr3xmlSfL3_9_tYEGX0soUw_ieJvrcNcW6GTHbJJpR06KzsHGUsDenKCGNiUyMhf-4y8vZvBbvRlg8ADBU8CCznelafc9Cov_kMkteDQ14NHNyzPAqGok9sThm3nfWPVIC0Dyv8fdkENAhuO9lhSFdFTFHTptDbwl15Au7Km58_0g0-aFJS4Hw6D_jmpxwR520Jpr0WgukLrTcp3QxW3q4awulZs-9q-HlPuGdurbf1Tw29oXB9S5Cjhw1y15H7NhSsh0THq1-_NU3TgCQU38R_tOAI6kPb6hsuk8VAc_CGLgdS_6eFdmvsVzzhupbPj1zFy2XoLNKze-If6v-0mmeJ0OUxwjMgTb79n14VIvtk_xW_GOow7Md8hCCtIb2P0x5BA9n8dDMPsOpqXMPwD7hr-rH894KdCgucFULG45tQMKKPKtZB9UtC9WWt2Xi9FwO_odP-FdhEy1BZfPOavIsGckxCGt1d4iQegSJh0jPydSwVU=",
+          "text": "📊 2 facturas encontradas para Agrosuper (período: 2024-01-05 - 2024-01-23)\n\n📋 Listado de facturas:\n• Factura 0104335790 - AGROSUPER COMERCIALIZADORA DE ALIME (RUT: 79984240-8) - Fecha: 2024-01-23\n• Factura 0104308435 - AGROSUPER COMERCIALIZADORA DE ALIME (RUT: 79984240-8) - Fecha: 2024-01-05\n\n📦 Descarga completa:\n🔗 [Descargar ZIP con todas las facturas](https://storage.googleapis.com/agent-intelligence-zips/zip_b9809eb4-1e1f-489a-b091-306c436dfae6.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250924%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250924T030343Z&X-Goog-Expires=86399&X-Goog-SignedHeaders=host&X-Goog-Signature=5851329e745c7563770bf1a737049310a04fc48f23ed6858055b97196b4a2efc6b9747b6fa0b779180a86bf93217643bf10d752eb8c19b7de9fdfef6adcddf000f1a441218fc1c213221f4cc46c28f93e90a078e78ca17516dbd13f25fe783b80c42936b0366b6ce34bc0ecf16dba83af46c8b3fdd19d8f3278b1c2d1f6bbbe474328ad2f147a49aeba88625fd2a996fccb5f5db7bed596827baeb086b206982b)\n\nEl archivo ZIP contiene todos los documentos disponibles de las 2 facturas encontradas."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11225
+        }
+      ],
+      "cachedContentTokenCount": 11225,
+      "candidatesTokenCount": 655,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 655
+        }
+      ],
+      "promptTokenCount": 14133,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 15278
+        }
+      ],
+      "thoughtsTokenCount": 879,
+      "totalTokenCount": 15667,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-381fd68a-d8d8-4824-b1a0-46975c7ed599",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {},
+      "requestedToolConfirmations": {}
+    },
+    "id": "e1e71920-9395-4b4a-8f30-19bf548ce863",
+    "timestamp": 1758683023.326147
+  }
+]

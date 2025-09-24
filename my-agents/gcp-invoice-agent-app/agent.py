@@ -28,6 +28,7 @@ from config import (
     SAMPLES_DIR,
     CLOUD_RUN_SERVICE_URL,
     BUCKET_NAME_WRITE,
+    PROJECT_ID_WRITE,  # Agregar PROJECT_ID_WRITE
     IS_CLOUD_RUN,
     VERTEX_AI_MODEL,
     # Importar nuevas configuraciones para estabilidad de signed URLs
@@ -438,7 +439,7 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
                 zip_data = {
                     "zip_generated": True,
                     "zip_id": zip_id,
-                    "zip_creation_time_ms": int((time.time() - zip_start_time) * 1000),
+                    "zip_generation_duration_ms": int((time.time() - zip_start_time) * 1000),
                     "pdf_count_in_zip": len(downloaded_files),
                     "download_type": "zip",
                 }

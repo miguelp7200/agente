@@ -1,0 +1,206 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CsEDAR_Mhbbg1Vlk3hT7cX4UVQqQC8Z8qbnA9BWRt3uj2kBSHhLeHcDdH-_d_Y9zaFDr1NrNEwJRr3wELhaUZFy51G09tvqkpye9R1ZbHlgrNTQRXEhL_-dBFGQ7nX0Q-4k2PufZ_TqzSxgSgx5R37H0Dd3lQ0Ta5Kqgzfv-egBeWoNo-xlbw2-kQmJXrzQBqf5IOEm7dNRUsQBBc4IQ_AcSUF5gHrwFlXCpanmA3CNGTPNNys0D5jyPFyCUbmInmUTfHbAPOjuiVGM6tAMITSzRo3vaA5mPx4M6LTasgSc1v1FRTzexBlu-7ClLErFBC1iglJPR7xye5f9YggpiHbr_Nk41YmAGp45ccOHCcS7zZVjjQXVItzpMF7kJm7FCcBf60gKAu9WMTW5BLBFJjZeQGE8agwSr8ghC5tYX8svwiuVQis29DsJGaFY_GiuB_wo32HFT4erTHcDo0jrMCQzRu7OMWwIjhMXyAfDB25s-q7vjp2PZWxC8Lb8EBHUIGNdYG6VsTp7wL_DioEDKLOn80hWpTGxVPZdrYMTOPv4SmEitSjM3KQBRB9NmscDmk1boQ1YPz6Rt_LuwqLy7ivijLXs=",
+          "functionCall": {
+            "id": "adk-c9b1badb-420f-4247-b530-a2e0e37f39e2",
+            "args": {
+              "month": 1,
+              "year": 2024,
+              "company_name": "Agrosuper"
+            },
+            "name": "search_invoices_by_company_name_and_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "usageMetadata": {
+      "candidatesTokenCount": 22,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22
+        }
+      ],
+      "promptTokenCount": 11833,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11833
+        }
+      ],
+      "thoughtsTokenCount": 130,
+      "totalTokenCount": 11985,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-bda65edd-f830-4630-ac26-cb2710f36529",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "90e49d12-ccf0-4ad1-a328-8947a5b14d5d",
+    "timestamp": 1758684510.449743
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-c9b1badb-420f-4247-b530-a2e0e37f39e2",
+            "name": "search_invoices_by_company_name_and_date",
+            "response": {
+              "result": "[{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"gs://miguel-test/descargas/0104335790/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"250\",\"CantidadUnidad\":\"L\",\"Factura_Pos\":\"000010\",\"Material\":\"GGN\",\"Moneda\":\"CLP\",\"Peso\":\"15871/125\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"306276\"}],\"Doc_Termico_proxy\":\"gs://miguel-test/descargas/0104335790/Doc_Termico.pdf\",\"Factura\":\"0104335790\",\"Nombre\":\"AGROSUPER COMERCIALIZADORA DE ALIME\",\"Rut\":\"79984240-8\",\"Solicitante\":\"0012448579\",\"fecha\":\"2024-01-23\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf_proxy\":\"gs://miguel-test/descargas/0104308435/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"220\",\"CantidadUnidad\":\"L\",\"Factura_Pos\":\"000010\",\"Material\":\"GGN\",\"Moneda\":\"CLP\",\"Peso\":\"27933/250\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"292535\"}],\"Doc_Termico_proxy\":\"gs://miguel-test/descargas/0104308435/Doc_Termico.pdf\",\"Factura\":\"0104308435\",\"Nombre\":\"AGROSUPER COMERCIALIZADORA DE ALIME\",\"Rut\":\"79984240-8\",\"Solicitante\":\"0012187571\",\"fecha\":\"2024-01-05\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-bda65edd-f830-4630-ac26-cb2710f36529",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "8b3ad0ef-5261-4326-a6d5-8ad3a7d9e09b",
+    "timestamp": 1758684517.235471
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CrIMAR_MhbYvc--4uLARCiRG80O5mv0GazeR3YtjE0x7Li8eP6BbBDbjP1iZyIuLxlQvk44EPLfSfu9SnEFtHc0CeLdN76R8guQolyP3HEWOzrEFLRaETMwq9ghfyNYhv1SaECB8Y8qCKtcT5CA9gMab1NXDh5iHQAg-1CEfidu9sI0p2JnIDbqmK-51gUsY7Hg6o3cyAVsAsMeP_JOe2MV4Ic1cWeHn77ftDF--oR6MbbacOxofV1jPZ_VTQFe8MuQLrGko8mZ0eociaNhYMoYXDkYbLxim_IJeS7S32cMozbYo_ANCwQHJCCMQMRNkUpHTYlvjCdkxnRc13EmEFY7N8OB3m3s7vk173obmHScX0mbnbaVvxMFnj5lmx3mMHE9DZiLS9X0zKgJjIUT61QI6R6qCTblemnhUHMTFOI2qvOJGYeeXxUp5x44ACZlZjnTuKLjpjkMWBjAhuOMd0Ag_nBh9EG2Cy5gotj2cYznZoKNDSe9A39Sd6R_BJM19BlTkjX54b5fjbkpUDB1uR2hotxiG0cFQI1Q66G986i8eLeLTfUv2Ov_7gpBthvxJ8inwGBP5KUJUWDZcGu9I2QDXxum-m_7kLcttrsjmV2qEJ1c4uj-3q4kPKaPQ1U2QB8hIX0ai_0rZXvSI9OAZf1XPTLq8nH2JQ9T4hGhsugawhU_aF2tDltezXhduhQ9p6-g0eEMQvUQ11eZzH-S_bCgUYxuM6XjEiHAFrjZ9P9-_a5URBjLaHXhcjDJzBKZzyIowBfMDSbdkmTyWGG8m3cykFdxhMqxw4_IKR2RFc2hZwTf-AoNZpSa-6c7YM20Tjo2nn4OL0m7PNr8n0pQKp9GA7gW9sL9KtacuEushIHEGd6m6OHVpu1Z9g0VrBnr3qyVQDsvCiweLuEBDA3hY-bf5Mm7iNKeVoJFawn1l-NouYjDZNbYokyXxgEQFnj9gDLKo0Uj4jQxJTFU5Tod5UWXCUXJBJzPl2alezuKDAYzmgLj6Z9Fl7CDX6thBVzrMSNwl5q1aJqejI6M1r2rIXFWOmgmvPK9WSwbLFmC3_c1dZALMWQNBP4FyGS5qWExycdUyMUd5PGE9qtcESXXdOs1vgOnn_pI0KLLmUnSunZqrp-2ywlOYI7W0XQ2foJA30ueh4ptkH-ZiX85x13BYFPAS5rG3y8tY5rpHxh5vbqGNPx2Dl7XdOW0pQD6uEHHhFEocTMXuMbqxaHfM5n9w7grTxlZUzB3OkZ9hN8-sXBgeuolkXWk--t5QBgO0Y2EsLrz91VmQqMzm8AU4k3TI3qYw2KbAi3UeSoLaJsEE2Nku9-fDPZcgyscivro9mc3A9tb-JoAYegrmR6wRs7-wjTiES0YJceSqCfjhGkqwL-xokcvYO3Ei-aOI7VP0gdO1bP9tCj2VGZEzgfhLH0xyqVbWsq8XCw5CchxXDmcTgLUUIDPt17Mc2Fl2MgieR5s186Y__fXLGbSZNikhAasiJhaSOdpfci1_mMhBM2pLrgNLDamSO6a4mgVRslNy5gXuStYy5iVj-6k7UJo5ZNlEHyv-C3X2CZu3Xe-H5iSfnqj7k2bGe-V6VscuXIslpjs5_AiMh9e0GSs4yjbsCVaptKgYfeUQyBoe29py7bPjsLfsPV2AkNOsS-JeiQboG62W8NDLw79OnPch-80scB2cDTZC1Sbz98ZetduN5NltuCERGWr0W3nLgiaoSg1NFUeqFWzZKA7br6f-9pQ8wSHVwmXKrbzsLYm40tc_K4M0eWAdjPxRnv6Sh8pI_KxyCHJvNlymFJE5bTCvYrTUPDBnEzhAXyL0ZkGxf13PNRYuWZpu3e84klBo-xjlBNu211HsuNvbRjdHjO3RGdvZpx66s759s0nzlgzfXmtJmM5pqZdiaaUNp-7TSk7BXunFj4l_WOOYDbx0bxqQgNAXmmhy-2msW6ChJboQKOEzUkMHQAPUZDhmvUHYigyCi5xHiEvJkghZAhGNwmC14ik0bDwMK_hrehhmNBolUynCeNTIQRTaBH_CJFLN_LT0FJhUBvzEErXrui9_rXWzEt-NsZuo76yOSazNCVnJdc3_5n4g42RXZpEswDRQJx6NYelfpfCoYi1wMXQ=",
+          "functionCall": {
+            "id": "adk-eee98feb-fb30-4fc9-a85d-571560b0f7a1",
+            "args": {
+              "pdf_urls": "gs://miguel-test/descargas/0104335790/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0104335790/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0104335790/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104335790/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104335790/Doc_Termico.pdf,gs://miguel-test/descargas/0104308435/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0104308435/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0104308435/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104308435/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104308435/Doc_Termico.pdf"
+            },
+            "name": "generate_individual_download_links"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11736
+        }
+      ],
+      "cachedContentTokenCount": 11736,
+      "candidatesTokenCount": 299,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 299
+        }
+      ],
+      "promptTokenCount": 12513,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 12641
+        }
+      ],
+      "thoughtsTokenCount": 623,
+      "totalTokenCount": 13435,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-bda65edd-f830-4630-ac26-cb2710f36529",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "e73bc8ed-0001-4321-a118-a579dbde491c",
+    "timestamp": 1758684517.242628
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-eee98feb-fb30-4fc9-a85d-571560b0f7a1",
+            "name": "generate_individual_download_links",
+            "response": {
+              "success": true,
+              "download_urls": [
+                "https://storage.googleapis.com/agent-intelligence-zips/zip_861011ae-8eb6-400e-bb33-f7e9c00ec03f.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250924%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250924T032911Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=51351d82db40a09d51e4dc1234ebceb8b9fc33d8cf653e152859cf9503b6d061dce186ad48de6dd6c41d997e648ba17c44193b962befbc492d082c5d43ce51ddd87fc5f6553e66e1c1679d8018c60bcf21711d95831db59522e32c167ef2fd2750a0c8003c2eedd34eaece434837f96a20b69bad8ebbb16e5b31efd85d7e70fd724364552b3ba91b4b70f5d8df6cadeaea8d858b520bbf815ce13a4f2a615bd7b2f4fef6d50343e348471bc29879bed981c7ce171514129754eb9490de2e5ae5ca32e2428e6294613852e7e4767cdc9f7b561916201c33c87adba52101ef11efab444a824596b6ea82207ac63826aff98b6f2d23462c11c7e2629ee6ecd31663"
+              ],
+              "message": "Auto-ZIP creado con 10 PDFs (interceptado automáticamente)",
+              "zip_auto_created": true,
+              "original_pdf_count": 10,
+              "zip_url": "https://storage.googleapis.com/agent-intelligence-zips/zip_861011ae-8eb6-400e-bb33-f7e9c00ec03f.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250924%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250924T032911Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=51351d82db40a09d51e4dc1234ebceb8b9fc33d8cf653e152859cf9503b6d061dce186ad48de6dd6c41d997e648ba17c44193b962befbc492d082c5d43ce51ddd87fc5f6553e66e1c1679d8018c60bcf21711d95831db59522e32c167ef2fd2750a0c8003c2eedd34eaece434837f96a20b69bad8ebbb16e5b31efd85d7e70fd724364552b3ba91b4b70f5d8df6cadeaea8d858b520bbf815ce13a4f2a615bd7b2f4fef6d50343e348471bc29879bed981c7ce171514129754eb9490de2e5ae5ca32e2428e6294613852e7e4767cdc9f7b561916201c33c87adba52101ef11efab444a824596b6ea82207ac63826aff98b6f2d23462c11c7e2629ee6ecd31663"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-bda65edd-f830-4630-ac26-cb2710f36529",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "0b86f5c9-2e50-47e9-a538-cbc93a3f33df",
+    "timestamp": 1758684551.578894
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CtEUAR_Mhbbd-qq-JZr2wGdAiW8Tetgt_-Xoco6cceSPNJUxw40CAht2mOoWlAYM-voumoFMORdtEddzG7L6Z5CyzoJe1mrmNwouEduWRaPGP5bfqkk3upXBaum2GyX2JtHaB8TPYWSY29mm6VZcG8EsnP63owCM-I0RABXxZ89Obgi4CNqrsdfyY18Jf9fuIeAm1k6FsRmtyh_XL_qxY4zj3JPUTWsSZfdYzHfIapPxDK6bqy6fvAgiBj3pvvUEm718nureGwFimC8ziVQPOowmJPxEuv3Si_Y-TXSGdfhnsfpWVjdELTqFfqDJ5gv7pbqdBs2WiIieR7ffJ3Mi9OwoUmr-soGhRggTxi_5giTTTf9YtXp0CG81oD1B0AbQwKyK_-kj5Ox0935SB7j_sdjdQ-HXJElSO94Jaz2mgyIgnvrR-8RdB76szuPPOk5r03t6TQPGdjU_zm8wl7kRaygrJXBeWZ5zddxri1iB5K55oghL_TY7VQ3gwhJIY6B52j5oi0-jFxhD3bEyCpNEsYH3jN-rP3qRMGut9iuK4TFQujvMU5Pw1BCv1_24paPVCfMQMF7wErO2Gt38PDeQt3ZKF8piPclSPhxjA2KdjIveVpg_bNGWF-5Ia5RN79WAyd7a-df9sNzry7RtM7zDz0lzlfQlAiQO7syRX4bzvGJiI7qTm_1k99wgCYnaI038rLbDUOcR7TbJoVcwosNtDJH3x1c6lVkZ4hFp44gmYxjf0E3ZoXbi-C94DT49Jjl-29Z6H6vJp6_5131JTysVUlhQb653feb-voZbfRlhqwXBHeBsw0L7OduPt0DvVhk7q_nR55IwxlFyOLc-2AMeuJ6qFhfRTbZDhMW524XI75Cl3VHuhnCKaSvqTUPETIyKW3j1_-IvnruCFf4s4lEZo_Dp8vqkIkGT7L4b9XDPM1dbIdWdAJp1PC_uq1DVVYIGEi1XiFhh9upXMgtH9RhmjGhIh-qr3Awj82XcmWEoIbShJbFnraUjAlg0G-Sd7-s8IEEwuyooYAUOlfw5X7TBRXhIH6elRmvJ-3AJxCuvcCw-1EbjblRcThfxle-D_cKM0oGJmvy3cAyzEV-jIhkbl4KdttJWXh3YB0HSXsVC55lN4RuGTwHnK2XwrKob9ZGEY_w2xzFPpKKrtTmhWBeca_wX3kCHwr1BHJ0eimwAYcaek9KgBxKLo5r4WwcdfLrTU0xV6ABznEW3F_x1QdRFWx047XAszpbK0ss7ITrTg42oYcCn8r1kG-I0ghc259QLr2ZsugsotBr9JbSXcDf62LSv5DDNJwVuzhGFd8jFDzVfVxCUI8UkOonmRubNcUHLM-3159_-8lw-8MFtXLKtpeLFc_23X32u6vee3wP28sYooiErcIiu7yOYjnZd4f-lN1CTE4jNIBhXxa_YnNaABuUYe6P7K7K7K6zJEwIOjmS7wrDWp0_WtbZlHFdOfOsKPG197SMapUEBcFLFU3W_FXrvTJjQ3gbggwnWbycqKzRfhSzIT4NVtG2Rcuq9ZX01770gwP7HrQMyXx0Cg45UMxqScC_cGQRDech3HDOo0wbqUBw3Q7H2xZdIcCX3ROmBsHsDli8Cg8-kG1GJyGgw0uKYqj5_i2lXNjxdanC4MB8cC9fYE635D5W0QW7-Imu966qT9pvQfYF5znRuitRlLARzv8rOflVjfC-ziOqNcjuMxfzbud1Z4rVRiZ6_QwpAhHgO3VbmpmD3F8IolyJo8FDjlgTGNfC9EPPTgIVivZGQiZcrJCBpOemn5PnWkRfMTdAsQ77xtFjG3Db9q_Q486Bh8DXDAeDLzSIepsOHVrbKGi0mkWxIMHinJ1psd7Id7PtBmMx7RLcJfL0aj3NovSOGIIb_AXbI7Q0SaiZ03YB9taUbNmfht6nf5yh3oFrRkCqlMEzl94bT6b1jFEe8lFXi4XWvQqQu-y0mMpJoB6b-2hJYaThCOeJzsir01CmnL1b0MbSrrUHcYzSw-xDsYWgb5LnqN1xWeCwhFZG41To2-dCK87mPEAXeM_dl06WbczWJj-Wj_mitUxosUuQSsYtsGHIMtnWP-syme18z09GefW5sFi3I3JC145L3Tf14uV9k2n7CNFS7zs8coSTC0Jz0eIPfn2ahO5bJOzV2lcBkJd-sr48512DAAQ4-LgsSdK8Z4PI8atHx91yveBt1Ztog7WiITpwph7GyOnc6hikeq13IwBTEZCa-EmotW-q8v2Sd204Cwyl8Y3gRxIvRHEqSSJLGlNHmo9uL3aslT0DbGSRnxMPC92o0YyyWkWz8ZCWjlLQuq33xqu7EmWOYDcwi4k-mBx0bOuKFee-Cn_q6E3PPOeiscuoaG3s2EGy13ff-_-XEDfA78NU4YHdDvQcoYyY22BfAn6hofqsFbhP_HYgRBWjcdwDS30iVlRCMQw-BNA-v1MGj0DHmHrs4taK1BPaAYPZTWfeThLc-GgSZn7mx3-wR3566iY3NqyQ5q74kITb1C49ZV7Zm3LZtJbcOgz4pRyjVwL611sYktXjtZtVynf68T54KUHS6Mk-zvFPeczcO7nffgIVGu9Tite6ZtNFSzZUM6dqm1kEDqOFO0XWDIEVtDi1myB4AUOAvd51x5vS08ENaMLB6lncILwYoSoEEcuo4Kbs6NlLAODdfsFGe-_l-EcHmMK8igJfr9Grd0nwwFSL1NJAgIU6U29X0ZjrNQ63Axpwe5wXx-b8eA8dZEvABwQLMB5woAD7W4Sh2wjWyzxT6rE2JfpMiG7O9GMMt03QBaLpwZZj9bDpviKDScDQ5NJ2VaC-LnuLMsGIAwJzRwLhU0I1sQHRoKhVR1bsx6b_aqojjKbc5YPcYsAlSVaII5yEPo38iE2ezIZADDUlpMeFEMyy4za3_l-VcsIrV11ejoQgPuiuwIt1jvEm8co4oxPHie8t2GPktXm-UYXQlqygCKTrJDej_gPdtV-Rt0Az146ivek_lMjwzO0n3m4pcm0iMiO_vJ9H3BC3qFKnmCIWJD3Bj3Ncl6MwsTXjhAtdB_GtWANMMvGrG7i4mSTrXg2DIT6KEoSQDOIjduW7A1FMcTv59UWpzvJ7ZfGzTE6iboHYM3HlUh03T5zqJVeXD0xhNeFkktqgobSJYfrSNm9QC8NvyyDlWLlBiNvEgxV9IO02hvdeO8mEidlyv5n_2JHsLs9rXUiyugZs2veYhSK0174lKD_Wog2Mjh6-bmOIKkvpBgbS-BKxshjg6L950duAWUqEZ3EC2CuNahEgC2VJn8oka-N5jmwI7UNYtQ2gL2SAlXw9VPuPbozCYLzTjaJ-ehZWDHJQDI01CnuPtIaWtwBe-XPiFOfEyCIRnLW0LbJuji8eVFpgZ3JZyGPvJIYg8WBpQVQymkmVXIK3JNP8-LdVSGN3tUUKYFKUgczgXSzjtVQzsfzOyItYtwJm7XS-ztqmqnzvR-Inbrqufdwh99hkp8LIfXcb6E44FphSQ3i8XGtIXhlUvfzHOy0cTlYCSl4nsngYj6Wc1HQ==",
+          "text": "📊 2 facturas encontradas (período: Enero 2024)\n\n📋 Listado de facturas:\n• Factura 0104335790 - AGROSUPER COMERCIALIZADORA DE ALIME (RUT: 79984240-8) - Fecha: 2024-01-23\n• Factura 0104308435 - AGROSUPER COMERCIALIZADORA DE ALIME (RUT: 79984240-8) - Fecha: 2024-01-05\n\n📦 Descarga completa:\n🔗 [Descargar ZIP con todas las facturas](https://storage.googleapis.com/agent-intelligence-zips/zip_861011ae-8eb6-400e-bb33-f7e9c00ec03f.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20250924%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250924T032911Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=51351d82db40a09d51e4dc1234ebceb8b9fc33d8cf653e152859cf9503b6d061dce186ad48de6dd6c41d997e648ba17c44193b962befbc492d082c5d43ce51ddd87fc5f6553e66e1c1679d8018c60bcf21711d95831db59522e32c167ef2fd2750a0c8003c2eedd34eaece434837f96a20b69bad8ebbb16e5b31efd85d7e70fd724364552b3ba91b4b70f5d8df6cadeaea8d858b520bbf815ce13a4f2a615bd7b2f4fef6d50343e348471bc29879bed981c7ce171514129754eb9490de2e5ae5ca32e2428e6294613852e7e4767cdc9f7b561916201c33c87adba52101ef11efab444a824596b6ea82207ac63826aff98b6f2d23462c11c7e2629ee6ecd31663)\n\nEl archivo ZIP contiene todos los documentos disponibles de las 2 facturas encontradas."
+        }
+      ],
+      "role": "model"
+    },
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11508
+        }
+      ],
+      "cachedContentTokenCount": 11508,
+      "candidatesTokenCount": 797,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 797
+        }
+      ],
+      "promptTokenCount": 14105,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14854
+        }
+      ],
+      "thoughtsTokenCount": 1160,
+      "totalTokenCount": 16062,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-bda65edd-f830-4630-ac26-cb2710f36529",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "5bf23aa6-555b-455d-b805-ee7d759148d7",
+    "timestamp": 1758684551.586889
+  }
+]
