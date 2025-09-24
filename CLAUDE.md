@@ -143,7 +143,11 @@ The system includes a robust signed URL generation module (`src/gcs_stability/`)
 - **Buffer Time Management**: Intelligent buffer calculation based on sync status
 - **Retry Logic**: Automatic retries with exponential backoff for failed downloads
 - **Monitoring**: Structured logging and statistics for signed URL operations
-- **Fallback System**: Multi-tier fallback (robust → legacy → proxy) for maximum reliability
+- **Cloud Run Compatible Signing**: Three-tier fallback system for maximum reliability:
+  1. **IAM-based signing** with proper credentials refresh
+  2. **Service account impersonation** with `delegates=[]` for signing capabilities
+  3. **IAM API direct signing** using `iam.signBlob` with manual canonical request construction
+- **SignatureDoesNotMatch Resolution**: Handles token-only environments without private keys
 
 ## Testing Framework
 
@@ -175,8 +179,10 @@ The system includes a robust signed URL generation module (`src/gcs_stability/`)
 - ✅ **ZIP Generation Issues**: Fixed proxy URLs and file counting
 - ✅ **GCS Signed URL Stability**: Complete retry system with clock skew compensation
 - ✅ **AUTO-ZIP Interceptor Bug**: Fixed download_url vs zip_url field inconsistency
-- ✅ **SignatureDoesNotMatch Errors**: Integrated robust signed URL system with automatic clock skew detection
+- ✅ **SignatureDoesNotMatch Errors**: **DEFINITIVELY RESOLVED** with Cloud Run compatible signing system
 - ✅ **Dockerfile Missing Dependencies**: Added src/ directory to container for robust GCS stability modules
+- ✅ **Malformed Signed URLs**: Fixed corrupted signature generation and PROJECT_ID_WRITE imports
+- ✅ **BigQuery Field Errors**: Resolved zip_creation_time_ms field validation issues
 
 ### Troubleshooting Commands
 ```bash
