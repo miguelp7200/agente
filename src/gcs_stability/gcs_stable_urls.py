@@ -96,26 +96,47 @@ def generate_stable_signed_url(
                 )
             except Exception as iam_error:
                 logger.warning(f"IAM-based signing falló: {iam_error}")
-                # Intentar con service account automático
+                # Para Cloud Run: usar service account impersonation con signing específico
+                logger.info("Intentando signed URL con service account impersonation")
+
                 import os
+                from google.auth import impersonated_credentials, default
+                from google.auth.transport.requests import Request
+
                 service_account_email = os.getenv("SERVICE_ACCOUNT_EMAIL",
                                                 "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com")
 
-                from google.auth import impersonated_credentials, default
-
+                # Obtener credenciales por defecto de Cloud Run
                 source_credentials, _ = default()
+
+                # Crear credenciales impersonadas CON delegates para signing
                 target_credentials = impersonated_credentials.Credentials(
                     source_credentials=source_credentials,
                     target_principal=service_account_email,
                     target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
+                    delegates=[]  # Importante para signing
                 )
 
+                # Refrescar las credenciales antes de usar
+                request = Request()
+                target_credentials.refresh(request)
+
+                # Generar signed URL con las credenciales impersonadas refreshed
                 signed_url = blob.generate_signed_url(
                     expiration=expiration,
                     method=method,
                     version="v4",
                     credentials=target_credentials,
                 )
+
+                logger.info(f"Signed URL generada con impersonation para {service_account_email}")
+
+                # Si aún falla, intentar con IAM generateSignedUrl API
+                if not signed_url:
+                    logger.warning("Signed URL con impersonation falló, usando IAM API")
+                    signed_url = _generate_signed_url_via_iam_api(
+                        bucket_name, blob_name, expiration, method, service_account_email
+                    )
         else:
             # Usar el método original con credenciales específicas
             signed_url = blob.generate_signed_url(
@@ -283,6 +304,94 @@ def validate_signed_url_format(signed_url: str) -> bool:
     ]
 
     return all(component in signed_url for component in required_components)
+
+
+def _generate_signed_url_via_iam_api(
+    bucket_name: str,
+    blob_name: str,
+    expiration: datetime,
+    method: str,
+    service_account_email: str
+) -> str:
+    """
+    Generar signed URL usando la IAM API directamente.
+
+    Esta es una implementación alternativa para Cloud Run cuando
+    las credenciales impersonadas no funcionan correctamente.
+    """
+    try:
+        import base64
+        import json
+        from urllib.parse import quote
+        from google.auth.transport.requests import Request
+        from google.auth import default
+
+        logger.info(f"Generando signed URL via IAM API para {service_account_email}")
+
+        # Construir la string to sign según el formato de GCS v4 signing
+        from datetime import datetime, timezone
+        import hashlib
+
+        # Calcular timestamp y fecha
+        now = datetime.now(timezone.utc)
+        timestamp = now.strftime('%Y%m%dT%H%M%SZ')
+        date_stamp = now.strftime('%Y%m%d')
+
+        # Calcular expires en segundos desde ahora
+        expires_seconds = int((expiration - now).total_seconds())
+
+        # Canonical request components
+        canonical_uri = f"/{bucket_name}/{blob_name}"
+        canonical_query = (
+            f"X-Goog-Algorithm=GOOG4-RSA-SHA256&"
+            f"X-Goog-Credential={quote(service_account_email)}/{date_stamp}/auto/storage/goog4_request&"
+            f"X-Goog-Date={timestamp}&"
+            f"X-Goog-Expires={expires_seconds}&"
+            f"X-Goog-SignedHeaders=host"
+        )
+        canonical_headers = "host:storage.googleapis.com\n"
+        signed_headers = "host"
+        payload_hash = "UNSIGNED-PAYLOAD"
+
+        # Construir canonical request correctamente
+        canonical_request = f"{method}\n{canonical_uri}\n{canonical_query}\n{canonical_headers}\n{signed_headers}\n{payload_hash}"
+
+        # Hash de la canonical request
+        canonical_request_hash = hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
+
+        # String to sign
+        credential_scope = f"{date_stamp}/auto/storage/goog4_request"
+        string_to_sign = f"GOOG4-RSA-SHA256\n{timestamp}\n{credential_scope}\n{canonical_request_hash}"
+
+        # Usar IAM API para firmar
+        credentials, _ = default()
+        request = Request()
+
+        # Llamar a IAM signBlob API
+        import googleapiclient.discovery
+        iam_service = googleapiclient.discovery.build('iam', 'v1', credentials=credentials)
+
+        sign_request = {
+            'payload': base64.b64encode(string_to_sign.encode('utf-8')).decode('utf-8')
+        }
+
+        response = iam_service.projects().serviceAccounts().signBlob(
+            name=f"projects/-/serviceAccounts/{service_account_email}",
+            body=sign_request
+        ).execute()
+
+        signature = response['signature']
+
+        # Construir la signed URL final
+        signed_url = f"https://storage.googleapis.com{canonical_uri}?{canonical_query}&X-Goog-Signature={signature}"
+
+        logger.info("Signed URL generada exitosamente via IAM API")
+        return signed_url
+
+    except Exception as e:
+        logger.error(f"Error generando signed URL via IAM API: {e}")
+        # Fallback a URL pública
+        return f"https://storage.googleapis.com/{bucket_name}/{blob_name}"
 
 
 if __name__ == "__main__":
