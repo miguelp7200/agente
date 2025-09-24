@@ -55,6 +55,10 @@ try:
         setup_signed_url_monitoring,
         verify_time_sync,
     )
+    from src.gcs_stability.gcs_time_sync import (
+        get_time_sync_info,
+        calculate_buffer_time,
+    )
 
     GCS_STABILITY_AVAILABLE = True
     print("✅ Módulos de estabilidad GCS cargados exitosamente")
@@ -767,14 +771,19 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             )
 
             # Verificar sincronización de tiempo
-            time_sync_info = verify_time_sync()
-            if not time_sync_info["synchronized"]:
+            sync_status = verify_time_sync()
+            if sync_status is False:
+                # Clock skew detectado - obtener información detallada
+                local_time, google_time, time_diff = get_time_sync_info()
+                buffer_minutes = calculate_buffer_time(sync_status)
                 print(
-                    f"⚠️ [ESTABILIDAD GCS] Clock skew detectado: {time_sync_info['skew_seconds']}s"
+                    f"⚠️ [ESTABILIDAD GCS] Clock skew detectado: {time_diff:.1f}s diferencia"
                 )
                 print(
-                    f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {time_sync_info['buffer_minutes']}min"
+                    f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {buffer_minutes}min"
                 )
+            elif sync_status is None:
+                print(f"⚠️ [ESTABILIDAD GCS] No se pudo verificar sincronización temporal")
             else:
                 print(f"✅ [ESTABILIDAD GCS] Sincronización temporal OK")
 
@@ -860,8 +869,11 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             stats = url_service.get_service_stats()
             print(f"� [ESTABILIDAD GCS] Estadísticas del servicio:")
             print(f"   - URLs generadas: {stats['urls_generated']}")
-            print(f"   - Retries ejecutados: {stats['retries_executed']}")
-            print(f"   - Errores recuperados: {stats['errors_recovered']}")
+            print(f"   - Descargas exitosas: {stats['downloads_successful']}")
+            print(f"   - Descargas fallidas: {stats['downloads_failed']}")
+            print(f"   - Retries activados: {stats['retries_triggered']}")
+            print(f"   - Clock skew detectado: {stats['clock_skew_detected']}")
+            print(f"   - Tasa de éxito: {stats['success_rate']:.1f}%")
 
             return {
                 "success": True,
@@ -869,7 +881,8 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 "message": f"Se generaron {len(stable_urls)} URLs estables con protección contra clock skew",
                 "stability_enabled": True,
                 "service_stats": stats,
-                "time_sync_info": time_sync_info,
+                "time_sync_status": sync_status,
+                "time_sync_details": url_service.get_time_sync_status(),
             }
 
         except Exception as e:

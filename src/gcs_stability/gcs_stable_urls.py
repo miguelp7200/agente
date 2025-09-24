@@ -25,6 +25,7 @@ def generate_stable_signed_url(
     blob_name: str,
     expiration_hours: int = 1,
     service_account_path: Optional[str] = None,
+    credentials: Optional[Any] = None,
     method: str = "GET",
     force_buffer_minutes: Optional[int] = None,
 ) -> str:
@@ -39,6 +40,7 @@ def generate_stable_signed_url(
         blob_name: Nombre del archivo/blob
         expiration_hours: Horas de validez de la URL (default: 1)
         service_account_path: Ruta al archivo de service account (opcional)
+        credentials: Credenciales de GCP a usar (opcional, para impersonated credentials)
         method: Método HTTP ('GET', 'POST', etc.)
         force_buffer_minutes: Forzar buffer específico en minutos (opcional)
 
@@ -71,7 +73,7 @@ def generate_stable_signed_url(
             logger.info(f"Usando buffer forzado de {buffer_minutes} minutos")
 
         # 2. Inicializar cliente GCS con credenciales adecuadas
-        client = _initialize_gcs_client(service_account_path)
+        client = _initialize_gcs_client(service_account_path, credentials)
 
         # 3. Obtener bucket y blob
         bucket = client.bucket(bucket_name)
@@ -106,6 +108,7 @@ def generate_stable_signed_urls_batch(
     blob_names: list[str],
     expiration_hours: int = 1,
     service_account_path: Optional[str] = None,
+    credentials: Optional[Any] = None,
     method: str = "GET",
 ) -> Dict[str, Optional[str]]:
     """
@@ -119,6 +122,7 @@ def generate_stable_signed_urls_batch(
         blob_names: Lista de nombres de archivos/blobs
         expiration_hours: Horas de validez de las URLs
         service_account_path: Ruta al archivo de service account (opcional)
+        credentials: Credenciales de GCP a usar (opcional, para impersonated credentials)
         method: Método HTTP para las URLs
 
     Returns:
@@ -157,6 +161,7 @@ def generate_stable_signed_urls_batch(
                 blob_name=blob_name,
                 expiration_hours=expiration_hours,
                 service_account_path=service_account_path,
+                credentials=credentials,
                 method=method,
                 force_buffer_minutes=buffer_minutes,  # Reutilizar buffer calculado
             )
@@ -175,12 +180,14 @@ def generate_stable_signed_urls_batch(
 
 def _initialize_gcs_client(
     service_account_path: Optional[str] = None,
+    credentials: Optional[Any] = None,
 ) -> storage.Client:
     """
     Inicializar cliente de Google Cloud Storage con credenciales adecuadas.
 
     Args:
         service_account_path: Ruta opcional al archivo de service account
+        credentials: Credenciales de GCP a usar (opcional)
 
     Returns:
         Cliente de GCS configurado
@@ -195,6 +202,10 @@ def _initialize_gcs_client(
             logger.info(
                 f"Cliente GCS inicializado con service account: {service_account_path}"
             )
+        elif credentials:
+            # Usar credenciales específicas (como impersonated credentials)
+            client = storage.Client(credentials=credentials)
+            logger.info("Cliente GCS inicializado con credenciales impersonadas")
         else:
             # Usar credenciales por defecto (ADC)
             client = storage.Client()

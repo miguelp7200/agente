@@ -131,6 +131,7 @@ class SignedURLService:
                 blob_name=blob_name,
                 expiration_hours=expiration,
                 service_account_path=self.service_account_path,
+                credentials=self.credentials,
             )
 
             # Validar formato si se solicita
@@ -193,6 +194,7 @@ class SignedURLService:
                 blob_names=blob_names,
                 expiration_hours=expiration,
                 service_account_path=self.service_account_path,
+                credentials=self.credentials,
             )
 
             # Actualizar estadísticas
