@@ -97,6 +97,37 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 - ✅ Agregado `LPAD(@solicitante, 10, '0')` en tool `search_invoices_by_solicitante_and_date_range`
 - ✅ Normalización automática: usuario dice "12537749" → sistema busca "0012537749"
 
+### 🆕 **PROBLEMA 14: Sinónimos para Factura_Referencia (Folio)** [24/09/2025]
+**Issue identificado:** El sistema no reconocía términos como "folio", "referencia", "factura referencia" como sinónimos del campo `Factura_Referencia`
+
+**Root Cause:** Falta de mapeo de sinónimos para el campo `Factura_Referencia` que contiene el número visible en la factura impresa (diferente al ID interno)
+
+**Diferencia crítica identificada:**
+- `Factura`: ID interno del sistema (campo Factura)
+- `Factura_Referencia`: Número visible en la factura impresa, utilizado para notas de crédito/débito
+
+**Solución implementada:**
+- ✅ **MCP Tools actualizado:** `mcp-toolbox/tools_updated.yaml` con sinónimos en descripciones
+  - `search_invoices_by_referencia_number`: Para búsquedas específicas por Factura_Referencia
+  - `search_invoices_by_factura_number`: Para búsquedas por ID interno (con nota diferencial)
+  - `search_invoices_by_any_number`: Para búsquedas en ambos campos
+- ✅ **Agent prompt actualizado:** `my-agents/gcp-invoice-agent-app/agent_prompt.yaml`
+  - Nueva regla **"FOLIO = FACTURA_REFERENCIA"** con máxima prioridad
+  - Patrones reconocidos: "folio número X", "referencia Y", "factura referencia Z"
+  - Herramientas específicas mapeadas para cada tipo de búsqueda
+- ✅ **Documentación actualizada:** `CLAUDE.md` con sección "Database Schema - Key Fields and Synonyms"
+  - Mapeo completo de sinónimos y herramientas
+  - Patrones de consulta con ejemplos prácticos
+  - Reglas de prioridad documentadas
+
+**Patrones ahora reconocidos:**
+- "folio número 123456" → `search_invoices_by_referencia_number`
+- "referencia ABC789" → `search_invoices_by_referencia_number`
+- "factura referencia DEF456" → `search_invoices_by_referencia_number`
+- "número de referencia XYZ123" → `search_invoices_by_referencia_number`
+
+**Impacto:** Sistema ahora reconoce completamente la terminología de usuarios que utilizan "folio" (término común en Chile para el número de referencia de facturas)
+
 ### 🆕 **PROBLEMA 12: Optimización Auto-ZIP y Validaciones SQL** [15/09/2025]
 **Issue identificado:** Necesidad de automatizar la creación de ZIP para múltiples PDFs y validar lógica de negocio con SQL
 
@@ -274,6 +305,13 @@ sql_validation/debug_julio_2025.sql
 #### **🔍 SAP & Normalización:**
 - `test_sap_codigo_solicitante_august_2025.json`
 - `test_facturas_solicitante_12475626.json`
+
+#### **📄 Sinónimos Factura_Referencia (Folio):**
+- Casos de prueba pendientes para validar reconocimiento de términos:
+  - "folio número X"
+  - "referencia Y"
+  - "factura referencia Z"
+  - "número de referencia W"
 
 #### **🏷️ Terminología CF/SF:**
 - `test_cf_sf_terminology.json`

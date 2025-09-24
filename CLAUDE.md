@@ -92,6 +92,30 @@ curl -X POST https://[URL]/run \
   - PDFs: `miguel-test` bucket (read project)
   - ZIP files: `agent-intelligence-zips` bucket (write project)
 
+### Database Schema - Key Fields and Synonyms
+**Main Table**: `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+
+**Important Field Mapping**:
+- **Factura**: ID interno del sistema (número de factura interno)
+- **Factura_Referencia**: Número de referencia visible en la factura impresa
+  - **Sinónimos reconocidos**: "referencia", "folio", "factura referencia", "número de referencia"
+  - **Descripción**: Número de factura de referencia, utilizado en casos como notas de crédito/débito o correcciones
+  - **Uso**: Cuando el usuario mencione "folio número X" se refiere a este campo
+
+**Herramientas específicas para cada campo**:
+- `search_invoices_by_factura_number`: Para campo Factura (ID interno)
+- `search_invoices_by_referencia_number`: Para campo Factura_Referencia (folio/referencia)
+- `search_invoices_by_any_number`: Busca en ambos campos simultáneamente
+
+**Patrones de consulta reconocidos**:
+- "folio número 123456" → usa `search_invoices_by_referencia_number`
+- "referencia ABC789" → usa `search_invoices_by_referencia_number`
+- "factura referencia DEF456" → usa `search_invoices_by_referencia_number`
+- "número de referencia XYZ123" → usa `search_invoices_by_referencia_number`
+- "factura 123456" (sin especificar tipo) → usa `search_invoices_by_any_number`
+
+**⚠️ Importante**: Los sinónimos de folio/referencia tienen **máxima prioridad** en las reglas del agente.
+
 ### MCP Toolbox (57 tools)
 Key tool categories with **token optimization** (all limits reduced 50% for performance):
 - **Invoice Search**: `search_invoices_*` - Various search patterns by date, RUT, amount, client

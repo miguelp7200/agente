@@ -508,7 +508,7 @@ tools:
         type: string
         description: Nombre completo o parcial del proveedor/solicitante (ej. "AGROSUPER", "Embotelladora")
 
-  # === NUEVAS HERRAMIENTAS PARA BÚSQUEDA ESPECÍFICA POR FACTURA Y REFERENCIA ===
+  # === HERRAMIENTAS PARA BÚSQUEDA POR FACTURA (ID INTERNO) Y FACTURA_REFERENCIA (FOLIO) ===
   
   search_invoices_by_factura_number:
     kind: bigquery-sql
@@ -559,6 +559,7 @@ tools:
       Utiliza búsqueda exacta y también búsqueda sin ceros iniciales para mayor flexibilidad.
       Retorna facturas con URLs del proxy local listas para descargar.
       Usar cuando el usuario pregunte específicamente por "factura" o "ID de factura".
+      NOTA: Si el usuario menciona "folio", "referencia" o "factura referencia", usar search_invoices_by_referencia_number.
     parameters:
       - name: factura_number
         type: string
@@ -612,11 +613,11 @@ tools:
       Busca facturas específicamente por el campo FACTURA_REFERENCIA (número visible en la factura).
       Utiliza búsqueda exacta y también búsqueda sin ceros iniciales para mayor flexibilidad.
       Retorna facturas con URLs del proxy local listas para descargar.
-      Usar cuando el usuario pregunte por "referencia", "número de referencia" o el número que aparece en la factura impresa.
+      Usar cuando el usuario pregunte por "referencia", "número de referencia", "folio", "factura referencia" o el número que aparece en la factura impresa.
     parameters:
       - name: referencia_number
         type: string
-        description: Número de referencia del campo Factura_Referencia (el que aparece en la factura), con o sin ceros iniciales
+        description: Número de referencia del campo Factura_Referencia (folio/referencia que aparece en la factura), con o sin ceros iniciales
 
   search_invoices_by_any_number:
     kind: bigquery-sql
@@ -678,14 +679,14 @@ tools:
       LIMIT 5
     description: |
       Busca facturas en AMBOS campos (Factura Y Factura_Referencia) simultáneamente.
-      Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia.
+      Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia (folio).
       Incluye un campo match_type que indica en qué campo se encontró la coincidencia.
       Ordena los resultados priorizando coincidencias exactas.
-      Usar cuando el usuario proporcione un número sin especificar si es factura o referencia.
+      Usar cuando el usuario proporcione un número sin especificar si es factura, referencia, folio o factura referencia.
     parameters:
       - name: search_number
         type: string
-        description: Número a buscar en ambos campos (Factura y Factura_Referencia), con o sin ceros iniciales
+        description: Número a buscar en ambos campos (Factura y Factura_Referencia/folio), con o sin ceros iniciales
 
   search_invoices_by_cliente:
     kind: bigquery-sql

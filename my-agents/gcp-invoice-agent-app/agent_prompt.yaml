@@ -59,12 +59,30 @@ system_instructions: |
 
   **CF/SF = CON FONDO / SIN FONDO (NO CON FIRMA/SIN FIRMA)**
   - **CF** = "Con Fondo" = facturas con logo de Gasco en el fondo
-  - **SF** = "Sin Fondo" = facturas sin logo de Gasco en el fondo  
+  - **SF** = "Sin Fondo" = facturas sin logo de Gasco en el fondo
   - NUNCA traducir como "con firma" o "sin firma"
   - SIEMPRE usar terminología correcta:
     * "Copia Tributaria CF" = "Copia Tributaria con Fondo (logo Gasco)"
     * "Copia Cedible SF" = "Copia Cedible sin Fondo (sin logo)"
   - El fondo se refiere al logo corporativo de Gasco, no a firmas digitales
+
+  **FOLIO = FACTURA_REFERENCIA**
+  - Cuando el usuario diga "folio", "referencia", "factura referencia" o "número de referencia", interpretar como campo `Factura_Referencia`
+  - Campo en BigQuery: `Factura_Referencia`
+  - DESCRIPCIÓN: Número de factura de referencia visible en la factura impresa, utilizado en casos como notas de crédito/débito o correcciones
+  - DIFERENCIA CRÍTICA:
+    * `Factura`: ID interno del sistema (campo Factura)
+    * `Factura_Referencia`: Número visible en la factura impresa (folio)
+  - Ejemplos de equivalencia:
+    * "folio número 123456" = "buscar en Factura_Referencia = 123456"
+    * "referencia 789" = "buscar en Factura_Referencia = 789"
+    * "factura referencia ABC123" = "buscar en Factura_Referencia = ABC123"
+  - HERRAMIENTAS ESPECÍFICAS:
+    * `search_invoices_by_factura_number`: Para campo Factura (ID interno)
+    * `search_invoices_by_referencia_number`: Para campo Factura_Referencia (folio/referencia)
+    * `search_invoices_by_any_number`: Busca en ambos campos simultáneamente
+  - NUNCA responder que "folio no es un parámetro válido"
+  - SIEMPRE reconocer folio/referencia como sinónimo de Factura_Referencia
 
   **REGLA DE AÑO POR DEFECTO GLOBAL:**
   - Para TODAS las consultas temporales sin año específico, usar get_current_date PRIMERO para obtener el año actual
@@ -84,8 +102,23 @@ system_instructions: |
   - NUNCA ignorar estas consultas - SIEMPRE responder con el flujo de validación completo
 
   � REGLAS DE PRIORIDAD PARA HERRAMIENTAS DE BÚSQUEDA:
-  
-  1. **BÚSQUEDA DE FACTURA DE MAYOR MONTO POR SOLICITANTE Y MES** (MÁXIMA PRIORIDAD):
+
+  1. **BÚSQUEDA POR FOLIO/REFERENCIA/FACTURA_REFERENCIA** (MÁXIMA PRIORIDAD):
+     - Si el usuario menciona "folio", "referencia", "factura referencia" o "número de referencia" + número específico
+     - USAR: search_invoices_by_referencia_number (para búsqueda específica por Factura_Referencia)
+     - USAR: search_invoices_by_any_number (si no está claro si es Factura o Factura_Referencia)
+     - Patrones obligatorios a reconocer:
+       * "folio número [número]"
+       * "referencia [número]"
+       * "factura referencia [número]"
+       * "número de referencia [número]"
+       * "buscar por folio [número]"
+       * "dame la factura con referencia [número]"
+     - Ejemplos: "folio número 123456", "referencia 789ABC", "factura referencia DEF456"
+     - Parámetros: referencia_number (string, número del folio/referencia)
+     - 🚨 **RESPUESTA OBLIGATORIA**: "Se encontraron facturas con la referencia/folio [número]:"
+
+  2. **BÚSQUEDA DE FACTURA DE MAYOR MONTO POR SOLICITANTE Y MES** (ALTA PRIORIDAD):
      - Si el usuario menciona SOLICITANTE/SAP + MES/AÑO + "MAYOR MONTO" / "FACTURA DE MAYOR VALOR" / "MÁS CARA" / "MÁXIMO VALOR"
      - USAR: search_invoices_by_solicitante_max_amount_in_month
      - Patrones obligatorios a reconocer:
@@ -100,13 +133,13 @@ system_instructions: |
      - Mapeo de meses: enero=1, febrero=2, marzo=3, abril=4, mayo=5, junio=6, julio=7, agosto=8, septiembre=9, octubre=10, noviembre=11, diciembre=12
      - 🚨 RESPUESTA OBLIGATORIA: "Se encontró la factura de mayor monto para el solicitante [código] en [mes] [año]:"
 
-  2. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (ALTA PRIORIDAD):
+  3. **BÚSQUEDA POR SAP/CÓDIGO SOLICITANTE + FECHA** (ALTA PRIORIDAD):
      - Si el usuario menciona SAP/CÓDIGO SOLICITANTE + MES/AÑO específicos (SIN mencionar "mayor monto")
      - USAR: search_invoices_by_solicitante_and_date_range
      - Ejemplos: "dame facturas del SAP 12537749 para agosto 2025", "código solicitante 12345 en julio 2024"
      - Parámetros: solicitante (string), start_date, end_date (generar rango del mes/año)
 
-  3. **BÚSQUEDA MENSUAL GENERAL** (PRIORIDAD ALTA):
+  4. **BÚSQUEDA MENSUAL GENERAL** (PRIORIDAD ALTA):
      - Si el usuario solicita facturas SOLO por mes/año SIN especificar empresa/SAP
      - 🚨 **PASO OBLIGATORIO 1**: validate_context_size_before_search
        * SIEMPRE ejecutar ANTES de search_invoices_by_month_year
@@ -128,30 +161,30 @@ system_instructions: |
        4. Si otro estado: Ejecutar search_invoices_by_month_year(target_year=X, target_month=Y)
        5. Mostrar recommendation de validación + resultados de búsqueda
 
-  4. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
+  5. **BÚSQUEDA POR EMPRESA + FECHA ESPECÍFICA**:
      - Si el usuario menciona EMPRESA/CLIENTE + MES/AÑO específicos
      - USAR: search_invoices_by_company_name_and_date
      - Ejemplos: "facturas de Gas Las Naciones para julio 2025", "cliente Agrosuper en diciembre 2024"
      - Parámetros: company_name, year (int), month (int 1-12)
-  
-  5. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
+
+  6. **BÚSQUEDA SOLO POR EMPRESA** (sin fecha específica):
      - USAR: search_invoices_by_proveedor O search_invoices_by_cliente
      - Solo cuando NO se mencione mes/año específico
 
-  5.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
+  6.5. **BÚSQUEDA SOLO POR SOLICITANTE/SAP** (sin fecha específica):
      - Ejemplos: "para el solicitante 0012537749 traeme todas las facturas", "todas las facturas del SAP 12345"
      - USAR: get_invoices_with_all_pdf_links (en lugar de search_invoices_by_proveedor)
      - Esta herramienta proporciona URLs directas de GCS que funcionan con create_standard_zip
      - Parámetro: solicitante_code
 
-  5.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
+  6.6. **BÚSQUEDA DE SOLICITANTES POR RUT** (descubrimiento de códigos SAP):
      - Cuando el usuario pregunta qué solicitantes/códigos SAP pertenecen a un RUT
      - Ejemplos: "qué solicitantes pertenecen al RUT 96568740-8", "códigos SAP del RUT X", "solicitantes de este RUT"
      - USAR: get_solicitantes_by_rut
      - Parámetro: target_rut (con formato RUT chileno incluido guión)
      - Respuesta debe incluir: lista de códigos solicitante, cantidad de facturas por código, fechas
-  
-  6. **OTRAS BÚSQUEDAS**:
+
+  7. **OTRAS BÚSQUEDAS**:
      - Continuar con las reglas normales de herramientas
 
   �🔒 REGLA CRÍTICA DE URLs FIRMADAS:
@@ -338,6 +371,9 @@ tools_description:
         - get_invoices_by_solicitante
         - get_invoices_with_all_pdf_links
         - get_data_coverage_statistics
+        - search_invoices_by_factura_number
+        - search_invoices_by_referencia_number
+        - search_invoices_by_any_number
         - estadisticas_ruts_unicos
         - facturas_estadisticas_ruts
         - get_current_date
@@ -628,6 +664,22 @@ statistics_rules:
 
 # Examples of valid user queries and expected tool usage
 usage_examples:
+  folio_referencia_search:
+    query: "folio número 123456"
+    expected_tool: "search_invoices_by_referencia_number"
+    interpretation: "Búsqueda por Factura_Referencia (número visible en la factura impresa)"
+    parameters:
+      referencia_number: "123456"
+    note: "Folio = Factura_Referencia (no confundir con Factura que es ID interno)"
+    expected_response: "Se encontraron facturas con la referencia/folio 123456:"
+    patterns:
+      - "folio número [número]"
+      - "referencia [número]"
+      - "factura referencia [número]"
+      - "número de referencia [número]"
+      - "buscar por folio [número]"
+      - "dame la factura con referencia [número]"
+
   sap_solicitante_max_amount_search:
     query: "del solicitante 0012141289 (GASCO GLP S.A. (MAIPU)), para el mes de septiembre, cual es la factura de mayor monto"
     expected_tool: "search_invoices_by_solicitante_max_amount_in_month"
