@@ -578,19 +578,45 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         else:
             print(f"⚠️ [GCS] Sistema robusto no disponible, usando fallback")
 
-        # Fallback simplificado: usar proxy URL en lugar de signed URL problemática
-        # Esto evita los problemas de impersonated credentials y signatures malformadas
-        print(f"🔄 [GCS] Usando URL de proxy en lugar de signed URL problemática")
+        # Fallback: implementación legacy corregida sin impersonated credentials
+        print(f"🔄 [GCS] Usando implementación legacy corregida para signed URL")
 
-        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            proxy_url = f"{CLOUD_RUN_SERVICE_URL}/gcs?url=gs://{BUCKET_NAME_WRITE}/{zip_filename}"
-        else:
-            proxy_url = f"http://localhost:{PDF_SERVER_PORT}/gcs?url=gs://{BUCKET_NAME_WRITE}/{zip_filename}"
+        # Usar credenciales por defecto directamente (sin impersonación)
+        storage_client = storage.Client(project=PROJECT_ID_WRITE)
+        bucket = storage_client.bucket(BUCKET_NAME_WRITE)
+        blob = bucket.blob(zip_filename)
 
-        print(f"✅ [GCS] Usando URL de proxy para {zip_filename}")
-        print(f"🔗 [GCS] URL: {proxy_url}")
+        # Verificar que el archivo existe
+        if not blob.exists():
+            print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
+            # Retornar URL de proxy local como fallback si el archivo no existe
+            if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
+                return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
+            else:
+                return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-        return proxy_url
+        # Usar IAM-based signing con service account automático en Cloud Run
+        from datetime import datetime, timezone, timedelta
+
+        # Configurar tiempo de expiración con buffer (usando timezone-aware datetime)
+        buffer_minutes = 5  # Buffer básico para clock skew
+        expiration_time = datetime.now(timezone.utc) + timedelta(
+            hours=SIGNED_URL_EXPIRATION_HOURS,
+            minutes=buffer_minutes
+        )
+
+        # Generar signed URL usando IAM-based signing (más estable en Cloud Run)
+        signed_url = blob.generate_signed_url(
+            version="v4",
+            expiration=expiration_time,
+            method="GET"
+            # No especificar credentials - usar las automáticas de Cloud Run
+        )
+
+        print(f"✅ [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)")
+        print(f"🔗 [GCS] URL: {signed_url[:100]}...")
+
+        return signed_url
 
     except Exception as e:
         print(f"❌ [GCS] Error general: {e}")
