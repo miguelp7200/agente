@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     git \
     netcat-traditional \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar ADK y dependencias Python
