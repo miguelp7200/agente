@@ -85,11 +85,44 @@ def generate_stable_signed_url(
         )
 
         # 5. Generar signed URL usando v4 signing (más estable)
-        signed_url = blob.generate_signed_url(
-            expiration=expiration,
-            method=method,
-            version="v4",  # v4 signing es más robusto
-        )
+        # En Cloud Run, usar IAM-based signing si no hay service account path
+        if service_account_path is None and credentials is None:
+            # IAM-based signing para Cloud Run - más compatible
+            try:
+                signed_url = blob.generate_signed_url(
+                    expiration=expiration,
+                    method=method,
+                    version="v4",
+                )
+            except Exception as iam_error:
+                logger.warning(f"IAM-based signing falló: {iam_error}")
+                # Intentar con service account automático
+                import os
+                service_account_email = os.getenv("SERVICE_ACCOUNT_EMAIL",
+                                                "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com")
+
+                from google.auth import impersonated_credentials, default
+
+                source_credentials, _ = default()
+                target_credentials = impersonated_credentials.Credentials(
+                    source_credentials=source_credentials,
+                    target_principal=service_account_email,
+                    target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
+                )
+
+                signed_url = blob.generate_signed_url(
+                    expiration=expiration,
+                    method=method,
+                    version="v4",
+                    credentials=target_credentials,
+                )
+        else:
+            # Usar el método original con credenciales específicas
+            signed_url = blob.generate_signed_url(
+                expiration=expiration,
+                method=method,
+                version="v4",
+            )
 
         logger.info(
             f"Generated stable signed URL for {blob_name} "

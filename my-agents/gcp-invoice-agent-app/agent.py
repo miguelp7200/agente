@@ -28,6 +28,7 @@ from config import (
     SAMPLES_DIR,
     CLOUD_RUN_SERVICE_URL,
     BUCKET_NAME_WRITE,
+    PROJECT_ID_WRITE,  # Agregar PROJECT_ID_WRITE
     IS_CLOUD_RUN,
     VERTEX_AI_MODEL,
     # Importar nuevas configuraciones para estabilidad de signed URLs
@@ -438,7 +439,7 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
                 zip_data = {
                     "zip_generated": True,
                     "zip_id": zip_id,
-                    "zip_creation_time_ms": int((time.time() - zip_start_time) * 1000),
+                    "zip_generation_duration_ms": int((time.time() - zip_start_time) * 1000),
                     "pdf_count_in_zip": len(downloaded_files),
                     "download_type": "zip",
                 }
@@ -574,48 +575,43 @@ def generate_signed_zip_url(zip_filename: str) -> str:
 
             except Exception as robust_error:
                 print(f"⚠️ [GCS] Sistema robusto falló, usando fallback: {robust_error}")
-                # Continuar con implementación legacy como fallback
+                # Fallback directo a proxy URL para evitar signed URL malformadas
         else:
-            print(f"⚠️ [GCS] Sistema robusto no disponible, usando implementación legacy")
+            print(f"⚠️ [GCS] Sistema robusto no disponible, usando fallback")
 
-        # Fallback: implementación legacy con mejoras básicas
-        # Obtener credenciales por defecto
-        credentials, project = google.auth.default()
+        # Fallback: implementación legacy corregida sin impersonated credentials
+        print(f"🔄 [GCS] Usando implementación legacy corregida para signed URL")
 
-        # Obtener el email de la service account
-        service_account_email = _get_service_account_email()
-
-        # Crear credenciales impersonadas para firmar URLs
-        target_scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-        target_credentials = impersonated_credentials.Credentials(
-            source_credentials=credentials,
-            target_principal=service_account_email,
-            target_scopes=target_scopes,
-        )
-
-        # Inicializar cliente de Storage con credenciales de firma
-        storage_client = storage.Client(credentials=target_credentials)
+        # Usar credenciales por defecto directamente (sin impersonación)
+        storage_client = storage.Client(project=PROJECT_ID_WRITE)
         bucket = storage_client.bucket(BUCKET_NAME_WRITE)
         blob = bucket.blob(zip_filename)
 
         # Verificar que el archivo existe
         if not blob.exists():
             print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
-            # Fallback a URL de proxy si el archivo no existe
+            # Retornar URL de proxy local como fallback si el archivo no existe
             if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
                 return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
             else:
                 return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-        # Generar signed URL con buffer time básico para compensar clock skew
-        buffer_minutes = SIGNED_URL_BUFFER_MINUTES if 'SIGNED_URL_BUFFER_MINUTES' in globals() else 5
-        expiration = datetime.utcnow() + timedelta(hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes)
+        # Usar IAM-based signing con service account automático en Cloud Run
+        from datetime import datetime, timezone, timedelta
 
+        # Configurar tiempo de expiración con buffer (usando timezone-aware datetime)
+        buffer_minutes = 5  # Buffer básico para clock skew
+        expiration_time = datetime.now(timezone.utc) + timedelta(
+            hours=SIGNED_URL_EXPIRATION_HOURS,
+            minutes=buffer_minutes
+        )
+
+        # Generar signed URL usando IAM-based signing (más estable en Cloud Run)
         signed_url = blob.generate_signed_url(
             version="v4",
-            expiration=expiration,
-            method="GET",
-            credentials=target_credentials,
+            expiration=expiration_time,
+            method="GET"
+            # No especificar credentials - usar las automáticas de Cloud Run
         )
 
         print(f"✅ [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)")
@@ -624,14 +620,14 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         return signed_url
 
     except Exception as e:
-        print(f"❌ [GCS] Error generando signed URL: {e}")
-        # Fallback a URL de proxy si falla completamente
+        print(f"❌ [GCS] Error general: {e}")
+        # Fallback final a URL de proxy local
         if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
             fallback_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
         else:
             fallback_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-        print(f"🔄 [GCS] Usando URL de proxy como fallback: {fallback_url}")
+        print(f"🔄 [GCS] Usando URL de proxy final como fallback: {fallback_url}")
         return fallback_url
 
 
