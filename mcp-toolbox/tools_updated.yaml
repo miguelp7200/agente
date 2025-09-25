@@ -331,9 +331,6 @@ tools:
 
       Usar cuando el usuario pregunte específicamente por "factura" o "ID de factura".
 
-      NOTA: Si el usuario menciona "folio", "referencia" o "factura referencia", usar
-      search_invoices_by_referencia_number.
-
       '
     parameters:
     - name: factura_number
@@ -357,15 +354,15 @@ tools:
 
       Retorna facturas con URLs del proxy local listas para descargar.
 
-      Usar cuando el usuario pregunte por "referencia", "número de referencia", "folio",
-      "factura referencia" o el número que aparece en la factura impresa.
+      Usar cuando el usuario pregunte por "referencia", "número de referencia" o el
+      número que aparece en la factura impresa.
 
       '
     parameters:
     - name: referencia_number
       type: string
-      description: Número de referencia del campo Factura_Referencia (folio/referencia
-        que aparece en la factura), con o sin ceros iniciales
+      description: Número de referencia del campo Factura_Referencia (el que aparece
+        en la factura), con o sin ceros iniciales
   search_invoices_by_any_number:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -386,21 +383,20 @@ tools:
       \ 4\n  END,\n  Factura DESC\nLIMIT 5\n"
     description: 'Busca facturas en AMBOS campos (Factura Y Factura_Referencia) simultáneamente.
 
-      Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia
-      (folio).
+      Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia.
 
       Incluye un campo match_type que indica en qué campo se encontró la coincidencia.
 
       Ordena los resultados priorizando coincidencias exactas.
 
-      Usar cuando el usuario proporcione un número sin especificar si es factura,
-      referencia, folio o factura referencia.
+      Usar cuando el usuario proporcione un número sin especificar si es factura o
+      referencia.
 
       '
     parameters:
     - name: search_number
       type: string
-      description: Número a buscar en ambos campos (Factura y Factura_Referencia/folio),
+      description: Número a buscar en ambos campos (Factura y Factura_Referencia),
         con o sin ceros iniciales
   search_invoices_by_cliente:
     kind: bigquery-sql
@@ -1472,11 +1468,11 @@ tools:
       \                ELSE NULL\n              END as Copia_Tributaria_sf_proxy\n\
       \              FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       \              WHERE Copia_Tributaria_sf IS NOT NULL\n              AND Factura\
-      \ IN UNNEST(@invoice_numbers)\n              LIMIT 50"
+      \ IN UNNEST(SPLIT(@invoice_numbers, ','))\n              LIMIT 50"
     parameters:
     - name: invoice_numbers
-      type: array
-      description: Lista de números de factura
+      type: string
+      description: Lista de números de factura separados por comas
   get_cedible_sf_pdfs:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1486,11 +1482,11 @@ tools:
       \                ELSE NULL\n              END as Copia_Cedible_sf_proxy\n  \
       \            FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       \              WHERE Copia_Cedible_sf IS NOT NULL\n              AND Factura\
-      \ IN UNNEST(@invoice_numbers)\n              LIMIT 50"
+      \ IN UNNEST(SPLIT(@invoice_numbers, ','))\n              LIMIT 50"
     parameters:
     - name: invoice_numbers
-      type: array
-      description: Lista de números de factura
+      type: string
+      description: Lista de números de factura separados por comas
   get_doc_termico_pdfs:
     kind: bigquery-sql
     source: gasco_invoices_read
