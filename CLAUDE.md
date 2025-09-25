@@ -116,13 +116,18 @@ curl -X POST https://[URL]/run \
 
 **⚠️ Importante**: Los sinónimos de folio/referencia tienen **máxima prioridad** en las reglas del agente.
 
-### MCP Toolbox (57 tools)
-Key tool categories with **token optimization** (all limits reduced 50% for performance):
+### MCP Toolbox (49 tools) - **🆕 PDF FILTERING OPTIMIZED**
+Key tool categories with **aggressive PDF optimization** for faster responses:
 - **Invoice Search**: `search_invoices_*` - Various search patterns by date, RUT, amount, client
-- **PDF Operations**: `get_*_pdf_*` - Different PDF types (cedible/tributaria, with/without logo)
+- **PDF Operations**: **FILTERED** - Only 2 PDF types by default (CF - con fondo), specialized tools for others
 - **Statistics**: `get_*_statistics` - Date ranges, amounts, coverage analysis
 - **ZIP Management**: `create_zip_record`, `list_zip_files` - Bulk download operations
 - **Validators**: `validate_*_context_size` - Prevent large result sets (>1M tokens)
+- **🆕 PDF Filtering System (Sept 2024)**:
+  - **Default Behavior**: Only `Copia_Tributaria_cf` and `Copia_Cedible_cf` (con fondo)
+  - **Specialized Tools**: `get_tributaria_sf_pdfs`, `get_cedible_sf_pdfs`, `get_doc_termico_pdfs`
+  - **Response Size Reduction**: From 5 to 2 PDF fields per invoice (60% reduction)
+  - **Token Optimization**: Faster chatbot responses, reduced bandwidth usage
 - **Special Features**:
   - **SAP Code Normalization**: Auto-LPAD with zeros (12537749 → 0012537749)
   - **Token Prevention System**: Proactive rejection of queries >1M tokens
