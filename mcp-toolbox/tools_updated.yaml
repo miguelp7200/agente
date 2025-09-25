@@ -1495,12 +1495,12 @@ tools:
       \   WHEN Doc_Termico IS NOT NULL\n                THEN Doc_Termico\n       \
       \         ELSE NULL\n              END as Doc_Termico_proxy\n              FROM\
       \ `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n             \
-      \ WHERE Doc_Termico IS NOT NULL\n              AND Factura IN UNNEST(@invoice_numbers)\n\
+      \ WHERE Doc_Termico IS NOT NULL\n              AND Factura IN UNNEST(SPLIT(@invoice_numbers, ','))\n\
       \              LIMIT 50"
     parameters:
     - name: invoice_numbers
-      type: array
-      description: Lista de números de factura
+      type: string
+      description: Lista de números de factura separados por comas
 toolsets:
   gasco_invoice_search:
   - search_invoices
