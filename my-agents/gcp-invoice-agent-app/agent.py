@@ -1342,14 +1342,23 @@ agent_config = load_agent_config()
 system_instructions = load_system_instructions()
 
 # 🔥 NUEVO: Crear wrappers de callbacks con retry mejorado
-def enhanced_after_agent_callback(result):
+def enhanced_after_agent_callback(result, **kwargs):
     """
     Wrapper que añade logging de retry al callback existente.
     Se ejecuta después de cada interacción del agente.
+
+    Args:
+        result: Resultado del agente
+        **kwargs: Parámetros adicionales de ADK (callback_context, etc.)
     """
     # Ejecutar callback existente si está disponible
     if conversation_tracker and hasattr(conversation_tracker, 'after_agent_callback'):
-        original_result = conversation_tracker.after_agent_callback(result)
+        # Pasar todos los kwargs al callback original
+        try:
+            original_result = conversation_tracker.after_agent_callback(result, **kwargs)
+        except TypeError:
+            # Fallback si el callback original no acepta kwargs
+            original_result = conversation_tracker.after_agent_callback(result)
     else:
         original_result = result
 
