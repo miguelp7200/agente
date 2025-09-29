@@ -68,6 +68,20 @@ except ImportError as e:
     print(f"⚠️ Módulos de estabilidad GCS no disponibles: {e}")
     print("⚠️ Usando implementación legacy para signed URLs")
 
+# 🔥 NUEVO: Importar sistema de retry para errores 500
+try:
+    from src.gemini_retry_callbacks import (
+        gemini_retry_callbacks,
+        log_retry_metrics,
+    )
+    from src.retry_handler import log_500_error_details
+    RETRY_SYSTEM_AVAILABLE = True
+    print("✅ Sistema de retry para errores 500 cargado exitosamente")
+except ImportError as e:
+    RETRY_SYSTEM_AVAILABLE = False
+    print(f"⚠️ Sistema de retry no disponible: {e}")
+    print("⚠️ Continuando sin retry automático")
+
 # Importar configuración YAML (importación relativa)
 from .agent_prompt_config import load_system_instructions, load_agent_config
 
@@ -1327,6 +1341,29 @@ individual_links_tool = FunctionTool(generate_individual_download_links)
 agent_config = load_agent_config()
 system_instructions = load_system_instructions()
 
+# 🔥 NUEVO: Crear wrappers de callbacks con retry mejorado
+def enhanced_after_agent_callback(result):
+    """
+    Wrapper que añade logging de retry al callback existente.
+    Se ejecuta después de cada interacción del agente.
+    """
+    # Ejecutar callback existente si está disponible
+    if conversation_tracker and hasattr(conversation_tracker, 'after_agent_callback'):
+        original_result = conversation_tracker.after_agent_callback(result)
+    else:
+        original_result = result
+
+    # Añadir logging de métricas de retry si está disponible
+    if RETRY_SYSTEM_AVAILABLE:
+        try:
+            stats = gemini_retry_callbacks.get_error_stats()
+            if stats.get('total_retries', 0) > 0:
+                print(f"📊 [RETRY METRICS] Retries en esta sesión: {stats['total_retries']}")
+        except Exception as e:
+            print(f"⚠️ [RETRY] Error obteniendo métricas: {e}")
+
+    return original_result
+
 
 root_agent = Agent(
     name=agent_config["name"],
@@ -1338,9 +1375,7 @@ root_agent = Agent(
     before_agent_callback=(
         conversation_tracker.before_agent_callback if conversation_tracker else None
     ),
-    after_agent_callback=(
-        conversation_tracker.after_agent_callback if conversation_tracker else None
-    ),
+    after_agent_callback=enhanced_after_agent_callback,  # 🔥 Usar callback mejorado
     before_tool_callback=(
         conversation_tracker.before_tool_callback if conversation_tracker else None
     ),

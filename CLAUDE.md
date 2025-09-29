@@ -84,6 +84,7 @@ curl -X POST https://[URL]/run \
 2. **MCP Toolbox**: `mcp-toolbox/` - 57 BigQuery tools for invoice operations (binary not in repo)
 3. **PDF Server**: `local_pdf_server.py` - GCS proxy with signed URLs for secure downloads
 4. **Deployment Scripts**: `deployment/backend/` - Cloud Run configuration and startup scripts
+5. **🔥 Retry System**: `src/retry_handler.py` - Automatic retry for transient Gemini 500 errors with exponential backoff
 
 ### Data Architecture - Dual Project Setup
 - **Read Project**: `datalake-gasco` - Invoice data queries (BigQuery dataset: `sap_analitico_facturas_pdf_qa`)
@@ -178,6 +179,29 @@ The system includes a robust signed URL generation module (`src/gcs_stability/`)
   3. **IAM API direct signing** using `iam.signBlob` with manual canonical request construction
 - **SignatureDoesNotMatch Resolution**: Handles token-only environments without private keys
 
+### 🔥 Gemini Error Retry System (NEW - Sept 2024)
+Robust automatic retry system for transient Gemini API errors (`src/retry_handler.py`):
+- **Automatic Detection**: Identifies retryable 500 INTERNAL errors from Gemini API
+- **Exponential Backoff**: 2s → 4s → 8s wait times between retries (max 10s)
+- **Smart Retry**: Maximum 2 retries (3 total attempts) for 500 errors only
+- **Detailed Logging**: Structured error logging with full context and stack traces
+- **Metrics Tracking**: Global statistics on retry success rates and durations
+- **Transparent Integration**: Works with existing callback system without breaking changes
+- **Error Context**: Logs session_id, query, and attempt number for debugging
+
+**Configuration** (`src/retry_handler.py:RetryConfig`):
+- `MAX_RETRIES = 2` (3 total attempts)
+- `INITIAL_BACKOFF_SECONDS = 2`
+- `BACKOFF_MULTIPLIER = 2` (exponential)
+- `MAX_BACKOFF_SECONDS = 10`
+
+**Integration Points**:
+- `my-agents/gcp-invoice-agent-app/agent.py` - Enhanced callbacks with retry logging
+- `src/gemini_retry_callbacks.py` - Callback handlers for error detection
+- `src/agent_retry_wrapper.py` - Async wrapper for agent operations (ready for future use)
+
+**Monitoring**: Logs include `[RETRY]`, `[RETRY ASYNC]`, or `[AGENT RETRY]` prefixes for easy filtering
+
 ## Testing Framework
 
 ### Comprehensive Testing System (4 layers)
@@ -212,6 +236,7 @@ The system includes a robust signed URL generation module (`src/gcs_stability/`)
 - ✅ **Dockerfile Missing Dependencies**: Added src/ directory to container for robust GCS stability modules
 - ✅ **Malformed Signed URLs**: Fixed corrupted signature generation and PROJECT_ID_WRITE imports
 - ✅ **BigQuery Field Errors**: Resolved zip_creation_time_ms field validation issues
+- ✅ **🔥 Gemini 500 Errors**: Automatic retry system with exponential backoff and detailed logging (Sept 2024)
 
 ### Troubleshooting Commands
 ```bash
