@@ -15,10 +15,10 @@ Esta guía te explica cómo usar los scripts de diagnóstico para identificar y 
 Reproduce exactamente la query problemática:
 
 ```powershell
-# Servidor Cloud Run (producción)
+# Servidor Cloud Run (producción) - timeout: 5 minutos
 .\debug\scripts\capture_annual_stats.ps1
 
-# Servidor local (desarrollo)
+# Servidor local (desarrollo) - timeout: 5 minutos
 .\debug\scripts\capture_annual_stats.ps1 -UseLocal
 ```
 

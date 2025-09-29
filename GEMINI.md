@@ -107,3 +107,49 @@ cd deployment/scripts
 *   The `deployment` directory contains scripts for deploying the application to Google Cloud Run.
 *   The `infrastructure` directory contains scripts for setting up the BigQuery infrastructure.
 *   **Signed URLs:** The application now uses signed URLs to provide secure, time-limited access to generated ZIP files. The Cloud Run service account needs the "Service Account Token Creator" IAM role to be able to sign the URLs.
+
+## Frontend-Backend Diagnostic System
+
+The project includes a comprehensive diagnostic framework for analyzing frontend table formatting issues. When the frontend displays chaotic table structures with mixed data types, this system provides objective analysis tools.
+
+### Diagnostic Structure
+```
+debug/
+├── README.md              # General documentation  
+├── USAGE_GUIDE.md        # Step-by-step usage guide
+├── FINDINGS.md           # Implementation findings
+├── scripts/              # Specialized PowerShell scripts
+│   ├── capture_annual_stats.ps1     # Captures problematic query responses
+│   ├── test_multiple_scenarios.ps1  # Tests 6 different query scenarios
+│   └── compare_responses.ps1        # Automated analysis with severity levels
+├── raw-responses/        # JSON/TXT output (gitignored)
+├── frontend-output/      # Frontend screenshots (manual)
+└── analysis/            # Analysis reports (gitignored)
+```
+
+### Quick Diagnostic Commands
+```powershell
+# Capture problematic query response (e.g., "cuantas facturas son por año")
+.\debug\scripts\capture_annual_stats.ps1
+
+# Test multiple query scenarios for pattern analysis
+.\debug\scripts\test_multiple_scenarios.ps1
+
+# Automated analysis with severity scoring
+.\debug\scripts\compare_responses.ps1
+```
+
+### Key Features
+- **Raw Response Capture**: Saves complete JSON responses from backend
+- **Multi-Scenario Testing**: Tests different query types for pattern identification
+- **Automated Analysis**: Detects mixed format issues and table structure problems
+- **Severity Classification**: OK/MINOR/MAJOR/CRITICAL problem levels
+- **Format Detection**: Identifies table inconsistencies and markdown mixing
+- **Cross-Environment**: Supports both Cloud Run and local server testing
+- **Dual Reporting**: JSON technical reports + Markdown readable summaries
+
+### Use Cases
+- Frontend displays chaotic tables with mixed data types
+- Table columns don't align with headers
+- Inconsistent formatting across different queries
+- Need objective analysis of backend vs frontend rendering differences

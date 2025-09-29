@@ -102,8 +102,8 @@ Write-Host "  📱 App Name: $appName" -ForegroundColor Gray
 # TEST DE CONECTIVIDAD
 Write-Header "TEST DE CONECTIVIDAD"
 try {
-    Write-Info "Probando conectividad..."
-    $connectTest = Invoke-WebRequest -Uri "$BackendUrl/list-apps" -Headers $headers -TimeoutSec 30
+    Write-Info "Probando conectividad... (timeout: 300s)"
+    $connectTest = Invoke-WebRequest -Uri "$BackendUrl/list-apps" -Headers $headers -TimeoutSec 300
     Write-Success "Conectividad OK (Status: $($connectTest.StatusCode))"
 } catch {
     Write-Error "Error de conectividad: $($_.Exception.Message)"
@@ -115,8 +115,8 @@ Write-Header "CREANDO SESIÓN DE DEBUG"
 $sessionUrl = "$BackendUrl/apps/$appName/users/$userId/sessions/$sessionId"
 
 try {
-    Write-Info "Creando sesión..."
-    $sessionResponse = Invoke-RestMethod -Uri $sessionUrl -Method POST -Headers $headers -Body "{}" -TimeoutSec 30
+    Write-Info "Creando sesión... (timeout: 300s)"
+    $sessionResponse = Invoke-RestMethod -Uri $sessionUrl -Method POST -Headers $headers -Body "{}" -TimeoutSec 300
     Write-Success "Sesión creada: $sessionId"
 } catch {
     Write-Warning "Sesión ya existe o error menor: $($_.Exception.Message)"

@@ -231,6 +231,42 @@ gcloud auth application-default print-access-token
 .\tests\scripts\test_token_validation.ps1
 ```
 
+### Frontend-Backend Diagnostic System
+
+When troubleshooting frontend table formatting issues, use the comprehensive diagnostic framework:
+
+```powershell
+# STEP 1: Capture raw backend response for problematic query
+.\debug\scripts\capture_annual_stats.ps1
+
+# STEP 2: Test multiple query scenarios to identify patterns
+.\debug\scripts\test_multiple_scenarios.ps1
+
+# STEP 3: Automated analysis with severity scoring
+.\debug\scripts\compare_responses.ps1
+```
+
+**Diagnostic Capabilities:**
+- **Raw Response Capture**: Saves complete JSON responses from backend
+- **Multi-Scenario Testing**: Tests 6 different query types for pattern analysis
+- **Automated Analysis**: Detects mixed format issues, table structure problems
+- **Severity Levels**: OK/MINOR/MAJOR/CRITICAL problem classification
+- **Format Detection**: Identifies table structure inconsistencies and markdown mixing
+- **Cross-Environment**: Supports both Cloud Run and local server testing
+
+**Key Features:**
+- Mixed Format Score (0-10) calculation
+- Table structure analysis (column consistency, pipe line detection)
+- Automatic problem detection (inconsistent columns, mixed markdown+visual elements)
+- Comprehensive error handling and colored output
+- JSON technical reports + Markdown readable summaries
+
+**Use Cases:**
+- Frontend displays chaotic table with mixed data types
+- Table columns don't align with headers
+- Inconsistent formatting across different queries
+- Need objective analysis of backend vs frontend rendering
+
 ## Performance Metrics
 - **Token System**: 250 tokens/invoice (optimized from 2800)
 - **Capacity**: 4,000 invoices vs 357 previous (+1,021% improvement)

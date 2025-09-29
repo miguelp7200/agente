@@ -1791,7 +1791,64 @@ Write-Host "- Métrica 2: ✅ PASS ([razón])" -ForegroundColor Gray
 
 ---
 
-**Estado actual (Actualizado 2025-09-10):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos + **Test Automation Framework** + **Estadísticas Mensuales** + **Lógica Temporal** + **🆕 Búsqueda de Solicitantes por RUT** implementados:
+**Estado actual (Actualizado 2025-09-29):** Sistema completamente funcional con **TODOS** los issues críticos del cliente resueltos + **Test Automation Framework** + **Estadísticas Mensuales** + **Lógica Temporal** + **🆕 Búsqueda de Solicitantes por RUT** + **🆕 Sistema de Diagnóstico Frontend-Backend** implementados:
+
+### ❌ **PROBLEMA 15: Sistema de Diagnóstico Frontend-Backend** [29/09/2025] - **IMPLEMENTADO**
+**Issue identificado:** Frontend muestra tablas con estructura caótica y mezcla de tipos de datos que requiere análisis objetivo para identificar el punto exacto donde se rompe el formato entre backend y frontend.
+
+**Root Cause:** Necesidad de herramientas especializadas para capturar respuestas raw del backend y compararlas objetivamente con la salida del frontend para identificar dónde ocurre la degradación del formato.
+
+**Solución implementada:**
+- ✅ **Sistema completo de diagnóstico:** Estructura `debug/` con scripts especializados
+- ✅ **capture_annual_stats.ps1:** Script de 303 líneas para capturar respuesta raw de query problemática "cuantas facturas son por año"
+- ✅ **test_multiple_scenarios.ps1:** Script de 297 líneas que prueba 6 escenarios diferentes con análisis automático
+- ✅ **compare_responses.ps1:** Script de 407 líneas con análisis automático y niveles de severidad (OK/MINOR/MAJOR/CRITICAL)
+- ✅ **Documentación completa:** README.md, USAGE_GUIDE.md, FINDINGS.md con guías detalladas
+- ✅ **Configuración Git:** .gitignore actualizado para archivos de salida temporal
+- ✅ **Análisis automático:** Detección de problemas de formato mixto, estructura de tabla, coherencia de columnas
+- ✅ **Soporte multi-ambiente:** Compatible con Cloud Run y servidor local
+- ✅ **Reportes duales:** JSON técnico + Markdown legible
+
+**Características técnicas avanzadas:**
+- 🔍 **Mixed Format Score:** Cálculo de puntuación 0-10 para detectar problemas de formato
+- 📊 **Análisis de estructura:** Detección de inconsistencias en columnas y líneas de separación
+- 🎯 **Detección automática:** Identificación de elementos markdown mezclados con formato visual
+- 🌈 **Salida colorizada:** Output con colores para facilitar análisis visual
+- 📋 **Manejo de errores:** Gestión robusta de errores con fallback automático
+- ⚡ **Performance optimizado:** Análisis rápido con caching de resultados
+
+**Estructura implementada:**
+```
+debug/
+├── README.md              # Documentación general
+├── USAGE_GUIDE.md        # Guía de uso paso a paso  
+├── FINDINGS.md           # Hallazgos de implementación
+├── scripts/              # Scripts PowerShell especializados
+│   ├── capture_annual_stats.ps1     # Captura query problemática
+│   ├── test_multiple_scenarios.ps1  # Testing de 6 escenarios
+│   └── compare_responses.ps1        # Análisis automático
+├── raw-responses/        # Salida JSON/TXT (gitignored)
+├── frontend-output/      # Screenshots frontend (manual)
+└── analysis/            # Reportes de análisis (gitignored)
+```
+
+**Comandos de uso:**
+```powershell
+# Capturar respuesta problemática
+.\debug\scripts\capture_annual_stats.ps1
+
+# Probar múltiples escenarios
+.\debug\scripts\test_multiple_scenarios.ps1
+
+# Análisis automático con reportes
+.\debug\scripts\compare_responses.ps1
+```
+
+**Impacto:** Sistema permite análisis objetivo y sistemático de problemas de formato en frontend, identificando el punto exacto donde se degrada la estructura entre backend y frontend. Facilita debugging y resolución rápida de issues de renderizado.
+
+**Status:** ✅ **COMPLETAMENTE IMPLEMENTADO** - Sistema listo para análisis inmediato de problemas de tabla desestructurada
+
+---
 
 ✅ **PROBLEMA 1:** SAP No Reconocido → **RESUELTO**  
 ✅ **PROBLEMA 2:** Normalización Códigos SAP → **RESUELTO**  
@@ -1801,6 +1858,7 @@ Write-Host "- Métrica 2: ✅ PASS ([razón])" -ForegroundColor Gray
 ✅ **🆕 PROBLEMA 6:** Falta Estadísticas Mensuales → **RESUELTO**  
 ✅ **🆕 PROBLEMA 7:** Format Confusion + MCP Tool LPAD Fix → **RESUELTO**
 ✅ **🆕 PROBLEMA 8:** Lógica "Última Factura" → **RESUELTO Y VALIDADO** ✨
+✅ **🆕 PROBLEMA 15:** Sistema de Diagnóstico Frontend-Backend → **IMPLEMENTADO** 🎯
 ✅ **🆕 NUEVA FUNCIONALIDAD:** Solicitantes por RUT → **IMPLEMENTADO** 🆕
 ✅ **🆕 AUTOMATIZACIÓN:** Test Automation Framework → **IMPLEMENTADO**
    - 📊 43 scripts curl generados automáticamente (42 + 1 nuevo)
