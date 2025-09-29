@@ -65,5 +65,17 @@ ENV/
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 
+# VS Code and AI tools specific files
+AGENTS.md
+BYTEROVER*.md
+CLAUDE.md
+GEMINI*.md
+
+# Debug output directories (keep structure but ignore generated files)
+debug/raw-responses/*.json
+debug/raw-responses/*.txt
+debug/analysis/*.json
+debug/analysis/*.md
+
 # Archivos de github
 .github/
