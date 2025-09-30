@@ -113,37 +113,58 @@ class ConversationTracker:
             )
             self.current_conversation["response_time_ms"] = response_time
 
-            # Intentar extraer respuesta desde el contexto
-            if hasattr(callback_context, "agent_response"):
-                agent_text = self._extract_agent_response(
-                    callback_context.agent_response
+
+            # ✅ EXTRAER RESPUESTA DEL AGENTE desde session.events
+            agent_text = None
+
+            # Método nuevo: Extraer desde session.events
+            if hasattr(callback_context, '_invocation_context'):
+                inv_context = callback_context._invocation_context
+                if hasattr(inv_context, 'session') and hasattr(inv_context.session, 'events'):
+                    events = inv_context.session.events
+
+                    # Buscar el último evento con role="model"
+                    for event in reversed(events):
+                        if (hasattr(event, 'content') and
+                            hasattr(event.content, 'role') and
+                            event.content.role == 'model'):
+
+                            # Extraer texto de parts[0].text
+                            if (hasattr(event.content, 'parts') and
+                                len(event.content.parts) > 0 and
+                                hasattr(event.content.parts[0], 'text')):
+                                agent_text = event.content.parts[0].text
+                                break
+
+            # Si encontramos la respuesta, actualizar conversación
+            if agent_text:
+                self.current_conversation.update(
+                    {
+                        "agent_response": agent_text,
+                        "response_summary": (
+                            agent_text[:200] if agent_text else None
+                        ),
+                        "success": True,
+                    }
                 )
-                if agent_text:
-                    self.current_conversation.update(
-                        {
-                            "agent_response": agent_text,
-                            "response_summary": (
-                                agent_text[:200] if agent_text else None
-                            ),
-                            "success": True,
-                        }
+
+                # Detectar errores en respuesta
+                if (
+                    "error" in agent_text.lower()
+                    or "no se pudo" in agent_text.lower()
+                    or "lo siento" in agent_text.lower()
+                    or "problema" in agent_text.lower()
+                ):
+                    self.current_conversation["success"] = False
+                    self.current_conversation["error_message"] = (
+                        "Error detectado en respuesta del agente"
                     )
 
-                    # AGREGAR: Detectar errores en respuesta
-                    if (
-                        "error" in agent_text.lower()
-                        or "no se pudo" in agent_text.lower()
-                        or "lo siento" in agent_text.lower()
-                        or "problema" in agent_text.lower()
-                    ):
-                        self.current_conversation["success"] = False
-                        self.current_conversation["error_message"] = (
-                            "Error detectado en respuesta del agente"
-                        )
-
-                    logger.info(
-                        f"🤖 Respuesta generada ({response_time}ms): {agent_text[:50]}..."
-                    )
+                logger.info(
+                    f"🤖 Respuesta capturada ({response_time}ms): {agent_text[:50]}..."
+                )
+            else:
+                logger.warning("⚠️ No se pudo extraer respuesta del agente desde session.events")
 
             # AGREGAR: Detectar errores del contexto
             if hasattr(callback_context, "error"):
@@ -238,32 +259,6 @@ class ConversationTracker:
         except Exception as e:
             logger.error(f"❌ Error en manual_log_zip_creation: {e}")
 
-    def _extract_agent_response(self, agent_response):
-        """Extraer texto de la respuesta del agente"""
-        try:
-            if not agent_response:
-                return None
-
-            # Intentar extraer contenido de diferentes estructuras posibles
-            if hasattr(agent_response, "content"):
-                if (
-                    hasattr(agent_response.content, "parts")
-                    and agent_response.content.parts
-                ):
-                    return agent_response.content.parts[0].text
-                elif hasattr(agent_response.content, "text"):
-                    return agent_response.content.text
-
-            # Si es string directo
-            if isinstance(agent_response, str):
-                return agent_response
-
-            # Intentar conversión a string
-            return str(agent_response)
-
-        except Exception as e:
-            logger.error(f"❌ Error extrayendo respuesta del agente: {e}")
-            return None
 
     def _categorize_query_by_tool(self, tool_name):
         """Categorizar consulta basada en herramientas utilizadas"""
