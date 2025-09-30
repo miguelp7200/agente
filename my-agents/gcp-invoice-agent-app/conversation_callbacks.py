@@ -130,60 +130,58 @@ class ConversationTracker:
             if hasattr(callback_context, '_invocation_context'):
                 logger.info(f"🔍 [DEBUG] Explorando _invocation_context...")
                 inv_context = callback_context._invocation_context
-                logger.info(f"🔍 [DEBUG] _invocation_context type: {type(inv_context)}")
-                logger.info(f"🔍 [DEBUG] _invocation_context dir(): {[attr for attr in dir(inv_context) if not attr.startswith('_')]}")
 
-                # Intentar acceder al session_service
-                if hasattr(inv_context, 'session_service'):
-                    logger.info(f"🔍 [DEBUG] session_service encontrado!")
-                    session_service = inv_context.session_service
-                    logger.info(f"🔍 [DEBUG] session_service type: {type(session_service)}")
+                # Acceder directamente a la sesión desde inv_context
+                if hasattr(inv_context, 'session'):
+                    logger.info(f"🔍 [DEBUG] session encontrada en inv_context!")
+                    session = inv_context.session
+                    logger.info(f"🔍 [DEBUG] session type: {type(session)}")
+                    logger.info(f"🔍 [DEBUG] session dir(): {[attr for attr in dir(session) if not attr.startswith('_')]}")
 
-                    # Intentar obtener la sesión actual
-                    session_id = self.current_conversation.get("session_id")
-                    user_id = self.current_conversation.get("user_id")
+                    try:
+                        # Intentar acceder al historial de conversación
+                        if hasattr(session, 'conversation_history'):
+                            history = session.conversation_history
+                            logger.info(f"🔍 [DEBUG] conversation_history type: {type(history)}")
+                            logger.info(f"🔍 [DEBUG] conversation_history length: {len(history) if hasattr(history, '__len__') else 'N/A'}")
 
-                    if session_id and user_id:
-                        try:
-                            logger.info(f"🔍 [DEBUG] Obteniendo sesión: user_id={user_id}, session_id={session_id}")
+                            # Si es una lista, obtener el último elemento
+                            if hasattr(history, '__len__') and len(history) > 0:
+                                last_turn = history[-1]
+                                logger.info(f"🔍 [DEBUG] last_turn type: {type(last_turn)}")
+                                logger.info(f"🔍 [DEBUG] last_turn dir(): {[attr for attr in dir(last_turn) if not attr.startswith('_')]}")
 
-                            # Intentar diferentes métodos para obtener la sesión
-                            if hasattr(session_service, 'get_session'):
-                                session = session_service.get_session(user_id, session_id)
-                                logger.info(f"🔍 [DEBUG] session obtenida: {type(session)}")
-                                logger.info(f"🔍 [DEBUG] session dir(): {[attr for attr in dir(session) if not attr.startswith('_')]}")
+                                # Intentar acceder al contenido
+                                if hasattr(last_turn, 'content'):
+                                    logger.info(f"🔍 [DEBUG] last_turn.content: {str(last_turn.content)[:300]}")
+                                if hasattr(last_turn, 'parts'):
+                                    logger.info(f"🔍 [DEBUG] last_turn.parts: {str(last_turn.parts)[:300]}")
+                                if hasattr(last_turn, 'role'):
+                                    logger.info(f"🔍 [DEBUG] last_turn.role: {last_turn.role}")
 
-                                # Intentar acceder al historial de conversación
-                                if hasattr(session, 'conversation_history'):
-                                    history = session.conversation_history
-                                    logger.info(f"🔍 [DEBUG] conversation_history type: {type(history)}")
-                                    logger.info(f"🔍 [DEBUG] conversation_history length: {len(history) if hasattr(history, '__len__') else 'N/A'}")
+                        # Intentar acceder a turns
+                        if hasattr(session, 'turns'):
+                            turns = session.turns
+                            logger.info(f"🔍 [DEBUG] turns type: {type(turns)}")
+                            logger.info(f"🔍 [DEBUG] turns length: {len(turns) if hasattr(turns, '__len__') else 'N/A'}")
 
-                                    # Si es una lista, obtener el último elemento
-                                    if hasattr(history, '__len__') and len(history) > 0:
-                                        last_turn = history[-1]
-                                        logger.info(f"🔍 [DEBUG] last_turn type: {type(last_turn)}")
-                                        logger.info(f"🔍 [DEBUG] last_turn: {str(last_turn)[:300]}")
+                            if hasattr(turns, '__len__') and len(turns) > 0:
+                                last_turn = turns[-1]
+                                logger.info(f"🔍 [DEBUG] last turn from turns type: {type(last_turn)}")
+                                logger.info(f"🔍 [DEBUG] last turn from turns dir(): {[attr for attr in dir(last_turn) if not attr.startswith('_')]}")
+                                logger.info(f"🔍 [DEBUG] last turn from turns: {str(last_turn)[:500]}")
 
-                                # Intentar acceder a turns
-                                if hasattr(session, 'turns'):
-                                    turns = session.turns
-                                    logger.info(f"🔍 [DEBUG] turns type: {type(turns)}")
-                                    logger.info(f"🔍 [DEBUG] turns length: {len(turns) if hasattr(turns, '__len__') else 'N/A'}")
+                        # Mostrar atributos de session
+                        if hasattr(session, '__dict__'):
+                            logger.info(f"🔍 [DEBUG] session attributes: {list(vars(session).keys())}")
+                            for key, value in list(vars(session).items())[:5]:  # Solo primeros 5
+                                value_preview = str(value)[:200] if value else "None"
+                                logger.info(f"🔍 [DEBUG]   session.{key}: {value_preview}")
 
-                                    if hasattr(turns, '__len__') and len(turns) > 0:
-                                        last_turn = turns[-1]
-                                        logger.info(f"🔍 [DEBUG] last turn type: {type(last_turn)}")
-                                        logger.info(f"🔍 [DEBUG] last turn: {str(last_turn)[:300]}")
-
-                                # Mostrar atributos de session
-                                if hasattr(session, '__dict__'):
-                                    logger.info(f"🔍 [DEBUG] session attributes: {list(vars(session).keys())}")
-
-                        except Exception as e:
-                            logger.error(f"🔍 [DEBUG] Error obteniendo sesión: {e}")
-                            import traceback
-                            logger.error(f"🔍 [DEBUG] Traceback: {traceback.format_exc()}")
+                    except Exception as e:
+                        logger.error(f"🔍 [DEBUG] Error explorando sesión: {e}")
+                        import traceback
+                        logger.error(f"🔍 [DEBUG] Traceback: {traceback.format_exc()}")
 
             # Intentar extraer respuesta desde el contexto
             if hasattr(callback_context, "agent_response"):
