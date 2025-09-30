@@ -453,9 +453,9 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
                 zip_data = {
                     "zip_generated": True,
                     "zip_id": zip_id,
-                    "zip_generation_duration_ms": int((time.time() - zip_start_time) * 1000),
-                    "pdf_count_in_zip": len(downloaded_files),
                     "download_type": "zip",
+                    # Nota: zip_generation_duration_ms y pdf_count_in_zip no están en el schema de BigQuery
+                    # Si se necesitan, agregar al schema: agent-intelligence-gasco.chat_analytics.conversation_logs
                 }
                 conversation_tracker.manual_log_zip_creation(zip_data)
 
