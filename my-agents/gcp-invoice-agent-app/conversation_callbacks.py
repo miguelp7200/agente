@@ -139,44 +139,62 @@ class ConversationTracker:
                     logger.info(f"🔍 [DEBUG] session dir(): {[attr for attr in dir(session) if not attr.startswith('_')]}")
 
                     try:
-                        # Intentar acceder al historial de conversación
-                        if hasattr(session, 'conversation_history'):
-                            history = session.conversation_history
-                            logger.info(f"🔍 [DEBUG] conversation_history type: {type(history)}")
-                            logger.info(f"🔍 [DEBUG] conversation_history length: {len(history) if hasattr(history, '__len__') else 'N/A'}")
+                        # Explorar session.events (aquí está el historial!)
+                        if hasattr(session, 'events'):
+                            events = session.events
+                            logger.info(f"🔍 [DEBUG] ✅ session.events encontrado!")
+                            logger.info(f"🔍 [DEBUG] events type: {type(events)}")
+                            logger.info(f"🔍 [DEBUG] events length: {len(events) if hasattr(events, '__len__') else 'N/A'}")
 
-                            # Si es una lista, obtener el último elemento
-                            if hasattr(history, '__len__') and len(history) > 0:
-                                last_turn = history[-1]
-                                logger.info(f"🔍 [DEBUG] last_turn type: {type(last_turn)}")
-                                logger.info(f"🔍 [DEBUG] last_turn dir(): {[attr for attr in dir(last_turn) if not attr.startswith('_')]}")
+                            # Si es una lista, explorar los últimos eventos
+                            if hasattr(events, '__len__') and len(events) > 0:
+                                logger.info(f"🔍 [DEBUG] Explorando últimos eventos...")
 
-                                # Intentar acceder al contenido
-                                if hasattr(last_turn, 'content'):
-                                    logger.info(f"🔍 [DEBUG] last_turn.content: {str(last_turn.content)[:300]}")
-                                if hasattr(last_turn, 'parts'):
-                                    logger.info(f"🔍 [DEBUG] last_turn.parts: {str(last_turn.parts)[:300]}")
-                                if hasattr(last_turn, 'role'):
-                                    logger.info(f"🔍 [DEBUG] last_turn.role: {last_turn.role}")
+                                # Mostrar últimos 3 eventos
+                                for i, event in enumerate(events[-3:]):
+                                    logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}] type: {type(event)}")
+                                    logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}] dir(): {[attr for attr in dir(event) if not attr.startswith('_')][:15]}")
 
-                        # Intentar acceder a turns
-                        if hasattr(session, 'turns'):
-                            turns = session.turns
-                            logger.info(f"🔍 [DEBUG] turns type: {type(turns)}")
-                            logger.info(f"🔍 [DEBUG] turns length: {len(turns) if hasattr(turns, '__len__') else 'N/A'}")
+                                    # Explorar el contenido del evento
+                                    if hasattr(event, 'content'):
+                                        logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content type: {type(event.content)}")
 
-                            if hasattr(turns, '__len__') and len(turns) > 0:
-                                last_turn = turns[-1]
-                                logger.info(f"🔍 [DEBUG] last turn from turns type: {type(last_turn)}")
-                                logger.info(f"🔍 [DEBUG] last turn from turns dir(): {[attr for attr in dir(last_turn) if not attr.startswith('_')]}")
-                                logger.info(f"🔍 [DEBUG] last turn from turns: {str(last_turn)[:500]}")
+                                        # Si content tiene role
+                                        if hasattr(event.content, 'role'):
+                                            logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.role: {event.content.role}")
 
-                        # Mostrar atributos de session
-                        if hasattr(session, '__dict__'):
-                            logger.info(f"🔍 [DEBUG] session attributes: {list(vars(session).keys())}")
-                            for key, value in list(vars(session).items())[:5]:  # Solo primeros 5
-                                value_preview = str(value)[:200] if value else "None"
-                                logger.info(f"🔍 [DEBUG]   session.{key}: {value_preview}")
+                                        # Si content tiene parts
+                                        if hasattr(event.content, 'parts'):
+                                            logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.parts length: {len(event.content.parts) if hasattr(event.content.parts, '__len__') else 'N/A'}")
+
+                                            if hasattr(event.content.parts, '__len__') and len(event.content.parts) > 0:
+                                                first_part = event.content.parts[0]
+                                                logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.parts[0] type: {type(first_part)}")
+
+                                                # Si el part tiene text
+                                                if hasattr(first_part, 'text'):
+                                                    text_preview = first_part.text[:300] if first_part.text else "None"
+                                                    logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.parts[0].text: {text_preview}")
+
+                                # Buscar el último evento con role="model"
+                                logger.info(f"🔍 [DEBUG] Buscando último evento con role='model'...")
+                                last_model_event = None
+                                for event in reversed(events):
+                                    if hasattr(event, 'content') and hasattr(event.content, 'role'):
+                                        if event.content.role == 'model':
+                                            last_model_event = event
+                                            break
+
+                                if last_model_event:
+                                    logger.info(f"🔍 [DEBUG] ✅ Último evento 'model' encontrado!")
+                                    if hasattr(last_model_event.content, 'parts') and len(last_model_event.content.parts) > 0:
+                                        if hasattr(last_model_event.content.parts[0], 'text'):
+                                            agent_text = last_model_event.content.parts[0].text
+                                            logger.info(f"🔍 [DEBUG] ✅✅ RESPUESTA DEL AGENTE ENCONTRADA!")
+                                            logger.info(f"🔍 [DEBUG] Longitud: {len(agent_text)} caracteres")
+                                            logger.info(f"🔍 [DEBUG] Preview: {agent_text[:200]}")
+                                else:
+                                    logger.warning(f"🔍 [DEBUG] ⚠️ No se encontró evento con role='model'")
 
                     except Exception as e:
                         logger.error(f"🔍 [DEBUG] Error explorando sesión: {e}")
