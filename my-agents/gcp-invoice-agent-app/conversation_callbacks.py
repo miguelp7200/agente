@@ -113,6 +113,19 @@ class ConversationTracker:
             )
             self.current_conversation["response_time_ms"] = response_time
 
+            # 🔍 DEBUG: Analizar estructura del callback_context
+            logger.info(f"🔍 [DEBUG] callback_context type: {type(callback_context)}")
+            logger.info(f"🔍 [DEBUG] callback_context has __dict__: {hasattr(callback_context, '__dict__')}")
+
+            if hasattr(callback_context, '__dict__'):
+                logger.info(f"🔍 [DEBUG] callback_context attributes: {list(vars(callback_context).keys())}")
+                # Log primeros 200 chars de cada atributo
+                for key, value in vars(callback_context).items():
+                    value_preview = str(value)[:200] if value else "None"
+                    logger.info(f"🔍 [DEBUG]   {key}: {value_preview}")
+            else:
+                logger.info(f"🔍 [DEBUG] callback_context dir(): {[attr for attr in dir(callback_context) if not attr.startswith('_')]}")
+
             # Intentar extraer respuesta desde el contexto
             if hasattr(callback_context, "agent_response"):
                 agent_text = self._extract_agent_response(
@@ -242,27 +255,50 @@ class ConversationTracker:
         """Extraer texto de la respuesta del agente"""
         try:
             if not agent_response:
+                logger.warning("🔍 [DEBUG] agent_response is None or empty")
                 return None
+
+            # 🔍 DEBUG: Analizar estructura de agent_response
+            logger.info(f"🔍 [DEBUG] agent_response type: {type(agent_response)}")
+            logger.info(f"🔍 [DEBUG] agent_response has __dict__: {hasattr(agent_response, '__dict__')}")
+
+            if hasattr(agent_response, '__dict__'):
+                logger.info(f"🔍 [DEBUG] agent_response attributes: {list(vars(agent_response).keys())}")
+                for key, value in vars(agent_response).items():
+                    value_preview = str(value)[:200] if value else "None"
+                    logger.info(f"🔍 [DEBUG]   {key}: {value_preview}")
+            else:
+                logger.info(f"🔍 [DEBUG] agent_response dir(): {[attr for attr in dir(agent_response) if not attr.startswith('_')]}")
 
             # Intentar extraer contenido de diferentes estructuras posibles
             if hasattr(agent_response, "content"):
+                logger.info("🔍 [DEBUG] agent_response has 'content' attribute")
                 if (
                     hasattr(agent_response.content, "parts")
                     and agent_response.content.parts
                 ):
-                    return agent_response.content.parts[0].text
+                    logger.info(f"🔍 [DEBUG] Found parts, count: {len(agent_response.content.parts)}")
+                    text = agent_response.content.parts[0].text
+                    logger.info(f"🔍 [DEBUG] Extracted text preview: {text[:100]}...")
+                    return text
                 elif hasattr(agent_response.content, "text"):
+                    logger.info("🔍 [DEBUG] Found content.text")
                     return agent_response.content.text
 
             # Si es string directo
             if isinstance(agent_response, str):
+                logger.info("🔍 [DEBUG] agent_response is string directly")
                 return agent_response
 
             # Intentar conversión a string
-            return str(agent_response)
+            result = str(agent_response)
+            logger.info(f"🔍 [DEBUG] Converted to string: {result[:100]}...")
+            return result
 
         except Exception as e:
             logger.error(f"❌ Error extrayendo respuesta del agente: {e}")
+            import traceback
+            logger.error(f"❌ Traceback: {traceback.format_exc()}")
             return None
 
     def _categorize_query_by_tool(self, tool_name):
