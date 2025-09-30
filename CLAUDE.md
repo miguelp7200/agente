@@ -85,10 +85,13 @@ curl -X POST https://[URL]/run \
 3. **PDF Server**: `local_pdf_server.py` - GCS proxy with signed URLs for secure downloads
 4. **Deployment Scripts**: `deployment/backend/` - Cloud Run configuration and startup scripts
 5. **🔥 Retry System**: `src/retry_handler.py` - Automatic retry for transient Gemini 500 errors with exponential backoff
+6. **📊 Conversation Logging**: `conversation_callbacks.py` - BigQuery analytics system for conversation tracking
 
 ### Data Architecture - Dual Project Setup
 - **Read Project**: `datalake-gasco` - Invoice data queries (BigQuery dataset: `sap_analitico_facturas_pdf_qa`)
-- **Write Project**: `agent-intelligence-gasco` - ZIP management and system operations (dataset: `invoice_processing`)
+- **Write Project**: `agent-intelligence-gasco` - ZIP management and system operations
+  - Dataset: `invoice_processing` - ZIP file metadata
+  - Dataset: `chat_analytics` - Conversation logs and analytics
 - **Storage**:
   - PDFs: `miguel-test` bucket (read project)
   - ZIP files: `agent-intelligence-zips` bucket (write project)
@@ -202,6 +205,57 @@ Robust automatic retry system for transient Gemini API errors (`src/retry_handle
 
 **Monitoring**: Logs include `[RETRY]`, `[RETRY ASYNC]`, or `[AGENT RETRY]` prefixes for easy filtering
 
+### 📊 Conversation Logging System (NEW - Sept 2024)
+Comprehensive BigQuery logging system for conversation analytics (`my-agents/gcp-invoice-agent-app/conversation_callbacks.py`):
+
+**Key Features**:
+- **Automatic Capture**: All user questions and agent responses logged to BigQuery
+- **Tool Tracking**: Records all MCP tools used per conversation
+- **Performance Metrics**: Response times, success rates, quality scores
+- **Intent Detection**: Automatic categorization of query types
+- **Search Analytics**: Tracks filters used, results found, downloads requested
+- **Asynchronous Persistence**: Non-blocking writes to BigQuery in background threads
+
+**BigQuery Table**: `agent-intelligence-gasco.chat_analytics.conversation_logs`
+
+**Critical Implementation**:
+- Agent response extracted from `callback_context._invocation_context.session.events`
+- Searches for last event with `content.role == 'model'`
+- Extracts text from `content.parts[0].text`
+- **NOT** from `callback_context.agent_response` (doesn't exist in ADK)
+
+**Key Fields Logged**:
+```python
+{
+    "conversation_id": "UUID",
+    "user_question": "Text of user query",
+    "agent_response": "Full agent response text",  # ✅ Fixed Sept 30, 2024
+    "response_summary": "First 200 chars",
+    "tools_used": ["tool1", "tool2"],
+    "results_count": 42,
+    "response_time_ms": 5234,
+    "success": true,
+    "detected_intent": "search_invoice",
+    "query_category": "date_search",
+    "question_complexity": "medium",
+    "response_quality_score": 0.85
+}
+```
+
+**Validation Queries**: See `validate_agent_response_fix.sql` for 7 comprehensive validation queries
+
+**Integration**:
+- `conversation_callbacks.py:before_agent_callback()` - Captures user question
+- `conversation_callbacks.py:after_agent_callback()` - Captures agent response from session.events
+- `conversation_callbacks.py:before_tool_callback()` - Tracks tool usage
+- `agent.py:enhanced_after_agent_callback()` - Wrapper with retry metrics
+
+**Common Issues Fixed**:
+- ✅ **Sept 30, 2024**: Fixed agent_response extraction (was always NULL)
+  - Old method tried accessing non-existent `callback_context.agent_response`
+  - New method correctly accesses `session.events[-1].content.parts[0].text`
+- ✅ **Sept 30, 2024**: Removed invalid BigQuery fields (`zip_generation_duration_ms`, `pdf_count_in_zip`)
+
 ## Testing Framework
 
 ### Comprehensive Testing System (4 layers)
@@ -237,6 +291,11 @@ Robust automatic retry system for transient Gemini API errors (`src/retry_handle
 - ✅ **Malformed Signed URLs**: Fixed corrupted signature generation and PROJECT_ID_WRITE imports
 - ✅ **BigQuery Field Errors**: Resolved zip_creation_time_ms field validation issues
 - ✅ **🔥 Gemini 500 Errors**: Automatic retry system with exponential backoff and detailed logging (Sept 2024)
+- ✅ **📊 Conversation Logs Empty agent_response**: Fixed extraction from session.events (Sept 30, 2024)
+  - **Problem**: agent_response field always NULL in BigQuery conversation_logs
+  - **Root Cause**: Tried accessing non-existent `callback_context.agent_response`
+  - **Solution**: Extract from `callback_context._invocation_context.session.events`
+  - **Validation**: 100% of records now have agent_response populated (validated Sept 30, 2024)
 
 ### Troubleshooting Commands
 ```bash
