@@ -113,125 +113,58 @@ class ConversationTracker:
             )
             self.current_conversation["response_time_ms"] = response_time
 
-            # 🔍 DEBUG: Analizar estructura del callback_context
-            logger.info(f"🔍 [DEBUG] callback_context type: {type(callback_context)}")
-            logger.info(f"🔍 [DEBUG] callback_context has __dict__: {hasattr(callback_context, '__dict__')}")
 
-            if hasattr(callback_context, '__dict__'):
-                logger.info(f"🔍 [DEBUG] callback_context attributes: {list(vars(callback_context).keys())}")
-                # Log primeros 200 chars de cada atributo
-                for key, value in vars(callback_context).items():
-                    value_preview = str(value)[:200] if value else "None"
-                    logger.info(f"🔍 [DEBUG]   {key}: {value_preview}")
-            else:
-                logger.info(f"🔍 [DEBUG] callback_context dir(): {[attr for attr in dir(callback_context) if not attr.startswith('_')]}")
+            # ✅ EXTRAER RESPUESTA DEL AGENTE desde session.events
+            agent_text = None
 
-            # 🔍 DEBUG: Explorar _invocation_context para acceder a la sesión
+            # Método nuevo: Extraer desde session.events
             if hasattr(callback_context, '_invocation_context'):
-                logger.info(f"🔍 [DEBUG] Explorando _invocation_context...")
                 inv_context = callback_context._invocation_context
+                if hasattr(inv_context, 'session') and hasattr(inv_context.session, 'events'):
+                    events = inv_context.session.events
 
-                # Acceder directamente a la sesión desde inv_context
-                if hasattr(inv_context, 'session'):
-                    logger.info(f"🔍 [DEBUG] session encontrada en inv_context!")
-                    session = inv_context.session
-                    logger.info(f"🔍 [DEBUG] session type: {type(session)}")
-                    logger.info(f"🔍 [DEBUG] session dir(): {[attr for attr in dir(session) if not attr.startswith('_')]}")
+                    # Buscar el último evento con role="model"
+                    for event in reversed(events):
+                        if (hasattr(event, 'content') and
+                            hasattr(event.content, 'role') and
+                            event.content.role == 'model'):
 
-                    try:
-                        # Explorar session.events (aquí está el historial!)
-                        if hasattr(session, 'events'):
-                            events = session.events
-                            logger.info(f"🔍 [DEBUG] ✅ session.events encontrado!")
-                            logger.info(f"🔍 [DEBUG] events type: {type(events)}")
-                            logger.info(f"🔍 [DEBUG] events length: {len(events) if hasattr(events, '__len__') else 'N/A'}")
+                            # Extraer texto de parts[0].text
+                            if (hasattr(event.content, 'parts') and
+                                len(event.content.parts) > 0 and
+                                hasattr(event.content.parts[0], 'text')):
+                                agent_text = event.content.parts[0].text
+                                break
 
-                            # Si es una lista, explorar los últimos eventos
-                            if hasattr(events, '__len__') and len(events) > 0:
-                                logger.info(f"🔍 [DEBUG] Explorando últimos eventos...")
-
-                                # Mostrar últimos 3 eventos
-                                for i, event in enumerate(events[-3:]):
-                                    logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}] type: {type(event)}")
-                                    logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}] dir(): {[attr for attr in dir(event) if not attr.startswith('_')][:15]}")
-
-                                    # Explorar el contenido del evento
-                                    if hasattr(event, 'content'):
-                                        logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content type: {type(event.content)}")
-
-                                        # Si content tiene role
-                                        if hasattr(event.content, 'role'):
-                                            logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.role: {event.content.role}")
-
-                                        # Si content tiene parts
-                                        if hasattr(event.content, 'parts'):
-                                            logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.parts length: {len(event.content.parts) if hasattr(event.content.parts, '__len__') else 'N/A'}")
-
-                                            if hasattr(event.content.parts, '__len__') and len(event.content.parts) > 0:
-                                                first_part = event.content.parts[0]
-                                                logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.parts[0] type: {type(first_part)}")
-
-                                                # Si el part tiene text
-                                                if hasattr(first_part, 'text'):
-                                                    text_preview = first_part.text[:300] if first_part.text else "None"
-                                                    logger.info(f"🔍 [DEBUG] event[{len(events)-3+i}].content.parts[0].text: {text_preview}")
-
-                                # Buscar el último evento con role="model"
-                                logger.info(f"🔍 [DEBUG] Buscando último evento con role='model'...")
-                                last_model_event = None
-                                for event in reversed(events):
-                                    if hasattr(event, 'content') and hasattr(event.content, 'role'):
-                                        if event.content.role == 'model':
-                                            last_model_event = event
-                                            break
-
-                                if last_model_event:
-                                    logger.info(f"🔍 [DEBUG] ✅ Último evento 'model' encontrado!")
-                                    if hasattr(last_model_event.content, 'parts') and len(last_model_event.content.parts) > 0:
-                                        if hasattr(last_model_event.content.parts[0], 'text'):
-                                            agent_text = last_model_event.content.parts[0].text
-                                            logger.info(f"🔍 [DEBUG] ✅✅ RESPUESTA DEL AGENTE ENCONTRADA!")
-                                            logger.info(f"🔍 [DEBUG] Longitud: {len(agent_text)} caracteres")
-                                            logger.info(f"🔍 [DEBUG] Preview: {agent_text[:200]}")
-                                else:
-                                    logger.warning(f"🔍 [DEBUG] ⚠️ No se encontró evento con role='model'")
-
-                    except Exception as e:
-                        logger.error(f"🔍 [DEBUG] Error explorando sesión: {e}")
-                        import traceback
-                        logger.error(f"🔍 [DEBUG] Traceback: {traceback.format_exc()}")
-
-            # Intentar extraer respuesta desde el contexto
-            if hasattr(callback_context, "agent_response"):
-                agent_text = self._extract_agent_response(
-                    callback_context.agent_response
+            # Si encontramos la respuesta, actualizar conversación
+            if agent_text:
+                self.current_conversation.update(
+                    {
+                        "agent_response": agent_text,
+                        "response_summary": (
+                            agent_text[:200] if agent_text else None
+                        ),
+                        "success": True,
+                    }
                 )
-                if agent_text:
-                    self.current_conversation.update(
-                        {
-                            "agent_response": agent_text,
-                            "response_summary": (
-                                agent_text[:200] if agent_text else None
-                            ),
-                            "success": True,
-                        }
+
+                # Detectar errores en respuesta
+                if (
+                    "error" in agent_text.lower()
+                    or "no se pudo" in agent_text.lower()
+                    or "lo siento" in agent_text.lower()
+                    or "problema" in agent_text.lower()
+                ):
+                    self.current_conversation["success"] = False
+                    self.current_conversation["error_message"] = (
+                        "Error detectado en respuesta del agente"
                     )
 
-                    # AGREGAR: Detectar errores en respuesta
-                    if (
-                        "error" in agent_text.lower()
-                        or "no se pudo" in agent_text.lower()
-                        or "lo siento" in agent_text.lower()
-                        or "problema" in agent_text.lower()
-                    ):
-                        self.current_conversation["success"] = False
-                        self.current_conversation["error_message"] = (
-                            "Error detectado en respuesta del agente"
-                        )
-
-                    logger.info(
-                        f"🤖 Respuesta generada ({response_time}ms): {agent_text[:50]}..."
-                    )
+                logger.info(
+                    f"🤖 Respuesta capturada ({response_time}ms): {agent_text[:50]}..."
+                )
+            else:
+                logger.warning("⚠️ No se pudo extraer respuesta del agente desde session.events")
 
             # AGREGAR: Detectar errores del contexto
             if hasattr(callback_context, "error"):
@@ -326,55 +259,6 @@ class ConversationTracker:
         except Exception as e:
             logger.error(f"❌ Error en manual_log_zip_creation: {e}")
 
-    def _extract_agent_response(self, agent_response):
-        """Extraer texto de la respuesta del agente"""
-        try:
-            if not agent_response:
-                logger.warning("🔍 [DEBUG] agent_response is None or empty")
-                return None
-
-            # 🔍 DEBUG: Analizar estructura de agent_response
-            logger.info(f"🔍 [DEBUG] agent_response type: {type(agent_response)}")
-            logger.info(f"🔍 [DEBUG] agent_response has __dict__: {hasattr(agent_response, '__dict__')}")
-
-            if hasattr(agent_response, '__dict__'):
-                logger.info(f"🔍 [DEBUG] agent_response attributes: {list(vars(agent_response).keys())}")
-                for key, value in vars(agent_response).items():
-                    value_preview = str(value)[:200] if value else "None"
-                    logger.info(f"🔍 [DEBUG]   {key}: {value_preview}")
-            else:
-                logger.info(f"🔍 [DEBUG] agent_response dir(): {[attr for attr in dir(agent_response) if not attr.startswith('_')]}")
-
-            # Intentar extraer contenido de diferentes estructuras posibles
-            if hasattr(agent_response, "content"):
-                logger.info("🔍 [DEBUG] agent_response has 'content' attribute")
-                if (
-                    hasattr(agent_response.content, "parts")
-                    and agent_response.content.parts
-                ):
-                    logger.info(f"🔍 [DEBUG] Found parts, count: {len(agent_response.content.parts)}")
-                    text = agent_response.content.parts[0].text
-                    logger.info(f"🔍 [DEBUG] Extracted text preview: {text[:100]}...")
-                    return text
-                elif hasattr(agent_response.content, "text"):
-                    logger.info("🔍 [DEBUG] Found content.text")
-                    return agent_response.content.text
-
-            # Si es string directo
-            if isinstance(agent_response, str):
-                logger.info("🔍 [DEBUG] agent_response is string directly")
-                return agent_response
-
-            # Intentar conversión a string
-            result = str(agent_response)
-            logger.info(f"🔍 [DEBUG] Converted to string: {result[:100]}...")
-            return result
-
-        except Exception as e:
-            logger.error(f"❌ Error extrayendo respuesta del agente: {e}")
-            import traceback
-            logger.error(f"❌ Traceback: {traceback.format_exc()}")
-            return None
 
     def _categorize_query_by_tool(self, tool_name):
         """Categorizar consulta basada en herramientas utilizadas"""
