@@ -1,0 +1,77 @@
+============================================================================
+🧪 REPORTE DE PRUEBAS EXHAUSTIVAS: Estrategia 5 + 6
+============================================================================
+
+Fecha: 2025-10-01 15:15:37
+Query de prueba: "puedes darme la siguiente factura 0022792445"
+Objetivo: Validar >90% consistencia con E5 + E6
+
+CONFIGURACIÓN:
+- Estrategia 5: Tool description mejorada (search_invoices_by_any_number)
+- Estrategia 6: Temperature=0.1 (determinismo)
+- Iteraciones (Thinking OFF): 20
+- Iteraciones (Thinking ON): 10
+- Total iteraciones: 30
+
+============================================================================
+RESULTADOS FASE 1: THINKING MODE OFF (Producción)
+============================================================================
+
+Total iteraciones: 20
+Exitosas: 20
+Fallidas: 0
+Tasa de éxito: 100%
+Duración promedio: 31.25s
+
+Herramientas usadas:
+  - Unknown: 20 veces
+
+
+============================================================================
+RESULTADOS FASE 2: THINKING MODE ON (Diagnóstico)
+============================================================================
+
+Total iteraciones: 10
+Exitosas: 9
+Fallidas: 1
+Tasa de éxito: 90%
+Duración promedio: 36.23s
+
+Herramientas usadas:
+  - ERROR: 1 veces
+  - search_invoices_by_any_number: 9 veces
+
+
+============================================================================
+ANÁLISIS COMPARATIVO
+============================================================================
+
+Comparación de consistencia:
+  Thinking OFF: 100%
+  Thinking ON:  90%
+  Diferencia: 10 puntos porcentuales
+
+Comparación de velocidad:
+  Thinking OFF: 31.25s promedio
+  Thinking ON:  36.23s promedio
+  Delta: 4.98 segundos
+
+============================================================================
+CONCLUSIONES
+============================================================================
+
+Tasa de éxito promedio: 95%
+
+✅ ÉXITO TOTAL - Estrategia 5 + 6 logra >90% en ambos modos
+
+RECOMENDACIONES:
+- ✅ Fase 1 Quick Wins completada exitosamente
+- 🚀 Considerar deploy a producción con thinking mode OFF
+- 📋 Marcar E5 + E6 como validadas en ROADMAP
+- 🔄 Documentar hallazgos en ESTRATEGIA_5_RESUMEN.md
+
+============================================================================
+Archivos generados:
+- CSV detallado: test_results/exhaustive/exhaustive_test_20251001_145438.csv
+- Este reporte: test_results/exhaustive/exhaustive_report_20251001_145438.txt
+============================================================================

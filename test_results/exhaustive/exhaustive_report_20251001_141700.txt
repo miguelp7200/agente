@@ -1,0 +1,75 @@
+============================================================================
+🧪 REPORTE DE PRUEBAS EXHAUSTIVAS: Estrategia 5 + 6
+============================================================================
+
+Fecha: 2025-10-01 14:26:37
+Query de prueba: "puedes darme la siguiente factura 0022792445"
+Objetivo: Validar >90% consistencia con E5 + E6
+
+CONFIGURACIÓN:
+- Estrategia 5: Tool description mejorada (search_invoices_by_any_number)
+- Estrategia 6: Temperature=0.1 (determinismo)
+- Iteraciones (Thinking OFF): 20
+- Iteraciones (Thinking ON): 10
+- Total iteraciones: 30
+
+============================================================================
+RESULTADOS FASE 1: THINKING MODE OFF (Producción)
+============================================================================
+
+Total iteraciones: 20
+Exitosas: 0
+Fallidas: 20
+Tasa de éxito: 0%
+Duración promedio: 0s
+
+Herramientas usadas:
+  - ERROR: 20 veces
+
+
+============================================================================
+RESULTADOS FASE 2: THINKING MODE ON (Diagnóstico)
+============================================================================
+
+Total iteraciones: 10
+Exitosas: 0
+Fallidas: 10
+Tasa de éxito: 0%
+Duración promedio: 0s
+
+Herramientas usadas:
+  - ERROR: 10 veces
+
+
+============================================================================
+ANÁLISIS COMPARATIVO
+============================================================================
+
+Comparación de consistencia:
+  Thinking OFF: 0%
+  Thinking ON:  0%
+  Diferencia: 0 puntos porcentuales
+
+Comparación de velocidad:
+  Thinking OFF: 0s promedio
+  Thinking ON:  0s promedio
+  Delta: 0 segundos
+
+============================================================================
+CONCLUSIONES
+============================================================================
+
+Tasa de éxito promedio: 0%
+
+❌ INSUFICIENTE - Se requieren estrategias adicionales
+
+RECOMENDACIONES:
+- ⚠️  Implementar Estrategia 1 (agent_prompt.yaml priority)
+- 📊 Considerar Estrategia 2 (ejemplos específicos)
+- 🔍 Revisar ROADMAP para próximos pasos
+
+============================================================================
+Archivos generados:
+- CSV detallado: test_results/exhaustive/exhaustive_test_20251001_141700.csv
+- Este reporte: test_results/exhaustive/exhaustive_report_20251001_141700.txt
+============================================================================
