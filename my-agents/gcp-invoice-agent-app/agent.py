@@ -1377,17 +1377,18 @@ def enhanced_after_agent_callback(callback_context):
 # 🎯 ESTRATEGIA 6: Configuración de generación con temperatura reducida
 # Reducir aleatoriedad del modelo para mayor consistencia en selección de herramientas
 # 🧠 ESTRATEGIA 8: Thinking Mode habilitado (moderado) para diagnóstico y validación
+# ⚠️ TEMPORAL: thinking_config comentado por posible incompatibilidad con ADK en Cloud Run
 generate_content_config = types.GenerateContentConfig(
     temperature=0.1,          # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
     top_p=0.8,                # Limitar espacio de probabilidad al 80% más probable
     top_k=20,                 # Considerar solo top 20 tokens en cada paso
     max_output_tokens=32768,  # 32k tokens para respuestas largas con tablas
     response_modalities=["TEXT"],
-    # 🧠 Thinking Mode: Modo moderado para balance entre razonamiento y velocidad
-    thinking_config=types.ThinkingConfig(
-        thinking_budget=1024,     # Balance: razonamiento moderado sin sacrificar velocidad
-        include_thoughts=True     # Incluir proceso de pensamiento en la respuesta
-    )
+    # 🧠 Thinking Mode: COMENTADO TEMPORALMENTE - verificar compatibilidad ADK
+    # thinking_config=types.ThinkingConfig(
+    #     thinking_budget=1024,     # Balance: razonamiento moderado sin sacrificar velocidad
+    #     include_thoughts=True     # Incluir proceso de pensamiento en la respuesta
+    # )
 )
 
 root_agent = Agent(
