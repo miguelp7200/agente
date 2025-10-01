@@ -1,6 +1,35 @@
 # 🗺️ Hoja de Ruta: Reducción de Incertidumbre en Búsqueda de Facturas
 
-## 📋 Contexto del Problema
+## � Estado de Implementación
+
+**Última actualización:** 1 de octubre de 2025  
+**Branch:** `feature/reduce-search-inconsistency`
+
+### Progreso General
+
+**Estrategias Completadas:** 1 de 8 (12.5%)
+
+| Fase | Estrategia | Estado | Fecha |
+|------|-----------|--------|-------|
+| Fase 1 | ✅ Estrategia 6: Reducir temperatura | **COMPLETADA** | 2025-10-01 |
+| Fase 1 | ⏳ Estrategia 5: Mejorar descripción herramienta | Pendiente | - |
+| Fase 2 | ⏳ Estrategia 1: Mejorar prioridad en prompt | Pendiente | - |
+| Fase 2 | ⏳ Estrategia 2: Añadir ejemplos específicos | Pendiente | - |
+| Fase 3 | ⏳ Estrategia 3: Modificar reglas de prioridad | Pendiente | - |
+| Fase 4 | ⏳ Estrategia 8: Habilitar modo thinking | Pendiente | - |
+| Fase 4 | ⏳ Estrategia 4: Implementar fallback automático | Pendiente | - |
+| Fase 4 | ⏳ Estrategia 7: Añadir logging de decisiones | Pendiente | - |
+
+### Commits Relacionados
+
+- `d6d704a` - feat: Implementar Estrategia 6 - Reducir temperatura del modelo
+- `497941d` - docs: Añadir guía de validación para Estrategia 6
+- `178669e` - docs: Añadir Estrategia 8 (Thinking Mode) al roadmap
+- `ff4c709` - docs: Añadir hoja de ruta para reducción de incertidumbre
+
+---
+
+## �📋 Contexto del Problema
 
 **Problema Identificado:** Comportamiento inconsistente al buscar facturas por número.
 
@@ -41,7 +70,9 @@ Resultado B: ❌ "No se encontró la factura"
 
 ## 🚀 Fase 1: Quick Wins (Críticas - Semana 1)
 
-### ✅ Estrategia 6: Reducir Temperatura del Modelo
+### ✅ Estrategia 6: Reducir Temperatura del Modelo ✅ **IMPLEMENTADA**
+
+**Estado:** ✅ **COMPLETADA** - 1 de octubre de 2025
 
 **Objetivo:** Reducir la aleatoriedad inherente del modelo Gemini 2.5 Flash
 
@@ -75,6 +106,33 @@ agent = Agent(
 **Riesgos:**
 - ⚠️ Puede reducir creatividad en respuestas narrativas (mínimo)
 - ⚠️ Requiere testing para validar que no afecta negativamente otros casos de uso
+
+**Cambios Realizados:**
+```python
+# Commit: d6d704a
+# Archivo: my-agents/gcp-invoice-agent-app/agent.py
+
+generation_config = {
+    "temperature": 0.1,      # Reducido de default (~0.7-1.0)
+    "top_p": 0.8,
+    "top_k": 20,
+    "max_output_tokens": 8192,
+}
+
+root_agent = Agent(
+    name=agent_config["name"],
+    model=agent_config["model"],
+    generation_config=generation_config,  # ← IMPLEMENTADO
+    # ... otros parámetros
+)
+```
+
+**Testing Disponible:**
+- Script: `tests/test_factura_numero_0022792445.ps1`
+- Documentación: `tests/VALIDACION_ESTRATEGIA_6.md`
+- Ejecutar: `.\tests\test_factura_numero_0022792445.ps1 -Iterations 10`
+
+**Próximo Paso:** Validar con testing y proceder con Estrategia 5
 
 ---
 
@@ -660,12 +718,14 @@ $results | Export-Csv -Path "test_results_$(Get-Date -Format 'yyyyMMdd_HHmmss').
 ### Fase 1: Quick Wins
 - [ ] Habilitar thinking mode temporalmente para diagnóstico inicial
 - [ ] Ejecutar 10 iteraciones con thinking ON y capturar razonamiento
-- [ ] Añadir `generation_config` con temperature=0.1 en agent.py
-- [ ] Actualizar descripción de `search_invoices_by_any_number` en tools_updated.yaml
-- [ ] Crear script de testing `test_factura_numero_0022792445.ps1`
-- [ ] Ejecutar 10 iteraciones post-fix con thinking ON
-- [ ] Comparar razonamiento pre-fix vs post-fix
+- [x] ✅ **Añadir `generation_config` con temperature=0.1 en agent.py** (Commit: d6d704a)
+- [x] ✅ **Crear script de testing `test_factura_numero_0022792445.ps1`** (Commit: d6d704a)
+- [x] ✅ **Crear documentación de validación** (Commit: 497941d)
+- [ ] Ejecutar 10 iteraciones baseline (pre-fix) y documentar resultados
+- [ ] Ejecutar 10 iteraciones post-fix (Estrategia 6) y comparar
 - [ ] Validar mejora >60% en consistencia
+- [ ] Actualizar descripción de `search_invoices_by_any_number` en tools_updated.yaml
+- [ ] Re-validar con 10 iteraciones post-Estrategia 5
 
 ### Fase 2: Reforzamiento
 - [ ] Añadir regla #0 en agent_prompt.yaml (búsqueda ambigua)
