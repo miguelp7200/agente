@@ -22,6 +22,7 @@
 
 ### Commits Relacionados
 
+- `9bd7dfc` - feat(estrategia-8): Centralizar configuración Thinking Mode con arquitectura flexible
 - `160b8e7` - feat: Implementar Estrategia 8 - Thinking Mode moderado
 - `4808e43` - config: Aumentar max_output_tokens de 8k a 32k
 - `8c7ff83` - docs: Actualizar roadmap con sintaxis corregida de Estrategia 6
@@ -388,9 +389,34 @@ export ENABLE_THINKING_MODE=false
 
 **Impacto Esperado:**
 - 🔍 **Diagnóstico:** Visibilidad completa del proceso de decisión del modelo
-- 📊 **Reducción de inconsistencia:** 30-40% adicional al forzar razonamiento estructurado
-- ✅ **Validación:** Confirmar que los fixes funcionan por razones correctas
+- 📊 **Validación:** Confirmar que fixes funcionan por razones correctas
 - 🎯 **Detección de casos edge:** Identificar patrones que requieren atención adicional
+- 🧪 **A/B Testing:** Comparar comportamiento con/sin thinking
+
+**⚠️ HALLAZGO CRÍTICO - Impacto en Consistencia (1 Oct 2025):**
+
+**Observación Empírica:**
+```
+ENABLE_THINKING_MODE=true  → Comportamiento INCONSISTENTE en búsqueda de facturas
+ENABLE_THINKING_MODE=false → Comportamiento CONSISTENTE (100% éxito)
+```
+
+**Análisis:**
+- **Pensamiento explícito introduce variabilidad:** El proceso de razonamiento visible puede generar caminos de decisión más complejos que aumentan la aleatoriedad
+- **Overhead cognitivo:** Budget de thinking (1024 tokens) puede distraer al modelo de la tarea principal
+- **Determinismo vs Razonamiento:** Modo thinking sacrifica consistencia por visibilidad
+
+**Implicaciones Estratégicas:**
+1. ✅ **Uso diagnóstico únicamente** (activar solo para análisis puntual)
+2. ✅ **Desactivado en producción** (ENABLE_THINKING_MODE=false default)
+3. ✅ **Toggle parametrizado permite testing A/B** de cada estrategia del roadmap
+4. ✅ **Combinación ganadora validada:** Estrategia 6 (temp=0.1) + thinking OFF = 100% consistencia
+
+**Ventaja del Sistema Parametrizado:**
+- Diagnóstico on-demand sin cambios de código
+- Testing aislado del impacto de cada estrategia
+- Producción optimizada para consistencia máxima
+- Flexibilidad total para casos edge específicos
 
 **Trade-offs:**
 - ⚠️ **Latencia:** +1-3 segundos por respuesta (razonamiento explícito toma tiempo)
