@@ -1380,7 +1380,7 @@ generate_content_config = types.GenerateContentConfig(
     temperature=0.1,          # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
     top_p=0.8,                # Limitar espacio de probabilidad al 80% más probable
     top_k=20,                 # Considerar solo top 20 tokens en cada paso
-    max_output_tokens=8192,   # Mantener límite de tokens de salida
+    max_output_tokens=32768,  # 32k tokens para respuestas largas con tablas
 )
 
 root_agent = Agent(
