@@ -381,16 +381,50 @@ tools:
       \ @search_number THEN 1\n    WHEN Factura_Referencia = @search_number THEN 2\n\
       \    WHEN LTRIM(Factura, '0') = LTRIM(@search_number, '0') THEN 3\n    ELSE\
       \ 4\n  END,\n  Factura DESC\nLIMIT 5\n"
-    description: 'Busca facturas en AMBOS campos (Factura Y Factura_Referencia) simultáneamente.
+    description: '🔍 **RECOMMENDED BY DEFAULT FOR ALL NUMERIC INVOICE SEARCHES**
 
-      Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia.
-
-      Incluye un campo match_type que indica en qué campo se encontró la coincidencia.
-
-      Ordena los resultados priorizando coincidencias exactas.
-
-      Usar cuando el usuario proporcione un número sin especificar si es factura o
-      referencia.
+      
+      Search invoices in BOTH fields simultaneously:
+      
+      - Internal ID (Factura field) 
+      
+      - Visible folio number (Factura_Referencia field)
+      
+      
+      ⭐ **USE THIS TOOL WHEN:**
+      
+      - User provides a NUMBER without specifying field type
+      
+      - Ambiguous queries like "dame la factura [número]"
+      
+      - User asks for "factura", "invoice", or just provides a number
+      
+      - Uncertain whether number refers to internal ID or visible folio
+      
+      - Queries like "puedes darme la siguiente factura 0022792445"
+      
+      
+      ❌ **DO NOT USE WHEN:**
+      
+      - User EXPLICITLY says "internal ID" or "ID interno" → use search_invoices_by_factura_number
+      
+      - User EXPLICITLY says "folio" or "referencia" → use search_invoices_by_referencia_number
+      
+      
+      ✅ **ADVANTAGES:**
+      
+      - Comprehensive coverage: searches BOTH fields in a single query
+      
+      - Returns match_type field indicating where the match was found
+      
+      - Prioritizes exact matches automatically
+      
+      - Handles numbers with or without leading zeros
+      
+      - GUARANTEED to find the invoice regardless of field ambiguity
+      
+      
+      This tool provides MAXIMUM coverage and should be the DEFAULT choice for numeric searches.
 
       '
     parameters:
