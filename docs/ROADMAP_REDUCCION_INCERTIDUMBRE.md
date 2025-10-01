@@ -293,52 +293,79 @@ usage_examples:
 
 ---
 
-### ✅ Estrategia 8: Habilitar Modo "Thinking" (Razonamiento Explícito) - COMPLETADA
+### ✅ Estrategia 8: Habilitar Modo "Thinking" (Razonamiento Explícito) - COMPLETADA (con flag)
 
 **Estado:** ✅ **COMPLETADA** (1 de octubre de 2025)  
-**Commit:** `160b8e7` - feat: Implementar Estrategia 8 - Thinking Mode moderado
+**Commit:** `2708e58` - feat: Implementar Estrategia 8 con flag de entorno ENABLE_THINKING_MODE
 
-**Objetivo:** Activar capacidad de razonamiento explícito de Gemini para diagnóstico y validación
+**Objetivo:** Activar capacidad de razonamiento explícito de Gemini para diagnóstico y validación (opcional vía variable de entorno)
 
 **Archivo:** `my-agents/gcp-invoice-agent-app/agent.py`
 
-**Implementación Realizada:**
+**Implementación Realizada (Sintaxis Correcta según ADK):**
 ```python
-# Líneas 19, 1376-1386 en agent.py
+# Líneas 1, 3, 1376-1399 en agent.py
+from google.adk.agents import Agent
+from google.adk.planners import BuiltInPlanner  # 🧠 ESTRATEGIA 8
 from google.genai import types
 
+# Configuración de generación (Estrategia 6)
 generate_content_config = types.GenerateContentConfig(
     temperature=0.1,
     top_p=0.8,
     top_k=20,
     max_output_tokens=32768,
-    response_modalities=["TEXT"],
-    thinking_config=types.ThinkingConfig(
-        thinking_budget=1024,  # Modo MODERADO/BALANCE
-        include_thoughts=True   # Incluir razonamiento en respuesta
-    )
+    response_modalities=["TEXT"]
 )
+
+# 🧠 ESTRATEGIA 8: Thinking Mode con flag de entorno (SINTAXIS CORRECTA)
+thinking_mode_enabled = os.getenv("ENABLE_THINKING_MODE", "false").lower() == "true"
+thinking_planner = None
+
+if thinking_mode_enabled:
+    thinking_budget = int(os.getenv("THINKING_BUDGET", "1024"))
+    print(f"🧠 [THINKING MODE] HABILITADO con budget={thinking_budget} tokens")
+    
+    thinking_planner = BuiltInPlanner(
+        thinking_config=types.ThinkingConfig(
+            thinking_budget=thinking_budget,
+            include_thoughts=True
+        )
+    )
+else:
+    print(f"⚡ [THINKING MODE] DESHABILITADO (modo producción rápido)")
 
 root_agent = Agent(
     name=agent_config["name"],
     model=agent_config["model"],
     generate_content_config=generate_content_config,
-    tools=tools,
-    system_instruction=system_instruction
+    planner=thinking_planner,  # ← ThinkingConfig va aquí (NO en GenerateContentConfig)
+    # ... otros parámetros
 )
 ```
 
 **Configuración Aplicada:**
-- ✅ **thinking_budget:** 1024 tokens (modo moderado)
-- ✅ **include_thoughts:** True (visibilidad del razonamiento)
-- ✅ **Integración:** Con Estrategia 6 (temperature=0.1)
-- ✅ **max_output_tokens:** 32,768 (soporte respuestas largas + thinking)
+- ✅ **Sintaxis correcta:** ThinkingConfig dentro de BuiltInPlanner (parámetro `planner` del Agent)
+- ✅ **Flag de entorno:** `ENABLE_THINKING_MODE=true|false` (default: false)
+- ✅ **Budget configurable:** `THINKING_BUDGET=256-4096` (default: 1024)
+- ✅ **Logs informativos:** Estado visible en startup
+- ✅ **Documentación completa:** `docs/THINKING_MODE_USAGE.md`
 
-**Rationale del Modo Moderado:**
-- 🎯 **Balance:** Razonamiento suficiente sin latencia excesiva
-- 📊 **Diagnóstico:** Ver proceso de selección de herramientas
-- ⚡ **Latencia:** Estimada +1-2s (vs +3-5s en modo extenso)
-- 💰 **Tokens:** ~1k adicionales (vs ~4k en modo extenso)
+**Variables de Entorno:**
+```bash
+# Activar thinking mode
+export ENABLE_THINKING_MODE=true
+export THINKING_BUDGET=1024  # Opcional (default: 1024)
+
+# Desactivar (o no establecer la variable)
+export ENABLE_THINKING_MODE=false
+```
+
+**Rationale del Flag de Entorno:**
+- 🎯 **Flexibilidad:** Activar solo cuando se necesita diagnóstico
+- 📊 **Performance:** Deshabilitado por default para máxima velocidad
+- ⚡ **Desarrollo:** Habilitar en local para debugging
+- 💰 **Costo:** Evitar ~30% tokens extra en producción
 
 **Casos de Uso Recomendados:**
 
