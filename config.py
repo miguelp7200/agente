@@ -368,11 +368,11 @@ def validate_config():
     print(f"      - Budget: {THINKING_BUDGET} tokens")
     if ENABLE_THINKING_MODE:
         print(
-            f"      - 🧠 Modo diagnóstico activo - se mostrará razonamiento del modelo"
+            f"      - [DIAGNOSTICO] Modo diagnóstico activo - se mostrará razonamiento del modelo"
         )
     else:
         print(
-            f"      - ⚡ Modo producción - respuestas más rápidas sin razonamiento visible"
+            f"      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible"
         )
 
 

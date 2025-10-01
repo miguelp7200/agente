@@ -1,6 +1,8 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
-from google.adk.planners import BuiltInPlanner  # 🧠 ESTRATEGIA 8: Para Thinking Mode
+from google.adk.planners import (
+    BuiltInPlanner,
+)  # [THINK] ESTRATEGIA 8: Para Thinking Mode
 from toolbox_core import ToolboxSyncClient
 import os
 import uuid
@@ -17,7 +19,7 @@ from datetime import datetime, timedelta
 import google.auth
 from google.auth import impersonated_credentials
 from vertexai.generative_models import GenerativeModel
-from google.genai import types  # 🎯 ESTRATEGIA 6: Para GenerateContentConfig
+from google.genai import types  # [TARGET] ESTRATEGIA 6: Para GenerateContentConfig
 
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -39,7 +41,7 @@ from config import (
     MAX_SIGNATURE_RETRIES,
     SIGNED_URL_MONITORING_ENABLED,
     TIME_SYNC_TIMEOUT,
-    # 🧠 ESTRATEGIA 8: Importar configuración de Thinking Mode
+    # [THINK] ESTRATEGIA 8: Importar configuración de Thinking Mode
     ENABLE_THINKING_MODE,
     THINKING_BUDGET,
 )
@@ -51,7 +53,7 @@ try:
 
     ROBUST_SIGNED_URLS_AVAILABLE = True
 except ImportError as e:
-    print(f"⚠️ [GCS] Sistema robusto de signed URLs no disponible: {e}")
+    print(f"[ICON] [GCS] Sistema robusto de signed URLs no disponible: {e}")
     ROBUST_SIGNED_URLS_AVAILABLE = False
 
 # Importar módulos de estabilidad GCS
@@ -68,13 +70,13 @@ try:
     )
 
     GCS_STABILITY_AVAILABLE = True
-    print("✅ Módulos de estabilidad GCS cargados exitosamente")
+    print("[OK] Módulos de estabilidad GCS cargados exitosamente")
 except ImportError as e:
     GCS_STABILITY_AVAILABLE = False
-    print(f"⚠️ Módulos de estabilidad GCS no disponibles: {e}")
-    print("⚠️ Usando implementación legacy para signed URLs")
+    print(f"[ICON] Módulos de estabilidad GCS no disponibles: {e}")
+    print("[ICON] Usando implementación legacy para signed URLs")
 
-# 🔥 NUEVO: Importar sistema de retry para errores 500
+# [ICON] NUEVO: Importar sistema de retry para errores 500
 try:
     from src.gemini_retry_callbacks import (
         gemini_retry_callbacks,
@@ -83,11 +85,11 @@ try:
     from src.retry_handler import log_500_error_details
 
     RETRY_SYSTEM_AVAILABLE = True
-    print("✅ Sistema de retry para errores 500 cargado exitosamente")
+    print("[OK] Sistema de retry para errores 500 cargado exitosamente")
 except ImportError as e:
     RETRY_SYSTEM_AVAILABLE = False
-    print(f"⚠️ Sistema de retry no disponible: {e}")
-    print("⚠️ Continuando sin retry automático")
+    print(f"[ICON] Sistema de retry no disponible: {e}")
+    print("[ICON] Continuando sin retry automático")
 
 # Importar configuración YAML (importación relativa)
 from .agent_prompt_config import load_system_instructions, load_agent_config
@@ -95,14 +97,14 @@ from .agent_prompt_config import load_system_instructions, load_agent_config
 # Importar validador de URLs - DESACTIVADO PARA TESTING
 # from url_validator import fix_response_urls, validate_signed_url
 
-# 🔥 NUEVO: Importar sistema de logging de conversaciones
+# [ICON] NUEVO: Importar sistema de logging de conversaciones
 try:
     # Intento 1: Importar desde el mismo directorio que este archivo (ADK context)
     from .conversation_callbacks import ConversationTracker
 
     conversation_tracker = ConversationTracker()
     logging_available = True
-    print("✅ Sistema de logging de conversaciones cargado exitosamente")
+    print("[OK] Sistema de logging de conversaciones cargado exitosamente")
 except ImportError:
     try:
         # Intento 2: Importar absoluto (test context)
@@ -111,25 +113,25 @@ except ImportError:
         conversation_tracker = ConversationTracker()
         logging_available = True
         print(
-            "✅ Sistema de logging de conversaciones cargado exitosamente (import absoluto)"
+            "[OK] Sistema de logging de conversaciones cargado exitosamente (import absoluto)"
         )
     except ImportError as e:
         # Fallback: crear una instancia simple de logging
-        print(f"⚠️ Error de importación: {e}")
-        print("⚠️ Sistema de logging no disponible - continuando sin logging")
+        print(f"[ICON] Error de importación: {e}")
+        print("[ICON] Sistema de logging no disponible - continuando sin logging")
         conversation_tracker = None
         logging_available = False
 
 # ============================================================================
-# 🤖 AGENTE INTELIGENTE PARA BÚSQUEDA Y DESCARGA DE FACTURAS PDF
+# [ICON] AGENTE INTELIGENTE PARA BÚSQUEDA Y DESCARGA DE FACTURAS PDF
 # ============================================================================
 
 # Inicializar modelo oficial de Vertex AI para conteo de tokens
 try:
     token_counter_model = GenerativeModel(VERTEX_AI_MODEL)
-    print(f"✅ [TOKEN COUNTER] Modelo oficial inicializado: {VERTEX_AI_MODEL}")
+    print(f"[OK] [TOKEN COUNTER] Modelo oficial inicializado: {VERTEX_AI_MODEL}")
 except Exception as e:
-    print(f"⚠️ [TOKEN COUNTER] Error inicializando modelo: {e}")
+    print(f"[ICON] [TOKEN COUNTER] Error inicializando modelo: {e}")
     token_counter_model = None
 
 # Conectar al servidor MCP Toolbox
@@ -157,21 +159,21 @@ def count_tokens_official(text: str) -> int:
         Número de tokens según el modelo oficial
     """
     if not token_counter_model:
-        print("⚠️ [TOKEN COUNTER] Modelo no disponible, retornando 0")
+        print("[ICON] [TOKEN COUNTER] Modelo no disponible, retornando 0")
         return 0
 
     try:
         # Usar el método oficial count_tokens del modelo
         response = token_counter_model.count_tokens(text)
         token_count = response.total_tokens
-        print(f"✅ [TOKEN COUNTER] Contados {token_count} tokens oficiales")
+        print(f"[OK] [TOKEN COUNTER] Contados {token_count} tokens oficiales")
         return token_count
     except Exception as e:
-        print(f"❌ [TOKEN COUNTER] Error contando tokens: {e}")
+        print(f"[ICON] [TOKEN COUNTER] Error contando tokens: {e}")
         # Fallback: estimación básica de tokens (dividir palabras por 0.75)
         words = len(text.split())
         estimated_tokens = int(words / 0.75)
-        print(f"🔄 [TOKEN COUNTER] Usando estimación: {estimated_tokens} tokens")
+        print(f"[ICON] [TOKEN COUNTER] Usando estimación: {estimated_tokens} tokens")
         return estimated_tokens
 
 
@@ -203,13 +205,13 @@ def log_token_analysis(
 
         # Determinar estado del contexto
         if total_tokens > 1_000_000:
-            status = "❌ EXCEDE_LIMITE"
+            status = "[ICON] EXCEDE_LIMITE"
         elif total_tokens > 800_000:
-            status = "⚠️ ADVERTENCIA_GRANDE"
+            status = "[ICON] ADVERTENCIA_GRANDE"
         elif total_tokens > 500_000:
             status = "🟡 GRANDE_PERO_OK"
         else:
-            status = "✅ SEGURO"
+            status = "[OK] SEGURO"
 
         metrics = {
             "source": source,
@@ -225,25 +227,25 @@ def log_token_analysis(
         }
 
         # Log detallado para monitoreo
-        print(f"🔍 [TOKEN ANALYSIS - {source}]")
-        print(f"   📊 Facturas: {invoice_count}")
-        print(f"   🔤 Caracteres: {chars_total:,}")
+        print(f"[ICON] [TOKEN ANALYSIS - {source}]")
+        print(f"   [STATS] Facturas: {invoice_count}")
+        print(f"   [ICON] Caracteres: {chars_total:,}")
         print(f"   🪙 Tokens: {total_tokens:,}")
-        print(f"   📈 Tokens/factura: {tokens_per_invoice:.1f}")
-        print(f"   📊 Uso contexto: {context_usage_percent:.1f}%")
-        print(f"   🚦 Estado: {status}")
-        print(f"   ✅ Dentro límite: {'Sí' if metrics['is_within_limit'] else 'No'}")
+        print(f"   [ICON] Tokens/factura: {tokens_per_invoice:.1f}")
+        print(f"   [STATS] Uso contexto: {context_usage_percent:.1f}%")
+        print(f"   [ICON] Estado: {status}")
+        print(f"   [OK] Dentro límite: {'Sí' if metrics['is_within_limit'] else 'No'}")
 
         return metrics
 
     except Exception as e:
-        print(f"❌ [TOKEN ANALYSIS] Error analizando tokens: {e}")
+        print(f"[ICON] [TOKEN ANALYSIS] Error analizando tokens: {e}")
         return {
             "source": source,
             "error": str(e),
             "invoice_count": invoice_count,
             "total_tokens": 0,
-            "status": "❌ ERROR",
+            "status": "[ICON] ERROR",
         }
 
 
@@ -251,7 +253,7 @@ def download_pdfs_from_gcs(pdf_urls, samples_dir):
     """
     Descarga PDFs desde Google Cloud Storage al directorio local
     """
-    print(f"🔄 [PDF DOWNLOAD] Iniciando descarga de {len(pdf_urls)} PDFs...")
+    print(f"[ICON] [PDF DOWNLOAD] Iniciando descarga de {len(pdf_urls)} PDFs...")
 
     # Asegurar que el directorio existe
     Path(samples_dir).mkdir(parents=True, exist_ok=True)
@@ -265,7 +267,7 @@ def download_pdfs_from_gcs(pdf_urls, samples_dir):
     for i, url in enumerate(pdf_urls):
         try:
             if "gs://miguel-test/descargas/" not in url:
-                print(f"❌ [PDF DOWNLOAD] URL inválida {i+1}: {url}")
+                print(f"[ICON] [PDF DOWNLOAD] URL inválida {i+1}: {url}")
                 continue
 
             # Extraer la ruta GCS
@@ -275,7 +277,7 @@ def download_pdfs_from_gcs(pdf_urls, samples_dir):
             gcs_path = url[gcs_start:]  # "0101547522/Copia_Cedible_cf.pdf"
 
             if "/" not in gcs_path:
-                print(f"❌ [PDF DOWNLOAD] Ruta GCS inválida {i+1}: {gcs_path}")
+                print(f"[ICON] [PDF DOWNLOAD] Ruta GCS inválida {i+1}: {gcs_path}")
                 continue
 
             parts = gcs_path.split("/")
@@ -293,32 +295,32 @@ def download_pdfs_from_gcs(pdf_urls, samples_dir):
             blob = bucket.blob(blob_path)
 
             if not blob.exists():
-                print(f"❌ [PDF DOWNLOAD] Blob no existe en GCS: {blob_path}")
+                print(f"[ICON] [PDF DOWNLOAD] Blob no existe en GCS: {blob_path}")
                 continue
 
             print(
-                f"🔄 [PDF DOWNLOAD] Descargando {i+1}/{len(pdf_urls)}: {unique_filename}"
+                f"[ICON] [PDF DOWNLOAD] Descargando {i+1}/{len(pdf_urls)}: {unique_filename}"
             )
             blob.download_to_filename(str(local_path))
 
             downloaded_files.append(unique_filename)
             print(
-                f"✅ [PDF DOWNLOAD] Descargado: {unique_filename} ({local_path.stat().st_size} bytes)"
+                f"[OK] [PDF DOWNLOAD] Descargado: {unique_filename} ({local_path.stat().st_size} bytes)"
             )
 
         except Exception as e:
-            print(f"❌ [PDF DOWNLOAD] Error descargando PDF {i+1}: {e}")
+            print(f"[ICON] [PDF DOWNLOAD] Error descargando PDF {i+1}: {e}")
             continue
 
     print(
-        f"✅ [PDF DOWNLOAD] Completado: {len(downloaded_files)}/{len(pdf_urls)} archivos descargados"
+        f"[OK] [PDF DOWNLOAD] Completado: {len(downloaded_files)}/{len(pdf_urls)} archivos descargados"
     )
     return downloaded_files
 
 
 def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
     """
-    🚨 FUNCIÓN CRÍTICA: Crear ZIP automáticamente cuando hay >5 facturas
+    [ICON] FUNCIÓN CRÍTICA: Crear ZIP automáticamente cuando hay >5 facturas
 
     Esta función DEBE ser llamada por el agente cuando:
     - Se encuentren >5 facturas en cualquier búsqueda
@@ -332,11 +334,11 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
     Returns:
         Dict con download_url del ZIP creado
     """
-    # 🔥 LOGGING: Inicializar tracking de ZIP
+    # [ICON] LOGGING: Inicializar tracking de ZIP
     zip_start_time = time.time()
     zip_id = str(uuid.uuid4())
 
-    print(f"📄 [ZIP+LOG] Iniciando creación ZIP: {zip_id}")
+    print(f"[ICON] [ZIP+LOG] Iniciando creación ZIP: {zip_id}")
 
     try:
         # Convertir string a lista
@@ -347,10 +349,10 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
 
         # Validar entrada
         if not pdf_urls_list:
-            error_msg = "❌ Error: pdf_urls debe contener al menos una URL"
-            print(f"❌ [ZIP CREATION] {error_msg}")
+            error_msg = "[ICON] Error: pdf_urls debe contener al menos una URL"
+            print(f"[ICON] [ZIP CREATION] {error_msg}")
 
-            # 🔥 LOGGING: Registrar error de ZIP
+            # [ICON] LOGGING: Registrar error de ZIP
             if (
                 logging_available
                 and conversation_tracker is not None
@@ -368,20 +370,22 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             invoice_count = len(pdf_urls_list)
 
         print(
-            f"🔄 [ZIP CREATION] Iniciando creación de ZIP para {invoice_count} facturas"
+            f"[ICON] [ZIP CREATION] Iniciando creación de ZIP para {invoice_count} facturas"
         )
-        print(f"🔄 [ZIP CREATION] ZIP ID generado: {zip_id}")
-        print(f"🔄 [ZIP CREATION] URLs recibidas: {len(pdf_urls_list)}")
+        print(f"[ICON] [ZIP CREATION] ZIP ID generado: {zip_id}")
+        print(f"[ICON] [ZIP CREATION] URLs recibidas: {len(pdf_urls_list)}")
 
         # Paso 1: Descargar PDFs desde GCS al directorio local
-        print(f"🔄 [ZIP CREATION] Descargando {len(pdf_urls_list)} PDFs desde GCS...")
+        print(
+            f"[ICON] [ZIP CREATION] Descargando {len(pdf_urls_list)} PDFs desde GCS..."
+        )
         downloaded_files = download_pdfs_from_gcs(pdf_urls_list, SAMPLES_DIR)
 
         if not downloaded_files:
-            error_msg = "❌ Error: No se pudo descargar ningún PDF desde GCS"
-            print(f"❌ [ZIP CREATION] {error_msg}")
+            error_msg = "[ICON] Error: No se pudo descargar ningún PDF desde GCS"
+            print(f"[ICON] [ZIP CREATION] {error_msg}")
 
-            # 🔥 LOGGING: Registrar error de descarga
+            # [ICON] LOGGING: Registrar error de descarga
             if (
                 logging_available
                 and conversation_tracker is not None
@@ -395,18 +399,20 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             return {"success": False, "error": error_msg}
 
         print(
-            f"✅ [ZIP CREATION] Descargados {len(downloaded_files)} PDFs exitosamente"
+            f"[OK] [ZIP CREATION] Descargados {len(downloaded_files)} PDFs exitosamente"
         )
 
         # Paso 2: Crear el ZIP con los archivos descargados
         if not downloaded_files:
-            error_msg = "❌ Error: No se pudieron procesar nombres de archivos válidos"
-            print(f"❌ [ZIP CREATION] {error_msg}")
+            error_msg = (
+                "[ICON] Error: No se pudieron procesar nombres de archivos válidos"
+            )
+            print(f"[ICON] [ZIP CREATION] {error_msg}")
             return {"success": False, "error": error_msg}
 
-        print(f"🔄 [ZIP CREATION] Archivos a incluir: {len(downloaded_files)}")
+        print(f"[ICON] [ZIP CREATION] Archivos a incluir: {len(downloaded_files)}")
         print(
-            f"🔄 [ZIP CREATION] Primeros archivos: {downloaded_files[:3]}..."
+            f"[ICON] [ZIP CREATION] Primeros archivos: {downloaded_files[:3]}..."
         )  # Mostrar solo primeros 3
 
         # Directorio del script create_complete_zip.py
@@ -415,7 +421,7 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         # Verificar que el script existe
         if not script_path.exists():
             error_msg = (
-                f"❌ Script create_complete_zip.py no encontrado en {script_path}"
+                f"[ICON] Script create_complete_zip.py no encontrado en {script_path}"
             )
             print(error_msg)
             return {"success": False, "error": error_msg}
@@ -424,7 +430,7 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         cmd = [sys.executable, str(script_path), zip_id] + downloaded_files
 
         print(
-            f"🔄 [ZIP CREATION] Ejecutando: python create_complete_zip.py {zip_id} + {len(downloaded_files)} archivos"
+            f"[ICON] [ZIP CREATION] Ejecutando: python create_complete_zip.py {zip_id} + {len(downloaded_files)} archivos"
         )
 
         # Ejecutar el script de creación de ZIP
@@ -436,7 +442,7 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             timeout=120,  # Timeout de 2 minutos
         )
 
-        print(f"🔄 [ZIP CREATION] Return code: {result.returncode}")
+        print(f"[ICON] [ZIP CREATION] Return code: {result.returncode}")
 
         if result.returncode == 0:
             # ZIP creado exitosamente
@@ -451,11 +457,11 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
                 # Desarrollo local: usar proxy server normal
                 download_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-            success_msg = f"✅ ZIP creado exitosamente: {zip_filename} con {len(downloaded_files)} archivos"
-            print(f"✅ [ZIP CREATION] {success_msg}")
-            print(f"✅ [ZIP CREATION] URL de descarga: {download_url}")
+            success_msg = f"[OK] ZIP creado exitosamente: {zip_filename} con {len(downloaded_files)} archivos"
+            print(f"[OK] [ZIP CREATION] {success_msg}")
+            print(f"[OK] [ZIP CREATION] URL de descarga: {download_url}")
 
-            # 🔥 LOGGING: Registrar ZIP exitoso
+            # [ICON] LOGGING: Registrar ZIP exitoso
             if logging_available and conversation_tracker is not None:
                 zip_data = {
                     "zip_generated": True,
@@ -477,11 +483,11 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             }
         else:
             # Error en la creación
-            error_msg = f"❌ Error creando ZIP: {result.stderr}"
-            print(f"❌ [ZIP CREATION] {error_msg}")
-            print(f"❌ [ZIP CREATION] Stdout: {result.stdout}")
+            error_msg = f"[ICON] Error creando ZIP: {result.stderr}"
+            print(f"[ICON] [ZIP CREATION] {error_msg}")
+            print(f"[ICON] [ZIP CREATION] Stdout: {result.stdout}")
 
-            # 🔥 LOGGING: Registrar error de creación
+            # [ICON] LOGGING: Registrar error de creación
             if (
                 logging_available
                 and conversation_tracker is not None
@@ -500,10 +506,10 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             }
 
     except subprocess.TimeoutExpired:
-        timeout_msg = "❌ Timeout: La creación del ZIP tomó más de 2 minutos"
-        print(f"❌ [ZIP CREATION] {timeout_msg}")
+        timeout_msg = "[ICON] Timeout: La creación del ZIP tomó más de 2 minutos"
+        print(f"[ICON] [ZIP CREATION] {timeout_msg}")
 
-        # 🔥 LOGGING: Registrar timeout
+        # [ICON] LOGGING: Registrar timeout
         if (
             logging_available
             and conversation_tracker is not None
@@ -517,10 +523,10 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         return {"success": False, "error": timeout_msg}
 
     except Exception as e:
-        exception_msg = f"❌ Excepción durante creación de ZIP: {str(e)}"
-        print(f"❌ [ZIP CREATION] {exception_msg}")
+        exception_msg = f"[ICON] Excepción durante creación de ZIP: {str(e)}"
+        print(f"[ICON] [ZIP CREATION] {exception_msg}")
 
-        # 🔥 LOGGING: Registrar excepción
+        # [ICON] LOGGING: Registrar excepción
         if (
             logging_available
             and conversation_tracker is not None
@@ -548,14 +554,14 @@ def _get_service_account_email():
         response = requests.get(metadata_url, headers=headers, timeout=5)
         if response.status_code == 200:
             email = response.text.strip()
-            print(f"✅ [AUTH] Service Account obtenida de metadatos: {email}")
+            print(f"[OK] [AUTH] Service Account obtenida de metadatos: {email}")
             return email
     except Exception as e:
-        print(f"⚠️ [AUTH] No se pudo obtener email de metadatos: {e}")
+        print(f"[ICON] [AUTH] No se pudo obtener email de metadatos: {e}")
 
     # Fallback: usar email hardcodeado conocido
     default_email = "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
-    print(f"🔄 [AUTH] Usando Service Account por defecto: {default_email}")
+    print(f"[ICON] [AUTH] Usando Service Account por defecto: {default_email}")
     return default_email
 
 
@@ -578,7 +584,9 @@ def generate_signed_zip_url(zip_filename: str) -> str:
     try:
         # Usar sistema robusto si está disponible
         if ROBUST_SIGNED_URLS_AVAILABLE:
-            print(f"🔧 [GCS] Usando sistema robusto para signed URL de {zip_filename}")
+            print(
+                f"[FIX] [GCS] Usando sistema robusto para signed URL de {zip_filename}"
+            )
 
             try:
                 # Generar URL con compensación automática de clock skew
@@ -589,19 +597,21 @@ def generate_signed_zip_url(zip_filename: str) -> str:
                     service_account_path=None,  # Usar credenciales por defecto
                 )
 
-                print(f"✅ [GCS] Signed URL estable generada para {zip_filename}")
-                print(f"🔗 [GCS] URL: {signed_url[:100]}...")
+                print(f"[OK] [GCS] Signed URL estable generada para {zip_filename}")
+                print(f"[ICON] [GCS] URL: {signed_url[:100]}...")
 
                 return signed_url
 
             except Exception as robust_error:
-                print(f"⚠️ [GCS] Sistema robusto falló, usando fallback: {robust_error}")
+                print(
+                    f"[ICON] [GCS] Sistema robusto falló, usando fallback: {robust_error}"
+                )
                 # Fallback directo a proxy URL para evitar signed URL malformadas
         else:
-            print(f"⚠️ [GCS] Sistema robusto no disponible, usando fallback")
+            print(f"[ICON] [GCS] Sistema robusto no disponible, usando fallback")
 
         # Fallback: implementación legacy corregida sin impersonated credentials
-        print(f"🔄 [GCS] Usando implementación legacy corregida para signed URL")
+        print(f"[ICON] [GCS] Usando implementación legacy corregida para signed URL")
 
         # Usar credenciales por defecto directamente (sin impersonación)
         storage_client = storage.Client(project=PROJECT_ID_WRITE)
@@ -610,7 +620,7 @@ def generate_signed_zip_url(zip_filename: str) -> str:
 
         # Verificar que el archivo existe
         if not blob.exists():
-            print(f"⚠️ [GCS] Archivo no encontrado: {zip_filename}")
+            print(f"[ICON] [GCS] Archivo no encontrado: {zip_filename}")
             # Retornar URL de proxy local como fallback si el archivo no existe
             if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
                 return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
@@ -635,21 +645,21 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         )
 
         print(
-            f"✅ [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)"
+            f"[OK] [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)"
         )
-        print(f"🔗 [GCS] URL: {signed_url[:100]}...")
+        print(f"[ICON] [GCS] URL: {signed_url[:100]}...")
 
         return signed_url
 
     except Exception as e:
-        print(f"❌ [GCS] Error general: {e}")
+        print(f"[ICON] [GCS] Error general: {e}")
         # Fallback final a URL de proxy local
         if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
             fallback_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
         else:
             fallback_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
 
-        print(f"🔄 [GCS] Usando URL de proxy final como fallback: {fallback_url}")
+        print(f"[ICON] [GCS] Usando URL de proxy final como fallback: {fallback_url}")
         return fallback_url
 
 
@@ -671,19 +681,21 @@ def _is_valid_gcs_url(url: str) -> bool:
     # No debe contener caracteres problemáticos que pueden corromper la firma
     problematic_chars = ["<", ">", '"', "'", "&", "%", "+"]
     if any(char in url for char in problematic_chars):
-        print(f"⚠️ [FILTRO URL] URL contiene caracteres problemáticos: {url[:50]}...")
+        print(
+            f"[ICON] [FILTRO URL] URL contiene caracteres problemáticos: {url[:50]}..."
+        )
         return False
 
     # Debe tener una estructura básica válida
     parts = url.replace("gs://", "").split("/")
     if len(parts) < 2:  # Necesita al menos bucket/object
-        print(f"⚠️ [FILTRO URL] URL con estructura inválida: {url}")
+        print(f"[ICON] [FILTRO URL] URL con estructura inválida: {url}")
         return False
 
     # Verificar que no sea una URL vacía o corrupta
     object_path = "/".join(parts[1:])
     if not object_path or object_path.strip() == "":
-        print(f"⚠️ [FILTRO URL] URL sin objeto válido: {url}")
+        print(f"[ICON] [FILTRO URL] URL sin objeto válido: {url}")
         return False
 
     return True
@@ -698,40 +710,40 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
     """
     print(
-        f"🔗 [LINKS INDIVIDUALES] Generando enlaces firmados con mejoras de estabilidad..."
+        f"[ICON] [LINKS INDIVIDUALES] Generando enlaces firmados con mejoras de estabilidad..."
     )
 
     # Configurar entorno si los módulos de estabilidad están disponibles
     if GCS_STABILITY_AVAILABLE:
         try:
-            print("🔧 [ESTABILIDAD GCS] Configurando entorno...")
+            print("[FIX] [ESTABILIDAD GCS] Configurando entorno...")
             env_status = configure_environment()
             if env_status["success"]:
-                print("✅ [ESTABILIDAD GCS] Entorno configurado correctamente")
+                print("[OK] [ESTABILIDAD GCS] Entorno configurado correctamente")
                 if SIGNED_URL_MONITORING_ENABLED:
                     setup_signed_url_monitoring()
-                    print("✅ [ESTABILIDAD GCS] Monitoreo activado")
+                    print("[OK] [ESTABILIDAD GCS] Monitoreo activado")
             else:
                 print(
-                    f"⚠️ [ESTABILIDAD GCS] Advertencias en configuración: {env_status.get('warnings', [])}"
+                    f"[ICON] [ESTABILIDAD GCS] Advertencias en configuración: {env_status.get('warnings', [])}"
                 )
         except Exception as e:
-            print(f"⚠️ [ESTABILIDAD GCS] Error configurando entorno: {e}")
+            print(f"[ICON] [ESTABILIDAD GCS] Error configurando entorno: {e}")
 
     pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
     if not pdf_urls_list:
         return {"success": False, "error": "No se proporcionaron URLs de PDF."}
 
-    # 🚨 INTERCEPTOR AUTO-ZIP: Si hay >3 PDFs, forzar ZIP en lugar de URLs individuales
+    # [ICON] INTERCEPTOR AUTO-ZIP: Si hay >3 PDFs, forzar ZIP en lugar de URLs individuales
     pdf_count = len(pdf_urls_list)
     zip_threshold = int(os.getenv("ZIP_THRESHOLD", "3"))
 
     if pdf_count > zip_threshold:
         print(
-            f"🔧 [INTERCEPTOR AUTO-ZIP] DETECTADO: {pdf_count} PDFs > {zip_threshold}"
+            f"[FIX] [INTERCEPTOR AUTO-ZIP] DETECTADO: {pdf_count} PDFs > {zip_threshold}"
         )
         print(
-            f"🔧 [INTERCEPTOR AUTO-ZIP] Redirigiendo automáticamente a create_standard_zip..."
+            f"[FIX] [INTERCEPTOR AUTO-ZIP] Redirigiendo automáticamente a create_standard_zip..."
         )
 
         try:
@@ -740,7 +752,7 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
 
             if zip_result.get("success") and zip_result.get("download_url"):
                 print(
-                    f"✅ [INTERCEPTOR AUTO-ZIP] ZIP creado exitosamente: {zip_result['download_url']}"
+                    f"[OK] [INTERCEPTOR AUTO-ZIP] ZIP creado exitosamente: {zip_result['download_url']}"
                 )
 
                 # Retornar resultado en formato compatible con enlaces individuales
@@ -753,27 +765,27 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                     "zip_url": zip_result["download_url"],
                 }
             else:
-                print(f"❌ [INTERCEPTOR AUTO-ZIP] Error creando ZIP: {zip_result}")
+                print(f"[ICON] [INTERCEPTOR AUTO-ZIP] Error creando ZIP: {zip_result}")
                 print(
-                    f"⚠️ [INTERCEPTOR AUTO-ZIP] Fallback: Continuando con URLs individuales..."
+                    f"[ICON] [INTERCEPTOR AUTO-ZIP] Fallback: Continuando con URLs individuales..."
                 )
 
         except Exception as e:
-            print(f"❌ [INTERCEPTOR AUTO-ZIP] Excepción: {e}")
+            print(f"[ICON] [INTERCEPTOR AUTO-ZIP] Excepción: {e}")
             print(
-                f"⚠️ [INTERCEPTOR AUTO-ZIP] Fallback: Continuando con URLs individuales..."
+                f"[ICON] [INTERCEPTOR AUTO-ZIP] Fallback: Continuando con URLs individuales..."
             )
 
-    # 🧹 FILTRO DE URLs PROBLEMÁTICAS: Excluir URLs que causan errores de firma
+    # [ICON] FILTRO DE URLs PROBLEMÁTICAS: Excluir URLs que causan errores de firma
     original_count = len(pdf_urls_list)
     pdf_urls_list = [url for url in pdf_urls_list if _is_valid_gcs_url(url)]
     filtered_count = len(pdf_urls_list)
 
     if filtered_count < original_count:
         print(
-            f"⚠️ [FILTRO URLs] Se excluyeron {original_count - filtered_count} URLs problemáticas"
+            f"[ICON] [FILTRO URLs] Se excluyeron {original_count - filtered_count} URLs problemáticas"
         )
-        print(f"⚠️ [FILTRO URLs] URLs válidas restantes: {filtered_count}")
+        print(f"[ICON] [FILTRO URLs] URLs válidas restantes: {filtered_count}")
 
     if not pdf_urls_list:
         return {
@@ -785,7 +797,7 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     if GCS_STABILITY_AVAILABLE:
         try:
             print(
-                "🔗 [ESTABILIDAD GCS] Usando SignedURLService para generación estable..."
+                "[ICON] [ESTABILIDAD GCS] Usando SignedURLService para generación estable..."
             )
 
             # Verificar sincronización de tiempo
@@ -795,17 +807,17 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                 local_time, google_time, time_diff = get_time_sync_info()
                 buffer_minutes = calculate_buffer_time(sync_status)
                 print(
-                    f"⚠️ [ESTABILIDAD GCS] Clock skew detectado: {time_diff:.1f}s diferencia"
+                    f"[ICON] [ESTABILIDAD GCS] Clock skew detectado: {time_diff:.1f}s diferencia"
                 )
                 print(
-                    f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {buffer_minutes}min"
+                    f"[ICON] [ESTABILIDAD GCS] Buffer automático aplicado: {buffer_minutes}min"
                 )
             elif sync_status is None:
                 print(
-                    f"⚠️ [ESTABILIDAD GCS] No se pudo verificar sincronización temporal"
+                    f"[ICON] [ESTABILIDAD GCS] No se pudo verificar sincronización temporal"
                 )
             else:
-                print(f"✅ [ESTABILIDAD GCS] Sincronización temporal OK")
+                print(f"[OK] [ESTABILIDAD GCS] Sincronización temporal OK")
 
             # Configurar credenciales impersonadas para el servicio
             credentials, project = google.auth.default()
@@ -838,13 +850,13 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                     if "url" in query_params:
                         actual_gs_url = query_params["url"][0]
                         print(
-                            f"🔄 [ESTABILIDAD GCS] Extraída URL gs:// del proxy: {actual_gs_url}"
+                            f"[ICON] [ESTABILIDAD GCS] Extraída URL gs:// del proxy: {actual_gs_url}"
                         )
 
                 if actual_gs_url.startswith("gs://"):
                     gs_urls.append(actual_gs_url)
                 else:
-                    print(f"⚠️ [ESTABILIDAD GCS] URL no válida omitida: {url}")
+                    print(f"[ICON] [ESTABILIDAD GCS] URL no válida omitida: {url}")
 
             if not gs_urls:
                 return {
@@ -866,7 +878,7 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                             bucket_name = url_bucket
                         elif bucket_name != url_bucket:
                             print(
-                                f"⚠️ [ESTABILIDAD GCS] Múltiples buckets detectados: {bucket_name} vs {url_bucket}"
+                                f"[ICON] [ESTABILIDAD GCS] Múltiples buckets detectados: {bucket_name} vs {url_bucket}"
                             )
                         blob_names.append(blob_name)
 
@@ -906,11 +918,11 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             }
 
         except Exception as e:
-            print(f"❌ [ESTABILIDAD GCS] Error usando servicio estable: {e}")
-            print(f"⚠️ [ESTABILIDAD GCS] Fallback a implementación legacy...")
+            print(f"[ICON] [ESTABILIDAD GCS] Error usando servicio estable: {e}")
+            print(f"[ICON] [ESTABILIDAD GCS] Fallback a implementación legacy...")
 
     # Implementación legacy (fallback)
-    print("🔗 [LEGACY] Usando implementación legacy para signed URLs...")
+    print("[ICON] [LEGACY] Usando implementación legacy para signed URLs...")
     return _generate_individual_download_links_legacy(pdf_urls_list)
 
 
@@ -930,11 +942,11 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
 
         storage_client = storage.Client(credentials=target_credentials)
         print(
-            f"✅ [LINKS INDIVIDUALES] Cliente GCS inicializado con credenciales impersonadas para PDFs en {BUCKET_NAME_READ}"
+            f"[OK] [LINKS INDIVIDUALES] Cliente GCS inicializado con credenciales impersonadas para PDFs en {BUCKET_NAME_READ}"
         )
     except Exception as e:
         print(
-            f"❌ [LINKS INDIVIDUALES] Error configurando credenciales impersonadas: {e}"
+            f"[ICON] [LINKS INDIVIDUALES] Error configurando credenciales impersonadas: {e}"
         )
         return {"success": False, "error": f"Error de autenticación: {e}"}
 
@@ -945,12 +957,12 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
             # � VALIDACIÓN CRÍTICA: Verificar campos NULL antes de procesar
             if gs_url is None or gs_url.strip() == "" or gs_url.upper() == "NULL":
                 print(
-                    f"⚠️ [LINKS INDIVIDUALES] Campo NULL detectado, omitiendo: '{gs_url}'"
+                    f"[ICON] [LINKS INDIVIDUALES] Campo NULL detectado, omitiendo: '{gs_url}'"
                 )
                 continue
 
         except Exception as e:
-            print(f"❌ [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
+            print(f"[ICON] [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
 
     if not secure_links:
         return {
@@ -958,14 +970,14 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
             "error": "No se pudo generar ninguna URL de descarga segura.",
         }
 
-    print(f"✅ [LINKS INDIVIDUALES] {len(secure_links)} enlaces firmados generados.")
+    print(f"[OK] [LINKS INDIVIDUALES] {len(secure_links)} enlaces firmados generados.")
 
-    # 🚨 VALIDACIÓN FINAL: Verificar que todas las URLs están bien formadas
+    # [ICON] VALIDACIÓN FINAL: Verificar que todas las URLs están bien formadas
     validated_links = []
     for i, url in enumerate(secure_links):
         if len(url) > 2000:
             print(
-                f"⚠️ [LINKS INDIVIDUALES] Omitiendo URL #{i+1} por longitud anormal ({len(url)} chars)"
+                f"[ICON] [LINKS INDIVIDUALES] Omitiendo URL #{i+1} por longitud anormal ({len(url)} chars)"
             )
             continue
         validated_links.append(url)
@@ -978,9 +990,9 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
 
     # DEBUG: Mostrar algunas URLs para verificar el formato
     if validated_links:
-        print(f"🔗 [DEBUG] Primera URL generada: {validated_links[0][:100]}...")
+        print(f"[ICON] [DEBUG] Primera URL generada: {validated_links[0][:100]}...")
         if len(validated_links) > 1:
-            print(f"🔗 [DEBUG] Última URL generada: {validated_links[-1][:100]}...")
+            print(f"[ICON] [DEBUG] Última URL generada: {validated_links[-1][:100]}...")
 
     return {
         "success": True,
@@ -1096,13 +1108,13 @@ def format_enhanced_invoice_response(
                 enhanced_invoices.append(enhanced_invoice)
 
             except Exception as e:
-                print(f"⚠️ [FORMATO] Error procesando factura: {e}")
+                print(f"[ICON] [FORMATO] Error procesando factura: {e}")
                 continue
 
         # Generar el formato mejorado
         formatted_invoices = []
 
-        # 🚨 VERIFICACIÓN CRÍTICA: Contar TOTAL de PDFs para decidir ZIP vs URLs individuales
+        # [ICON] VERIFICACIÓN CRÍTICA: Contar TOTAL de PDFs para decidir ZIP vs URLs individuales
         total_pdfs_all_invoices = 0
         for inv in enhanced_invoices:
             total_pdfs_all_invoices += len(
@@ -1110,20 +1122,20 @@ def format_enhanced_invoice_response(
             )
 
         print(
-            f"🔍 [DECISIÓN ZIP] Total PDFs encontrados: {total_pdfs_all_invoices}, ZIP_THRESHOLD: {ZIP_THRESHOLD}"
+            f"[ICON] [DECISIÓN ZIP] Total PDFs encontrados: {total_pdfs_all_invoices}, ZIP_THRESHOLD: {ZIP_THRESHOLD}"
         )
 
         should_use_zip = total_pdfs_all_invoices > ZIP_THRESHOLD
         print(
-            f"🎯 [DECISIÓN ZIP] Usar ZIP: {should_use_zip} (PDFs: {total_pdfs_all_invoices} > {ZIP_THRESHOLD})"
+            f"[TARGET] [DECISIÓN ZIP] Usar ZIP: {should_use_zip} (PDFs: {total_pdfs_all_invoices} > {ZIP_THRESHOLD})"
         )
 
-        # 🚨 FORZAR AUTO-ZIP cuando se detecten >3 PDFs
+        # [ICON] FORZAR AUTO-ZIP cuando se detecten >3 PDFs
         if should_use_zip:
             print(
-                f"🔧 [AUTO-ZIP] EJECUTANDO: Se detectaron {total_pdfs_all_invoices} PDFs (>{ZIP_THRESHOLD}). "
+                f"[FIX] [AUTO-ZIP] EJECUTANDO: Se detectaron {total_pdfs_all_invoices} PDFs (>{ZIP_THRESHOLD}). "
             )
-            print(f"🔧 [AUTO-ZIP] Forzando create_standard_zip automáticamente...")
+            print(f"[FIX] [AUTO-ZIP] Forzando create_standard_zip automáticamente...")
 
             # Recopilar todas las URLs de PDFs
             all_pdf_urls = []
@@ -1139,7 +1151,7 @@ def format_enhanced_invoice_response(
 
                 if zip_result.get("success") and zip_result.get("zip_url"):
                     print(
-                        f"✅ [AUTO-ZIP] ZIP creado exitosamente: {zip_result['zip_url']}"
+                        f"[OK] [AUTO-ZIP] ZIP creado exitosamente: {zip_result['zip_url']}"
                     )
 
                     # Crear respuesta simplificada con ZIP en lugar de URLs individuales
@@ -1158,7 +1170,7 @@ def format_enhanced_invoice_response(
                         inv["zip_auto_created"] = True
 
                     print(
-                        f"✅ [AUTO-ZIP] Facturas modificadas para usar ZIP único en lugar de URLs individuales"
+                        f"[OK] [AUTO-ZIP] Facturas modificadas para usar ZIP único en lugar de URLs individuales"
                     )
 
                     # Continuar con el procesamiento normal pero con documentos ZIP
@@ -1167,21 +1179,23 @@ def format_enhanced_invoice_response(
                     perf_log["zip_url"] = zip_download_url
 
                 else:
-                    print(f"❌ [AUTO-ZIP] Error creando ZIP: {zip_result}")
+                    print(f"[ICON] [AUTO-ZIP] Error creando ZIP: {zip_result}")
                     print(
-                        f"⚠️ [AUTO-ZIP] Fallback: Continuando con URLs individuales..."
+                        f"[ICON] [AUTO-ZIP] Fallback: Continuando con URLs individuales..."
                     )
 
             except Exception as e:
-                print(f"❌ [AUTO-ZIP] Excepción creando ZIP: {e}")
-                print(f"⚠️ [AUTO-ZIP] Fallback: Continuando con URLs individuales...")
+                print(f"[ICON] [AUTO-ZIP] Excepción creando ZIP: {e}")
+                print(
+                    f"[ICON] [AUTO-ZIP] Fallback: Continuando con URLs individuales..."
+                )
         else:
             print(
                 f"ℹ️ [DECISIÓN ZIP] Usando URLs individuales (total_pdfs: {total_pdfs_all_invoices} <= {ZIP_THRESHOLD})"
             )
 
         for inv in enhanced_invoices:
-            # 🔗 GENERAR URLs FIRMADAS para documentos individuales
+            # [ICON] GENERAR URLs FIRMADAS para documentos individuales
             pdf_urls = [doc["url"] for doc in inv["documents"]]
             if pdf_urls:
                 try:
@@ -1197,19 +1211,19 @@ def format_enhanced_invoice_response(
                             if i < len(signed_urls):
                                 doc["url"] = signed_urls[i]
                                 print(
-                                    f"✅ [FORMATO] URL firmada asignada para {doc['type']}: {len(signed_urls[i])} chars"
+                                    f"[OK] [FORMATO] URL firmada asignada para {doc['type']}: {len(signed_urls[i])} chars"
                                 )
                             else:
                                 print(
-                                    f"⚠️ [FORMATO] No hay URL firmada para {doc['type']}, usando original"
+                                    f"[ICON] [FORMATO] No hay URL firmada para {doc['type']}, usando original"
                                 )
                     else:
                         print(
-                            f"⚠️ [FORMATO] Error generando URLs firmadas para factura {inv['number']}"
+                            f"[ICON] [FORMATO] Error generando URLs firmadas para factura {inv['number']}"
                         )
                 except Exception as e:
                     print(
-                        f"❌ [FORMATO] Error procesando URLs firmadas para factura {inv['number']}: {e}"
+                        f"[ICON] [FORMATO] Error procesando URLs firmadas para factura {inv['number']}: {e}"
                     )
 
             # Formatear documentos con URLs firmadas - OPTIMIZACIÓN ANTI-TRUNCAMIENTO
@@ -1219,7 +1233,7 @@ def format_enhanced_invoice_response(
             # Si hay muchos documentos, usar URLs más cortas para evitar truncamiento
             if total_docs > 3:
                 print(
-                    f"⚠️ [FORMATO] {total_docs} documentos detectados - aplicando optimización anti-truncamiento"
+                    f"[ICON] [FORMATO] {total_docs} documentos detectados - aplicando optimización anti-truncamiento"
                 )
                 for i, doc in enumerate(inv["documents"]):
                     # Para evitar truncamiento, usar texto más corto
@@ -1236,14 +1250,14 @@ def format_enhanced_invoice_response(
 
             # Crear presentación de factura
             amount_info = (
-                f"\n💰 **Valor:** ${inv['amount']:,} CLP"
+                f"\n[ICON] **Valor:** ${inv['amount']:,} CLP"
                 if include_amounts and inv["amount"] > 0
                 else ""
             )
 
-            invoice_block = f"""**📋 Factura {inv['number']}** ({inv['date']})
-👤 **Cliente:** {inv['client']} (RUT: {inv['rut']}){amount_info}
-📁 **Documentos disponibles:**
+            invoice_block = f"""**[ICON] Factura {inv['number']}** ({inv['date']})
+[ICON] **Cliente:** {inv['client']} (RUT: {inv['rut']}){amount_info}
+[ICON] **Documentos disponibles:**
 {chr(10).join(doc_list)}"""
 
             formatted_invoices.append(invoice_block)
@@ -1256,7 +1270,7 @@ def format_enhanced_invoice_response(
             else:
                 date_range_str = f"desde {date_range['min']} hasta {date_range['max']}"
 
-        summary = f"""**📊 Resumen de búsqueda:**
+        summary = f"""**[STATS] Resumen de búsqueda:**
 - Total encontradas: {len(enhanced_invoices)} facturas
 - Período: {date_range_str}"""
 
@@ -1265,11 +1279,11 @@ def format_enhanced_invoice_response(
 
         # Construir respuesta inicial
         initial_response = (
-            f"{summary}\n\n**📋 Facturas encontradas:**\n\n"
+            f"{summary}\n\n**[ICON] Facturas encontradas:**\n\n"
             + "\n\n".join(formatted_invoices)
         )
 
-        # 🚨 VALIDACIÓN FINAL: Limpiar URLs malformadas en la respuesta - DESACTIVADA PARA TESTING
+        # [ICON] VALIDACIÓN FINAL: Limpiar URLs malformadas en la respuesta - DESACTIVADA PARA TESTING
         # validated_response = fix_response_urls(initial_response)
         validated_response = initial_response  # Sin validación para testing
 
@@ -1288,7 +1302,7 @@ def format_enhanced_invoice_response(
         }
 
         print(
-            f"✅ [FORMATO] Generada presentación mejorada para {len(enhanced_invoices)} facturas"
+            f"[OK] [FORMATO] Generada presentación mejorada para {len(enhanced_invoices)} facturas"
         )
         # --- PERFORMANCE LOGGING BLOCK ---
         perf_log["perf_log_end_time"] = time.time()
@@ -1331,12 +1345,12 @@ def format_enhanced_invoice_response(
                 conversation_tracker.current_conversation.update(
                     {"performance_stats": perf_log}
                 )
-        print(f"📊 [PERF LOG] {perf_log}")
+        print(f"[STATS] [PERF LOG] {perf_log}")
         # --- END PERFORMANCE LOGGING BLOCK ---
         return result
 
     except Exception as e:
-        print(f"❌ [FORMATO] Error formateando respuesta: {e}")
+        print(f"[ICON] [FORMATO] Error formateando respuesta: {e}")
         return {"success": False, "error": f"Error en formateo: {e}"}
 
 
@@ -1352,7 +1366,7 @@ agent_config = load_agent_config()
 system_instructions = load_system_instructions()
 
 
-# 🔥 NUEVO: Crear wrappers de callbacks con retry mejorado
+# [ICON] NUEVO: Crear wrappers de callbacks con retry mejorado
 def enhanced_after_agent_callback(callback_context):
     """
     Wrapper que añade logging de retry al callback existente.
@@ -1372,7 +1386,7 @@ def enhanced_after_agent_callback(callback_context):
                 callback_context
             )
         except Exception as e:
-            print(f"⚠️ [CALLBACK] Error en callback original: {e}")
+            print(f"[ICON] [CALLBACK] Error en callback original: {e}")
 
     # Añadir logging de métricas de retry si está disponible
     if RETRY_SYSTEM_AVAILABLE:
@@ -1380,15 +1394,15 @@ def enhanced_after_agent_callback(callback_context):
             stats = gemini_retry_callbacks.get_error_stats()
             if stats.get("total_retries", 0) > 0:
                 print(
-                    f"📊 [RETRY METRICS] Retries en esta sesión: {stats['total_retries']}"
+                    f"[STATS] [RETRY METRICS] Retries en esta sesión: {stats['total_retries']}"
                 )
         except Exception as e:
-            print(f"⚠️ [RETRY] Error obteniendo métricas: {e}")
+            print(f"[ICON] [RETRY] Error obteniendo métricas: {e}")
 
     return original_result
 
 
-# 🎯 ESTRATEGIA 6: Configuración de generación con temperatura reducida
+# [TARGET] ESTRATEGIA 6: Configuración de generación con temperatura reducida
 # Reducir aleatoriedad del modelo para mayor consistencia en selección de herramientas
 generate_content_config = types.GenerateContentConfig(
     temperature=0.1,  # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
@@ -1398,7 +1412,7 @@ generate_content_config = types.GenerateContentConfig(
     response_modalities=["TEXT"],
 )
 
-# 🧠 ESTRATEGIA 8: Thinking Mode con flag de entorno (opcional)
+# [THINK] ESTRATEGIA 8: Thinking Mode con flag de entorno (opcional)
 # Habilitar solo en desarrollo/diagnóstico con ENABLE_THINKING_MODE=true
 # Variables importadas desde config.py (ENABLE_THINKING_MODE, THINKING_BUDGET)
 thinking_mode_enabled = ENABLE_THINKING_MODE
@@ -1406,8 +1420,8 @@ thinking_planner = None
 
 if thinking_mode_enabled:
     thinking_budget = THINKING_BUDGET  # Valor validado por config.py
-    print(f"🧠 [THINKING MODE] HABILITADO con budget={thinking_budget} tokens")
-    print(f"🧠 [THINKING MODE] El modelo mostrará su proceso de razonamiento")
+    print(f"[THINK] [THINKING MODE] HABILITADO con budget={thinking_budget} tokens")
+    print(f"[THINK] [THINKING MODE] El modelo mostrará su proceso de razonamiento")
 
     thinking_planner = BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
@@ -1416,8 +1430,8 @@ if thinking_mode_enabled:
         )
     )
 else:
-    print(f"⚡ [THINKING MODE] DESHABILITADO (modo producción rápido)")
-    print(f"💡 [THINKING MODE] Para habilitar: export ENABLE_THINKING_MODE=true")
+    print(f"[FAST] [THINKING MODE] DESHABILITADO (modo producción rápido)")
+    print(f"[INFO] [THINKING MODE] Para habilitar: export ENABLE_THINKING_MODE=true")
 
 root_agent = Agent(
     name=agent_config["name"],
@@ -1426,12 +1440,12 @@ root_agent = Agent(
     # <--- ADICIÓN 5: Añadir herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
     instruction=system_instructions,  # ← Cargado desde agent_prompt.yaml
-    generate_content_config=generate_content_config,  # 🎯 ESTRATEGIA 6: Temperatura reducida
-    planner=thinking_planner,  # 🧠 ESTRATEGIA 8: Thinking Mode (None si está deshabilitado)
+    generate_content_config=generate_content_config,  # [TARGET] ESTRATEGIA 6: Temperatura reducida
+    planner=thinking_planner,  # [THINK] ESTRATEGIA 8: Thinking Mode (None si está deshabilitado)
     before_agent_callback=(
         conversation_tracker.before_agent_callback if conversation_tracker else None
     ),
-    after_agent_callback=enhanced_after_agent_callback,  # 🔥 Usar callback mejorado
+    after_agent_callback=enhanced_after_agent_callback,  # [ICON] Usar callback mejorado
     before_tool_callback=(
         conversation_tracker.before_tool_callback if conversation_tracker else None
     ),
