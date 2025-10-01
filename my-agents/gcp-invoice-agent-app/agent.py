@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 import google.auth
 from google.auth import impersonated_credentials
 from vertexai.generative_models import GenerativeModel
+from google.genai import types  # 🎯 ESTRATEGIA 6: Para GenerateContentConfig
 
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -1375,12 +1376,12 @@ def enhanced_after_agent_callback(callback_context):
 
 # 🎯 ESTRATEGIA 6: Configuración de generación con temperatura reducida
 # Reducir aleatoriedad del modelo para mayor consistencia en selección de herramientas
-generation_config = {
-    "temperature": 0.1,      # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
-    "top_p": 0.8,            # Limitar espacio de probabilidad al 80% más probable
-    "top_k": 20,             # Considerar solo top 20 tokens en cada paso
-    "max_output_tokens": 8192,  # Mantener límite de tokens de salida
-}
+generate_content_config = types.GenerateContentConfig(
+    temperature=0.1,          # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
+    top_p=0.8,                # Limitar espacio de probabilidad al 80% más probable
+    top_k=20,                 # Considerar solo top 20 tokens en cada paso
+    max_output_tokens=8192,   # Mantener límite de tokens de salida
+)
 
 root_agent = Agent(
     name=agent_config["name"],
@@ -1389,7 +1390,7 @@ root_agent = Agent(
     # <--- ADICIÓN 5: Añadir herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
     instruction=system_instructions,  # ← Cargado desde agent_prompt.yaml
-    generation_config=generation_config,  # 🎯 ESTRATEGIA 6: Temperatura reducida para mayor consistencia
+    generate_content_config=generate_content_config,  # 🎯 ESTRATEGIA 6: Temperatura reducida (nombre correcto del parámetro)
     before_agent_callback=(
         conversation_tracker.before_agent_callback if conversation_tracker else None
     ),
