@@ -183,6 +183,59 @@ signed_url = blob.generate_signed_url(
    - response_time_ms (INTEGER)
    ```
 
+4. **`zip_files`**: Registro detallado de archivos ZIP (infraestructura)
+   ```sql
+   - zip_id (STRING, REQUIRED)
+   - filename (STRING, REQUIRED)
+   - facturas (STRING, REPEATED)
+   - created_at (TIMESTAMP)
+   - status (STRING)
+   - gcs_path (STRING)
+   - size_bytes (INTEGER)
+   - metadata (JSON)
+   ```
+
+5. **`zip_downloads`**: Registro de descargas de ZIPs
+   ```sql
+   - zip_id (STRING, REQUIRED)
+   - downloaded_at (TIMESTAMP)
+   - client_ip (STRING)
+   - user_agent (STRING)
+   - success (BOOLEAN)
+   ```
+
+#### Dataset 3: `chat_analytics` (ESCRITURA)
+**Proyecto**: `agent-intelligence-gasco`  
+**Región**: `us-central1`  
+**Permisos**: Solo escritura
+
+**Descripción**: Dataset para almacenar logs completos de conversaciones del chatbot y métricas de interacción.
+
+**Tablas**:
+
+1. **`conversation_logs`**: Logs completos de conversaciones
+   ```sql
+   - timestamp (TIMESTAMP)
+   - session_id (STRING)
+   - user_id (STRING)
+   - user_query (STRING)
+   - agent_response (STRING)
+   - tool_calls_count (INTEGER)
+   - tool_calls_detail (STRING)
+   - execution_time_ms (INTEGER)
+   - zip_generated (BOOLEAN)
+   - zip_id (STRING)
+   - pdf_count (INTEGER)
+   - download_type (STRING)  # 'zip' o 'individual'
+   - error (STRING)
+   ```
+
+**Uso**: 
+- Análisis de conversaciones y patrones de uso
+- Debugging de respuestas del agente
+- Métricas de performance
+- Auditoría de operaciones
+
 **Uso en Código**:
 ```python
 from google.cloud import bigquery
