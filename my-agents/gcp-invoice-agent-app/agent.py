@@ -39,12 +39,16 @@ from config import (
     MAX_SIGNATURE_RETRIES,
     SIGNED_URL_MONITORING_ENABLED,
     TIME_SYNC_TIMEOUT,
+    # 🧠 ESTRATEGIA 8: Importar configuración de Thinking Mode
+    ENABLE_THINKING_MODE,
+    THINKING_BUDGET,
 )
 
 # Importar sistema robusto de signed URLs
 try:
     from src.gcs_stability.signed_url_service import SignedURLService
     from src.gcs_stability.gcs_stable_urls import generate_stable_signed_url
+
     ROBUST_SIGNED_URLS_AVAILABLE = True
 except ImportError as e:
     print(f"⚠️ [GCS] Sistema robusto de signed URLs no disponible: {e}")
@@ -77,6 +81,7 @@ try:
         log_retry_metrics,
     )
     from src.retry_handler import log_500_error_details
+
     RETRY_SYSTEM_AVAILABLE = True
     print("✅ Sistema de retry para errores 500 cargado exitosamente")
 except ImportError as e:
@@ -618,19 +623,20 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         # Configurar tiempo de expiración con buffer (usando timezone-aware datetime)
         buffer_minutes = 5  # Buffer básico para clock skew
         expiration_time = datetime.now(timezone.utc) + timedelta(
-            hours=SIGNED_URL_EXPIRATION_HOURS,
-            minutes=buffer_minutes
+            hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes
         )
 
         # Generar signed URL usando IAM-based signing (más estable en Cloud Run)
         signed_url = blob.generate_signed_url(
             version="v4",
             expiration=expiration_time,
-            method="GET"
+            method="GET",
             # No especificar credentials - usar las automáticas de Cloud Run
         )
 
-        print(f"✅ [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)")
+        print(
+            f"✅ [GCS] Signed URL legacy generada para {zip_filename} (buffer: {buffer_minutes}m)"
+        )
         print(f"🔗 [GCS] URL: {signed_url[:100]}...")
 
         return signed_url
@@ -795,7 +801,9 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                     f"⚠️ [ESTABILIDAD GCS] Buffer automático aplicado: {buffer_minutes}min"
                 )
             elif sync_status is None:
-                print(f"⚠️ [ESTABILIDAD GCS] No se pudo verificar sincronización temporal")
+                print(
+                    f"⚠️ [ESTABILIDAD GCS] No se pudo verificar sincronización temporal"
+                )
             else:
                 print(f"✅ [ESTABILIDAD GCS] Sincronización temporal OK")
 
@@ -1343,6 +1351,7 @@ individual_links_tool = FunctionTool(generate_individual_download_links)
 agent_config = load_agent_config()
 system_instructions = load_system_instructions()
 
+
 # 🔥 NUEVO: Crear wrappers de callbacks con retry mejorado
 def enhanced_after_agent_callback(callback_context):
     """
@@ -1357,9 +1366,11 @@ def enhanced_after_agent_callback(callback_context):
     """
     # Ejecutar callback existente si está disponible
     original_result = None
-    if conversation_tracker and hasattr(conversation_tracker, 'after_agent_callback'):
+    if conversation_tracker and hasattr(conversation_tracker, "after_agent_callback"):
         try:
-            original_result = conversation_tracker.after_agent_callback(callback_context)
+            original_result = conversation_tracker.after_agent_callback(
+                callback_context
+            )
         except Exception as e:
             print(f"⚠️ [CALLBACK] Error en callback original: {e}")
 
@@ -1367,8 +1378,10 @@ def enhanced_after_agent_callback(callback_context):
     if RETRY_SYSTEM_AVAILABLE:
         try:
             stats = gemini_retry_callbacks.get_error_stats()
-            if stats.get('total_retries', 0) > 0:
-                print(f"📊 [RETRY METRICS] Retries en esta sesión: {stats['total_retries']}")
+            if stats.get("total_retries", 0) > 0:
+                print(
+                    f"📊 [RETRY METRICS] Retries en esta sesión: {stats['total_retries']}"
+                )
         except Exception as e:
             print(f"⚠️ [RETRY] Error obteniendo métricas: {e}")
 
@@ -1378,27 +1391,28 @@ def enhanced_after_agent_callback(callback_context):
 # 🎯 ESTRATEGIA 6: Configuración de generación con temperatura reducida
 # Reducir aleatoriedad del modelo para mayor consistencia en selección de herramientas
 generate_content_config = types.GenerateContentConfig(
-    temperature=0.1,          # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
-    top_p=0.8,                # Limitar espacio de probabilidad al 80% más probable
-    top_k=20,                 # Considerar solo top 20 tokens en cada paso
+    temperature=0.1,  # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
+    top_p=0.8,  # Limitar espacio de probabilidad al 80% más probable
+    top_k=20,  # Considerar solo top 20 tokens en cada paso
     max_output_tokens=32768,  # 32k tokens para respuestas largas con tablas
-    response_modalities=["TEXT"]
+    response_modalities=["TEXT"],
 )
 
 # 🧠 ESTRATEGIA 8: Thinking Mode con flag de entorno (opcional)
 # Habilitar solo en desarrollo/diagnóstico con ENABLE_THINKING_MODE=true
-thinking_mode_enabled = os.getenv("ENABLE_THINKING_MODE", "false").lower() == "true"
+# Variables importadas desde config.py (ENABLE_THINKING_MODE, THINKING_BUDGET)
+thinking_mode_enabled = ENABLE_THINKING_MODE
 thinking_planner = None
 
 if thinking_mode_enabled:
-    thinking_budget = int(os.getenv("THINKING_BUDGET", "1024"))  # Default: moderado
+    thinking_budget = THINKING_BUDGET  # Valor validado por config.py
     print(f"🧠 [THINKING MODE] HABILITADO con budget={thinking_budget} tokens")
     print(f"🧠 [THINKING MODE] El modelo mostrará su proceso de razonamiento")
-    
+
     thinking_planner = BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
-            thinking_budget=thinking_budget,    # Configurable via env var
-            include_thoughts=True               # Siempre incluir pensamientos cuando está activo
+            thinking_budget=thinking_budget,  # Configurable via env var
+            include_thoughts=True,  # Siempre incluir pensamientos cuando está activo
         )
     )
 else:

@@ -220,6 +220,22 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 DEBUG_MODE = os.getenv("DEBUG_MODE", "false").lower() == "true"
 
 # ==============================================
+# CONFIGURACIÓN DE THINKING MODE (ESTRATEGIA 8)
+# ==============================================
+
+# Habilitar modo thinking para razonamiento explícito del modelo
+# Útil para desarrollo, diagnóstico y validación
+# Desactivar en producción para máxima velocidad
+ENABLE_THINKING_MODE = os.getenv("ENABLE_THINKING_MODE", "false").lower() == "true"
+
+# Budget de tokens para razonamiento (solo usado si ENABLE_THINKING_MODE=true)
+# - 256: Ligero (rápido, razonamiento básico)
+# - 512: Medio (balance)
+# - 1024: Moderado (recomendado para desarrollo)
+# - 2048+: Extenso (razonamiento profundo, más lento)
+THINKING_BUDGET = int(os.getenv("THINKING_BUDGET", "1024"))
+
+# ==============================================
 # PATHS Y DIRECTORIOS
 # ==============================================
 
@@ -313,6 +329,10 @@ def validate_config():
     if TIME_SYNC_TIMEOUT <= 0 or TIME_SYNC_TIMEOUT > 60:
         errors.append(f"TIME_SYNC_TIMEOUT debe estar entre 1 y 60: {TIME_SYNC_TIMEOUT}")
 
+    # Validar configuración de Thinking Mode
+    if THINKING_BUDGET < 0 or THINKING_BUDGET > 8192:
+        errors.append(f"THINKING_BUDGET debe estar entre 0 y 8192: {THINKING_BUDGET}")
+
     if errors:
         raise ValueError(f"Errores de configuración: {', '.join(errors)}")
 
@@ -343,6 +363,17 @@ def validate_config():
     print(f"      - Max retries: {MAX_SIGNATURE_RETRIES}")
     print(f"      - Monitoreo: {SIGNED_URL_MONITORING_ENABLED}")
     print(f"      - Time sync timeout: {TIME_SYNC_TIMEOUT}s")
+    print(f"   [THINKING MODE - ESTRATEGIA 8]:")
+    print(f"      - Habilitado: {ENABLE_THINKING_MODE}")
+    print(f"      - Budget: {THINKING_BUDGET} tokens")
+    if ENABLE_THINKING_MODE:
+        print(
+            f"      - 🧠 Modo diagnóstico activo - se mostrará razonamiento del modelo"
+        )
+    else:
+        print(
+            f"      - ⚡ Modo producción - respuestas más rápidas sin razonamiento visible"
+        )
 
 
 # Ejecutar validación al importar
