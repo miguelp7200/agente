@@ -1,5 +1,6 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
+from google.adk.planners import BuiltInPlanner  # 🧠 ESTRATEGIA 8: Para Thinking Mode
 from toolbox_core import ToolboxSyncClient
 import os
 import uuid
@@ -1376,20 +1377,33 @@ def enhanced_after_agent_callback(callback_context):
 
 # 🎯 ESTRATEGIA 6: Configuración de generación con temperatura reducida
 # Reducir aleatoriedad del modelo para mayor consistencia en selección de herramientas
-# 🧠 ESTRATEGIA 8: Thinking Mode habilitado (moderado) para diagnóstico y validación
-# ⚠️ TEMPORAL: thinking_config comentado por posible incompatibilidad con ADK en Cloud Run
 generate_content_config = types.GenerateContentConfig(
     temperature=0.1,          # Reducir de default (~0.7-1.0) a 0.1 para mayor determinismo
     top_p=0.8,                # Limitar espacio de probabilidad al 80% más probable
     top_k=20,                 # Considerar solo top 20 tokens en cada paso
     max_output_tokens=32768,  # 32k tokens para respuestas largas con tablas
-    response_modalities=["TEXT"],
-    # 🧠 Thinking Mode: COMENTADO TEMPORALMENTE - verificar compatibilidad ADK
-    # thinking_config=types.ThinkingConfig(
-    #     thinking_budget=1024,     # Balance: razonamiento moderado sin sacrificar velocidad
-    #     include_thoughts=True     # Incluir proceso de pensamiento en la respuesta
-    # )
+    response_modalities=["TEXT"]
 )
+
+# 🧠 ESTRATEGIA 8: Thinking Mode con flag de entorno (opcional)
+# Habilitar solo en desarrollo/diagnóstico con ENABLE_THINKING_MODE=true
+thinking_mode_enabled = os.getenv("ENABLE_THINKING_MODE", "false").lower() == "true"
+thinking_planner = None
+
+if thinking_mode_enabled:
+    thinking_budget = int(os.getenv("THINKING_BUDGET", "1024"))  # Default: moderado
+    print(f"🧠 [THINKING MODE] HABILITADO con budget={thinking_budget} tokens")
+    print(f"🧠 [THINKING MODE] El modelo mostrará su proceso de razonamiento")
+    
+    thinking_planner = BuiltInPlanner(
+        thinking_config=types.ThinkingConfig(
+            thinking_budget=thinking_budget,    # Configurable via env var
+            include_thoughts=True               # Siempre incluir pensamientos cuando está activo
+        )
+    )
+else:
+    print(f"⚡ [THINKING MODE] DESHABILITADO (modo producción rápido)")
+    print(f"💡 [THINKING MODE] Para habilitar: export ENABLE_THINKING_MODE=true")
 
 root_agent = Agent(
     name=agent_config["name"],
@@ -1398,7 +1412,8 @@ root_agent = Agent(
     # <--- ADICIÓN 5: Añadir herramientas personalizadas a la lista de herramientas del agente --->
     tools=tools + [zip_tool, individual_links_tool],
     instruction=system_instructions,  # ← Cargado desde agent_prompt.yaml
-    generate_content_config=generate_content_config,  # 🎯 ESTRATEGIA 6: Temperatura reducida (nombre correcto del parámetro)
+    generate_content_config=generate_content_config,  # 🎯 ESTRATEGIA 6: Temperatura reducida
+    planner=thinking_planner,  # 🧠 ESTRATEGIA 8: Thinking Mode (None si está deshabilitado)
     before_agent_callback=(
         conversation_tracker.before_agent_callback if conversation_tracker else None
     ),
