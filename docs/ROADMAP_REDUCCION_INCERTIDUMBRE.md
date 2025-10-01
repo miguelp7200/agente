@@ -7,7 +7,7 @@
 
 ### Progreso General
 
-**Estrategias Completadas:** 1 de 8 (12.5%)
+**Estrategias Completadas:** 2 de 8 (25%)
 
 | Fase | Estrategia | Estado | Fecha |
 |------|-----------|--------|-------|
@@ -16,12 +16,16 @@
 | Fase 2 | ⏳ Estrategia 1: Mejorar prioridad en prompt | Pendiente | - |
 | Fase 2 | ⏳ Estrategia 2: Añadir ejemplos específicos | Pendiente | - |
 | Fase 3 | ⏳ Estrategia 3: Modificar reglas de prioridad | Pendiente | - |
-| Fase 4 | ⏳ Estrategia 8: Habilitar modo thinking | Pendiente | - |
+| Fase 4 | ✅ Estrategia 8: Habilitar modo thinking | **COMPLETADA** | 2025-10-01 |
 | Fase 4 | ⏳ Estrategia 4: Implementar fallback automático | Pendiente | - |
 | Fase 4 | ⏳ Estrategia 7: Añadir logging de decisiones | Pendiente | - |
 
 ### Commits Relacionados
 
+- `160b8e7` - feat: Implementar Estrategia 8 - Thinking Mode moderado
+- `4808e43` - config: Aumentar max_output_tokens de 8k a 32k
+- `8c7ff83` - docs: Actualizar roadmap con sintaxis corregida de Estrategia 6
+- `47f68d7` - fix: Corregir sintaxis de generation_config según documentación ADK
 - `d6d704a` - feat: Implementar Estrategia 6 - Reducir temperatura del modelo
 - `497941d` - docs: Añadir guía de validación para Estrategia 6
 - `178669e` - docs: Añadir Estrategia 8 (Thinking Mode) al roadmap
@@ -289,35 +293,52 @@ usage_examples:
 
 ---
 
-### ✅ Estrategia 8: Habilitar Modo "Thinking" (Razonamiento Explícito)
+### ✅ Estrategia 8: Habilitar Modo "Thinking" (Razonamiento Explícito) - COMPLETADA
+
+**Estado:** ✅ **COMPLETADA** (1 de octubre de 2025)  
+**Commit:** `160b8e7` - feat: Implementar Estrategia 8 - Thinking Mode moderado
 
 **Objetivo:** Activar capacidad de razonamiento explícito de Gemini para diagnóstico y validación
 
 **Archivo:** `my-agents/gcp-invoice-agent-app/agent.py`
 
-**Implementación:**
+**Implementación Realizada:**
 ```python
-# Ubicación: Configuración del agente
-generation_config = {
-    "temperature": 0.1,
-    "top_p": 0.8,
-    "top_k": 20,
-    "max_output_tokens": 8192,
-    "response_modalities": ["TEXT"],
-    "thinking_mode": True  # ← NUEVO: Habilitar razonamiento explícito
-}
+# Líneas 19, 1376-1386 en agent.py
+from google.genai import types
 
-# Alternativa según versión de Gemini:
-# Para Gemini 2.0+ usar el parámetro específico de thinking
-agent = Agent(
-    model=model,
-    config=agent_config,
-    generation_config=generation_config,
-    tools=[...],
-    system_instruction=system_instruction,
-    enable_thinking=True  # ← Si está disponible en la API
+generate_content_config = types.GenerateContentConfig(
+    temperature=0.1,
+    top_p=0.8,
+    top_k=20,
+    max_output_tokens=32768,
+    response_modalities=["TEXT"],
+    thinking_config=types.ThinkingConfig(
+        thinking_budget=1024,  # Modo MODERADO/BALANCE
+        include_thoughts=True   # Incluir razonamiento en respuesta
+    )
+)
+
+root_agent = Agent(
+    name=agent_config["name"],
+    model=agent_config["model"],
+    generate_content_config=generate_content_config,
+    tools=tools,
+    system_instruction=system_instruction
 )
 ```
+
+**Configuración Aplicada:**
+- ✅ **thinking_budget:** 1024 tokens (modo moderado)
+- ✅ **include_thoughts:** True (visibilidad del razonamiento)
+- ✅ **Integración:** Con Estrategia 6 (temperature=0.1)
+- ✅ **max_output_tokens:** 32,768 (soporte respuestas largas + thinking)
+
+**Rationale del Modo Moderado:**
+- 🎯 **Balance:** Razonamiento suficiente sin latencia excesiva
+- 📊 **Diagnóstico:** Ver proceso de selección de herramientas
+- ⚡ **Latencia:** Estimada +1-2s (vs +3-5s en modo extenso)
+- 💰 **Tokens:** ~1k adicionales (vs ~4k en modo extenso)
 
 **Casos de Uso Recomendados:**
 
