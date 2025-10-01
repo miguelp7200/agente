@@ -7,12 +7,12 @@
 
 ### Progreso General
 
-**Estrategias Completadas:** 2 de 8 (25%)
+**Estrategias Completadas:** 3 de 8 (37.5%)
 
 | Fase | Estrategia | Estado | Fecha |
 |------|-----------|--------|-------|
 | Fase 1 | ✅ Estrategia 6: Reducir temperatura | **COMPLETADA** | 2025-10-01 |
-| Fase 1 | ⏳ Estrategia 5: Mejorar descripción herramienta | Pendiente | - |
+| Fase 1 | ✅ Estrategia 5: Mejorar descripción herramienta | **COMPLETADA** | 2025-10-01 |
 | Fase 2 | ⏳ Estrategia 1: Mejorar prioridad en prompt | Pendiente | - |
 | Fase 2 | ⏳ Estrategia 2: Añadir ejemplos específicos | Pendiente | - |
 | Fase 3 | ⏳ Estrategia 3: Modificar reglas de prioridad | Pendiente | - |
@@ -22,6 +22,9 @@
 
 ### Commits Relacionados
 
+- `d00afb2` - feat(estrategia-5): Mejorar descripción search_invoices_by_any_number
+- `7f04590` - docs: Crear resumen completo de implementación de Estrategia 8
+- `73af0e6` - docs: Documentar hallazgo crítico sobre impacto de Thinking Mode
 - `9bd7dfc` - feat(estrategia-8): Centralizar configuración Thinking Mode con arquitectura flexible
 - `160b8e7` - feat: Implementar Estrategia 8 - Thinking Mode moderado
 - `4808e43` - config: Aumentar max_output_tokens de 8k a 32k
@@ -142,56 +145,91 @@ root_agent = Agent(
 - Documentación: `tests/VALIDACION_ESTRATEGIA_6.md`
 - Ejecutar: `.\tests\test_factura_numero_0022792445.ps1 -Iterations 10`
 
-**Próximo Paso:** Validar con testing y proceder con Estrategia 5
+**Próximo Paso:** Testing y validación de consistencia >90%
 
 ---
 
-### ✅ Estrategia 5: Mejorar Descripción de Herramienta
+### ✅ Estrategia 5: Mejorar Descripción de Herramienta ✅ **IMPLEMENTADA**
+
+**Estado:** ✅ **COMPLETADA** - 1 de octubre de 2025
 
 **Objetivo:** Hacer la herramienta `search_invoices_by_any_number` la opción obvia para búsquedas numéricas ambiguas
 
 **Archivo:** `mcp-toolbox/tools_updated.yaml`
 
-**Implementación:**
+**Implementación Realizada:**
 ```yaml
-# ANTES
-- name: search_invoices_by_any_number
-  description: >
-    Search invoices by any number format (both Factura and Factura_Referencia).
-    Searches in both internal ID (Factura) and visible folio (Factura_Referencia).
+# ANTES (descripción básica - 15 líneas)
+description: 'Busca facturas en AMBOS campos (Factura Y Factura_Referencia) simultáneamente.
+  Útil cuando no se sabe si el número corresponde al campo Factura o Factura_Referencia.'
 
-# DESPUÉS
-- name: search_invoices_by_any_number
-  description: >
-    🔍 **RECOMMENDED BY DEFAULT FOR ALL NUMERIC SEARCHES**
-    
-    Search invoices by any number format - searches BOTH fields simultaneously:
-    - Internal ID (Factura field)
-    - Visible folio (Factura_Referencia field)
-    
-    ⭐ USE THIS TOOL when:
-    - User provides a number without specifying field type
-    - Ambiguous queries like "dame la factura [número]"
-    - User asks for "factura", "invoice", or just provides a number
-    - Uncertain whether number refers to internal ID or folio
-    
-    ❌ DO NOT USE when:
-    - User explicitly says "internal ID" or "sistema interno" → use search_invoices_by_factura_number
-    - User explicitly says "folio" or "referencia" → use search_invoices_by_referencia_number
-    
-    This tool provides comprehensive coverage and should be the DEFAULT choice.
+# DESPUÉS (descripción mejorada - 42 líneas con jerarquía visual)
+description: '🔍 **RECOMMENDED BY DEFAULT FOR ALL NUMERIC INVOICE SEARCHES**
+  
+  Search invoices in BOTH fields simultaneously:
+  - Internal ID (Factura field) 
+  - Visible folio number (Factura_Referencia field)
+  
+  ⭐ **USE THIS TOOL WHEN:**
+  - User provides a NUMBER without specifying field type
+  - Ambiguous queries like "dame la factura [número]"
+  - Queries like "puedes darme la siguiente factura 0022792445"
+  
+  ❌ **DO NOT USE WHEN:**
+  - User EXPLICITLY says "internal ID" → use search_invoices_by_factura_number
+  - User EXPLICITLY says "folio" → use search_invoices_by_referencia_number
+  
+  ✅ **ADVANTAGES:**
+  - Comprehensive coverage: searches BOTH fields in a single query
+  - GUARANTEED to find the invoice regardless of field ambiguity
+  - This tool provides MAXIMUM coverage and should be the DEFAULT choice.'
 ```
 
+**Técnicas Aplicadas:**
+1. **Emojis para jerarquía visual** (🔍 ⭐ ❌ ✅)
+2. **Lenguaje directivo en MAYÚSCULAS** (RECOMMENDED, USE THIS TOOL, DO NOT USE, GUARANTEED)
+3. **Casos de uso específicos del problema** (Query exacta: "puedes darme la siguiente factura 0022792445")
+4. **Contraste explícito con alternativas** (Cuándo NO usar otras herramientas)
+5. **Énfasis en cobertura** (BOTH fields, MAXIMUM coverage, DEFAULT choice)
+
+**Cambios Realizados:**
+- Descripción ampliada: 15 líneas → 42 líneas (4x más contexto)
+- Jerarquía visual con emojis y formato markdown
+- Directivas explícitas y lenguaje imperativo
+- Casos de uso que mapean DIRECTAMENTE al problema reportado
+
 **Impacto Esperado:**
-- ✅ Claridad visual y lingüística para el modelo
-- ✅ Reducción de ambigüedad en selección
-- ✅ Emojis y formato destacan la prioridad
+- ✅ Claridad visual inmediata para el modelo
+- ✅ Reducción drástica de ambigüedad en selección
+- ✅ Combinado con Estrategia 6 (temp=0.1): **>90% consistencia esperada**
+
+**Mecanismo de Mejora:**
+```
+Estrategia 6 (temperature=0.1) → Determinismo en generación
+        +
+Estrategia 5 (descripción mejorada) → Claridad en selección
+        =
+Selección obvia y consistente de search_invoices_by_any_number
+```
+
+**Testing Recomendado:**
+```bash
+# Con thinking mode para validar razonamiento
+export ENABLE_THINKING_MODE=true
+./tests/test_factura_numero_0022792445.ps1 -Iterations 10
+
+# Verificar razonamiento esperado:
+# "Usuario proporciona número sin especificar tipo → 
+#  🔍 RECOMMENDED BY DEFAULT → usar search_invoices_by_any_number"
+```
+
+**Commit:** `d00afb2` - feat(estrategia-5): Mejorar descripción search_invoices_by_any_number
 
 ---
 
 ## 🎯 Fase 2: Reforzamiento (Altas - Semana 2)
 
-### ✅ Estrategia 1: Mejorar Prioridad en Prompt
+### ⏳ Estrategia 1: Mejorar Prioridad en Prompt
 
 **Objetivo:** Fortalecer las reglas de prioridad existentes con lenguaje más directivo
 
