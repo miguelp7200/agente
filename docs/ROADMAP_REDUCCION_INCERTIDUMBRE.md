@@ -109,23 +109,28 @@ agent = Agent(
 
 **Cambios Realizados:**
 ```python
-# Commit: d6d704a
+# Commit: d6d704a (implementación inicial)
+# Commit: 4e9f8be (corrección de sintaxis)
 # Archivo: my-agents/gcp-invoice-agent-app/agent.py
 
-generation_config = {
-    "temperature": 0.1,      # Reducido de default (~0.7-1.0)
-    "top_p": 0.8,
-    "top_k": 20,
-    "max_output_tokens": 8192,
-}
+from google.genai import types
+
+generate_content_config = types.GenerateContentConfig(
+    temperature=0.1,          # Reducido de default (~0.7-1.0)
+    top_p=0.8,
+    top_k=20,
+    max_output_tokens=8192,
+)
 
 root_agent = Agent(
     name=agent_config["name"],
     model=agent_config["model"],
-    generation_config=generation_config,  # ← IMPLEMENTADO
+    generate_content_config=generate_content_config,  # ← IMPLEMENTADO (nombre correcto)
     # ... otros parámetros
 )
 ```
+
+**Nota técnica:** El parámetro correcto según la documentación oficial de ADK es `generate_content_config`, no `generation_config`.
 
 **Testing Disponible:**
 - Script: `tests/test_factura_numero_0022792445.ps1`
