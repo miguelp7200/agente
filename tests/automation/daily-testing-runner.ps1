@@ -75,6 +75,39 @@ $ExecutionId = Get-Date -Format "yyyyMMdd_HHmmss"
 # FUNCIONES DE UTILIDAD
 # ============================================================================
 
+function ConvertTo-Hashtable {
+    <#
+    .SYNOPSIS
+    Convierte PSCustomObject a Hashtable de forma recursiva
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        $InputObject
+    )
+    
+    if ($null -eq $InputObject) {
+        return $null
+    }
+    
+    if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string]) {
+        $collection = @()
+        foreach ($item in $InputObject) {
+            $collection += ConvertTo-Hashtable $item
+        }
+        return $collection
+    }
+    
+    if ($InputObject -is [PSCustomObject]) {
+        $hash = @{}
+        $InputObject.PSObject.Properties | ForEach-Object {
+            $hash[$_.Name] = ConvertTo-Hashtable $_.Value
+        }
+        return $hash
+    }
+    
+    return $InputObject
+}
+
 function Write-ColorOutput {
     param(
         [string]$Message,
@@ -180,6 +213,20 @@ function Invoke-QueryTest {
         $sessionId = "daily-test-$ExecutionId-$($Query.id)"
         $userId = "automated-daily-testing"
         $appName = "gcp-invoice-agent-app"
+        
+        # Crear sesión primero
+        try {
+            $sessionUrl = "$BackendUrl/apps/$appName/users/$userId/sessions/$sessionId"
+            $null = Invoke-RestMethod `
+                -Uri $sessionUrl `
+                -Method POST `
+                -Headers $headers `
+                -Body "{}" `
+                -TimeoutSec 30 `
+                -ErrorAction SilentlyContinue
+        } catch {
+            # Sesión ya existe o error menor, continuar
+        }
         
         $body = @{
             appName = $appName
@@ -336,12 +383,28 @@ foreach ($query in $config.queries) {
     Write-ColorOutput "$($query.id) - $($query.category)" $Colors.Info
     Write-ColorOutput "  Query: ""$($query.query)""" $Colors.Detail
     
+    # Convertir PSCustomObject a Hashtable para compatibilidad
+    $queryHashtable = @{
+        id = $query.id
+        category = $query.category
+        priority = $query.priority
+        query = $query.query
+        test_case_json = $query.test_case_json
+        expected_tool = $query.expected_tool
+        baseline_time_ms = $query.baseline_time_ms
+        baseline_tokens = $query.baseline_tokens
+        notes = $query.notes
+    }
+    
+    # Convertir pricing_reference a Hashtable
+    $pricingHashtable = ConvertTo-Hashtable $config.pricing_reference
+    
     # Ejecutar test
     $queryResult = Invoke-QueryTest `
-        -Query $query `
+        -Query $queryHashtable `
         -BackendUrl $backendUrl `
         -AuthToken $authToken `
-        -Pricing $config.pricing_reference
+        -Pricing $pricingHashtable
     
     # Mostrar resultado
     if ($queryResult.success) {

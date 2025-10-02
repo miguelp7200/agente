@@ -1,211 +1,211 @@
 {
-  "suite_name": "Daily Production Testing Suite",
-  "description": "Suite representativa de 16 queries para testing automático diario contra Cloud Run",
-  "version": "1.0.0",
-  "created": "2025-10-01",
-  "cloud_run_url": "https://invoice-backend-yuhrx5x2ra-uc.a.run.app",
-  "queries": [
-    {
-      "id": "Q001",
-      "category": "sap_solicitante",
-      "priority": "high",
-      "query": "dame la factura del siguiente sap, para agosto 2025 - 12537749",
-      "test_case_json": "tests/cases/search/test_sap_codigo_solicitante_august_2025.json",
-      "expected_tool": "search_invoices_by_solicitante_and_date_range",
-      "baseline_time_ms": 31000,
-      "baseline_tokens": 5700,
-      "notes": "Query crítica del cliente - SAP recognition"
+    "suite_name": "Daily Production Testing Suite",
+    "description": "Suite representativa de 16 queries para testing automático diario contra Cloud Run",
+    "version": "1.0.0",
+    "created": "2025-10-01",
+    "cloud_run_url": "https://invoice-backend-yuhrx5x2ra-uc.a.run.app",
+    "queries": [
+        {
+            "id": "Q001",
+            "category": "sap_solicitante",
+            "priority": "high",
+            "query": "dame la factura del siguiente sap, para agosto 2025 - 12537749",
+            "test_case_json": "tests/cases/search/test_sap_codigo_solicitante_august_2025.json",
+            "expected_tool": "search_invoices_by_solicitante_and_date_range",
+            "baseline_time_ms": 31000,
+            "baseline_tokens": 5700,
+            "notes": "Query crítica del cliente - SAP recognition"
+        },
+        {
+            "id": "Q002",
+            "category": "sap_solicitante",
+            "priority": "high",
+            "query": "dame las facturas para el solicitante 12475626",
+            "test_case_json": "tests/cases/search/test_facturas_solicitante_12475626.json",
+            "expected_tool": "get_invoices_with_all_pdf_links",
+            "baseline_time_ms": 28000,
+            "baseline_tokens": 6500,
+            "notes": "LPAD normalization + múltiples facturas"
+        },
+        {
+            "id": "Q005",
+            "category": "sap_solicitante",
+            "priority": "medium",
+            "query": "dame la última factura del sap 12540245",
+            "test_case_json": "tests/cases/search/test_ultima_factura_sap_12540245.json",
+            "expected_tool": "get_invoices_with_all_pdf_links",
+            "baseline_time_ms": 26000,
+            "baseline_tokens": 4200,
+            "notes": "Lógica temporal - última factura"
+        },
+        {
+            "id": "Q006",
+            "category": "empresa",
+            "priority": "medium",
+            "query": "dame las facturas de COMERCIALIZADORA PIMENTEL para octubre 2023",
+            "test_case_json": "tests/cases/search/test_comercializadora_pimentel_uppercase_oct2023.json",
+            "expected_tool": "search_invoices_by_company_name_and_date",
+            "baseline_time_ms": 25000,
+            "baseline_tokens": 3800,
+            "notes": "Case-sensitive search"
+        },
+        {
+            "id": "Q007",
+            "category": "empresa",
+            "priority": "medium",
+            "query": "dame las facturas de comercializadora pimentel para octubre 2023",
+            "test_case_json": "tests/cases/search/test_comercializadora_pimentel_lowercase_oct2023.json",
+            "expected_tool": "search_invoices_by_company_name_and_date",
+            "baseline_time_ms": 25000,
+            "baseline_tokens": 3800,
+            "notes": "Case-insensitive validation"
+        },
+        {
+            "id": "Q010",
+            "category": "temporal",
+            "priority": "high",
+            "query": "dame las facturas de julio 2025",
+            "test_case_json": "tests/cases/integration/test_prevention_system_julio_2025.json",
+            "expected_tool": "validate_context_size_before_search",
+            "baseline_time_ms": 15000,
+            "baseline_tokens": 2500,
+            "notes": "Sistema de prevención >1M tokens"
+        },
+        {
+            "id": "Q012",
+            "category": "temporal",
+            "priority": "medium",
+            "query": "dame las facturas del 11 de septiembre de 2025",
+            "test_case_json": "tests/cases/integration/test_successful_token_analysis_sept_11.json",
+            "expected_tool": "search_invoices_by_date_range",
+            "baseline_time_ms": 22000,
+            "baseline_tokens": 4100,
+            "notes": "Fecha específica - token analysis"
+        },
+        {
+            "id": "Q015",
+            "category": "temporal",
+            "priority": "low",
+            "query": "Busca facturas de diciembre 2019",
+            "test_case_json": "tests/cases/search/test_diciembre_2019.json",
+            "expected_tool": "search_invoices_by_month_year",
+            "baseline_time_ms": 20000,
+            "baseline_tokens": 3600,
+            "notes": "Datos históricos"
+        },
+        {
+            "id": "Q017",
+            "category": "financiero",
+            "priority": "high",
+            "query": "del solicitante 0012141289, para el mes de septiembre, cual es la factura de mayor monto",
+            "test_case_json": "tests/cases/financial/test_factura_mayor_monto_solicitante_0012141289_septiembre.json",
+            "expected_tool": "search_invoices_by_solicitante_max_amount_in_month",
+            "baseline_time_ms": 28000,
+            "baseline_tokens": 4500,
+            "notes": "NUEVA FUNCIONALIDAD - análisis financiero avanzado"
+        },
+        {
+            "id": "Q018",
+            "category": "financiero",
+            "priority": "medium",
+            "query": "del solicitante 0012141289, para septiembre 2024, cual es la factura de mayor monto",
+            "test_case_json": "tests/cases/financial/test_factura_mayor_monto_con_año_especifico.json",
+            "expected_tool": "search_invoices_by_solicitante_max_amount_in_month",
+            "baseline_time_ms": 28000,
+            "baseline_tokens": 4500,
+            "notes": "Lógica de año dinámico vs específico"
+        },
+        {
+            "id": "Q019",
+            "category": "estadisticas",
+            "priority": "medium",
+            "query": "cuantas facturas tienes por mes durante 2025",
+            "test_case_json": "tests/cases/statistics/test_estadisticas_mensuales_2025.json",
+            "expected_tool": "get_monthly_invoice_statistics",
+            "baseline_time_ms": 24000,
+            "baseline_tokens": 5200,
+            "notes": "Estadísticas mensuales granulares"
+        },
+        {
+            "id": "Q021",
+            "category": "estadisticas",
+            "priority": "medium",
+            "query": "puedes entregarme los solicitantes que pertenecen a este rut 96568740-8?",
+            "test_case_json": "tests/cases/search/test_solicitantes_por_rut_96568740.json",
+            "expected_tool": "get_solicitantes_by_rut",
+            "baseline_time_ms": 26000,
+            "baseline_tokens": 6800,
+            "notes": "NUEVA FUNCIONALIDAD - solicitantes por RUT"
+        },
+        {
+            "id": "Q022",
+            "category": "contexto_tokens",
+            "priority": "high",
+            "query": "dame las facturas de enero 2024",
+            "test_case_json": "tests/cases/integration/test_token_analysis_enero_2024.json",
+            "expected_tool": "search_invoices_by_month_year",
+            "baseline_time_ms": 23000,
+            "baseline_tokens": 4800,
+            "notes": "Token validation workflow"
+        },
+        {
+            "id": "Q023",
+            "category": "contexto_tokens",
+            "priority": "medium",
+            "query": "dame las últimas 5 facturas",
+            "test_case_json": "tests/cases/integration/test_token_analysis_ultimas_facturas.json",
+            "expected_tool": "search_invoices",
+            "baseline_time_ms": 18000,
+            "baseline_tokens": 3200,
+            "notes": "Límite pequeño - ORDER BY fecha DESC"
+        },
+        {
+            "id": "Q025",
+            "category": "especiales",
+            "priority": "medium",
+            "query": "dame todas las facturas tributarias del SAP 12537749, tanto CF como SF",
+            "test_case_json": "tests/cases/integration/test_cf_sf_terminology.json",
+            "expected_tool": "get_invoices_with_all_pdf_links",
+            "baseline_time_ms": 29000,
+            "baseline_tokens": 7100,
+            "notes": "Terminología CF/SF - con fondo/sin fondo"
+        },
+        {
+            "id": "Q026",
+            "category": "especiales",
+            "priority": "low",
+            "query": "me puedes traer la factura referencia 8677072",
+            "test_case_json": "tests/cases/search/test_invoice_reference_8677072.json",
+            "expected_tool": "search_invoices_by_reference",
+            "baseline_time_ms": 21000,
+            "baseline_tokens": 3500,
+            "notes": "Búsqueda por factura referencia"
+        }
+    ],
+    "baseline_summary": {
+        "total_queries": 16,
+        "avg_time_ms": 24125,
+        "avg_tokens": 4612,
+        "estimated_daily_cost_usd": 0.042,
+        "estimated_monthly_cost_usd": 1.26
     },
-    {
-      "id": "Q002",
-      "category": "sap_solicitante",
-      "priority": "high",
-      "query": "dame las facturas para el solicitante 12475626",
-      "test_case_json": "tests/cases/search/test_facturas_solicitante_12475626.json",
-      "expected_tool": "get_invoices_with_all_pdf_links",
-      "baseline_time_ms": 28000,
-      "baseline_tokens": 6500,
-      "notes": "LPAD normalization + múltiples facturas"
+    "pricing_reference": {
+        "gemini_pro": {
+            "input_per_1k_tokens": 0.00025,
+            "output_per_1k_tokens": 0.0005
+        },
+        "cloud_run": {
+            "cpu_per_second": 0.000024,
+            "memory_per_gb_second": 0.0000025,
+            "requests": 0.0000004
+        },
+        "bigquery": {
+            "per_tb_scanned": 5.0
+        }
     },
-    {
-      "id": "Q005",
-      "category": "sap_solicitante",
-      "priority": "medium",
-      "query": "dame la última factura del sap 12540245",
-      "test_case_json": "tests/cases/search/test_ultima_factura_sap_12540245.json",
-      "expected_tool": "get_invoices_with_all_pdf_links",
-      "baseline_time_ms": 26000,
-      "baseline_tokens": 4200,
-      "notes": "Lógica temporal - última factura"
-    },
-    {
-      "id": "Q006",
-      "category": "empresa",
-      "priority": "medium",
-      "query": "dame las facturas de COMERCIALIZADORA PIMENTEL para octubre 2023",
-      "test_case_json": "tests/cases/search/test_comercializadora_pimentel_uppercase_oct2023.json",
-      "expected_tool": "search_invoices_by_company_name_and_date",
-      "baseline_time_ms": 25000,
-      "baseline_tokens": 3800,
-      "notes": "Case-sensitive search"
-    },
-    {
-      "id": "Q007",
-      "category": "empresa",
-      "priority": "medium",
-      "query": "dame las facturas de comercializadora pimentel para octubre 2023",
-      "test_case_json": "tests/cases/search/test_comercializadora_pimentel_lowercase_oct2023.json",
-      "expected_tool": "search_invoices_by_company_name_and_date",
-      "baseline_time_ms": 25000,
-      "baseline_tokens": 3800,
-      "notes": "Case-insensitive validation"
-    },
-    {
-      "id": "Q010",
-      "category": "temporal",
-      "priority": "high",
-      "query": "dame las facturas de julio 2025",
-      "test_case_json": "tests/cases/integration/test_prevention_system_julio_2025.json",
-      "expected_tool": "validate_context_size_before_search",
-      "baseline_time_ms": 15000,
-      "baseline_tokens": 2500,
-      "notes": "Sistema de prevención >1M tokens"
-    },
-    {
-      "id": "Q012",
-      "category": "temporal",
-      "priority": "medium",
-      "query": "dame las facturas del 11 de septiembre de 2025",
-      "test_case_json": "tests/cases/integration/test_successful_token_analysis_sept_11.json",
-      "expected_tool": "search_invoices_by_date_range",
-      "baseline_time_ms": 22000,
-      "baseline_tokens": 4100,
-      "notes": "Fecha específica - token analysis"
-    },
-    {
-      "id": "Q015",
-      "category": "temporal",
-      "priority": "low",
-      "query": "Busca facturas de diciembre 2019",
-      "test_case_json": "tests/cases/search/test_diciembre_2019.json",
-      "expected_tool": "search_invoices_by_month_year",
-      "baseline_time_ms": 20000,
-      "baseline_tokens": 3600,
-      "notes": "Datos históricos"
-    },
-    {
-      "id": "Q017",
-      "category": "financiero",
-      "priority": "high",
-      "query": "del solicitante 0012141289, para el mes de septiembre, cual es la factura de mayor monto",
-      "test_case_json": "tests/cases/financial/test_factura_mayor_monto_solicitante_0012141289_septiembre.json",
-      "expected_tool": "search_invoices_by_solicitante_max_amount_in_month",
-      "baseline_time_ms": 28000,
-      "baseline_tokens": 4500,
-      "notes": "NUEVA FUNCIONALIDAD - análisis financiero avanzado"
-    },
-    {
-      "id": "Q018",
-      "category": "financiero",
-      "priority": "medium",
-      "query": "del solicitante 0012141289, para septiembre 2024, cual es la factura de mayor monto",
-      "test_case_json": "tests/cases/financial/test_factura_mayor_monto_con_año_especifico.json",
-      "expected_tool": "search_invoices_by_solicitante_max_amount_in_month",
-      "baseline_time_ms": 28000,
-      "baseline_tokens": 4500,
-      "notes": "Lógica de año dinámico vs específico"
-    },
-    {
-      "id": "Q019",
-      "category": "estadisticas",
-      "priority": "medium",
-      "query": "cuantas facturas tienes por mes durante 2025",
-      "test_case_json": "tests/cases/statistics/test_estadisticas_mensuales_2025.json",
-      "expected_tool": "get_monthly_invoice_statistics",
-      "baseline_time_ms": 24000,
-      "baseline_tokens": 5200,
-      "notes": "Estadísticas mensuales granulares"
-    },
-    {
-      "id": "Q021",
-      "category": "estadisticas",
-      "priority": "medium",
-      "query": "puedes entregarme los solicitantes que pertenecen a este rut 96568740-8?",
-      "test_case_json": "tests/cases/search/test_solicitantes_por_rut_96568740.json",
-      "expected_tool": "get_solicitantes_by_rut",
-      "baseline_time_ms": 26000,
-      "baseline_tokens": 6800,
-      "notes": "NUEVA FUNCIONALIDAD - solicitantes por RUT"
-    },
-    {
-      "id": "Q022",
-      "category": "contexto_tokens",
-      "priority": "high",
-      "query": "dame las facturas de enero 2024",
-      "test_case_json": "tests/cases/integration/test_token_analysis_enero_2024.json",
-      "expected_tool": "search_invoices_by_month_year",
-      "baseline_time_ms": 23000,
-      "baseline_tokens": 4800,
-      "notes": "Token validation workflow"
-    },
-    {
-      "id": "Q023",
-      "category": "contexto_tokens",
-      "priority": "medium",
-      "query": "dame las últimas 5 facturas",
-      "test_case_json": "tests/cases/integration/test_token_analysis_ultimas_facturas.json",
-      "expected_tool": "search_invoices",
-      "baseline_time_ms": 18000,
-      "baseline_tokens": 3200,
-      "notes": "Límite pequeño - ORDER BY fecha DESC"
-    },
-    {
-      "id": "Q025",
-      "category": "especiales",
-      "priority": "medium",
-      "query": "dame todas las facturas tributarias del SAP 12537749, tanto CF como SF",
-      "test_case_json": "tests/cases/integration/test_cf_sf_terminology.json",
-      "expected_tool": "get_invoices_with_all_pdf_links",
-      "baseline_time_ms": 29000,
-      "baseline_tokens": 7100,
-      "notes": "Terminología CF/SF - con fondo/sin fondo"
-    },
-    {
-      "id": "Q026",
-      "category": "especiales",
-      "priority": "low",
-      "query": "me puedes traer la factura referencia 8677072",
-      "test_case_json": "tests/cases/search/test_invoice_reference_8677072.json",
-      "expected_tool": "search_invoices_by_reference",
-      "baseline_time_ms": 21000,
-      "baseline_tokens": 3500,
-      "notes": "Búsqueda por factura referencia"
+    "thresholds": {
+        "max_time_ms": 60000,
+        "max_tokens": 15000,
+        "alert_cost_usd": 0.10
     }
-  ],
-  "baseline_summary": {
-    "total_queries": 16,
-    "avg_time_ms": 24125,
-    "avg_tokens": 4612,
-    "estimated_daily_cost_usd": 0.042,
-    "estimated_monthly_cost_usd": 1.26
-  },
-  "pricing_reference": {
-    "gemini_pro": {
-      "input_per_1k_tokens": 0.00025,
-      "output_per_1k_tokens": 0.0005
-    },
-    "cloud_run": {
-      "cpu_per_second": 0.000024,
-      "memory_per_gb_second": 0.0000025,
-      "requests": 0.0000004
-    },
-    "bigquery": {
-      "per_tb_scanned": 5.0
-    }
-  },
-  "thresholds": {
-    "max_time_ms": 60000,
-    "max_tokens": 15000,
-    "alert_cost_usd": 0.10
-  }
 }
