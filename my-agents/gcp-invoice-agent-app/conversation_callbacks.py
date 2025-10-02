@@ -35,6 +35,7 @@ class ConversationTracker:
             self.client = None
 
         self.current_conversation = {}
+        self.usage_metadata = None  # Almacenar usage_metadata de Gemini API
 
     def before_agent_callback(self, callback_context):
         """
@@ -114,8 +115,9 @@ class ConversationTracker:
             self.current_conversation["response_time_ms"] = response_time
 
 
-            # ✅ EXTRAER RESPUESTA DEL AGENTE desde session.events
+            # ✅ EXTRAER RESPUESTA DEL AGENTE Y USAGE_METADATA desde session.events
             agent_text = None
+            usage_metadata = None
 
             # Método nuevo: Extraer desde session.events
             if hasattr(callback_context, '_invocation_context'):
@@ -134,7 +136,16 @@ class ConversationTracker:
                                 len(event.content.parts) > 0 and
                                 hasattr(event.content.parts[0], 'text')):
                                 agent_text = event.content.parts[0].text
-                                break
+
+                            # 🆕 EXTRAER USAGE_METADATA (tokens consumidos por Gemini)
+                            if hasattr(event, 'usage_metadata'):
+                                usage_metadata = event.usage_metadata
+                                logger.info(f"📊 Usage metadata capturado: prompt={getattr(usage_metadata, 'prompt_token_count', 0)}, "
+                                          f"candidates={getattr(usage_metadata, 'candidates_token_count', 0)}, "
+                                          f"total={getattr(usage_metadata, 'total_token_count', 0)}")
+                                self.usage_metadata = usage_metadata  # Guardar para uso posterior
+
+                            break
 
             # Si encontramos la respuesta, actualizar conversación
             if agent_text:
@@ -389,7 +400,7 @@ class ConversationTracker:
         """Enriquecer datos con campos calculados para BigQuery"""
         try:
             timestamp = data.get("timestamp", datetime.utcnow())
-            
+
             # Convertir timestamp a string para BigQuery si es datetime
             if isinstance(timestamp, datetime):
                 timestamp_str = timestamp.isoformat()
@@ -418,6 +429,17 @@ class ConversationTracker:
                     hour_of_day = datetime.utcnow().hour
                     day_of_week = datetime.utcnow().isoweekday()
 
+            # 🆕 EXTRAER MÉTRICAS DE TOKENS (desde usage_metadata de Gemini API)
+            token_metrics = self._extract_token_usage(self.usage_metadata)
+
+            # 🆕 EXTRAER MÉTRICAS DE TEXTO para pregunta del usuario
+            user_question = data.get("user_question", "")
+            user_question_metrics = self._extract_text_metrics(user_question)
+
+            # 🆕 EXTRAER MÉTRICAS DE TEXTO para respuesta del agente
+            agent_response = data.get("agent_response", "")
+            agent_response_metrics = self._extract_text_metrics(agent_response)
+
             enriched = {
                 **data,
                 # Convertir timestamp a string para BigQuery
@@ -429,7 +451,7 @@ class ConversationTracker:
                 "message_type": "user_question",  # Este registro representa la consulta completa
                 # Metadatos del agente
                 "bigquery_project_used": "datalake-gasco",
-                # CAMPOS NUEVOS AGREGADOS:
+                # CAMPOS EXISTENTES:
                 "search_filters": self._extract_search_filters(),
                 "error_message": data.get("error_message"),
                 "zip_id": data.get("zip_id"),
@@ -441,7 +463,26 @@ class ConversationTracker:
                     "ip_address": None,  # No disponible en ADK
                     "platform": "adk_api",
                 },
+                # 🆕 NUEVOS CAMPOS: Token Usage (Gemini API)
+                "prompt_token_count": token_metrics.get("prompt_token_count"),
+                "candidates_token_count": token_metrics.get("candidates_token_count"),
+                "total_token_count": token_metrics.get("total_token_count"),
+                "thoughts_token_count": token_metrics.get("thoughts_token_count"),
+                "cached_content_token_count": token_metrics.get("cached_content_token_count"),
+                # 🆕 NUEVOS CAMPOS: Métricas de texto - Pregunta del usuario
+                "user_question_length": user_question_metrics.get("length"),
+                "user_question_word_count": user_question_metrics.get("word_count"),
+                # 🆕 NUEVOS CAMPOS: Métricas de texto - Respuesta del agente
+                "agent_response_length": agent_response_metrics.get("length"),
+                "agent_response_word_count": agent_response_metrics.get("word_count"),
             }
+
+            # Log de métricas capturadas
+            if token_metrics.get("total_token_count"):
+                logger.info(f"💾 Métricas de tokens listas para BigQuery: "
+                          f"prompt={token_metrics['prompt_token_count']}, "
+                          f"candidates={token_metrics['candidates_token_count']}, "
+                          f"total={token_metrics['total_token_count']}")
 
             # Remover campos internos no necesarios para BigQuery
             enriched.pop("start_time", None)
@@ -573,6 +614,79 @@ class ConversationTracker:
         except Exception as e:
             logger.error(f"❌ Error calculando score de calidad: {e}")
             return 0.5
+
+    def _extract_text_metrics(self, text: str) -> dict:
+        """
+        Extraer métricas de texto (caracteres, palabras)
+
+        Args:
+            text: Texto a analizar
+
+        Returns:
+            Dict con length (caracteres) y word_count (palabras)
+        """
+        try:
+            if not text:
+                return {"length": 0, "word_count": 0}
+
+            # Contar caracteres (longitud total)
+            length = len(text)
+
+            # Contar palabras (split por espacios)
+            word_count = len(text.split())
+
+            return {
+                "length": length,
+                "word_count": word_count
+            }
+        except Exception as e:
+            logger.error(f"❌ Error extrayendo métricas de texto: {e}")
+            return {"length": 0, "word_count": 0}
+
+    def _extract_token_usage(self, usage_metadata) -> dict:
+        """
+        Extraer métricas de tokens desde usage_metadata de Gemini API
+
+        Args:
+            usage_metadata: Objeto usage_metadata de la respuesta de Gemini
+
+        Returns:
+            Dict con todos los campos de tokens
+        """
+        try:
+            if not usage_metadata:
+                return {
+                    "prompt_token_count": None,
+                    "candidates_token_count": None,
+                    "total_token_count": None,
+                    "thoughts_token_count": None,
+                    "cached_content_token_count": None
+                }
+
+            # Extraer todos los campos de tokens
+            token_data = {
+                "prompt_token_count": getattr(usage_metadata, 'prompt_token_count', None),
+                "candidates_token_count": getattr(usage_metadata, 'candidates_token_count', None),
+                "total_token_count": getattr(usage_metadata, 'total_token_count', None),
+                "thoughts_token_count": getattr(usage_metadata, 'thoughts_token_count', None),
+                "cached_content_token_count": getattr(usage_metadata, 'cached_content_token_count', None)
+            }
+
+            logger.info(f"📊 Tokens extraídos: prompt={token_data['prompt_token_count']}, "
+                       f"candidates={token_data['candidates_token_count']}, "
+                       f"total={token_data['total_token_count']}")
+
+            return token_data
+
+        except Exception as e:
+            logger.error(f"❌ Error extrayendo token usage: {e}")
+            return {
+                "prompt_token_count": None,
+                "candidates_token_count": None,
+                "total_token_count": None,
+                "thoughts_token_count": None,
+                "cached_content_token_count": None
+            }
 
 
 # Instancia global para usar en agent.py
