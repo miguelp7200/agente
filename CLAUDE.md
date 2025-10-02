@@ -296,6 +296,14 @@ Comprehensive BigQuery logging system for conversation analytics (`my-agents/gcp
   - **Root Cause**: Tried accessing non-existent `callback_context.agent_response`
   - **Solution**: Extract from `callback_context._invocation_context.session.events`
   - **Validation**: 100% of records now have agent_response populated (validated Sept 30, 2024)
+- ✅ **💰 Token Usage Tracking**: Complete Gemini API consumption monitoring system (Oct 2, 2025)
+  - **Problem**: No visibility into token consumption or API costs for Gemini operations
+  - **Root Cause**: `usage_metadata` from Gemini API not captured or persisted to BigQuery
+  - **Solution**: 9 new BigQuery fields tracking tokens (prompt/candidates/total/thoughts/cached) and text metrics
+  - **Implementation**: `conversation_callbacks.py` with `_extract_token_usage()` and `_extract_text_metrics()`
+  - **Validation**: `test_token_metadata.py` confirms API returns usage_metadata correctly
+  - **Documentation**: Complete tracking system in `TOKEN_USAGE_TRACKING.md` with 8 SQL analysis queries
+  - **Benefits**: Cost estimation ($0.075/1M input, $0.30/1M output), performance optimization, thinking mode analysis
 
 ### Troubleshooting Commands
 ```bash

@@ -100,6 +100,13 @@ Hemos desarrollado y depurado un sistema de **chatbot para búsqueda de facturas
 - **🆕 PREVENCIÓN INTELIGENTE:** Sistema proactivo que rechaza consultas >1M tokens con guidance específico
 - **🆕 TIMEOUTS EXTENDIDOS:** 600-1200 segundos para consultas masivas con scripts de testing optimizados
 - **🆕 INFRAESTRUCTURA MEJORADA:** Organización de archivos, visualización de respuestas en PowerShell, gitignore optimizado
+- **📊 TOKEN USAGE TRACKING (02/10/2025):** Sistema completo de monitoreo de consumo de Gemini API
+  - 💰 9 campos nuevos en BigQuery para tracking de tokens y métricas de texto
+  - 📈 Captura de `usage_metadata` desde Gemini API (`prompt_token_count`, `candidates_token_count`, `total_token_count`)
+  - 🧠 Tracking de Thinking Mode (`thoughts_token_count`) y tokens cacheados
+  - 📊 Métricas de texto (caracteres y palabras de preguntas/respuestas)
+  - 💵 Estimación de costos ($0.075/1M input, $0.30/1M output)
+  - 🔍 8 queries SQL de análisis (costos diarios, top conversaciones costosas, correlación texto-tokens)
 
 ## 🎯 **Problemas Críticos Identificados y Resueltos**
 
@@ -259,6 +266,110 @@ temperature=0.1             # Determinismo máximo
 - "número de referencia XYZ123" → `search_invoices_by_referencia_number`
 
 **Impacto:** Sistema ahora reconoce completamente la terminología de usuarios que utilizan "folio" (término común en Chile para el número de referencia de facturas)
+
+---
+
+### 📊 **PROBLEMA 15: Token Usage Tracking y Monitoreo de Costos** [02/10/2025]
+**Issue identificado:** Falta de visibilidad sobre consumo de tokens de Gemini API y costos asociados, sin métricas para optimización de performance
+
+**Root Cause:** Sistema no capturaba `usage_metadata` de Gemini API ni persistía métricas de tokens en BigQuery para análisis de costos
+
+**Contexto del problema:**
+- No había tracking del consumo real de tokens por conversación
+- Imposible estimar costos de operación del chatbot
+- Sin datos para identificar conversaciones costosas o ineficientes
+- Falta de métricas de texto (longitud preguntas/respuestas)
+- Sin visibilidad de uso de Thinking Mode y su impacto en tokens
+
+**💡 Solución Implementada - Sistema Completo de Token Usage Tracking:**
+
+**1. Nuevos campos en BigQuery (9 campos agregados):**
+
+**Token Usage (desde Gemini API `usage_metadata`):**
+- ✅ `prompt_token_count` (INTEGER): Tokens de entrada consumidos por Gemini
+- ✅ `candidates_token_count` (INTEGER): Tokens de salida generados por Gemini
+- ✅ `total_token_count` (INTEGER): Total de tokens consumidos (entrada + salida + pensamiento)
+- ✅ `thoughts_token_count` (INTEGER): Tokens de razonamiento interno (thinking mode)
+- ✅ `cached_content_token_count` (INTEGER): Tokens cacheados reutilizados (optimización)
+
+**Métricas de texto:**
+- ✅ `user_question_length` (INTEGER): Caracteres en pregunta del usuario
+- ✅ `user_question_word_count` (INTEGER): Palabras en pregunta del usuario
+- ✅ `agent_response_length` (INTEGER): Caracteres en respuesta del agente
+- ✅ `agent_response_word_count` (INTEGER): Palabras en respuesta del agente
+
+**2. Modificaciones en código:**
+- ✅ **`conversation_callbacks.py`**: Nuevos métodos `_extract_token_usage()` y `_extract_text_metrics()`
+- ✅ **Captura de `usage_metadata`**: Extracción desde `session.events` en `after_agent_callback()`
+- ✅ **Persistencia en BigQuery**: Enriquecimiento de datos con métricas de tokens y texto
+- ✅ **Logging estructurado**: Logs con prefijo `📊` para tracking de métricas
+
+**3. Scripts y validación:**
+- ✅ **`sql_schemas/add_token_usage_fields.sql`**: Script ALTER TABLE para actualizar schema BigQuery
+- ✅ **`sql_validation/validate_token_usage_tracking.sql`**: 8 queries de validación
+  - Últimos registros con tokens
+  - Estadísticas de captura (últimas 24h)
+  - Análisis por día (últimos 7 días)
+  - Top 10 conversaciones con mayor consumo
+  - Correlación texto ↔ tokens
+  - Análisis de Thinking Mode
+  - Estimación de costos
+- ✅ **`test_token_metadata.py`**: Validación de API Gemini (confirma que devuelve `usage_metadata`)
+- ✅ **`docs/TOKEN_USAGE_TRACKING.md`**: Documentación completa (342 líneas)
+
+**4. Beneficios implementados:**
+- ✅ **Visibilidad de Costos**: Monitoreo preciso de consumo para estimar costos de Gemini API
+  - Gemini 2.5 Flash: $0.075/1M input tokens, $0.30/1M output tokens
+- ✅ **Optimización**: Identificar conversaciones con alto consumo de tokens
+- ✅ **Análisis de Performance**: Correlacionar tokens con `response_time_ms`
+- ✅ **Métricas de Texto**: Entender longitud de preguntas y respuestas
+- ✅ **Thinking Mode Analysis**: Tracking específico de tokens de razonamiento interno
+
+**5. Queries de análisis disponibles:**
+
+**Costo diario estimado:**
+```sql
+SELECT
+  DATE(timestamp) as fecha,
+  SUM(prompt_token_count) as total_input_tokens,
+  SUM(candidates_token_count) as total_output_tokens,
+  ROUND((SUM(prompt_token_count) / 1000000.0 * 0.075) +
+        (SUM(candidates_token_count) / 1000000.0 * 0.30), 4) as costo_total_usd
+FROM `agent-intelligence-gasco.chat_analytics.conversation_logs`
+WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+GROUP BY fecha
+ORDER BY fecha DESC;
+```
+
+**Top conversaciones costosas:**
+```sql
+SELECT conversation_id, user_question, total_token_count, response_time_ms, tools_used
+FROM `agent-intelligence-gasco.chat_analytics.conversation_logs`
+WHERE total_token_count IS NOT NULL
+ORDER BY total_token_count DESC
+LIMIT 10;
+```
+
+**6. Git commits relacionados:**
+```bash
+b75b210 - feat: merge token usage tracking feature to development
+1dc5df4 - feat: implementar tracking completo de tokens y métricas de texto
+afe727a - chore: agregar scripts de validación y aplicación de schema
+```
+
+**7. Testing y validación:**
+- ✅ **Test de API**: `python test_token_metadata.py` confirma que `usage_metadata` existe
+- ✅ **Test End-to-End**: Conversaciones reales validan captura de campos en BigQuery
+- ✅ **Backward Compatibility**: Registros históricos sin tokens accesibles (campos NULLABLE)
+
+**Impacto:** Sistema ahora tiene visibilidad completa de consumo de tokens, permitiendo monitoreo de costos, optimización de performance y análisis de eficiencia de conversaciones. Campos NULLABLE aseguran compatibilidad con registros históricos.
+
+**Status:** ✅ **COMPLETAMENTE IMPLEMENTADO Y DOCUMENTADO**
+- Feature branch mergeado a development
+- Schema BigQuery actualizado con 9 campos nuevos
+- Documentación completa en `TOKEN_USAGE_TRACKING.md`
+- Sistema de validación SQL con 8 queries
+- **Ready para análisis de costos y optimización**
 
 ### 🆕 **PROBLEMA 12: Optimización Auto-ZIP y Validaciones SQL** [15/09/2025]
 **Issue identificado:** Necesidad de automatizar la creación de ZIP para múltiples PDFs y validar lógica de negocio con SQL
