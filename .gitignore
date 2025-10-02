@@ -84,5 +84,8 @@ tests/automation/daily-report.csv
 tests/automation/*.html
 tests/automation/*.csv
 
+# BigQuery results exports
+bq-results-*.csv
+
 # Archivos de github
 .github/
