@@ -1,453 +1,279 @@
-# 🚀 Backend de Chatbot de Facturas Gasco# 🚀 Backend de Chatbot de Facturas Gasco
+# 🚀 Backend de Chatbot de Facturas Gasco
 
+## 📋 Información General
 
-
-## 📋 Información General## 📋 Información General
-
-- **Última actualización**: 4 de septiembre de 2025- **Última actualiza### Despliegue Local (Desarrollo)
-
+- **Última actualización**: 2 de octubre de 2025
 - **Estado del sistema**: PRODUCTION READY ✅
+- **ADK Agent**: gcp-invoice-agent-app (versión estable)
+- **MCP Toolbox**: 49 herramientas operativas
+- **BigQuery**: Arquitectura dual validada
+- **URLs Firmadas**: Implementadas y funcionando ✅
+- **Token Tracking**: Sistema de monitoreo de costos implementado 🆕
 
-- **ADK Agent**: gcp-invoice-agent-app (versión estable)```bash
+## 🏗️ Arquitectura del Sistema
 
-- **MCP Toolbox**: 32 herramientas operativas# 1. Configurar variables de entorno
+El backend del sistema de chatbot de facturas Gasco está compuesto por tres componentes principales:
 
-- **BigQuery**: Arquitectura dual validadaexport GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
-
-- **URLs Firmadas**: Implementadas y funcionando ✅export GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
-
-export GOOGLE_CLOUD_LOCATION=us-central1
-
-## 🏗️ Arquitectura del Sistemaexport PDF_SERVER_PORT=8011
-
-
-
-El backend del sistema de chatbot de facturas Gasco está compuesto por tres componentes principales:# 2. Ejecutar usando el script de desarrollo
-
-chmod +x deployment/backend/start_backend.sh
-
-1. **ADK (Application Development Kit)**: Framework para el desarrollo de agentes conversacionales con Gemini-2.5-flash../deployment/backend/start_backend.sh
-
-2. **MCP (Model Context Protocol)**: Protocolo para la comunicación con modelos de lenguaje y herramientas BigQuery.```
-
-3. **PDF Server**: Servicio para el procesamiento y descarga segura de documentos PDF y ZIP de facturas.
-
-### Despliegue en Google Cloud Run (Producción)
+1. **ADK (Application Development Kit)**: Framework para el desarrollo de agentes conversacionales con Gemini-2.5-Flash
+2. **MCP (Model Context Protocol)**: Protocolo para la comunicación con modelos de lenguaje y herramientas BigQuery
+3. **PDF Server**: Servicio para el procesamiento y descarga segura de documentos PDF y ZIP de facturas
 
 Todos estos componentes se comunican con **Google Cloud Platform** para el almacenamiento y procesamiento de datos.
 
-#### ✅ Método Recomendado: Docker Build + Push + Deploy
-
 ## 📁 Estructura del Repositorio
 
-```bash
-
-```# 1. Construir imagen Docker con Dockerfile correcto
-
-app/                          # Aplicación principal ADKdocker build -f deployment/backend/Dockerfile -t us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest .
-
-├── __init__.py
-
-├── main_adk.py              # Entrada principal ADK# 2. Subir imagen a Artifact Registry
-
-├── main.py                  # Servidor principaldocker push us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
-
-├── adk/                     # Framework ADK
-
-└── services/                # Servicios del backend# 3. Desplegar en Cloud Run con configuración completa
-
-gcloud run deploy invoice-backend \
-
-my-agents/                   # Agentes MCP  --image us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest \
-
-└── gcp-invoice-agent-app/   # Agente principal de facturas  --region us-central1 \
-
-  --project agent-intelligence-gasco \
-
-deployment/                  # Configuración de despliegue  --allow-unauthenticated \
-
-└── backend/                 # Scripts y configuración backend  --port 8080 \
-
-    ├── Dockerfile           # Imagen Docker para Cloud Run  --set-env-vars="GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true" \
-
-    ├── start_backend.sh     # Script de inicio  --service-account adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com \
-
-    ├── requirements.txt     # Dependencias  --memory 2Gi \
-
-    └── cloudbuild.yaml      # Configuración Cloud Build (opcional)  --cpu 2 \
-
-  --timeout 3600s \
-
-infrastructure/              # Scripts de infraestructura GCP  --max-instances 10 \
-
-├── create_bigquery_infrastructure.py  --concurrency 10
-
-├── setup_dataset_tabla.py```
-
-└── SETUP_INFRAESTRUCTURA.md
-
-#### 📁 Archivos de Deployment Utilizados
-
-mcp-toolbox/                 # Herramientas MCP
-
-├── README.md                # Información sobre las herramientas binarias- **deployment/backend/Dockerfile**: Configuración Docker optimizada para Cloud Run
-
-└── tools_updated.yaml      # Configuración herramientas BigQuery- **deployment/backend/start_backend.sh**: Script de inicio que maneja ADK + MCP Toolbox + PDF Server  
-
-- **deployment/backend/requirements.txt**: Dependencias específicas para deployment
-
-data/samples/                # Datos de prueba (opcional)- **deployment/backend/cloudbuild.yaml**: Configuración de Cloud Build (opcional, no usado actualmente)
-
-scripts/                     # Scripts de configuración
-
-```#### 🔧 Configuración de Service Account
-
-
-
-## ⚙️ Requisitos PreviosEl servicio usa la service account `adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com` con:
-
-- **BigQuery Data Viewer** (proyecto datalake-gasco)
-
-- Python 3.11+- **BigQuery User** (proyecto agent-intelligence-gasco)  
-
-- Docker- **Storage Object Viewer** (bucket miguel-test)
-
-- Google Cloud SDK- **Storage Object Admin** (bucket agent-intelligence-zips)
-
-- Acceso a Google Cloud Platform (proyecto agent-intelligence-gasco)- **Service Account Token Creator** (para signed URLs)
-
-- Credenciales de servicio configuradas
-
-#### 🚀 URLs Firmadas (Signed URLs)
-
-## 🔧 Configuración del Entorno
-
-El sistema implementa URLs firmadas para descargas seguras de archivos ZIP:
-
-### 1. Instalación de Dependencias- Las URLs tienen formato: `https://storage.googleapis.com/bucket/file?X-Goog-Algorithm=...`
-
-- Válidas por 1 hora con expiración automática
-
-```bash- Autenticación usando credenciales impersonadas
-
-# Crear entorno virtual- Sin necesidad de "Error: Forbidden" en descargasde septiembre de 2025
-
-python -m venv venv- **Estado del sistema**: PRODUCTION READY ✅
-
-source venv/bin/activate  # Linux/Mac- **ADK Agent**: gcp-invoice-agent-app (versión estable)
-
-# o- **MCP Toolbox**: 32 herramientas operativas
-
-.\venv\Scripts\Activate.ps1  # Windows- **BigQuery**: Arquitectura dual validada
-
-
-
-# Instalar dependencias## 🏗️ Arquitectura del Sistema
-
-pip install -r requirements.txt
-
-```El backend del sistema de chatbot de facturas Gasco está compuesto por tres componentes principales:
-
-
-
-### 2. Configuración de MCP Toolbox1. **ADK (Application Development Kit)**: Framework para el desarrollo de agentes conversacionales.
-
-2. **MCP (Model Context Protocol)**: Protocolo para la comunicación con modelos de lenguaje.
-
-Los archivos binarios de MCP Toolbox son necesarios para el funcionamiento del sistema, pero debido a su tamaño no están incluidos en el repositorio. Sigue las instrucciones en `mcp-toolbox/README.md` para obtenerlos.3. **PDF Server**: Servicio para el procesamiento de documentos PDF de facturas.
-
-
-
-### 3. Configuración de BigQueryTodos estos componentes se comunican con **Google Cloud Platform** para el almacenamiento y procesamiento de datos.
-
-
-
-La configuración de la infraestructura de BigQuery es necesaria para el almacenamiento de datos de facturas:## 📁 Estructura del Repositorio
-
-
-
-```bash\\\
-
-cd infrastructureapp/                          # Aplicación principal ADK
-
-python create_bigquery_infrastructure.py├── __init__.py
-
-python setup_dataset_tabla.py├── main_adk.py              # Entrada principal ADK
-
-```├── main.py                  # Servidor principal
-
-├── adk/                     # Framework ADK
-
-## 🚀 Despliegue└── services/                # Servicios del backend
-
-
-
-### Despliegue Local (Desarrollo)my-agents/                   # Agentes MCP
-
-└── gcp-invoice-agent-app/   # Agente principal de facturas
-
-```bash
-
-# 1. Configurar variables de entornoinfrastructure/              # Scripts de infraestructura GCP
-
-export GOOGLE_CLOUD_PROJECT_READ=datalake-gasco├── create_bigquery_infrastructure.py
-
-export GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco├── setup_dataset_tabla.py
-
-export GOOGLE_CLOUD_LOCATION=us-central1└── SETUP_INFRAESTRUCTURA.md
-
-export PDF_SERVER_PORT=8011
-
-scripts/                     # Scripts de configuración
-
-# 2. Ejecutar usando el script de desarrollo├── configure_internal_access.ps1
-
-chmod +x deployment/backend/start_backend.sh└── document_adk_endpoints.ps1
-
-./deployment/backend/start_backend.sh
-
-```mcp-toolbox/                 # Herramientas MCP
-
-├── README.md                # Información sobre las herramientas binarias
-
-### Despliegue en Google Cloud Run (Producción)└── tools_updated.yaml
-
-
-
-#### ✅ Método Recomendado: Docker Build + Push + Deploydeployment/backend/          # Configuración de despliegue backend
-
-tests/                       # Tests del sistema
-
-```bashdata/samples/                # Datos de prueba (opcional)
-
-# 1. Construir imagen Docker con Dockerfile correcto\\\
-
-docker build -f deployment/backend/Dockerfile -t us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest .
+```
+invoice-backend/
+├── my-agents/
+│   └── gcp-invoice-agent-app/      # Agente principal de facturas
+│       ├── agent.py                # Configuración del agente ADK
+│       ├── agent_prompt_config.py  # Configuración de prompts
+│       └── conversation_callbacks.py # 🆕 Sistema de logging con tokens
+│
+├── mcp-toolbox/
+│   ├── tools_updated.yaml          # Configuración de 49 herramientas BigQuery
+│   └── README.md                   # Información sobre binarios MCP
+│
+├── deployment/
+│   └── backend/
+│       ├── Dockerfile              # Imagen Docker para Cloud Run
+│       ├── start_backend.sh        # Script de inicio multi-servicio
+│       ├── deploy.ps1              # 🆕 Script de deploy automatizado
+│       └── requirements.txt        # Dependencias del proyecto
+│
+├── infrastructure/
+│   ├── create_bigquery_infrastructure.py
+│   ├── setup_dataset_tabla.py
+│   └── SETUP_INFRAESTRUCTURA.md
+│
+├── sql_schemas/                    # 🆕 Schemas de BigQuery
+│   └── add_token_usage_fields.sql  # Schema de token tracking
+│
+├── sql_validation/                 # 🆕 Queries de validación
+│   └── validate_token_usage_tracking.sql
+│
+├── docs/
+│   ├── TOKEN_USAGE_TRACKING.md     # 🆕 Documentación de tokens
+│   └── adk_api_documentation.json  # Documentación de API ADK
+│
+├── tests/
+│   ├── cases/                      # Casos de prueba JSON
+│   ├── scripts/                    # Scripts PowerShell de testing
+│   └── curl-tests/                 # Tests con curl
+│
+├── config.py                       # Configuración central del proyecto
+├── local_pdf_server.py             # Servidor proxy de PDFs
+└── README.md                       # Este archivo
+```
 
 ## ⚙️ Requisitos Previos
 
-# 2. Subir imagen a Artifact Registry
-
-docker push us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest- Python 3.12+
-
+- Python 3.11+
 - Docker
+- Google Cloud SDK
+- Acceso a Google Cloud Platform (proyecto agent-intelligence-gasco)
+- Credenciales de servicio configuradas
 
-# 3. Desplegar en Cloud Run con configuración completa- Google Cloud SDK
+## 🔧 Configuración del Entorno
 
-gcloud run deploy invoice-backend \- Acceso a Google Cloud Platform (proyecto \gent-intelligence-gasco\)
+### 1. Instalación de Dependencias
 
-  --image us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest \- Credenciales de servicio configuradas
+```bash
+# Crear entorno virtual
+python -m venv venv
 
-  --region us-central1 \
-
-  --project agent-intelligence-gasco \## 🔧 Configuración del Entorno
-
-  --allow-unauthenticated \
-
-  --port 8080 \### 1. Instalación de Dependencias
-
-  --set-env-vars="GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true" \
-
-  --service-account adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com \\\\ash
-
-  --memory 2Gi \# Crear entorno virtual
-
-  --cpu 2 \python -m venv venv
-
-  --timeout 3600s \source venv/bin/activate  # Linux/Mac
-
-  --max-instances 10 \# o
-
-  --concurrency 10.\venv\Scripts\Activate.ps1  # Windows
-
-```
+# Activar entorno virtual
+source venv/bin/activate          # Linux/Mac
+.\venv\Scripts\Activate.ps1       # Windows
 
 # Instalar dependencias
+pip install -r requirements.txt
+```
 
-#### 📁 Archivos de Deployment Utilizadospip install -r requirements.txt
+### 2. Configuración de Variables de Entorno
 
-\\\
+```bash
+export GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
+export GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
+export GOOGLE_CLOUD_LOCATION=us-central1
+export PDF_SERVER_PORT=8011
+```
 
-- **deployment/backend/Dockerfile**: Configuración Docker optimizada para Cloud Run
+### 3. Configuración de MCP Toolbox
 
-- **deployment/backend/start_backend.sh**: Script de inicio que maneja ADK + MCP Toolbox + PDF Server  ### 2. Configuración de MCP Toolbox
+Los archivos binarios de MCP Toolbox son necesarios para el funcionamiento del sistema, pero debido a su tamaño (~117MB) no están incluidos en el repositorio.
 
-- **deployment/backend/requirements.txt**: Dependencias específicas para deployment
+Sigue las instrucciones en `mcp-toolbox/README.md` para obtenerlos.
 
-- **deployment/backend/cloudbuild.yaml**: Configuración de Cloud Build (opcional, no usado actualmente)Los archivos binarios de MCP Toolbox son necesarios para el funcionamiento del sistema, pero debido a su tamaño no están incluidos en el repositorio. Sigue las instrucciones en \mcp-toolbox/README.md\ para obtenerlos.
+### 4. Configuración de BigQuery
 
+La configuración de la infraestructura de BigQuery es necesaria para el almacenamiento de datos de facturas:
 
-
-#### 🔧 Configuración de Service Account### 3. Configuración de BigQuery
-
-
-
-El servicio usa la service account `adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com` con:La configuración de la infraestructura de BigQuery es necesaria para el almacenamiento de datos de facturas:
-
-- **BigQuery Data Viewer** (proyecto datalake-gasco)
-
-- **BigQuery User** (proyecto agent-intelligence-gasco)  \\\ash
-
-- **Storage Object Viewer** (bucket miguel-test)cd infrastructure
-
-- **Storage Object Admin** (bucket agent-intelligence-zips)python create_bigquery_infrastructure.py
-
-- **Service Account Token Creator** (para signed URLs)python setup_dataset_tabla.py
-
-\\\
-
-#### 🚀 URLs Firmadas (Signed URLs)
+```bash
+cd infrastructure
+python create_bigquery_infrastructure.py
+python setup_dataset_tabla.py
+```
 
 ## 🚀 Despliegue
 
+### Despliegue Local (Desarrollo)
+
+```bash
+# Opción 1: Script automatizado (recomendado)
+chmod +x deployment/backend/start_backend.sh
+./deployment/backend/start_backend.sh
+
+# Opción 2: Servicios individuales
+# Terminal 1: MCP Toolbox
+./mcp-toolbox/toolbox --tools-file=./mcp-toolbox/tools_updated.yaml --port=5000
+
+# Terminal 2: PDF Server
+python local_pdf_server.py
+
+# Terminal 3: ADK Agent Server
+adk api_server --host=0.0.0.0 --port=8080 my-agents --allow_origins="*"
+```
+
+### Despliegue en Google Cloud Run (Producción)
+
+#### ✅ Método Recomendado: Script de Deploy Automatizado
+
+```powershell
+# Windows PowerShell
+cd deployment/backend
+.\deploy.ps1 -AutoVersion
+
+# Opciones disponibles:
+# -AutoVersion: Genera versión automática con timestamp
+# -Version "v1.2.3": Especifica versión manual
+# -NoCache: Limpia cache de Docker antes de build
+```
+
+El script `deploy.ps1` realiza automáticamente:
+1. ✅ Construcción de imagen Docker
+2. ✅ Push a Artifact Registry
+3. ✅ Deploy a Cloud Run con configuración optimizada
+4. ✅ Versionado automático
+5. ✅ Validación de deployment
+
+#### Método Manual: Docker Build + Push + Deploy
+
+```bash
+# 1. Construir imagen Docker
+docker build -f deployment/backend/Dockerfile \
+  -t us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest .
+
+# 2. Subir imagen a Artifact Registry
+docker push us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
+
+# 3. Desplegar en Cloud Run
+gcloud run deploy invoice-backend \
+  --image us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest \
+  --region us-central1 \
+  --project agent-intelligence-gasco \
+  --allow-unauthenticated \
+  --port 8080 \
+  --set-env-vars="GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true" \
+  --service-account adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com \
+  --memory 2Gi \
+  --cpu 2 \
+  --timeout 3600s \
+  --max-instances 10 \
+  --concurrency 10
+```
+
+### 🔧 Configuración de Service Account
+
+El servicio usa la service account `adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com` con los siguientes permisos:
+
+- **BigQuery Data Viewer** (proyecto datalake-gasco)
+- **BigQuery User** (proyecto agent-intelligence-gasco)
+- **Storage Object Viewer** (bucket miguel-test)
+- **Storage Object Admin** (bucket agent-intelligence-zips)
+- **Service Account Token Creator** (para signed URLs)
+
+### 🚀 URLs Firmadas (Signed URLs)
+
 El sistema implementa URLs firmadas para descargas seguras de archivos ZIP:
 
-- Las URLs tienen formato: `https://storage.googleapis.com/bucket/file?X-Goog-Algorithm=...`### Despliegue Local
+- Las URLs tienen formato: `https://storage.googleapis.com/bucket/file?X-Goog-Algorithm=...`
+- Válidas por 24 horas con expiración automática
+- Autenticación usando credenciales impersonadas
+- Sistema robusto con retry y compensación de clock skew
 
-- Válidas por 1 hora con expiración automática
+## 🆕 Sistema de Token Tracking
 
-- Autenticación usando credenciales impersonadas\\\ash
+**Nuevo en octubre 2025**: El sistema ahora captura y persiste métricas completas de tokens consumidos por Gemini API.
 
-- Sin necesidad de "Error: Forbidden" en descargas# Ejecutar servidor PDF
+### Características
 
-python local_pdf_server.py
+- 📊 **Tokens de Gemini API**: Input, output, total, thinking, cached
+- 📝 **Métricas de Texto**: Caracteres y palabras de preguntas/respuestas
+- 💰 **Monitoreo de Costos**: Estimación automática de costos por conversación
+- 📈 **Análisis de Performance**: Correlación tokens vs tiempo de respuesta
+- 💾 **Cache Detection**: Identificación de tokens reutilizados (optimización)
+
+### Campos Capturados
+
+| Campo | Descripción |
+|-------|-------------|
+| `prompt_token_count` | Tokens de entrada (prompt) |
+| `candidates_token_count` | Tokens de salida (respuesta) |
+| `total_token_count` | Total consumido |
+| `thoughts_token_count` | Tokens de razonamiento interno |
+| `cached_content_token_count` | Tokens cacheados (reutilizados) |
+| `user_question_length` | Caracteres de la pregunta |
+| `user_question_word_count` | Palabras de la pregunta |
+| `agent_response_length` | Caracteres de la respuesta |
+| `agent_response_word_count` | Palabras de la respuesta |
+
+### Validación de Tokens
+
+```bash
+# Ejecutar script de validación rápida
+python quick_validate_tokens.py
+
+# Ejecutar queries de análisis completo en BigQuery
+# (usar archivo: sql_validation/validate_token_usage_tracking.sql)
+```
+
+📚 **Documentación completa**: Ver `docs/TOKEN_USAGE_TRACKING.md`
 
 ## 🧪 Pruebas
 
-# En otra terminal, ejecutar el servidor ADK
+### Health Check
 
-Para verificar que el backend funciona correctamente después del despliegue:cd app
-
-python main.py
-
-```bash\\\
-
-# Prueba de health check
-
-curl https://invoice-backend-819133916464.us-central1.run.app/health### Construcción y Despliegue en Google Cloud Run
-
-
-
-# Prueba completa del chatbot con PowerShell (Windows)#### Opción 1: Despliegue Básico
-
-$token = gcloud auth print-identity-token
-
-$sessionId = "test-session-$(Get-Date -Format 'yyyyMMddHHmmss')"\\\ash
-
-$headers = @{ "Authorization" = "Bearer $token"; "Content-Type" = "application/json" }# Construir y desplegar en un solo comando
-
-docker build -t invoice-backend:latest . && gcloud run deploy invoice-backend --image invoice-backend:latest --port 8080 --project agent-intelligence-gasco --region us-central1 --allow-unauthenticated
-
-# Crear sesión\\\
-
-Invoke-RestMethod -Uri "https://invoice-backend-819133916464.us-central1.run.app/apps/gcp-invoice-agent-app/users/test-user/sessions/$sessionId" -Method POST -Headers $headers -Body "{}"
-
-#### Opción 2: Despliegue con Artifact Registry y Configuraciones Avanzadas (Recomendado)
-
-# Enviar consulta
-
-$queryBody = @{\\\ash
-
-    appName = "gcp-invoice-agent-app"# 1. Construir la imagen
-
-    userId = "test-user"docker build -t invoice-backend:latest .
-
-    sessionId = $sessionId
-
-    newMessage = @{# 2. Etiquetar la imagen para Artifact Registry
-
-        parts = @(@{text = "Buscar facturas de marzo de 2019"})docker tag invoice-backend:latest us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
-
-        role = "user"
-
-    }# 3. Enviar la imagen a Artifact Registry
-
-} | ConvertTo-Json -Depth 5docker push us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
-
-
-
-$response = Invoke-RestMethod -Uri "https://invoice-backend-819133916464.us-central1.run.app/run" -Method POST -Headers $headers -Body $queryBody# 4. Desplegar en Cloud Run con configuraciones optimizadas
-
-```gcloud run deploy invoice-backend \\
-
-  --image us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest \\
-
-## 📊 Monitoreo  --region us-central1 \\
-
-  --project agent-intelligence-gasco \\
-
-El backend está configurado para enviar logs a Google Cloud Logging. Puedes monitorear la actividad y los errores del sistema desde:  --platform managed \\
-
-  --allow-unauthenticated \\
-
-- [Google Cloud Console > Logging](https://console.cloud.google.com/logs)  --port 8080 \\
-
-- [Google Cloud Console > Cloud Run > invoice-backend > Logs](https://console.cloud.google.com/run)  --memory 2Gi \\
-
-  --cpu 2 \\
-
-## 🔗 Integración con Frontend  --timeout 3600s \\
-
-  --max-instances 10 \\
-
-El backend expone endpoints RESTful para la comunicación con el frontend:  --concurrency 10
-
-\\\
-
-- `/run`: Endpoint principal del chatbot ADK
-
-- `/apps/{appName}/users/{userId}/sessions/{sessionId}`: Gestión de sesiones#### Opción 3: Utilizando Scripts de Despliegue
-
-- `/health`: Verificación del estado del sistema
-
-- `/gcs?url=`: Proxy para descargas con signed URLs\\\ash
-
-# En Windows
-
-La URL del servicio en producción es: `https://invoice-backend-819133916464.us-central1.run.app`cd deployment/scripts
-
-.\deploy-backend.ps1
-
-## 🛠️ Solución de Problemas Comunes
-
-# En Linux/Mac
-
-1. **Error 'Module not found'**: Asegúrate de que todas las dependencias están instaladas.cd deployment/scripts
-
-2. **Error de conexión a BigQuery**: Verifica que las credenciales de servicio están configuradas correctamente../deploy-backend.sh
-
-3. **Herramientas MCP no encontradas**: Asegúrate de haber descargado los binarios según las instrucciones.\\\
-
-4. **Error en el procesamiento de PDF**: Verifica que el servidor PDF está en ejecución y accesible.
-
-5. **Error "Forbidden" en descargas**: Verifica que las signed URLs están implementadas correctamente.## 🧪 Pruebas
-
-
-
-## 📜 LicenciaPara verificar que el backend funciona correctamente después del despliegue:
-
-
-
-Este proyecto es propiedad de Gasco y Option. Todos los derechos reservados.\\\ash
-
+```bash
 # Listar aplicaciones disponibles (equivalente a health check)
-curl https://[URL_SERVICIO]/list-apps
+curl https://invoice-backend-yuhrx5x2ra-uc.a.run.app/list-apps
+```
 
+### Prueba Completa del Chatbot
 
-
-Para soporte técnico o consultas, contacta al equipo de desarrollo en [soporte-tech@option.cl](mailto:soporte-tech@option.cl).# Prueba del endpoint principal ADK
-curl -X POST https://[URL_SERVICIO]/run \
+```bash
+curl -X POST https://invoice-backend-yuhrx5x2ra-uc.a.run.app/run \
   -H 'Content-Type: application/json' \
   -d '{
     "appName": "gcp-invoice-agent-app",
-    "userId": "test-user", 
+    "userId": "test-user",
     "sessionId": "test-session-123",
     "newMessage": {
       "parts": [{"text": "Muéstrame las facturas del mes pasado"}],
       "role": "user"
     }
   }'
-\\\
+```
+
+### Tests Automatizados
+
+```powershell
+# Windows: Ejecutar suite completa de tests
+.\tests\curl-tests\run-all-curl-tests.ps1
+
+# Test individual
+.\tests\scripts\test_facturas_diciembre_2019.ps1
+```
 
 Para pruebas más completas, consulta los archivos en la carpeta `tests/`.
 
@@ -455,35 +281,98 @@ Para pruebas más completas, consulta los archivos en la carpeta `tests/`.
 
 El backend está configurado para enviar logs a Google Cloud Logging. Puedes monitorear la actividad y los errores del sistema desde:
 
-- [Google Cloud Console > Logging](https://console.cloud.google.com/logs)
-- [Google Cloud Console > Cloud Run > invoice-backend > Logs](https://console.cloud.google.com/run)
+- [Google Cloud Console > Logging](https://console.cloud.google.com/logs?project=agent-intelligence-gasco)
+- [Google Cloud Console > Cloud Run > invoice-backend > Logs](https://console.cloud.google.com/run?project=agent-intelligence-gasco)
+
+### Métricas de Tokens en BigQuery
+
+```sql
+-- Ver últimas conversaciones con tokens
+SELECT
+  conversation_id,
+  timestamp,
+  prompt_token_count as tokens_input,
+  candidates_token_count as tokens_output,
+  total_token_count as tokens_total,
+  cached_content_token_count as tokens_cached,
+  ROUND(response_time_ms / 1000.0, 1) as tiempo_seg
+FROM `agent-intelligence-gasco.chat_analytics.conversation_logs`
+WHERE prompt_token_count IS NOT NULL
+ORDER BY timestamp DESC
+LIMIT 10;
+```
 
 ## 🔗 Integración con Frontend
 
 El backend expone endpoints RESTful basados en ADK para la comunicación con el frontend:
 
-- `/run`: Endpoint principal para ejecutar conversaciones con el chatbot
-- `/run_sse`: Endpoint para streaming server-sent events del chatbot
-- `/list-apps`: Lista las aplicaciones ADK disponibles
-- `/apps/{app_name}/users/{user_id}/sessions/{session_id}`: Gestión de sesiones de usuario
-- `/apps/{app_name}/users/{user_id}/sessions`: Crear y listar sesiones
-- `/gcs?url=`: Proxy para descargas con signed URLs (PDF/ZIP)
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/run` | POST | Endpoint principal para ejecutar conversaciones |
+| `/run_sse` | GET | Streaming server-sent events del chatbot |
+| `/list-apps` | GET | Lista las aplicaciones ADK disponibles |
+| `/apps/{app_name}/users/{user_id}/sessions/{session_id}` | GET/POST | Gestión de sesiones |
+| `/apps/{app_name}/users/{user_id}/sessions` | GET/POST | Crear y listar sesiones |
+| `/gcs?url=` | GET | Proxy para descargas con signed URLs (PDF/ZIP) |
 
 **Nota**: El sistema ADK no incluye endpoint `/health`. Para verificar estado usar `/list-apps`.
+
+**URL Producción**: `https://invoice-backend-yuhrx5x2ra-uc.a.run.app`
 
 Consulta la documentación completa de la API ADK en `docs/adk_api_documentation.json`.
 
 ## 🛠️ Solución de Problemas Comunes
 
-1. **Error 'Module not found'**: Asegúrate de que todas las dependencias están instaladas.
-2. **Error de conexión a BigQuery**: Verifica que las credenciales de servicio están configuradas correctamente.
-3. **Herramientas MCP no encontradas**: Asegúrate de haber descargado los binarios según las instrucciones.
-4. **Error en el procesamiento de PDF**: Verifica que el servidor PDF está en ejecución y accesible.
+### 1. Error 'Module not found'
+**Solución**: Asegúrate de que todas las dependencias están instaladas.
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Error de conexión a BigQuery
+**Solución**: Verifica que las credenciales de servicio están configuradas correctamente.
+```bash
+gcloud auth application-default login
+```
+
+### 3. Herramientas MCP no encontradas
+**Solución**: Asegúrate de haber descargado los binarios según las instrucciones en `mcp-toolbox/README.md`.
+
+### 4. Error en el procesamiento de PDF
+**Solución**: Verifica que el servidor PDF está en ejecución y accesible en el puerto configurado.
+
+### 5. Error "Forbidden" en descargas
+**Solución**: Verifica que las signed URLs están implementadas correctamente y que la service account tiene permisos de Storage Object Admin.
+
+### 6. Tokens no se capturan en BigQuery
+**Solución**:
+```bash
+# 1. Verificar que el schema está actualizado
+python apply_token_schema_update.py
+
+# 2. Verificar logs del agente
+grep "Usage metadata capturado" logs/logs-adk.txt
+
+# 3. Reiniciar el servidor ADK
+```
+
+## 📚 Documentación Adicional
+
+- [CLAUDE.md](./CLAUDE.md) - Instrucciones para Claude Code
+- [DEBUGGING_CONTEXT.md](./DEBUGGING_CONTEXT.md) - Contexto de debugging y issues resueltos
+- [TOKEN_USAGE_TRACKING.md](./docs/TOKEN_USAGE_TRACKING.md) - Documentación completa del sistema de tokens
+- [SETUP_INFRAESTRUCTURA.md](./infrastructure/SETUP_INFRAESTRUCTURA.md) - Setup de infraestructura GCP
 
 ## 📜 Licencia
 
-Este proyecto es propiedad de Gasco y Option. Todos los derechos reservados.
+Este proyecto es propiedad de **Gasco** y **Option**. Todos los derechos reservados.
 
 ## 👥 Contacto y Soporte
 
 Para soporte técnico o consultas, contacta al equipo de desarrollo en [soporte-tech@option.cl](mailto:soporte-tech@option.cl).
+
+---
+
+**Última revisión**: 2 de octubre de 2025
+**Versión Backend**: v20251002-120414
+**Estado**: ✅ Production Ready
