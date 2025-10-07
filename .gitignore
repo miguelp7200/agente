@@ -3,6 +3,7 @@ data/
 
 # Ignorar resultados de diagnóstico y pruebas temporales
 diagnosis_results/
+test_results/
 
 # Ignorar outputs temporales de tests
 tests/outputs/
