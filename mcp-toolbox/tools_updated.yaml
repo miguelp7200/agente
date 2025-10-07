@@ -13,19 +13,13 @@ tools:
     source: gasco_invoices_read
     statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  DetallesFactura,\n\
       \  CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only') THEN\
-      \ Copia_Tributaria_cf ELSE NULL END as CASE WHEN COALESCE(@pdf_type, 'both')\
-      \ IN ('both', 'tributaria_only') THEN Copia_Tributaria_cf ELSE NULL END as Copia_Tributaria_cf,\n\
-      \  CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_cf\
-      \ ELSE NULL END as CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only')\
-      \ THEN Copia_Cedible_cf ELSE NULL END as Copia_Cedible_cf,\n  CASE WHEN COALESCE(@pdf_type,\
-      \ 'both') IN ('both', 'tributaria_only') THEN Copia_Tributaria_sf ELSE NULL\
-      \ END as CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only')\
+      \ Copia_Tributaria_cf ELSE NULL END as Copia_Tributaria_cf,\n  CASE WHEN COALESCE(@pdf_type,\
+      \ 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_cf ELSE NULL END as\
+      \ Copia_Cedible_cf,\n  CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only')\
       \ THEN Copia_Tributaria_sf ELSE NULL END as Copia_Tributaria_sf,\n  CASE WHEN\
       \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_sf\
-      \ ELSE NULL END as CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only')\
-      \ THEN Copia_Cedible_sf ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico\n\
-      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nORDER BY\
-      \ Factura DESC\nLIMIT 50\n"
+      \ ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
+      ORDER BY Factura DESC\nLIMIT 50\n"
     description: 'Busca y recupera información básica de facturas del dataset de producción
       de Gasco.
 
@@ -51,6 +45,7 @@ tools:
 
         '
       required: false
+      default: both
   search_invoices_by_date:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -79,6 +74,7 @@ tools:
     - name: target_date
       type: string
       description: Fecha específica en formato YYYY-MM-DD (ej. "2019-12-26", "2022-11-04")
+      required: true
     - name: pdf_type
       type: string
       description: 'Tipo de PDF a retornar (OPCIONAL):
@@ -91,6 +87,7 @@ tools:
 
         '
       required: false
+      default: both
   search_invoices_by_rut:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -136,6 +133,7 @@ tools:
     - name: target_rut
       type: string
       description: RUT del cliente en formato con guión (ej. "9025012-4", "76341146-K")
+      required: true
     - name: pdf_type
       type: string
       description: 'Tipo de PDF a retornar (OPCIONAL):
@@ -146,6 +144,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_date_range:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -205,6 +204,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_rut_and_date_range:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -254,6 +254,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   get_solicitantes_by_rut:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -344,6 +345,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_multiple_ruts:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -389,6 +391,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_recent_by_date:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -430,6 +433,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_proveedor:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -459,6 +463,7 @@ tools:
       type: string
       description: Nombre completo o parcial del proveedor/solicitante (ej. "AGROSUPER",
         "Embotelladora")
+      required: true
     - name: pdf_type
       type: string
       description: 'Tipo de PDF a retornar (OPCIONAL):
@@ -469,6 +474,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_factura_number:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -500,6 +506,7 @@ tools:
       type: string
       description: Número de factura del campo Factura (ID interno), con o sin ceros
         iniciales
+      required: true
     - name: pdf_type
       type: string
       description: 'Tipo de PDF a retornar (OPCIONAL):
@@ -510,6 +517,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_referencia_number:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -552,6 +560,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_any_number:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -637,6 +646,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_cliente:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -675,6 +685,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_minimum_amount:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -685,10 +696,10 @@ tools:
       \ Copia_Cedible_cf,\n  CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only')\
       \ THEN Copia_Tributaria_sf ELSE NULL END as Copia_Tributaria_sf,\n  CASE WHEN\
       \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_sf\
-      \ ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico,\n  (SELECT SUM(CAST(detalle.ImporteTotal\
+      \ ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico,\n  (SELECT SUM(CAST(detalle.ValorTotal\
       \ AS FLOAT64)) \n   FROM UNNEST(DetallesFactura) as detalle) as total_amount\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
-      \  (SELECT SUM(CAST(detalle.ImporteTotal AS FLOAT64)) \n   FROM UNNEST(DetallesFactura)\
+      \  (SELECT SUM(CAST(detalle.ValorTotal AS FLOAT64)) \n   FROM UNNEST(DetallesFactura)\
       \ as detalle) >= @min_amount\nORDER BY total_amount DESC\nLIMIT 10\n"
     description: 'Busca facturas con un monto total mínimo.
 
@@ -716,6 +727,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   get_invoice_statistics:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -767,6 +779,7 @@ tools:
       description: Lista opcional de números de factura para filtrar (separados por
         comas). Si está vacío, retorna todas las facturas.
       required: false
+      default: ""
     - name: pdf_type
       type: string
       description: 'Tipo de PDF a retornar (OPCIONAL):
@@ -777,6 +790,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   get_invoices_with_proxy_links:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -800,6 +814,7 @@ tools:
       type: string
       description: Código de solicitante específico (ej. "0012148561"). Opcional.
       required: false
+      default: ""
   get_invoices_with_all_pdf_links:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -895,8 +910,9 @@ tools:
     parameters:
     - name: solicitante_code
       type: string
-      description: Código de solicitante específico (ej. "0012148561")
-      required: true
+      description: Código de solicitante específico (ej. "0012148561"). Opcional - si está vacío retorna todas las facturas.
+      required: false
+      default: ""
   create_zip_record:
     kind: bigquery-sql
     source: gasco_operations_write
@@ -1232,6 +1248,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   search_invoices_by_solicitante_max_amount_in_month:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1296,6 +1313,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   get_unique_ruts_statistics:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1384,6 +1402,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   get_date_range_statistics:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1644,6 +1663,7 @@ tools:
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
+      default: both
   validate_context_size_before_search:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1839,6 +1859,7 @@ tools:
     - name: invoice_numbers
       type: string
       description: Lista de números de factura separados por comas
+      required: true
   get_cedible_sf_pdfs:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1853,6 +1874,7 @@ tools:
     - name: invoice_numbers
       type: string
       description: Lista de números de factura separados por comas
+      required: true
   get_doc_termico_pdfs:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1867,6 +1889,7 @@ tools:
     - name: invoice_numbers
       type: string
       description: Lista de números de factura separados por comas
+      required: true
 toolsets:
   gasco_invoice_search:
   - search_invoices

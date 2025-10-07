@@ -89,3 +89,9 @@ bq-results-*.csv
 
 # Archivos de github
 .github/
+
+# Documentation exports (NO commitear exports generados)
+docs/exports/
+docs/official/**/*.pdf
+docs/official/**/*.docx
+docs/official/**/*.html
