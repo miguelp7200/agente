@@ -1,0 +1,74 @@
+{
+    "test_case": "search_invoices_by_proveedor",
+    "description": "Buscar facturas por nombre de proveedor usando LIKE",
+    "category": "search",
+    "subcategory": "basic",
+    "test_data": {
+        "input": {
+            "query": "dame facturas de Comercializadora Pimentel",
+            "params": {
+                "expected_proveedor": "Comercializadora Pimentel",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "search_invoices_by_proveedor",
+            "expected_columns": [
+                "Factura",
+                "Rut",
+                "Nombre",
+                "Fecha_Emision",
+                "Monto_Total_Factura"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 50,
+                "typical": 10
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Herramienta de búsqueda por nombre de proveedor con búsqueda fuzzy (LIKE)."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar search_invoices_by_proveedor",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "search_invoices_by_proveedor",
+            "priority": "high"
+        },
+        "criterion_2_proveedor_parsing": {
+            "description": "El nombre del proveedor debe parsearse correctamente",
+            "validation_method": "Verificar parámetro 'nombre_proveedor' contiene 'Comercializadora Pimentel'",
+            "expected_value": "proveedor_name_present",
+            "priority": "high"
+        },
+        "criterion_3_proveedor_match": {
+            "description": "Resultados deben incluir el nombre del proveedor",
+            "validation_method": "Verificar que campo Nombre contiene 'Comercializadora Pimentel'",
+            "expected_value": "proveedor_in_results",
+            "priority": "high"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando search_invoices_by_proveedor",
+                "INFO: Parámetros: {'nombre_proveedor': 'Comercializadora Pimentel'}"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Rut, Nombre, Fecha_Emision, Monto_Total_Factura FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE LOWER(Nombre) LIKE '%comercializadora pimentel%' LIMIT 50",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "medium",
+        "use_cases": [
+            "Búsqueda por nombre de empresa",
+            "Análisis de proveedores específicos"
+        ],
+        "priority_level": "P2"
+    }
+}

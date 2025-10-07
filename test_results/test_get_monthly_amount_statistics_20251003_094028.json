@@ -1,0 +1,205 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CtcDAR_MhbYys9VqAfr3_1gcN-f7OyfNvhozyXv6694LNEGJfyyBxNtk-MDxl01Q-lPt_m298p0SE3Upw6XTVL7GeVCOmlB2kXbI34ZKYHxMgJP9JXGKieFh8ruKJuZKKi5WWaCt19bIDMGj0xWKBJ5IRvGIcOOI701JtGVjxe6wN7pM-6Q1Wsjvjf6miK3Ta9oCzhdrqKKfmhRjQpq61K_rnA7-HhwvO8cwVqVL5wjy94ueYEsbP4vfLX0qwqS0vckzCBAZPP8pJKbeX5pG4mteDD3_0xCsDaO7CvStcagyGToQpT-q1wuX5hvKjQmBsrx-Fd5rDNLNI-rD6_nuzsnPaYNh-GsCbOijA7Xu_8zATl7grKW-74rUdKbL6Slu_n4tOjEsaDTEgXVutV55zSaDDQttCx-0Gi9C49Zcqm9_voRj9xzrYI8SuWpI6Q07rq9WtRoeB5iAysLuLJoedsfncvTd0KZeyUeYLbtOwdOjlPbRIrlJ9D9vg-j5swKnCGMzMUy3-tS2zSN16tN8oaotydkytQgDmIdsfN3igCNAswEytCt2o2NLQ77UP3ziyWe9V71Vw8jTaEhJduGUUtFPI-lY7h0L2Azv8VaRGDdNbfXx09IpwKD-",
+          "functionCall": {
+            "id": "adk-b7cf5f21-35b4-461c-a269-e6a231a50110",
+            "args": {},
+            "name": "get_current_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14259
+        }
+      ],
+      "cachedContentTokenCount": 14259,
+      "candidatesTokenCount": 5,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5
+        }
+      ],
+      "promptTokenCount": 14579,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14579
+        }
+      ],
+      "thoughtsTokenCount": 101,
+      "totalTokenCount": 14685,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-b58edef8-bbc7-4db5-93bb-defc8f712713",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "500fc2b4-6ad8-4bfd-8c37-3fd6ac6ff951",
+    "timestamp": 1759495207.382458
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-b7cf5f21-35b4-461c-a269-e6a231a50110",
+            "name": "get_current_date",
+            "response": {
+              "result": "[{\"current_date\":\"2025-10-03\",\"current_day\":3,\"current_month\":10,\"current_year\":2025,\"formatted_date\":\"2025-10-03\",\"month_year_text\":\"October 2025\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-b58edef8-bbc7-4db5-93bb-defc8f712713",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "6ac3bef3-87ce-4e6c-942c-3eccdaccd314",
+    "timestamp": 1759495213.24877
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CqICAR_MhbY1V6ubgacTglv6IXloqmwlAafM6Vi_y2H4xiE8c1yU3l4q0bhzKKZE0aPPs3qoUn9FIj1RFEIVBdy_xsJqp70dT_tHLgwW8AAagjEDUE3EjXu-nv-Go-iLjzt7aQRawZSHqNI6Ye06mTiRMk_rb4QK9sXe31a5CFq_v2I4Zim8gjNZFB_VrLoYDCbJxX5M1E1lOCaliFTKOkRBIAvPSWhjMDTnsIU21c9iw-v1-dYlOBYKfsgncY9tmzrxkqzns8iCdIpDjMOw9z11IflR2TyY7xw5XktwwKeu16b_pVRcf38GtCanC7TqGLkEO6ngpOuAPHi2Zc89y9vgWa1NgPrvV1cLcvZXax8D9VhhvYaxDWkJek8z3M5zgYoiI-E=",
+          "functionCall": {
+            "id": "adk-ff5822ad-f523-4d55-96b7-ee550882f6e1",
+            "args": {
+              "target_year": 2025
+            },
+            "name": "get_monthly_amount_statistics"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14265
+        }
+      ],
+      "cachedContentTokenCount": 14265,
+      "candidatesTokenCount": 11,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 11
+        }
+      ],
+      "promptTokenCount": 14658,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14757
+        }
+      ],
+      "thoughtsTokenCount": 70,
+      "totalTokenCount": 14739,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-b58edef8-bbc7-4db5-93bb-defc8f712713",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "4640fae9-6685-4fdc-966c-54d388625723",
+    "timestamp": 1759495213.265949
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-ff5822ad-f523-4d55-96b7-ee550882f6e1",
+            "name": "get_monthly_amount_statistics",
+            "response": {
+              "result": "[{\"Ano\":2025,\"Mes\":1,\"Monto_Promedio_Factura\":\"1060261241725943/1000000000\",\"Monto_Total_Mes\":\"42927857155\",\"Nombre_Mes\":\"Enero\",\"Primera_Factura_Mes\":\"2025-01-01\",\"RUTs_Distintos\":12072,\"Solicitantes_Distintos\":12755,\"Total_Facturas\":42427,\"Ultima_Factura_Mes\":\"2025-01-31\"},{\"Ano\":2025,\"Mes\":2,\"Monto_Promedio_Factura\":\"296107235039601/250000000\",\"Monto_Total_Mes\":\"44414900827\",\"Nombre_Mes\":\"Febrero\",\"Primera_Factura_Mes\":\"2025-02-01\",\"RUTs_Distintos\":11337,\"Solicitantes_Distintos\":12000,\"Total_Facturas\":39387,\"Ultima_Factura_Mes\":\"2025-02-28\"},{\"Ano\":2025,\"Mes\":3,\"Monto_Promedio_Factura\":\"293688400486049/250000000\",\"Monto_Total_Mes\":\"51239227856\",\"Nombre_Mes\":\"Marzo\",\"Primera_Factura_Mes\":\"2025-03-01\",\"RUTs_Distintos\":12902,\"Solicitantes_Distintos\":13731,\"Total_Facturas\":45654,\"Ultima_Factura_Mes\":\"2025-03-31\"},{\"Ano\":2025,\"Mes\":4,\"Monto_Promedio_Factura\":\"591495140732993/500000000\",\"Monto_Total_Mes\":\"57681423134\",\"Nombre_Mes\":\"Abril\",\"Primera_Factura_Mes\":\"2025-04-01\",\"RUTs_Distintos\":13888,\"Solicitantes_Distintos\":14816,\"Total_Facturas\":50893,\"Ultima_Factura_Mes\":\"2025-04-30\"},{\"Ano\":2025,\"Mes\":5,\"Monto_Promedio_Factura\":\"1776537906152487/1000000000\",\"Monto_Total_Mes\":\"90523489008\",\"Nombre_Mes\":\"Mayo\",\"Primera_Factura_Mes\":\"2025-05-01\",\"RUTs_Distintos\":14709,\"Solicitantes_Distintos\":15713,\"Total_Facturas\":53537,\"Ultima_Factura_Mes\":\"2025-05-31\"},{\"Ano\":2025,\"Mes\":6,\"Monto_Promedio_Factura\":\"1918032215770373/1000000000\",\"Monto_Total_Mes\":\"104644001628\",\"Nombre_Mes\":\"Junio\",\"Primera_Factura_Mes\":\"2025-06-01\",\"RUTs_Distintos\":15899,\"Solicitantes_Distintos\":16945,\"Total_Facturas\":57267,\"Ultima_Factura_Mes\":\"2025-06-30\"},{\"Ano\":2025,\"Mes\":7,\"Monto_Promedio_Factura\":\"1755674632281203/1000000000\",\"Monto_Total_Mes\":\"103291605641\",\"Nombre_Mes\":\"Julio\",\"Primera_Factura_Mes\":\"2025-07-01\",\"RUTs_Distintos\":16679,\"Solicitantes_Distintos\":17766,\"Total_Facturas\":61726,\"Ultima_Factura_Mes\":\"2025-07-31\"},{\"Ano\":2025,\"Mes\":8,\"Monto_Promedio_Factura\":\"1393641727948909/1000000000\",\"Monto_Total_Mes\":\"72886068730\",\"Nombre_Mes\":\"Agosto\",\"Primera_Factura_Mes\":\"2025-08-01\",\"RUTs_Distintos\":15379,\"Solicitantes_Distintos\":16299,\"Total_Facturas\":54597,\"Ultima_Factura_Mes\":\"2025-08-31\"},{\"Ano\":2025,\"Mes\":9,\"Monto_Promedio_Factura\":\"932247201575653/1000000000\",\"Monto_Total_Mes\":\"43191012849\",\"Nombre_Mes\":\"Septiembre\",\"Primera_Factura_Mes\":\"2025-09-01\",\"RUTs_Distintos\":14863,\"Solicitantes_Distintos\":15676,\"Total_Facturas\":48773,\"Ultima_Factura_Mes\":\"2025-09-30\"},{\"Ano\":2025,\"Mes\":10,\"Monto_Promedio_Factura\":\"1410393374331551/1000000000\",\"Monto_Total_Mes\":\"1318717805\",\"Nombre_Mes\":\"Octubre\",\"Primera_Factura_Mes\":\"2025-10-01\",\"RUTs_Distintos\":766,\"Solicitantes_Distintos\":777,\"Total_Facturas\":963,\"Ultima_Factura_Mes\":\"2025-10-03\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-b58edef8-bbc7-4db5-93bb-defc8f712713",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "f74d24ab-e0a5-4e95-a92b-57107cf72028",
+    "timestamp": 1759495220.169119
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CsECAR_MhbabjFtvFe3JBFjjOBGbAbVWBvct9htq5Ziwmi96jyeDF99FyF5Nh4L_yXO9sM80blZ5ACId8TuJfgFqi0FsMSWT2J09ETLMSdnC1f3MRBcI8IQsE9RhTQ127q1ozBbcGPomWHTUvk2WSaYSDVMD7cupDwSyACQIlFWiY8zxkg9NOqRpETMqdiMjF9SdJ88U4InQP8EaW9rW1ZZYynn5O38GQnWAGDus8FftWWhB1mp9qkXBDgHvN8Mh8nmRW9MN0_QHFUBbpjuqYeJwy1poIyQjT_b_TuQE_e_ohmKzBVDANR8TVL_L36k27UqLdCihtcFRmB2bXnAl8tgT-SEXhGnqEUFbNaswYOhjVT6_qpFNTPJChqjPQT-tcR7KdjgmNuFsXBJ3C8t4j-aVYXQRVOQucKFT4CyDx547he43",
+          "text": "Aquí tienes el desglose del monto total por cada mes para el año 2025:\n\n*   **Enero:** $42.927.857.155 CLP (42427 facturas)\n*   **Febrero:** $44.414.900.827 CLP (39387 facturas)\n*   **Marzo:** $51.239.227.856 CLP (45654 facturas)\n*   **Abril:** $57.681.423.134 CLP (50893 facturas)\n*   **Mayo:** $90.523.489.008 CLP (53537 facturas)\n*   **Junio:** $104.644.001.628 CLP (57267 facturas)\n*   **Julio:** $103.291.605.641 CLP (61726 facturas)\n*   **Agosto:** $72.886.068.730 CLP (54597 facturas)\n*   **Septiembre:** $43.191.012.849 CLP (48773 facturas)\n*   **Octubre:** $1.318.717.805 CLP (963 facturas)\n\nEste desglose incluye el monto total facturado y el número de facturas por cada mes."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14416
+        }
+      ],
+      "cachedContentTokenCount": 14416,
+      "candidatesTokenCount": 341,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 341
+        }
+      ],
+      "promptTokenCount": 16083,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16250
+        }
+      ],
+      "thoughtsTokenCount": 61,
+      "totalTokenCount": 16485,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-b58edef8-bbc7-4db5-93bb-defc8f712713",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "d2c956f7-f1b5-4b1e-8864-16e3aaafcebf",
+    "timestamp": 1759495220.186069
+  }
+]

@@ -1,0 +1,90 @@
+{
+    "test_case": "get_tributarias_by_solicitante",
+    "description": "Obtener todas las copias tributarias (CF y SF) de un solicitante",
+    "category": "pdf_management",
+    "subcategory": "combined",
+    "test_data": {
+        "input": {
+            "query": "dame todas las copias tributarias del solicitante 0012148561",
+            "params": {
+                "expected_solicitante": "0012148561",
+                "expected_pdf_type": "tributaria",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_tributarias_by_solicitante",
+            "expected_columns": [
+                "Factura",
+                "Solicitante",
+                "Rut",
+                "Nombre",
+                "Copia_Tributaria_cf",
+                "Copia_Tributaria_sf"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 50,
+                "typical": 20
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Test combinado para PDFs tributarias CF+SF. Parámetro pdf_type='tributaria' devuelve ambos tipos."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_tributarias_by_solicitante",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_tributarias_by_solicitante",
+            "priority": "high"
+        },
+        "criterion_2_solicitante_parsing": {
+            "description": "El código de solicitante debe parsearse correctamente",
+            "validation_method": "Verificar parámetro 'solicitante' = '0012148561'",
+            "expected_value": "0012148561",
+            "priority": "high"
+        },
+        "criterion_3_pdf_type_filter": {
+            "description": "El parámetro pdf_type debe ser 'tributaria' o incluir ambos tipos",
+            "validation_method": "Verificar pdf_type en argumentos = 'tributaria'",
+            "expected_value": "tributaria",
+            "priority": "high"
+        },
+        "criterion_4_tributaria_urls_both": {
+            "description": "Deben retornarse URLs de PDFs tributarias CF y/o SF",
+            "validation_method": "Verificar que Copia_Tributaria_cf o Copia_Tributaria_sf están presentes",
+            "expected_value": "tributarias_cf_or_sf",
+            "priority": "high"
+        },
+        "criterion_5_solicitante_match": {
+            "description": "Todas las facturas deben pertenecer al solicitante especificado",
+            "validation_method": "Verificar que Solicitante = '0012148561' en todos los resultados",
+            "expected_value": "all_solicitantes_match",
+            "priority": "high"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_tributarias_by_solicitante",
+                "INFO: Parámetros: {'solicitante': '0012148561', 'pdf_type': 'tributaria'}",
+                "INFO: Filtrando PDFs tributarias (CF y SF)"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Solicitante, Rut, Nombre, Copia_Tributaria_cf, Copia_Tributaria_sf FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Solicitante = '0012148561' AND (Copia_Tributaria_cf IS NOT NULL OR Copia_Tributaria_sf IS NOT NULL) LIMIT 50",
+        "timeout_seconds": 1200,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Obtención completa de copias tributarias de un solicitante",
+            "Auditoría integral de facturas tributarias",
+            "Procesamiento masivo de documentos SII"
+        ],
+        "priority_level": "P1"
+    }
+}

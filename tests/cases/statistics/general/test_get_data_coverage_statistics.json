@@ -1,0 +1,72 @@
+{
+    "test_case": "get_data_coverage_statistics",
+    "description": "Obtener estadísticas de cobertura temporal del dataset",
+    "category": "statistics",
+    "subcategory": "general",
+    "test_data": {
+        "input": {
+            "query": "cuál es la cobertura de años del dataset?",
+            "params": {
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_data_coverage_statistics",
+            "expected_metrics": [
+                "anio_minimo",
+                "anio_maximo",
+                "total_anios",
+                "facturas_por_anio"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 1,
+                "typical": 1
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Estadística de cobertura temporal. Útil para entender el rango de datos disponibles."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_data_coverage_statistics",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_data_coverage_statistics",
+            "priority": "high"
+        },
+        "criterion_2_coverage_metrics": {
+            "description": "La respuesta debe incluir métricas de cobertura temporal",
+            "validation_method": "Verificar presencia de años mínimo y máximo",
+            "expected_value": "year_range_present",
+            "priority": "high"
+        },
+        "criterion_3_year_range_valid": {
+            "description": "El rango de años debe ser válido",
+            "validation_method": "Verificar que anio_minimo < anio_maximo",
+            "expected_value": "valid_year_range",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_data_coverage_statistics",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT MIN(EXTRACT(YEAR FROM Fecha_Emision)) as anio_minimo, MAX(EXTRACT(YEAR FROM Fecha_Emision)) as anio_maximo, COUNT(DISTINCT EXTRACT(YEAR FROM Fecha_Emision)) as total_anios FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "low",
+        "use_cases": [
+            "Validación de integridad de datos",
+            "Análisis de cobertura temporal"
+        ],
+        "priority_level": "P3"
+    }
+}

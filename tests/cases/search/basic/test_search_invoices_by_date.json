@@ -1,0 +1,89 @@
+{
+    "test_case": "search_invoices_by_date",
+    "description": "Buscar facturas por fecha específica usando formato DD-MM-YYYY",
+    "category": "search",
+    "subcategory": "basic",
+    "test_data": {
+        "input": {
+            "query": "dame las facturas del 08-09-2025",
+            "params": {
+                "expected_date": "08-09-2025",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "search_invoices_by_date",
+            "expected_columns": [
+                "Factura",
+                "Fecha_Emision",
+                "Rut",
+                "Nombre",
+                "Solicitante",
+                "Monto_Total_Factura"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 100,
+                "typical": 10
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Query histórica del CSV: 'dame las facturas del 08-09-2025'. Herramienta crítica user-facing."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar search_invoices_by_date",
+            "validation_method": "Verificar campo 'tool_name' en response.choices[0].message.tool_calls[0].function.name",
+            "expected_value": "search_invoices_by_date",
+            "priority": "high"
+        },
+        "criterion_2_date_parsing": {
+            "description": "La fecha debe parsearse correctamente al formato YYYY-MM-DD",
+            "validation_method": "Verificar parámetro 'fecha_emision' en tool_calls arguments = '2025-09-08'",
+            "expected_value": "2025-09-08",
+            "priority": "high"
+        },
+        "criterion_3_results_structure": {
+            "description": "Los resultados deben incluir columnas esperadas",
+            "validation_method": "Verificar presencia de columnas: Factura, Fecha_Emision, Rut, Nombre",
+            "expected_value": "all_columns_present",
+            "priority": "medium"
+        },
+        "criterion_4_date_filtering": {
+            "description": "Todas las facturas retornadas deben ser de la fecha solicitada",
+            "validation_method": "Validar que Fecha_Emision de todos los resultados = '2025-09-08'",
+            "expected_value": "all_dates_match",
+            "priority": "high"
+        },
+        "criterion_5_response_format": {
+            "description": "La respuesta debe ser un array de objetos JSON",
+            "validation_method": "Verificar tipo de datos y estructura válida",
+            "expected_value": "valid_json_array",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando search_invoices_by_date",
+                "INFO: Parámetros: {'fecha_emision': '2025-09-08'}",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Fecha_Emision, Rut, Nombre, Solicitante, Monto_Total_Factura FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Fecha_Emision = '2025-09-08' LIMIT 50",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Búsqueda de facturas de un día específico",
+            "Auditoría de emisiones diarias",
+            "Reconciliación contable por fecha"
+        ],
+        "priority_level": "P1"
+    }
+}

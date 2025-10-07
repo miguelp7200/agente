@@ -1,0 +1,47 @@
+{
+  "content": {
+    "parts": [
+      {
+        "thoughtSignature": "CsELAR_MhbYSrLXGFy0_DPS804dv2S-oafj8CB3knFpveEfM5o4uXxsJQ8TnT_D3X9dgkGzQUwG-djPcZOXhj1bCOqapFH10Cj5BGWTO04gFY5QrxacHjAtvqjak898nH9bNXs5Co5o9xQtmvtQScP4rnvKOI4hGlrTqSaFM1ImFevL1T1k8TL_3i3IhHGdecPUd0RvW1KjxBI3uqDUsJMryhfuibyrNDgdBZrSKUWQlMRES2VvLM9Zuyjtezk3JE2Bpjyakdwlw8-ba5m5PCN1rpy6xjZoWv6pno1J5yNbJ_zfL5mWjnfzZCNdd9R_N7DuQUOj1U4wy2oo1qQMCtJLagwFamm04pFFsKiIKXWGnDW6YvaC7SYzDPJLCbUGgrnr4bmqBofQ1lYKQhlGF4t6jNwLQFLOeAX4BWuq0vHcnrBi--CiGrgjhuoKXYMRegPqZlIl-98Tv0ks7MB6BuaBxpQMsXpa1BHQkFHHCQ1afaTKqWuwR8qe-K7Jh72lN6V-GOxS_ZkGJEE2uP7h0nFYZQ2va8tIaAozKV-4ZpsMW1nASKJorDFvXQIhp9FX3L3TBLf6a3m3Y5Yd-_ZW6U9jRGmrC8UGtT-C6UMUlF1sa6y0AbpyHgpxOQVGJlRAmpaH77nrmBYR1M9JjcPZhPg62NxGQkqOb6KhAGM8orNizRpvi7RdwVD_XStOM9Lk3cBCELwD_5hbc7UF5x2EChZzALODdMd9k7SHnVq985ssFZk-KWiMp2-O_lpGUPTxuYXg_jYm0Ul5psDWPEFBn7WHLgKC4Tx5-jln1-vq9VqUDtaTjrPPOSZD5P-qV6F-i5Z0VNk8CV3YY_zSRyrmaphfN_OHoelQI22VTke3ccsMGXTtsOe6_lqntbNgw1sIfAheE7k2O6dluDqZHMB_hFM0zWuNSUxbvE2OaO4eGUoSpfbyrAxGYaM3uDa7dW1inhzZ766sN_8D_9l7x9Wsb-fhP24rwrRM7eq5P-SXMHfRN__qPglJvF_vfbI866fu5KqQ0WCZeTEJ3kmypNvhgkIx1StzWEQPDlAS1kpaXLt3tlN_PW33qM7w7_BIo2Jhz2LVc_DTf7E5dKvkItwzhiz4mpQSfzMg8nyZZziFWG7-GwI4Ri7_0N5e0kQGtGq3jcvqdmxRUS54DkwSMDcTxG7CRnucF1gppeSyWrGYNqEAZIjXnJNYbCWBobvroSKuLbISk1FtZEaat_rPYOg4SnKfn_fF4GOhlyTG0KWyEVznNY6FtrAQTOFysVLWt-2WSKnoYI71zu5pb17mem6hsQM63lPE0So8uAiWc6yfuSNv4gQcmPRMYdfb9viQbEsNOKPGGP0NLsctymt6UQalgxLW4a4bIaoQSsMIvgXjd3i0gr4QwTaHcQ3QI2bcSUGFEguZSHZldhuHCUZASscui3i_vTKQr4yS2xxBUuJ0cUnU9BLVji0TATCh0pz0-CdnYVbZHsu-FWbRNLOJOILjK8qMyZQT0Bssnnrb6evjYbnpDr0nMVehIzzCna_72hxgbSN2FIOn6ajUOlQc9x2p4o4Ved-Gp8_AjA8UapU39L7RIMeYDHF5Xatuc6mmBCOCX1BYnI7GVbitNbsmCSKr2c8EIPC_KsIqqFfQ4LuLfgn5ebbNmQUtN2_eS3omcRYGIsJ-lwSxrxiQHjybYgL37NWMc0f0dKCTcvsXm3Art_GMqTIrMT56ts-v9gck_4KO-cE84t9KjQf7sCtFFEqd1eNZ9g8BhctMCBwDr3000Pk17p5DcF0Kwo2AmWVf5ihlUR3cIJ37W01eMP0tIPddrQmUYzd4IVx1kBfXL2ES8tUn8FpexSFykDqkrFZ-K7kIUxr-085XHqnWhJcZpPnUkMAobfFUnsihK0l0-O2dbR9_RR2qL2-Hbzt6vOfXP2QPHkF_Urkzt8yoVg1XvEhQxecyQadbgyhN8Q936WWysicto1nC1",
+        "text": "Por favor, ¿podrías proporcionarme el RUT completo, incluyendo el dígito verificador y el guion (ej: 96568740-8)? Así podré buscar las facturas correctamente."
+      }
+    ],
+    "role": "model"
+  },
+  "finishReason": "STOP",
+  "usageMetadata": {
+    "cacheTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 14260
+      }
+    ],
+    "cachedContentTokenCount": 14260,
+    "candidatesTokenCount": 45,
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 45
+      }
+    ],
+    "promptTokenCount": 14591,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 14591
+      }
+    ],
+    "thoughtsTokenCount": 431,
+    "totalTokenCount": 15067,
+    "trafficType": "ON_DEMAND"
+  },
+  "invocationId": "e-281caee3-af0a-460e-869f-4fecc3961eb3",
+  "author": "invoice_pdf_finder_agent",
+  "actions": {
+    "stateDelta": {},
+    "artifactDelta": {},
+    "requestedAuthConfigs": {}
+  },
+  "id": "917ae408-9e69-4be8-82ab-0347e8a49764",
+  "timestamp": 1759495548.028523
+}

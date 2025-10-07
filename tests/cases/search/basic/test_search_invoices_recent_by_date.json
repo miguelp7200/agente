@@ -1,0 +1,90 @@
+{
+    "test_case": "search_invoices_recent_by_date",
+    "description": "Buscar las facturas más recientes sin especificar fecha exacta",
+    "category": "search",
+    "subcategory": "basic",
+    "test_data": {
+        "input": {
+            "query": "Dame las 10 facturas más recientes",
+            "params": {
+                "expected_limit": 10,
+                "expected_order": "DESC",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "search_invoices_recent_by_date",
+            "expected_columns": [
+                "Factura",
+                "Fecha_Emision",
+                "Rut",
+                "Nombre",
+                "Solicitante",
+                "Monto_Total_Factura"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 10,
+                "typical": 10
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Query histórica del CSV: 'Dame las 10 facturas más recientes'. Herramienta muy común para usuarios."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar search_invoices_recent_by_date",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "search_invoices_recent_by_date",
+            "priority": "high"
+        },
+        "criterion_2_limit_parsing": {
+            "description": "El límite de resultados debe respetarse",
+            "validation_method": "Verificar que cantidad de resultados <= 10",
+            "expected_value": "max_10_results",
+            "priority": "high"
+        },
+        "criterion_3_date_ordering": {
+            "description": "Los resultados deben estar ordenados por fecha descendente",
+            "validation_method": "Verificar que Fecha_Emision[i] >= Fecha_Emision[i+1] para todo i",
+            "expected_value": "descending_order",
+            "priority": "high"
+        },
+        "criterion_4_results_structure": {
+            "description": "Los resultados deben incluir columnas esperadas",
+            "validation_method": "Verificar presencia de: Factura, Fecha_Emision, Rut, Nombre",
+            "expected_value": "all_columns_present",
+            "priority": "medium"
+        },
+        "criterion_5_recent_dates": {
+            "description": "Las fechas deben ser recientes (últimos 6 meses típicamente)",
+            "validation_method": "Verificar que Fecha_Emision[0] está dentro de los últimos 6 meses",
+            "expected_value": "recent_dates",
+            "priority": "low"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando search_invoices_recent_by_date",
+                "INFO: Parámetros: {'limit': 10}",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Fecha_Emision, Rut, Nombre, Solicitante, Monto_Total_Factura FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` ORDER BY Fecha_Emision DESC LIMIT 10",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Vista rápida de últimas facturas emitidas",
+            "Monitoreo de facturación reciente",
+            "Dashboard de actividad actual"
+        ],
+        "priority_level": "P1"
+    }
+}

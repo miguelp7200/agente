@@ -1,0 +1,47 @@
+{
+  "content": {
+    "parts": [
+      {
+        "thoughtSignature": "CqsJAR_MhbZKyaqiwuIuO27rKpq8Whszj9o6YUe0atT5H-HZirL0UImURvnWLur7C8kci4YrMy5YGkBnxyc2Ux_DkuKZxt8JxERfDcbBM_W4sGo3AqX1yy11e15O5U2HYenC2-tzsLppOUSY7NELQ2Dblzfg32nyQx_aDQEnCUAiKuDU6ZyQiBK_IFX8bwTUEqL_GpM_6n3tNyzngsT-Z1CKsiJzgfzL-JCBDnNwTBvSTLGto5tatPeL0uay5uIIWpwX9BGLweryMMIRxei3fJ0gObyrv9QPnjcTssDqIHKQYv5G-V_NHjyJjbs_tyl5OYCXKA6Gl8xB86F42FLbe787O0yfY8sWIgWARGTEUSSfZl6FnTsl0kCLYdOGLtn8tTnq3bI3BdPK-PubDBngX8DGBDj2RX5irPx6fnUqDLqFPbw6y5kuqCZnUbaw8cjEaHfTN0bj2mTdmkoI6pAwENUEO7dyFTrTGPGk5n4WB5djRjpgkZNytHU5V2MKU89EoArshHtEXtXCjSke9T3dt8fa5-Sr8HV2tFRX0hpirxz6tbawLJ1w7K44ZOKJOqSzfVJUIgInRXA8QoScQb-UszNHrLaseqvRw2-buXOIgya--XE0j57WtJh_US4RMw3v071RPIAaieQnZiFn2Zn1ON8rFOPpvqcGRABrHrn9bTdTAfEc8KrO5tk8pThsmQ-8XsmyV0w2yTUTosSqfETFf-qlJyYD9s7ot_ARmU2Q-CPp1AgK78tZAW4ojWxFc_KHc1xbYSwA70kGGKfTIHp-d16VkJ1j-SDYM3Sdrv1IyMgY9B5ESj_TNM_L4YgIK8juU1q7MLfnF7rZvG_G8QGW3wHd4rlq2mMZGUtXG5QwBQJpQKABijhRboZ5MPJzketmVUVIsC8Zd_XMV1VwTWhCQ5u-KNClXKrqKbmlHz_p9LND03rs53UWTJSwo4R8J0zOIIU9G1wR9uapdiwocP1U51tScTRD_oEJbnzbfGb4JWx64Yng-fkMJ4uoH_GbDEUbEzKOh6jhTwIAQpnsV4-Y_ECyaGMP9wexGBoF9vT8GEsSB0o6Uvj3l_WlcTzbvCKGTSr9t_PhQuJ6cgEKCL7UwpsqNHZc0na6cYQ3wowbcUnBpP4ijZQTo-5BKIrNk_4Yf5andobnuGBVNhN4_UKHMfcE_rnF8fofXa5RmG-MfKTnpzIHkUhAQ7Bx2-JlERWdUl5_slM6TPgAdEVAQoZREfFZtijX7VGVNX42EszzHjYoyXEUIFIlUYLxThLH9omjPd10o8HSOS4tWe2Hvq86P196ALn3aIIkycqdsg4f1IWEWi3Ro1u_IvxBJuL3E67YKKzY1BQjlCAEWiUIZENxdqUQamLQX4Of7LEdo5i5C-5FAnodLVqcdIeuzuwKQLY2jIXgu3vRQp6dlYJfSEMXqyeWPtIKjSmdKOH3wrqif38coTd-u9xvINaxDnAvcvkWpTSNECnris2E4n-sfNrtQ1dnmewAMB7HabLIyF4tG6sSJV1zWbqJs05L_N2qDfVk_6S9rdOo3s6X85s8ys8IcKCmi1NZ_gtzXb1ZjJ340rmH3zJW4_PDUess1JzL5Q==",
+        "text": "No puedo buscar solo por \"cedible SF\" directamente. ¿Te gustaría que buscara todas las facturas que tienen PDF cedible (con y sin fondo) o tienes un código de solicitante específico para buscar solo las cedibles sin fondo?"
+      }
+    ],
+    "role": "model"
+  },
+  "finishReason": "STOP",
+  "usageMetadata": {
+    "cacheTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 14264
+      }
+    ],
+    "cachedContentTokenCount": 14264,
+    "candidatesTokenCount": 49,
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 49
+      }
+    ],
+    "promptTokenCount": 14569,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 14569
+      }
+    ],
+    "thoughtsTokenCount": 309,
+    "totalTokenCount": 14927,
+    "trafficType": "ON_DEMAND"
+  },
+  "invocationId": "e-38218d4a-2649-4e2f-9c1b-a8aa35269bc4",
+  "author": "invoice_pdf_finder_agent",
+  "actions": {
+    "stateDelta": {},
+    "artifactDelta": {},
+    "requestedAuthConfigs": {}
+  },
+  "id": "8735f182-a339-42d0-b80e-da622d5f42bb",
+  "timestamp": 1759456929.264242
+}

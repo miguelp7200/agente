@@ -1,0 +1,40 @@
+{
+  "content": {
+    "parts": [
+      {
+        "thoughtSignature": "CvMCAR_MhbZQAqy_aQ3QnB2gYBQKrCpuYO1xI-TyLTFwkFBuaYb-O0DSDEHLB2zDUOGk2L90fkg4igjbkqMTySFevRvhs7DHupOxnQMfRQi5vjmAeYDY_JIu4AvRlg7Kjt6CnbKKI4JKCe2LmoJkEMOEV4fmYUoXkvq6afHiF-5A5siuXX8Gzgc-yLdYuDFXleIbbNlwa6tEuUhQpw8063DgqVtUSJx8u4Q_ANvmLi399_JCsDRHdz91zXOBVUWEW9X-OcwInikU2blPsyJn0OUC2exxxaw4zo2UYwZyRH-lCj-PgQnkSQFxAZSjnHHSNAxDo7Ej7Yk15xrFs9heZQfBn3UIXiXBIRp-MHLwtCWsFDS62f1iXbQD1rLWA5oAx1cAuGHmvb8X0MeyPflxGQXI2ICD_pH28_tlhoh_fedzFgrCRABAL-0TKdvP8AsqMoB8fL9TFgdKDq7OrMB7mnwoHlVz5KtAJI5FGt4geQJrKREGeyg=",
+        "text": "Necesito más información para buscar facturas. ¿Podrías indicarme alguno de los siguientes datos?\n\n*   **Número de factura** (folio o ID interno)\n*   **RUT** del cliente o proveedor\n*   **Código SAP** (código de solicitante)\n*   **Nombre de la empresa** (cliente o proveedor)\n*   **Un rango de fechas** (por ejemplo, \"facturas de enero 2023\" o \"facturas entre el 1 y el 15 de marzo\")\n\nTambién puedo mostrarte las **últimas 5 facturas** si lo deseas."
+      }
+    ],
+    "role": "model"
+  },
+  "finishReason": "STOP",
+  "usageMetadata": {
+    "candidatesTokenCount": 127,
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 127
+      }
+    ],
+    "promptTokenCount": 14572,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 14572
+      }
+    ],
+    "thoughtsTokenCount": 79,
+    "totalTokenCount": 14778,
+    "trafficType": "ON_DEMAND"
+  },
+  "invocationId": "e-898b0c5d-0ba0-404d-ad6f-175b0aae55cd",
+  "author": "invoice_pdf_finder_agent",
+  "actions": {
+    "stateDelta": {},
+    "artifactDelta": {},
+    "requestedAuthConfigs": {}
+  },
+  "id": "cdd88e24-4c78-42a7-8884-9a2a616bbc87",
+  "timestamp": 1759465855.474154
+}

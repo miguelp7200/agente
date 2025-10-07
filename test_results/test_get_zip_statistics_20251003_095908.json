@@ -1,0 +1,124 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CpcCAR_MhbbHbrtnXKQm1CVG1jWAdwspxlmPGDQ1-pSBeQc5UpL-unIbtWLBV6ynyCNNx2MrOgOuj1oBjOQNKdZrxrvpRbAAQzq1D1XepKLX4v6-YNiF4igw70Gr41oRU6dT5on7KorfJ5D2wf1RJpVJaUvXvHNqHlJQjt8fXDAPTkaF6WseJprrP0gMxh7zMQ8lKSHC2LJkFuIGI8Tybl6X7NOj1NHarfPzN0dEBPJyOmB_dd0yzlyS4bkQQ1eOaJC9x6krHVeKNvwy-eYiuogQjwvbjrUjvd8tJxRJNwmcsIxeFuC1ub_qLQMjG9eKKnbTHspH3LmGCUXgpWYeTRiN1yDdpVqGJXWgIveeIGQlsb5_fZcVcHPY",
+          "functionCall": {
+            "id": "adk-5ff77139-3097-4a3c-b96f-279376045581",
+            "args": {},
+            "name": "get_zip_statistics"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14259
+        }
+      ],
+      "cachedContentTokenCount": 14259,
+      "candidatesTokenCount": 5,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 5
+        }
+      ],
+      "promptTokenCount": 14576,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14576
+        }
+      ],
+      "thoughtsTokenCount": 50,
+      "totalTokenCount": 14631,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-579e8cce-6aa8-499f-867d-139198c0b204",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "d7f34ae1-5430-428b-bb5b-f9155e63aaae",
+    "timestamp": 1759496333.987607
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-5ff77139-3097-4a3c-b96f-279376045581",
+            "name": "get_zip_statistics",
+            "response": {
+              "result": "[{\"average_size_bytes\":863840.5534441808,\"days_with_activity\":29,\"total_downloads\":0,\"total_size_bytes\":363676873,\"total_zips_created\":421,\"zips_error\":0,\"zips_ready\":0}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-579e8cce-6aa8-499f-867d-139198c0b204",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "681d738d-6b23-481c-be68-3bfae989b348",
+    "timestamp": 1759496342.322017
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "Se han generado 421 archivos ZIP en total."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14259
+        }
+      ],
+      "cachedContentTokenCount": 14259,
+      "candidatesTokenCount": 12,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 12
+        }
+      ],
+      "promptTokenCount": 14669,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14717
+        }
+      ],
+      "totalTokenCount": 14681,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-579e8cce-6aa8-499f-867d-139198c0b204",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "bd51dd0a-a08b-46ac-bf62-36bba05f0dae",
+    "timestamp": 1759496342.351181
+  }
+]

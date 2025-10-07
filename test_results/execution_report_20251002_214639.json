@@ -1,0 +1,122 @@
+[
+  {
+    "Test": "test_get_invoice_statistics",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_date",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_rut_and_date_range",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_recent_by_date",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_factura_number",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_minimum_amount",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_monthly_amount_statistics",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_multiple_pdf_downloads",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_cedible_cf_by_solicitante",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_cedible_sf_by_solicitante",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_tributaria_cf_by_solicitante",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_tributaria_sf_by_solicitante",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_tributarias_by_solicitante",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_cedibles_by_solicitante",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_rut_and_amount",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_general",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_multiple_ruts",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_search_invoices_by_proveedor",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_data_coverage_statistics",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_tributaria_sf_pdfs",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_cedible_sf_pdfs",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_invoices_with_pdf_info",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_list_zip_files",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  },
+  {
+    "Test": "test_get_zip_statistics",
+    "Error": "Exit code: 1",
+    "Status": "FAILED"
+  }
+]

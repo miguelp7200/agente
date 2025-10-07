@@ -1,0 +1,93 @@
+{
+    "test_case": "get_monthly_amount_statistics",
+    "description": "Obtener estadísticas de montos por mes",
+    "category": "statistics",
+    "subcategory": "financial",
+    "test_data": {
+        "input": {
+            "query": "puedes darme el total del monto por cada mes?",
+            "params": {
+                "expected_table": "pdfs_modelo",
+                "expected_grouping": "monthly"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_monthly_amount_statistics",
+            "expected_columns": [
+                "anio",
+                "mes",
+                "total_facturas",
+                "monto_total",
+                "promedio_monto"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 100,
+                "typical": 50
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Query histórica del CSV: 'puedes darme el total del monto por cada mes?'. Análisis financiero crítico."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_monthly_amount_statistics",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_monthly_amount_statistics",
+            "priority": "high"
+        },
+        "criterion_2_grouping_structure": {
+            "description": "Los resultados deben estar agrupados por mes",
+            "validation_method": "Verificar presencia de columnas: anio, mes",
+            "expected_value": "monthly_grouping_present",
+            "priority": "high"
+        },
+        "criterion_3_metrics_presence": {
+            "description": "Cada mes debe incluir métricas esperadas",
+            "validation_method": "Verificar presencia de: total_facturas, monto_total, promedio_monto para cada mes",
+            "expected_value": "all_metrics_present",
+            "priority": "high"
+        },
+        "criterion_4_chronological_order": {
+            "description": "Los resultados deben estar ordenados cronológicamente",
+            "validation_method": "Verificar que (anio[i], mes[i]) <= (anio[i+1], mes[i+1])",
+            "expected_value": "chronological_order",
+            "priority": "medium"
+        },
+        "criterion_5_valid_amounts": {
+            "description": "Los montos deben ser positivos y coherentes",
+            "validation_method": "Verificar que monto_total > 0 y promedio_monto = monto_total / total_facturas",
+            "expected_value": "valid_amounts",
+            "priority": "medium"
+        },
+        "criterion_6_month_range": {
+            "description": "Los meses deben estar en rango válido 1-12",
+            "validation_method": "Verificar que mes >= 1 y mes <= 12 para todos los resultados",
+            "expected_value": "valid_month_range",
+            "priority": "high"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_monthly_amount_statistics",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT EXTRACT(YEAR FROM Fecha_Emision) as anio, EXTRACT(MONTH FROM Fecha_Emision) as mes, COUNT(*) as total_facturas, SUM(Monto_Total_Factura) as monto_total, AVG(Monto_Total_Factura) as promedio_monto FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` GROUP BY anio, mes ORDER BY anio, mes",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Análisis de tendencias mensuales de facturación",
+            "Dashboard financiero ejecutivo",
+            "Forecasting de ingresos"
+        ],
+        "priority_level": "P1"
+    }
+}

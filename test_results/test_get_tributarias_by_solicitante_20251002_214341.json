@@ -1,0 +1,211 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CrEDAR_MhbbCi8ijBtsjwEpLXoTiaOOE8n5pqftvy7kXhIyHnd-dnHG2aDr4H5xanCC9a3UJJ74V-tTp-3LPI6c0GVamQoXwNTMZjfEvpF_HX_AB18_K5Ec_7IGDTyNUwHqBRCg-etfcoQehBUZuCsLmkojFH-9Vld8z_0m_SQ4s0w-8YZT_cubVeD8agjn-LwEC-oWG0oDJNVEj7PrkCrbWnmPHdTujwBaQlrqMnxS4SNwXP-7S9AyOdEptT3l4lvOCiz8lkf-8ZxBfQwtZvGPa0nlBPhb8Dyh8wayJGCxAVFAHQ-aq2rr_kuAFerZaHfpn0kXobn7of70V9FAegY829Fpnj2jg53gxRyI4Z3JiSiePnkm6JVRTOePxE3R4S7vZ6OzreW949wZC0ncofhuyJrn71km9pS9-ATGypimBGgco7yGz2bzh01VcUBnFDhyltRY-QfFziKEXXEAXNbkP_FwDHpWDXgvTuMbDacXxBoxoadaPoaspkotASnyaZ-2L6MwJcyAG6y9HwnEj49tskPsb3ASnymjXJfx5NI47NZbtboGtmUtm0CTBVZBzeR5F1w==",
+          "functionCall": {
+            "id": "adk-459a3dc0-0c60-449c-a98c-1be696dfd422",
+            "args": {
+              "solicitante_code": "0012148561"
+            },
+            "name": "get_tributarias_by_solicitante"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14266
+        }
+      ],
+      "cachedContentTokenCount": 14266,
+      "candidatesTokenCount": 24,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 24
+        }
+      ],
+      "promptTokenCount": 14579,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14579
+        }
+      ],
+      "thoughtsTokenCount": 102,
+      "totalTokenCount": 14705,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-28bfd049-63e7-4261-8bd3-eb232ec8d308",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "35639ce3-ce86-415b-8987-89eadcd71b49",
+    "timestamp": 1759452159.122192
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-459a3dc0-0c60-449c-a98c-1be696dfd422",
+            "name": "get_tributarias_by_solicitante",
+            "response": {
+              "result": "[{\"Factura\":\"0105437811\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0105437811/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0105437811/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0105141628\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0105141628/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0105141628/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0104866094\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0104866094/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0104866094/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0104546059\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0104546059/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0104546059/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0104269309\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0104269309/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0104269309/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0104051578\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0104051578/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0104051578/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0103819353\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0103819353/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0103819353/Copia_Tributaria_sf.pdf\"},{\"Factura\":\"0101195693\",\"Nombre\":\"ALEJANDRO ROMILIO LARA BUSTOS\",\"Rut\":\"11240427-9\",\"Solicitante\":\"0012148561\",\"tipos_tributarios_disponibles\":\"Tributaria Con Fondo (logo Gasco) Tributaria Sin Fondo (sin logo) \",\"total_tributarias_disponibles\":2,\"tributaria_cf_url\":\"gs://miguel-test/descargas/0101195693/Copia_Tributaria_cf.pdf\",\"tributaria_sf_url\":\"gs://miguel-test/descargas/0101195693/Copia_Tributaria_sf.pdf\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-28bfd049-63e7-4261-8bd3-eb232ec8d308",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "91802655-a377-48ae-9f2d-ae5ffd29da44",
+    "timestamp": 1759452165.879379
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CskUAR_MhbaiBC9tqDQ3xlEcfG9-QBavwI9tkxONomib_1hioZtBOyhHW0NbhQx7A9vrD3XMEOPV4fGa96Wxf2a25E-II70ly5LhTKY-KrllA3fDcuKLyzAvGeLUgxo1s6yaN4RmRpbr6wvXoi5DpszIozSURmMo1eL_Qbn8URrRNd5nsWx3FjrmLyCMGILz4RCagh9gTP4BYfuxZwvwMo6f-ICAf_4jf5810EUBhxv7LUktXnF5z-ynjQNX93A33KH1HpgDBI2MUWVEWI3F6olbK8FU1-42drQjdpo7c1yRZkXcghSGVB_56Ia-p0YT1s80IF4CRMXCeAU4HATn2JcA-HZAREy59pnXXUHiU6TBUCTidlWzKB7V7VQ72lN-FmLC1Ct_lHps20GLNVWpvSbPalXjEwZ3DgCm-C3H3E2PUFyzRjjN_giGokBpHimukeXR_Yr5HJmI1Vv-DwZy5fJSj6QeXWXJgXBq_r9SIds_BPg-oUY8wj5TDsKMTW_wgjoq0pXXgnH_vKd8y6xVRVj5n89Z9xkrck77MZz1JgvfzLdYwEUMSu-fk8U4uniUt7mbKcFsUi8XjcE61j_SfUKVRUtqDz9D2JNOQHT4lGL3mPMqES2Zbbh9FEi67SDZIxFs_3bU05LPmVFXMMErKxUu6_IxnP9QXPtyci6wrExHf3rd0J-yu3buS-hqEgzjKYUxuq1G5GFx5pOF1zuCTM3HLlVxKUaOyaKcHc0ZJuuRtfXWowhYkBcRYEf5Cmtz_HG-pIQ488DkFHhnUJoiUd3B5NzrpWFhUqJp-rXL-q_-tBp1UB2LnawGW7iGhzHbTdrGp7Yy-Ge7Ovvlo6i3pHJ4RvB7e4zVtvBx3hI911hrXSgN6l-NkAmowjFzbQ3yyg1gEK50iv47asn2SdBJ14M9gYF8KUxDpajam7DJ8cnii9qeUuqwF_5akOVYrQDS3oBfZ_8ZCkJF5-ugRJF3D_wOH0ll1IqnF0pRiKb8ppCyQ9X0iNh4e8BBhrXevRKdV4aE8IHxtJIAriuRX4HdKC7AqKoqvm1k2w1-21DpfR1TuZvZfOm4XSCf72sAul5rNbvVlmVsV1Aa6HE8EutigigLZpFX6RiLAj3ZmWlVbqXgzLgmiCEksx9mh6lWrD6-j267bxdmIoNF44L0wAFJWu4k_HS7mrSjVePyZ6l5xglxeXS9AEmchcmX7A5AVhcGe7y-SBAf0kW-TAfrd-c3Snkykd4FSIlccRpPNcy-DiVC9TfCg3ktnlTTiZVLiTP_6fQ5mzOFf1pRqy8li_mjJYJd6IvajHt9qBfNvSGobhzoZDxmJqKw0MN2udUwXMIeUrvZcYVZNw2FA6R7qxgZbvFahRCfqoVQHwwGJHoy859YZrVMpvZ3Ii3pRVZpuqiMRvcMJtNyZ_nVG4l39-OSjVarWMjh0c1czzAPixdapWu9J025N45_49Yut7ZY_ZWVP_P7kbc_DkkMj5E8nfJcIKQXJvRVC5W4vlWr9M_AIiMEqakCJ-8hvAgriZINf2imkxF--ZRqSazdu0bc55vOfX6DSoPMJ7DbPOF-3PyW6fUO9JNuCda-Cg53nqpNNYckVuV3yxnHu4-VXgImz-GcpRk7wilnnhLmvarTYbMqAqbe-MeQN97_BycLvKkLVC-FksB0BXCMOmYsQGsHNb-IjQVJm2tJS6Eq1j4ZHnwqTkVg21WOByIPtwuH-OuTeVWqF82W4xfvRmp6GNd-LEP3xJQh_xMinIy-QjZaA6sgiJIiExJqQpTAfm0GkMmX9W1EBpeHrzINRyzrIckKinfrLmGlIFOSnclTqtvx_6szBGNwPvzC1uzRoIqSHY7tBMA3CK1a3PZAkli0nOIXlNlmoQQQwobK2LFitZZUqzDHZFpsJSn3kaamavVyHaiqbBZCRfF71u98kowVM9dMv920EUZL8tsFlHSd8MyXSWljf-JeV-SFspBESKDzEitClLHy0gi7d-jmITtCJO1MG6lY3vY-SQ5UFN9bdCxefgD3hBT9RIaGjy-kkYCb8g9CjbWxY1EoNQxkk04eMMg6IFrNoqeAjIT7KhLM7CV3_yIk6GSJZnY05563ZBlwcuhJzQ_7IoGZKuK6npZdgq_dd7xirwINu_3gw-AupW5onl1x-EwcNmYtJAmE2XNszewbvFmOr8XJbxGnzKn9FwDtDAfWCZhin-EdraIUsrXgdvT4IZLxyo3jP0XeZ5PjtnUjEvBOe7moDo7Zj1hl3pGc9Uvo-rMvncveCTjLBjPOeuittYN1oY3H02_3kfEDob694uROwMSXqGahlujCYhLRJrXVaNaEZqpevCN3CyfnQyM5e2tnm3ZmI73rkzn1TMuvKECaJmU4TQnKtn5WgGXGZQwP7vrMCJ34ll5TJuoDOTJ_7cTqz-U2HY4b6Wi7-gVpuLRYs4BlinhfmPzyzomMFbOV8ilV9ekGeofEuvLQEwpC-UL2_-c2GLHibiV-p0p2_nEGAMNzoUPFsCP7TBl4y-JuTeWg-Nuhhs35cTa94cFfcJ1ILmEhiAgXiL-Rt8AqT7UTsU6umNM2AxJYJngUFMs33xnRdtxuvCQabYL3TolhmNJ5BkRJ_WISfB1Ttwm3P6JYBs6NKwtLSgMehjW-SQlvO4KHD5ltu9JrfDnZhW1s3L5gm9sSMHQod0w7MVxiEKInz54MLcUldk80wDZtnkud7c7YUePOMLVut5J6ZfLlYLmkrIuiCA5Um4ppr0bTNEFeziiXRn9NILdephZClmBN4AhjRI4Kjj7IsBRk_xZ-0XRqBvkJkg9xsC2GHoXIfIbm-VshntpBROxjYOKGjTDkwXDHNkrnuUtj_mylpkl-4UvHWmSHrWWhUdvdrDP8jj9b5GvDLS3xNjYcIgx34LjhRsxD2xEb9oQ-QW48heQg8v8X_zFddi18VHpPadFR4DqPXujH5YetPio5HCVtRa9dUWj5bCHxkYzLJ7XUZ-Gg1kb7Ptx6OmaT-nUTiWyuBDztOOOVhKYth_QYF8hi2GgCt_2ZEMwgURqtRAAddRotL5EOzL1Jziq1zmXo9c04v-Iy498UN1z95OsYBhQ1KG-8or8vnK1RmDbHeFi4HGIfU9uqUy9cMRKyZwNuMEmtbAmhYM-pfdwhQFqIV_Obq7-PH6tzBNGWcBBQ2AK47geuY_TYVdwj6XNK3-PztgrWbuRlQlV0Gqav1uH9cX9A2DzsCNdZ4Xno_gaMsM68wQ9u7Z0f0q2ZlieVBCOQO9tczWCixxmlEZ8wxZlk0vuYtssT4k7_GQoZAZUbi1W3dT2TgquBgrVTax5P2sRBAwXfTniExYR0lL-O90dzqzhpRkWaNlWr_uxkqtnIdRoYvkKWUohLiKfg-4bmP72l6EDwYFTg52K81XhAfWPHOoqSAuwPTcFK6iEjJJdaPZMTnWxP6-1kZ1C3KQZamM1ajiZos-5DViuI8hnJYTkcBFfBln453RetKLQwUG012oedastP7p05PWALE0-SfGgMZc0=",
+          "functionCall": {
+            "id": "adk-b33347f8-31b6-44fe-8e82-7e63c513a3ed",
+            "args": {
+              "pdf_urls": "gs://miguel-test/descargas/0105437811/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105437811/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105141628/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105141628/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104866094/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104866094/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104546059/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104546059/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104269309/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104269309/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0104051578/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0104051578/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0103819353/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0103819353/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0101195693/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0101195693/Copia_Tributaria_sf.pdf",
+              "invoice_count": 8
+            },
+            "name": "create_standard_zip"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14404
+        }
+      ],
+      "cachedContentTokenCount": 14404,
+      "candidatesTokenCount": 491,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 491
+        }
+      ],
+      "promptTokenCount": 15968,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16068
+        }
+      ],
+      "thoughtsTokenCount": 972,
+      "totalTokenCount": 17431,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-28bfd049-63e7-4261-8bd3-eb232ec8d308",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "e8e7fe60-bf40-40f7-8004-94ca8ff05c6d",
+    "timestamp": 1759452165.887913
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-b33347f8-31b6-44fe-8e82-7e63c513a3ed",
+            "name": "create_standard_zip",
+            "response": {
+              "success": true,
+              "zip_id": "353d636f-e420-4ac7-9590-82c6f0021bed",
+              "zip_filename": "zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip",
+              "download_url": "https://storage.googleapis.com/agent-intelligence-zips/zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T004328Z&X-Goog-Expires=86457&X-Goog-SignedHeaders=host&X-Goog-Signature=370e8ab6ad5178a2a263c070bdfafb188fcdbe6972d6e882fbeda30df543e798eeeb76b45e0ea3d5c3d9084d70a631db8e19122b6fbbbcc67476938584e30c00512ead66eadf2af44658768b985bebd9411704549a79d270e8e32d34742fc2bd4b78ad5c3d0d7bc5edb73e10409f9eede4ed7ece87c5f06dd1d454b1c66ed54efcaaa4c3802ef4cac09f2fb6ea519c62d0dc5b09fb43e6c846b88ada740a7166089f2c3ba80c7700529a226cfa1918fb0bc5b2d44a2f7d336020094b137b896feaa14e4ee1029b51f98a559e5ad30f00f2dbe4d874e4462b75eca699c9cf0393d36b5dde616217639fa1ed97ef623043db56f6d0d33f33b9e7155755b213f4ed",
+              "files_included": 16,
+              "message": "[OK] ZIP creado exitosamente: zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip con 16 archivos",
+              "stdout": "Ejecutandose en desarrollo local\nCONFIG Arquitectura dual validada:\n   [LECTURA]:\n      - Proyecto: datalake-gasco\n      - Dataset: sap_analitico_facturas_pdf_qa\n      - Bucket: miguel-test\n      - Tabla principal: pdfs_modelo\n   [ESCRITURA]:\n      - Proyecto: agent-intelligence-gasco\n      - Dataset: zip_operations\n      - Bucket: agent-intelligence-zips\n      - Tabla ZIPs: zip_files\n   [SERVICIOS]:\n      - Región: us-central1\n      - Puerto API: 8080\n      - Puerto PDF: 8011\n      - Cloud Run: False\n   [LIMITS]:\n      - Max PDF links: 10\n      - ZIP threshold: 3\n      - ZIP preview: 3\n   [SIGNED URLs ESTABILIDAD]:\n      - Timezone: UTC\n      - Expiración: 24h\n      - Buffer: 5min\n      - Max retries: 3\n      - Monitoreo: True\n      - Time sync timeout: 10s\n   [THINKING MODE - ESTRATEGIA 8]:\n      - Habilitado: False\n      - Budget: 1024 tokens\n      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible\n{\n  \"success\": true,\n  \"zip_id\": \"353d636f-e420-4ac7-9590-82c6f0021bed\",\n  \"download_url\": \"http://localhost:8011/zips/zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip\",\n  \"zip_filename\": \"zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip\",\n  \"total_size_bytes\": 275889,\n  \"files_included\": 16,\n  \"files_missing\": 0,\n  \"generation_time_ms\": 407\n}\n\nZIP creado exitosamente!\nURL de descarga: http://localhost:8011/zips/zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip\n"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-28bfd049-63e7-4261-8bd3-eb232ec8d308",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "f769004d-1836-4cb3-9433-2255520d0553",
+    "timestamp": 1759452208.403502
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CvoUAR_MhbYLROVwBMY8sW5B-u--XHdH5n_qxZZdYXleHGHFKlcxQF1UTKREwDWQK__NruvAug5WqA8PMQbfqTVTlb3sorMTEuXhLWpxNrJtZGMlv26qLISlBanQ1dcx2Pl9JBtkcEqIFXTAn3AlCoGumQMsQFbxi5UP5uu7fU8TBTyHhxIE68jbVuunc5MQS53IbpMyxo2GEIOEfKuMn2t0WLrmFoupA1riU_qi8O2keKiN3QHdAMZaBTEZbT-aImJ3che8a-ISYIF4aVV3gWYZodhSb6esILOHLKy6IU2bPJdDE4kg9CqB-Hfm8la665tKIING1XYFgHNw3kKFqoqAm1TkC09q8nGpqEpMPE_q9DVY972mjDaBINt9Om__QW9hBc7OUNwQylsuPKjYH2IZn2n55IqbGEe7tFAW2erJpc7jLS6TjRL3bKzptq62umltLYgloUjEKZdfNlVgVCcthBTmyaUfSMl010rVnb7RfkJ3pc3ZrdMBpzVFq-h2JB-gfuuzxMct7pufnb2Wk6PSiF8mk4f9bk3S6AKSi52oEUxibxDGJdMWKIfRuoBLwdJELxBDh0G-dPuUPKTPEmK5TsC448qeke7BOKIVuoTZYZcrlZVdDyz_W21zNuMOumm7Wds8nArafOHMgqlxpi1copdLrreGiGRoySIxpJC1WPDrelgVjZIBz5FR71OFHixz6ENCPbGsPbLl29jFW2xgzmc-rUH8nNhF8mGbRKSPb--6DWs2I0XmGmTQZq4hpc3JIJ4rvb7lNachCKuDx0CNeinspyCYUIcXmscfitDrf_L5WQnRREBp9sal_9cC8K2SXrlivmM2A1lpiz70DAd0xscXcJ9Qb2p6xKnk2JQZ4fx8w1HmxITZMRTY7b16-lWKhVbUCUG4F4I_QxVFpukQS-g99s2FcmLHM69BCngmSVs-RC53yYbo2W6ANpwMD3fZDggmGr0CTlgxlwuErGZ1gTp633GLXgLX4RWnPEI2JytB1mFQV-YAi5zEBDhhfVxxp-WA_OUQwvQvCGPMmL5gX8CMnxE95yfmwtRDAUMYjOgCPRfd5S1r25D8OUACswZo0vE4mOGMcvQvitXcg-WsSZFf0HJOhZ_OyQk_cuBZ9J3qwoZmnZtMMbk4t3udZmWMsQC-ullSwflWYHPslHU0SIIzpyeRAc_x3gWrVr0PHC4Zo92kjshoAci380qkTFNFeKeQBzQi6xD2f9R9arqMMX7-__XZMdhwplCyJWYVHgwkpRaVsYnc7A-GlNefD6v1wduJs_HxiTaDe2Lgjkui21c5_F2MNl7EKPZ-fsCti1ccNw2tqMFjbZLd9AI5ohliXKqljWUnJsQv2SwAXtCEdwcJnW4Tnucjq8L11dySGE8OJR5zI7y7Rns41O1rTmtkcdGrMA0qMzUvzvkQjiSyRDmeK-_nxewa_xBFe7UQ6OWA8Vd-B-4MWEKCPtqVqiYHG45A8vCAytBYqOBE1KVSbWBZuOBbuxRixrUgTXi5vDvK4grfQ2YQUO30HBQxvLNqYSrDv98ThmRHGPHKS9_HSZjC3qGGquvmok3WlWnIN7kiqiKE3pVQmon2JuTMCEq6PtwBbk2ONhSGBAQxD8MJo0_rUomx05sdqHNBdWzisD5QJU_AEhbNWJiX9bPrU6wUjOvpWuPujQGSNa4FBsjDj3lADLfGmD8yEtdEoLMj0jqDiMYIkL1fY4xfVTRqsNRSre2La9blLNPl2j4gDwZI3Bh__lNT4GiVusULUB2UTL_yvJr0mlNQV4Bkys4zc-XGyXCnE_tB0SyyNb-QFawfKXyKQmN8rzPr5gklErBIkkuQeA3-EahT9tGbPiGffI8xu5PM2uW4YbpwN_Ec8U0FYUPwywOLTqDOJDALMivmk2EzZGOT--K008bxdnvPSqGhnZgpyhyv_l3i5yEzUIj-Srfr99t0ZX2c320ztX74nkEOcBFevzH45lYmpyxO7M8VRHXecrk4JGshe1qFRG8fJf_tvdOO6v-cWzSnQa9acCs7S5OrrR-iLVQKcvLaF_E2XF4V9rVDGQa1NV1ZJlPFZKGZFbT2omPGaxFI9vn5eVElJFQRNu_0jjnS0W4daS211iu2K0Shnaq1MZ3FIo38eil6VQ14yaxe-RjclAi5BUR56Y8Ec3OfoqzjSBgs_lN0jJLGkMx1e9ov1j2R21zbLjUkVC5E8eA0lhpWeDoWnEQ4dnmtKPb7lHGCezLafmHm-bqMj2J5OV6YAiCMsDvvJbBDgDX_FSj5qYn8hSscSKtOI6hIeZ1mAwsTJzaWicgcvm2pzPMvH1tvlu1d8t8Qaaqlg3sPcUZlYpP4unMsdmEkXZiDO-jpX3UEHEBPxh3b0X73RWYbFxvi6qgPe8hKqx8cbFoqe38fJI62LCiCo14iLw2JQIgRpcq73e2YSs_E1hOZyjeYZJTryJPBDsgePAuVAHi66OlCnwhBP_xLKgMhx7vRCAFC-reL9TZMjnLv5uoMVC3Bul2YQpofXPOej289JaocUexzTNN5vEfjXxXwCD63E0H1i0_26bxV-IJswHdxFO3gRFy4Ln7eU6IUQZ7qINIWnkSx21-bwJ8Kjh0m9xs9nQqTWDlPYIigYMn8YwnXqEoF8bzQgNQgVp-6kSOVIf2h-1wTSZfFaEdVPr00QLmwoUycRmTXnibWa0gY5nUqE75LMH0PPLmdbWIzzgREX3JHfRSIKn7_DNGwIFsgy5NMDLh6PWE79yNAtq4BwNkJugSKSMkbd5OXYeGe3fojfF_jfcgoMDmnwlYEelhiZf_cRO3s415qFrhRvPCD-sTlSfqlVgc2bxVje2cj0swOmkNMGkk44dbLNCo0_ZmNOHQ9W0Unj6D4CdqmhBF639QgqCK8BAdavyNIIz8ATC7UwPTwmFjdWCKQ2o6RnBj7tALzutwbPGRhsfVNxv_9DNiyyR7AIlDdmN3oB7bUreGt1k0Jt9yNSbwBsZyKOAloNRKZNeYZbEmRa_g4xp4PII6i0FGgsDxPai1ua4J_OwtEvaxpgYzAXaBhT3oTALBRw4SMNVVHUioIjhBPSP14Lm-_KepKNYVBAq777d-9k_ux5SN-tEE9LTgFGPkbqv6_fgvXnOJw9rZ5MSgqyL6ElsHw-pLT8_0Ugm96CMsGGpJx6Cz_jkW_MMaXUdnc1uJxofBIfPQaOneoKP0-zmbkzBYhvIyMZQRiwr19u0D-nU3_BtkEOaylsQwqQaAbHRJjn8xDUntHVjMNGY1-DYA9n3IWLBw4DmgzrIB3lnMjLQq_Ah_3yfTibWv4HQePBXvCeY1ccbf7plPOWNYNpecR8luyvusoUOFBrD-sJfMaAZ9rWpKYR0zhdYlzuSS1devcRjRIKtppidXDAa-TNsEsCTpTN7jHLsGcx0JDrPRvEBR6PuwLZzJMMDKXvyeAvSTeXkIq3f92xsvjS33DPM5fPxKlK2CvtxosPzFv7ChRB_x_CPQGMIj4QfKLRZfs3NQuVTeyAqN-GOzuub0HrVP559eWbsk_AnEmfeHv0NvzMiygiXoQdSL8rHJU9i1zZCrvT6VxMEB2qQo5",
+          "text": "📊 8 facturas encontradas para el solicitante 0012148561 (período no especificado).\n\n📋 Listado de facturas:\n• Factura 0105437811 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0105141628 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0104866094 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0104546059 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0104269309 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0104051578 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0103819353 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n• Factura 0101195693 - ALEJANDRO ROMILIO LARA BUSTOS (RUT: 11240427-9)\n\n📦 Descarga completa:\n🔗 [Descargar ZIP con todas las facturas](https://storage.googleapis.com/agent-intelligence-zips/zip_353d636f-e420-4ac7-9590-82c6f0021bed.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T004328Z&X-Goog-Expires=86457&X-Goog-SignedHeaders=host&X-Goog-Signature=370e8ab6ad5178a2a263c070bdfafb188fcdbe6972d6e882fbeda30df543e798eeeb76b45e0ea3d5c3d9084d70a631db8e19122b6fbbbcc67476938584e30c00512ead66eadf2af44658768b985bebd9411704549a79d270e8e32d34742fc2bd4b78ad5c3d0d7bc5edb73e10409f9eede4ed7ece87c5f06dd1d454b1c66ed54efcaaa4c3802ef4cac09f2fb6ea519c62d0dc5b09fb43e6c846b88ada740a7166089f2c3ba80c7700529a226cfa1918fb0bc5b2d44a2f7d336020094b137b896feaa14e4ee1029b51f98a559e5ad30f00f2dbe4d874e4462b75eca699c9cf0393d36b5dde616217639fa1ed97ef623043db56f6d0d33f33b9e7155755b213f4ed)\n\nEl archivo ZIP contiene todos los documentos disponibles de las 8 facturas encontradas."
+        }
+      ],
+      "role": "model"
+    },
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 15550
+        }
+      ],
+      "cachedContentTokenCount": 15550,
+      "candidatesTokenCount": 1031,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1031
+        }
+      ],
+      "promptTokenCount": 17794,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 18864
+        }
+      ],
+      "thoughtsTokenCount": 1214,
+      "totalTokenCount": 20039,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-28bfd049-63e7-4261-8bd3-eb232ec8d308",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "0b6ff2f3-7bcb-4e51-b887-4517a59acd00",
+    "timestamp": 1759452208.420598
+  }
+]

@@ -1,0 +1,214 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CrIDAR_Mhba9UfLs75YHm91wlQUXfIh3AQqK_yB_qpOPctkcEFxnupAob8dr1FfX_t4KJgS6P9qtpdv587dlnieVJDoqNQGOfLMZ_DW_FDUHN00k7Q89SNcb7_uAtxpv8U-PMDcLzSiuy9m_wSxf5nxyjYzOTRWabcA6SDkvYLgQEWkMx0vBqA_Fj5EN9_sLd6mrTOmAyw1ZTvbArYVXA6CdHyGHCwzVsY5Ahy4pLuMZNnBdbb9nqc5d7yjtaopOfiyeA_feorBZ1J4AySY-F_KdIxq6YEPRkMWQXD2jQF1_BPrFP4_z2cXlHnvvwH4h1FmOypzmHlNr-yfyVDmlAC3ViZRGSgsGYX3IFj2ZiJPSKbwwg4XhrBSg1LOnpPh6z5yemXlH_nhsaSNhs0l1BCXhRfW_-hF-c21tI-l7VC_S4jAoK3zeFhMxCwNCD6RGxUr_Es6Tk0XisFMZKxKYvnf33yTzq4pcf1M7nBSgyeR_1HVXtZ-mv1_oX9Ojk1JHhoAOnDPxki7tf9sT1tSYo1nTUtJxo8e8cWKmHgxp8HvPwHG2sFKA3N8WJiBhBjTmP0rgHIo=",
+          "functionCall": {
+            "id": "adk-df808165-7a23-4afe-9a6c-709bb666f6fa",
+            "args": {
+              "target_date": "2025-09-08"
+            },
+            "name": "search_invoices_by_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14259
+        }
+      ],
+      "cachedContentTokenCount": 14259,
+      "candidatesTokenCount": 20,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 20
+        }
+      ],
+      "promptTokenCount": 14582,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14582
+        }
+      ],
+      "thoughtsTokenCount": 138,
+      "totalTokenCount": 14740,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-72a73edb-cb3f-42bf-9106-0de8b86928c1",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "3816a190-8318-46b3-8619-132fef87421d",
+    "timestamp": 1759494938.399642
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-df808165-7a23-4afe-9a6c-709bb666f6fa",
+            "name": "search_invoices_by_date",
+            "response": {
+              "result": "[{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105533592/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533592/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"11063\",\"CantidadUnidad\":\"L\",\"Factura_Pos\":\"000010\",\"Material\":\"GAS_PROPANO_SC\",\"Moneda\":\"CLP\",\"Peso\":\"1404647/250\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"3624711\"}],\"Factura\":\"0105533592\",\"Nombre\":\"LOTA PROTEIN S A\",\"Rut\":\"96766590-8\",\"Solicitante\":\"0012486094\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":null,\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533184/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"15\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"24949\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"5\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"12400\"}],\"Factura\":\"0105533184\",\"Nombre\":\"TRANSPORTES ALVARO ULISES BURGOS PE\",\"Rut\":\"76950558-K\",\"Solicitante\":\"0012444970\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105533183/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533183/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"2\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"10\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"20336\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"11\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"17425\"},{\"Cantidad\":\"4\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"60\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"88231\"}],\"Factura\":\"0105533183\",\"Nombre\":\"MARIA CRISTINA MORA MARTINEZ\",\"Rut\":\"7384222-0\",\"Solicitante\":\"0012444159\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105533182/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533182/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"2\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"30\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"45729\"}],\"Factura\":\"0105533182\",\"Nombre\":\"RIOS Y RIOS COMERCIALIZADORA MAQUIN\",\"Rut\":\"76272287-9\",\"Solicitante\":\"0012290711\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105533181/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533181/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"15\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"26900\"}],\"Factura\":\"0105533181\",\"Nombre\":\"HOSTAL SAN MARTIN SPA\",\"Rut\":\"77456573-6\",\"Solicitante\":\"0012532177\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105533180/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533180/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"2\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"90\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"120672\"}],\"Factura\":\"0105533180\",\"Nombre\":\"LA SUREÑA SPA\",\"Rut\":\"77244142-8\",\"Solicitante\":\"0012596425\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105533179/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105533179/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"3\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"45\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"64560\"}],\"Factura\":\"0105533179\",\"Nombre\":\"INVERSIONES Y ASESORIAS VALJU S.A.\",\"Rut\":\"99559880-9\",\"Solicitante\":\"0012490806\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105532751/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105532751/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"4\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"60\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"86080\"}],\"Factura\":\"0105532751\",\"Nombre\":\"ALFREDO RUPERTIANO CARRASCO QUEVEDO\",\"Rut\":\"10492582-0\",\"Solicitante\":\"0012529021\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105532750/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105532750/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"4\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"44\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"85001\"}],\"Factura\":\"0105532750\",\"Nombre\":\"CORPORACION EDUCACIONAL A-LAFKEN\",\"Rut\":\"65095867-5\",\"Solicitante\":\"0012502296\",\"fecha\":\"2025-09-08\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105532749/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105532749/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"4\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"60\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"86080\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"45\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"67040\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"5\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"9920\"}],\"Factura\":\"0105532749\",\"Nombre\":\"SERVICIO AUTOMOTRIZ CDF LIMITADA\",\"Rut\":\"76281963-5\",\"Solicitante\":\"0012680853\",\"fecha\":\"2025-09-08\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-72a73edb-cb3f-42bf-9106-0de8b86928c1",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "851452b6-ea74-45bb-a58f-a31e4db5fab2",
+    "timestamp": 1759494944.06859
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CooHAR_MhbaYmA44_IDUOxyCM94-TzwGbI-rL0Xmf0VDRrv6Jb2FXISXx30-k7GWdmNKyurhZQj9gRJD9gF4enQz6ddRbjhHK7cV_aGpjCOVHaxKaWZBFPXNE9ufOg_Zbq-rmMtCFeoN57bh8hg-yjm5EbIN6PuQAAAIK3IVPk2K-gKPBdOd0IOu1H5USsh054qeGCYmgVatMDRAsIi-ZXcm3ugXkXimZHsD-htzXD-buMvH_hbG8cAvZFHVHK8El3q8siOAN6KUEEH5rCQc9tzTIJZE4hLM1MwBYQpOaRA7xeEqfgvt6GGSslVcwrFZp20nCaYVY2xLMmucvWGg5zXMvG0fbBXxruFfVUIKt1SZN5vAfh6xL_GKXu2r3sv5-dNGkX44Yz6LAjuG9TLUSPZir3C8kY_lBiLjku9whpOHf3ewD-2jBX-YSzyESWe90Sl8Tqduwr2CDmVhU_5g9NETRCBym8_9Mc4N_z9S2P7LuNfizkkTRZEQGWMqIaGLyaxnottVU6zSt8FKdwhQW7q9hJWd02rZB_8glw2szNyslgvARd5eji69LP6FscuhKNBIZXmV7IGXVptmed9qcPRJ2sBoP0_Jaimv0ZF7v99ie0ZoERwh38hf22rbIMGnF_7HekgwOHoFe8zb7-DUA95xgckPFYHNwX8qZpMvfIkzkGxxwe4TPNogeExG7p4QM2tayDUzaOIJPmTn8eW74bezKTeTjJ8pmGwNfrPpmEBXjX0o6p9CTdjEImr6MU1LRuVENOgJlkShCu2vCbbRt5Y-QoNTyV4x9908LC293QBy7vnd52BcoQMAKdgBspG5S9vZHqruZPkBdBXMvx1Sj5UWFwPzfeVAFOtrsnuWWlmlauUfcM8AqcZf_BGBiT3TpREigv6MzGLDCiofKTGTjOW4Oh8BnvZxHGbqV9fhuUIkII1171lLzvIRnpua86KhEBUJqozZ7DM8ascdLGscrByQ9cilJcS0b9wPiiuGMwdlRS-ppQ-aICREMfjv0MqltCEuf9d-H_kPKtrBvBC-uGErMSyMw2NGqeJQE9VZ-d26ca0BFcOX3dpaCisUtgyTS5oFRe_fPtFgg0JsD_SCC2lhnphVK0ZhagB5o2stmEbBnSehd32qpRXQkJMMuP0KRINgJUTbcpTGBGOO7oMPFcbAKOeavOghyIZyZMk71eK4lfhO9jKEvc_qq4No",
+          "functionCall": {
+            "id": "adk-182f6350-42f7-460f-9608-d84cbbcacd4a",
+            "args": {
+              "pdf_urls": "gs://miguel-test/descargas/0105533592/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533592/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105533184/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533183/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533183/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105533182/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533182/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105533181/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533181/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105533180/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533180/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105533179/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105533179/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105532751/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105532751/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105532750/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105532750/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105532749/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105532749/Copia_Cedible_cf.pdf",
+              "invoice_count": 10
+            },
+            "name": "create_standard_zip"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14450
+        }
+      ],
+      "cachedContentTokenCount": 14450,
+      "candidatesTokenCount": 572,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 572
+        }
+      ],
+      "promptTokenCount": 16827,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16963
+        }
+      ],
+      "thoughtsTokenCount": 244,
+      "totalTokenCount": 17643,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-72a73edb-cb3f-42bf-9106-0de8b86928c1",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "ec41809e-7585-4c07-80bd-21cc9698c7a1",
+    "timestamp": 1759494944.082688
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-182f6350-42f7-460f-9608-d84cbbcacd4a",
+            "name": "create_standard_zip",
+            "response": {
+              "success": true,
+              "zip_id": "a1f6d40c-dd64-47bb-a388-44ed5a10c51e",
+              "zip_filename": "zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip",
+              "download_url": "https://storage.googleapis.com/agent-intelligence-zips/zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T123630Z&X-Goog-Expires=86456&X-Goog-SignedHeaders=host&X-Goog-Signature=97c32272826205f78f218a9c7bf4243e10ef243225085c91b69272a7d709f0ca5e0e28859d7a96fe8f05e07530b51883ef32418b2a5e1b6be0be631b233d5abb2450ec0ed8e3ed7877e67e67ec0def0b42412915a90422ef35f2bcc3ff6c841fa59dd861fc74d209cb42278ef4249511756645fa8b59d50ea885103c0f41b82cae5d486b9505cdc549197ceec315f1400e17eedd8432a88c8d3590f9c51c1adee904071a62ec1144fd5201d189171c75980a15f29a77043540a281d74ff4012fdd686068b30ee6e16614826e7bbb946ac5e45458893f8ea9051a48a20082f1bb3edb08146259835bf88b08b3933d57587d374775f9576a0b09511889de86e888",
+              "files_included": 19,
+              "message": "[OK] ZIP creado exitosamente: zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip con 19 archivos",
+              "stdout": "Ejecutandose en desarrollo local\nCONFIG Arquitectura dual validada:\n   [LECTURA]:\n      - Proyecto: datalake-gasco\n      - Dataset: sap_analitico_facturas_pdf_qa\n      - Bucket: miguel-test\n      - Tabla principal: pdfs_modelo\n   [ESCRITURA]:\n      - Proyecto: agent-intelligence-gasco\n      - Dataset: zip_operations\n      - Bucket: agent-intelligence-zips\n      - Tabla ZIPs: zip_files\n   [SERVICIOS]:\n      - Región: us-central1\n      - Puerto API: 8080\n      - Puerto PDF: 8011\n      - Cloud Run: False\n   [LIMITS]:\n      - Max PDF links: 10\n      - ZIP threshold: 3\n      - ZIP preview: 3\n   [SIGNED URLs ESTABILIDAD]:\n      - Timezone: UTC\n      - Expiración: 24h\n      - Buffer: 5min\n      - Max retries: 3\n      - Monitoreo: True\n      - Time sync timeout: 10s\n   [THINKING MODE - ESTRATEGIA 8]:\n      - Habilitado: False\n      - Budget: 1024 tokens\n      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible\n{\n  \"success\": true,\n  \"zip_id\": \"a1f6d40c-dd64-47bb-a388-44ed5a10c51e\",\n  \"download_url\": \"http://localhost:8011/zips/zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip\",\n  \"zip_filename\": \"zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip\",\n  \"total_size_bytes\": 382666,\n  \"files_included\": 19,\n  \"files_missing\": 0,\n  \"generation_time_ms\": 520\n}\n\nZIP creado exitosamente!\nURL de descarga: http://localhost:8011/zips/zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip\n"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-72a73edb-cb3f-42bf-9106-0de8b86928c1",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "fe1addec-f4e1-427f-a01a-3fd5c5aef8d0",
+    "timestamp": 1759494990.416135
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CusFAR_MhbYTtjh2lPMH-wMJvmmX7LnBgBeTpvcvT5agnLzcw2k8TzmuzQu7h6L8Qmj8SyjnwKgahuEa2O07qlBOREzOGmufrLcqUiongriRnb44ACfXdPNft6cJ-b6Th4scxmGq_8dw4uJePn2jyzyXg8sLHzfp8KSmEqYPptvLGmAX5BMg5wi_1zEnQ3KZaV4uViD5SM259rmV2xqNo7G4OBoEvjRHBnjl7-3uGS0cQ3Pov9Tt4q4JjSLv-lTwO2A0PYuVO7f-ZmKgBihAGLyyWEJmBCQfNladK4C1zW85yP-_w1H6hjEjbYi-OizNu2oGMGFFty3iTcmqk88Xm0aJe6WfycGVzjPPEByzO3_tLD32tMQkebLrYYaP385N8pCfZ9gndK-KrkXLpCXNjn3Zz-aNenPnTDWZro4Q7qDDoDiSLFYzdYllo4MC7lSqoArxRCmCl2ZwEEsoTzjUJlQp89ie5EqxJO2PFaTSIR-dadAU-cu5B2ZjZMzJQfkLoDvi_ixMQJisv6QjkW7cVKsxLbxgW3zTjDMLiCvuvnPh8Mk3luGlPxtK1UDuDyx-vmMc5mSPXu-q9Xo3wC0Dt0AkqSV3XKTwggYPFH_jTGlyrYLY7T436nzexlK5eiSC43nlfgcNrd0lKIPhnKWoLn5wK0G8JLv8OdesaoWhHfeyNUhMUaGL8ushZwyqp0yRc8nj9tqjwERDsQ8-K2Ci1x65dK_1p5ozpivTQH8H43gLkwttukLzqcSKgA-dQLL7TEM0dsLpNslMyADkS5mBCQFzEoc0-Gl1oP6hEqAqnlcyl6yLHo27KcABFfw74p4NgSfe8O4iAgAbUHQqMC2boOA3elk-nw-a-_Wcx-cqrfsY2IkbbDCY_cFRVG87bXKKQEHJKesqWXM-XHBwKtPES-CZx2orYk0bIa28EFYD5fiuDnKC_ArMn-f6VGjkqHGq_W3COWNimD1E63BXV9_Uqpu9z9pLtHCkXNLElnvr",
+          "text": "📊 10 facturas encontradas (período: 2025-09-08 - 2025-09-08)\n\n📋 Listado de facturas:\n• Factura 0105533592 - LOTA PROTEIN S A (RUT: 96766590-8) - Fecha: 2025-09-08\n• Factura 0105533184 - TRANSPORTES ALVARO ULISES BURGOS PE (RUT: 76950558-K) - Fecha: 2025-09-08\n• Factura 0105533183 - MARIA CRISTINA MORA MARTINEZ (RUT: 7384222-0) - Fecha: 2025-09-08\n• Factura 0105533182 - RIOS Y RIOS COMERCIALIZADORA MAQUIN (RUT: 76272287-9) - Fecha: 2025-09-08\n• Factura 0105533181 - HOSTAL SAN MARTIN SPA (RUT: 77456573-6) - Fecha: 2025-09-08\n• Factura 0105533180 - LA SUREÑA SPA (RUT: 77244142-8) - Fecha: 2025-09-08\n• Factura 0105533179 - INVERSIONES Y ASESORIAS VALJU S.A. (RUT: 99559880-9) - Fecha: 2025-09-08\n• Factura 0105532751 - ALFREDO RUPERTIANO CARRASCO QUEVEDO (RUT: 10492582-0) - Fecha: 2025-09-08\n• Factura 0105532750 - CORPORACION EDUCACIONAL A-LAFKEN (RUT: 65095867-5) - Fecha: 2025-09-08\n• Factura 0105532749 - SERVICIO AUTOMOTRIZ CDF LIMITADA (RUT: 76281963-5) - Fecha: 2025-09-08\n\n📦 Descarga completa:\n🔗 [Descargar ZIP con todas las facturas](https://storage.googleapis.com/agent-intelligence-zips/zip_a1f6d40c-dd64-47bb-a388-44ed5a10c51e.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T123630Z&X-Goog-Expires=86456&X-Goog-SignedHeaders=host&X-Goog-Signature=97c32272826205f78f218a9c7bf4243e10ef243225085c91b69272a7d709f0ca5e0e28859d7a96fe8f05e07530b51883ef32418b2a5e1b6be0be631b233d5abb2450ec0ed8e3ed7877e67e67ec0def0b42412915a90422ef35f2bcc3ff6c841fa59dd861fc74d209cb42278ef4249511756645fa8b59d50ea885103c0f41b82cae5d486b9505cdc549197ceec315f1400e17eedd8432a88c8d3590f9c51c1adee904071a62ec1144fd5201d189171c75980a15f29a77043540a281d74ff4012fdd686068b30ee6e16614826e7bbb946ac5e45458893f8ea9051a48a20082f1bb3edb08146259835bf88b08b3933d57587d374775f9576a0b09511889de86e888)\n\nEl archivo ZIP contiene todos los documentos disponibles de las 10 facturas encontradas."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16358
+        }
+      ],
+      "cachedContentTokenCount": 16358,
+      "candidatesTokenCount": 1269,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1269
+        }
+      ],
+      "promptTokenCount": 18754,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 19132
+        }
+      ],
+      "thoughtsTokenCount": 175,
+      "totalTokenCount": 20198,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-72a73edb-cb3f-42bf-9106-0de8b86928c1",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "72ae4d41-f689-491f-b939-f6febe49a791",
+    "timestamp": 1759494990.434758
+  }
+]

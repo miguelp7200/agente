@@ -1,0 +1,97 @@
+{
+    "test_case": "search_invoices_by_rut_and_date_range",
+    "description": "Buscar facturas por RUT en un rango de fechas específico",
+    "category": "search",
+    "subcategory": "basic",
+    "test_data": {
+        "input": {
+            "query": "dame las facturas del rut 96568740 entre el 01-01-2024 y 31-12-2024",
+            "params": {
+                "expected_rut": "96568740",
+                "expected_start_date": "01-01-2024",
+                "expected_end_date": "31-12-2024",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "search_invoices_by_rut_and_date_range",
+            "expected_columns": [
+                "Factura",
+                "Fecha_Emision",
+                "Rut",
+                "Nombre",
+                "Solicitante",
+                "Monto_Total_Factura"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 500,
+                "typical": 50
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Herramienta combinada crítica. Valida filtrado por RUT y rango de fechas simultáneamente."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar search_invoices_by_rut_and_date_range",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "search_invoices_by_rut_and_date_range",
+            "priority": "high"
+        },
+        "criterion_2_rut_parsing": {
+            "description": "El RUT debe parsearse correctamente",
+            "validation_method": "Verificar parámetro 'rut' = '96568740'",
+            "expected_value": "96568740",
+            "priority": "high"
+        },
+        "criterion_3_date_range_parsing": {
+            "description": "Las fechas deben parsearse al formato correcto",
+            "validation_method": "Verificar 'fecha_desde' = '2024-01-01' y 'fecha_hasta' = '2024-12-31'",
+            "expected_value": "correct_date_format",
+            "priority": "high"
+        },
+        "criterion_4_rut_filtering": {
+            "description": "Todas las facturas deben pertenecer al RUT solicitado",
+            "validation_method": "Validar que Rut de todos los resultados = '96568740'",
+            "expected_value": "all_ruts_match",
+            "priority": "high"
+        },
+        "criterion_5_date_range_filtering": {
+            "description": "Todas las facturas deben estar en el rango de fechas",
+            "validation_method": "Validar que Fecha_Emision >= '2024-01-01' y <= '2024-12-31'",
+            "expected_value": "all_dates_in_range",
+            "priority": "high"
+        },
+        "criterion_6_response_completeness": {
+            "description": "La respuesta debe incluir todas las columnas esperadas",
+            "validation_method": "Verificar presencia de: Factura, Fecha_Emision, Rut, Nombre, Solicitante, Monto_Total_Factura",
+            "expected_value": "all_columns_present",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando search_invoices_by_rut_and_date_range",
+                "INFO: Parámetros: {'rut': '96568740', 'fecha_desde': '2024-01-01', 'fecha_hasta': '2024-12-31'}",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Fecha_Emision, Rut, Nombre, Solicitante, Monto_Total_Factura FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Rut = '96568740' AND Fecha_Emision BETWEEN '2024-01-01' AND '2024-12-31' LIMIT 50",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Análisis de facturación de un cliente en período específico",
+            "Auditoría de transacciones por cliente y rango temporal",
+            "Reconciliación contable por cliente"
+        ],
+        "priority_level": "P1"
+    }
+}

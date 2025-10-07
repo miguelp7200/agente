@@ -1,0 +1,75 @@
+{
+    "test_case": "get_invoices_with_pdf_info",
+    "description": "Obtener facturas con información completa de disponibilidad de PDFs",
+    "category": "pdf_management",
+    "subcategory": "info",
+    "test_data": {
+        "input": {
+            "query": "dame facturas con información de qué PDFs tienen disponibles",
+            "params": {
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_invoices_with_pdf_info",
+            "expected_columns": [
+                "Factura",
+                "Rut",
+                "Nombre",
+                "Copia_Tributaria_cf",
+                "Copia_Cedible_cf",
+                "Copia_Tributaria_sf",
+                "Copia_Cedible_sf"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 50,
+                "typical": 50
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Herramienta de información que muestra disponibilidad de todos los tipos de PDFs por factura."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_invoices_with_pdf_info",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_invoices_with_pdf_info",
+            "priority": "high"
+        },
+        "criterion_2_all_pdf_columns": {
+            "description": "Debe incluir todas las columnas de PDFs",
+            "validation_method": "Verificar presencia de Copia_Tributaria_cf, Copia_Cedible_cf, Copia_Tributaria_sf, Copia_Cedible_sf",
+            "expected_value": "all_pdf_columns_present",
+            "priority": "high"
+        },
+        "criterion_3_availability_info": {
+            "description": "La respuesta debe indicar qué PDFs están disponibles",
+            "validation_method": "Verificar que se menciona disponibilidad de PDFs",
+            "expected_value": "availability_mentioned",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_invoices_with_pdf_info",
+                "INFO: Retornando información completa de PDFs"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Rut, Nombre, Copia_Tributaria_cf, Copia_Cedible_cf, Copia_Tributaria_sf, Copia_Cedible_sf FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` LIMIT 50",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "medium",
+        "use_cases": [
+            "Auditoría de disponibilidad de PDFs",
+            "Dashboard de estado de documentos"
+        ],
+        "priority_level": "P2"
+    }
+}

@@ -1,0 +1,95 @@
+{
+    "test_case": "get_multiple_pdf_downloads",
+    "description": "Obtener múltiples PDFs de facturas por número de factura con parámetro pdf_type",
+    "category": "pdf_management",
+    "subcategory": "combined",
+    "test_data": {
+        "input": {
+            "query": "dame los PDFs de las facturas 0105473148 y 0105473149",
+            "params": {
+                "expected_facturas": [
+                    "0105473148",
+                    "0105473149"
+                ],
+                "expected_pdf_type": "all",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_multiple_pdf_downloads",
+            "expected_columns": [
+                "Factura",
+                "Rut",
+                "Nombre",
+                "Copia_Tributaria_cf",
+                "Copia_Cedible_cf",
+                "Copia_Tributaria_sf",
+                "Copia_Cedible_sf"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 2,
+                "typical": 2
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Test crítico de gestión de PDFs con múltiples facturas. Parámetro pdf_type='all' devuelve todos los tipos."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_multiple_pdf_downloads",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_multiple_pdf_downloads",
+            "priority": "high"
+        },
+        "criterion_2_factura_list": {
+            "description": "Los números de factura deben parsearse correctamente",
+            "validation_method": "Verificar parámetro 'numeros_factura' contiene ['0105473148', '0105473149']",
+            "expected_value": "correct_factura_list",
+            "priority": "high"
+        },
+        "criterion_3_pdf_type_parameter": {
+            "description": "El parámetro pdf_type debe ser 'all' o específico",
+            "validation_method": "Verificar presencia de pdf_type en argumentos",
+            "expected_value": "pdf_type_present",
+            "priority": "high"
+        },
+        "criterion_4_pdf_urls_presence": {
+            "description": "La respuesta debe incluir URLs de PDFs signed",
+            "validation_method": "Verificar presencia de URLs https://storage.googleapis.com/...",
+            "expected_value": "signed_urls_present",
+            "priority": "high"
+        },
+        "criterion_5_multiple_results": {
+            "description": "Debe retornar resultados para múltiples facturas",
+            "validation_method": "Verificar cantidad de resultados >= 1",
+            "expected_value": "multiple_invoices",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_multiple_pdf_downloads",
+                "INFO: Parámetros: {'numeros_factura': ['0105473148', '0105473149'], 'pdf_type': 'all'}",
+                "INFO: Query BigQuery ejecutada exitosamente",
+                "INFO: Generando signed URLs para PDFs"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Rut, Nombre, Copia_Tributaria_cf, Copia_Cedible_cf, Copia_Tributaria_sf, Copia_Cedible_sf FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Factura IN ('0105473148', '0105473149')",
+        "timeout_seconds": 1200,
+        "retry_strategy": "exponential_backoff"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Descarga masiva de PDFs de facturas",
+            "Procesamiento batch de documentos",
+            "Auditoría de múltiples facturas"
+        ],
+        "priority_level": "P1"
+    }
+}

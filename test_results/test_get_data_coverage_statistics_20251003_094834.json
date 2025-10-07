@@ -1,0 +1,124 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CtcCAR_MhbZfMXRlJnHPyq-wiCzJgYUd4T1gTerAmSkbwJy3WKxbM6GR1VIjE-i4RbRdmkbosl2ItwpSKh36sCgcy9E9Rfv0pOMG4kYtKE10NRRkjrq6wWuk3xBydChuBt0SI9L_VphOeEGdhVSQZDWBUiDpkhBVgRWLlJ6okqDCA93UGfBfCaPh1gE1SkbosmO8Sg4aD3KeTMdDxNXs_3WmMsEBpA6Rpy8aIzG7O_t-X4zGW9uI1NN-ir8XiXNhm9LqnisJLUwNVeS68GSXFFdxCQ-N6bv92vltXfZNQ6-gjpR3BmrB3LVh6LdJybSnPckniavLodsKGnGXK1xBZGgEJvD_-z0Lxz0WLrMhmENOTefCk9p3ZFe9wiNvcBY2MR1_Z4Df5W26ZxTkITQy4rZycYVSJOPEeF4KxVJb8NJmt6e6fwYjS4jyvUk-JIGZc2FTyglFyn9ADQ==",
+          "functionCall": {
+            "id": "adk-6f9dab1e-d7a0-43a9-aab4-908a728bd36b",
+            "args": {},
+            "name": "get_data_coverage_statistics"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14259
+        }
+      ],
+      "cachedContentTokenCount": 14259,
+      "candidatesTokenCount": 7,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 7
+        }
+      ],
+      "promptTokenCount": 14576,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14576
+        }
+      ],
+      "thoughtsTokenCount": 66,
+      "totalTokenCount": 14649,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-98917739-793e-4285-85b2-9841259a42bc",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "9f2cfe80-7f98-41d1-9f0c-b589bc6a118b",
+    "timestamp": 1759495703.768721
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-6f9dab1e-d7a0-43a9-aab4-908a728bd36b",
+            "name": "get_data_coverage_statistics",
+            "response": {
+              "result": "[{\"Ano_Promedio\":2023.9,\"Anos_Cubiertos\":7,\"Fecha_Fin\":\"2025-10-03\",\"Fecha_Inicio\":\"2019-03-29\",\"Meses_Distintos\":12,\"Total_Facturas\":1616037,\"Total_RUTs_Unicos\":46243}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-98917739-793e-4285-85b2-9841259a42bc",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "f207873e-61e5-44e3-9b39-275d209c0ef9",
+    "timestamp": 1759495710.416773
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "El dataset cubre un período desde el 29 de marzo de 2019 hasta el 03 de octubre de 2025, abarcando 7 años. En total, contiene 1,616,037 facturas de 46,243 RUTs únicos."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14263
+        }
+      ],
+      "cachedContentTokenCount": 14263,
+      "candidatesTokenCount": 66,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 66
+        }
+      ],
+      "promptTokenCount": 14680,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14744
+        }
+      ],
+      "totalTokenCount": 14746,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-98917739-793e-4285-85b2-9841259a42bc",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "d70b0928-997b-4b5e-b2c9-e1499600183a",
+    "timestamp": 1759495710.437792
+  }
+]

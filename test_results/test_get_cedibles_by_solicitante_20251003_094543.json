@@ -1,0 +1,121 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Ct8IAR_MhbbUT5TiBPp-BiWSjF05xBTrNGkVUb0Napavjx5bY6F4N6yF8-gQOR9ADzCdwscsvozvt_riP8_TBaWYGdXql1t3NP0BVSC9iEokdKo8DhxIxyLZ-0pbJIWPjXJatS7aAlI2RaSiDGAFu4_Fk3e2ut8B6u9Vfzc7gWnJR9HBXw3UWV-0zTvfbBpmH0mKwzfHIR56Biw8Wp8G-CWn3X0flppTtd7rB38c115-40haI4kjF2OTzuTpX0wQKBLLAEeV9nZ8osChcgtwm5tdEHQmwuq0k_O0IlulyxiwPwlUjlWheVP32-heFqYhJY9XMWSHMYJwBdy6VygZQbFtLZ14byee_8qc-EMc9CF5DAs6IzoxUeQ-fhcMIhtWB4NySgedkLElA6gfbQL9TLHGLLE7YtR4CPfdCT47Pmur5gxxpm14D5NXJUKOWLOVoYagoTPeyEtaZEBdi0FYuwHEJHmZRBp5zIexwHZyYlijpnaG6wbQUR3LzZ01O8MDePSW2bZrZ-QQGwY9WR1Tw_LAnq7gTte97B2s7GnhqZXDFIW2fmSsnq86rc5TP6VK6pUvscVl8KNaO509BOJKuyjjNDC_E_nhl-Ve5QopKPID9xNJKTiZ5KbUaEcSLIx8EZVI2NBHPhdB7M2AxlNQgQa0KxrzfZHeegmg60hcLDgAvhvadkc6YUonvwSMXp0CURG_BTdX7plS4Zs8tzHP8zivFv85X7jJ76vagpPygzRbY5L_70DN7q1LiwkfczGg11U4bDz-Usce4pyvn2NunyvS6LZfAS0rkL6T8Ypx9gArepswIlXjqgGDZFv5t4EPnSW5ls7-Gg1y2hUfybDoG9cPH4EfM3D1r1pcS9nOru9MIC6t6tpjH6yWKFmfDlWI7ZtibKxLhX_MTjFqpG3Olq1Z_LQtElfKJ3dJ12NOSX6GT4h8x5RIw9Xj5vPy2OQPV48AW1L43u9Ahczvty5GxEx7Cijh50CvGwB_yFxowLdMAvp1ym_TeQNYDwjsKGM4k3lsnv75IcfyBAigS4dFNoWnKdn5duA2NSN4yRrPXpPmkB6dbvWAeQcv3aMcqS3dlDL6kUVWlK9IMMDYV0dbgGmKavoqdT2D_-F6ttVaZ3fn9tyrA5HLME-DEF92SIJbZ7m69dcYnL9Flbq_6CaXH44UvjjzPOP9iX4E0BUOK2EJ2stN7PGD_sXTj5rxlahSin7mzGLeGRdV0Z5NAPG0YPbHxnj_LLyUWxZVihVmqNFGzmfjB85tOtQm7G0_L2-KQecB5y3U7HyXnfviAJSRX_EafdSS11pFGTg2ow7ObwVSBvhw0ULujgT0FFN4YgEsThjxb7UdVkypOmolnhfXQGFDw3CKt5Viw667DsrBHILhKyKkqudiyEtPf95qHxoPPOoUsqoBSpSsFb2c2bx4gHq6oySiSLCHVu8LS91YHEGBSktdO5hE-LXA14Uz6PGF5gdJNfSVBA-z35DMspNOpyEW",
+          "functionCall": {
+            "id": "adk-c0d789c2-9578-41d1-9b0c-43f8e338897c",
+            "args": {
+              "solicitante_code": "0012148561"
+            },
+            "name": "get_cedibles_by_solicitante"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 23,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 23
+        }
+      ],
+      "promptTokenCount": 14587,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14587
+        }
+      ],
+      "thoughtsTokenCount": 314,
+      "totalTokenCount": 14924,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-93b7ab79-07e6-4fd1-af71-136f6c6d8f81",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "217dd74e-b1e9-427c-953f-a9c8f5d6f80e",
+    "timestamp": 1759495527.472197
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-c0d789c2-9578-41d1-9b0c-43f8e338897c",
+            "name": "get_cedibles_by_solicitante",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-93b7ab79-07e6-4fd1-af71-136f6c6d8f81",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "02af3567-6f5b-4e39-8060-a319e3d501f9",
+    "timestamp": 1759495537.949189
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CvgCAR_MhbaGl-lEODgEiWzy607W6gw_VAagR0LBDK_YG-8P69QT8tNIg6GmwlFezPbwp0A3Io-z2BqFHenGXcPivqkAPibQZx46Wh3-xCoOmfDcYEYL43-6H1lzyrvDEJP5L0MzQS6e2aCobhFrz2R9d4OY_e-ZDhudLw1htlMT5O6AKcFKhG6wcfVLEWY0DLjjyK_yhGcM4n6Dgi1LueUfTDkdoV6pv2EhbQUUL7EkhHJgW6uhSB15_xtuz_YOj0U_TroqPu-QWwrannEQf0uJdx8muPxIx1m5JwnTagDV1kjp_qxIk1NKnK4l7U3-r6jpGHfr54wjN7Vjp3PkAhEvB5H1YEh53BK9L6m6NNRFPA_5XqoIjKvv_HylsadCeIBNb3QfJHCAxKN4382HqdQr2hTNfzacZdqrF6TpFPMr2dCP-QnvDtJ_9bJJ9HYeW8mLu7ZGRXdHfHjyj2dKUOtc3I3UX7j9IR03wqigIoa1OSZBJEvc00Y60w==",
+          "text": "No se encontraron PDFs cedibles para el solicitante 0012148561."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14291
+        }
+      ],
+      "cachedContentTokenCount": 14291,
+      "candidatesTokenCount": 22,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22
+        }
+      ],
+      "promptTokenCount": 14628,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14940
+        }
+      ],
+      "thoughtsTokenCount": 92,
+      "totalTokenCount": 14742,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-93b7ab79-07e6-4fd1-af71-136f6c6d8f81",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "240e08b0-f60c-461c-9935-007b2bd272f8",
+    "timestamp": 1759495537.965188
+  }
+]

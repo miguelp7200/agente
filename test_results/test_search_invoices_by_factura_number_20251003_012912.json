@@ -1,0 +1,119 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Co4DAR_Mhbak6RKwuByVMv7WsEKCb7_RGMF9fkFmHhdwEz77ko-WoyiSIq0lPdB3Qae5Ctk-fC7Kkv78DgQIuD-SV081jYEBb5Gmn-iFwxzoSaIub32ZDlvVg6CbdQIGupFiBbScWRyyoqFrMCTRXM1czKAQnbNEaoDhnJvIBW9CCUQHO2JmOXUHOd9piKyR1_AGAdp6UMQyEjn_2WWLfoCGLRMi1uOAQaxRhHSUoJ2YLH57Jq5qhK3fTDbIzuJLZHmnHmaivhdLmeASRwUO4yBtK3rHUvp8bwKeeghk33zLWuC3hLvm2u-TAAnR0PxQaqZ3KOTlbGH5SD6Y0IVTO2NjqfAwYbkQGFOWrzSXG9jhzesaWpUhqR5NRR5hP6X1_SMUE5I_t8og-DNcYlrEAwvb-nu-RWls9OFWC-yHy9syY-RazqOtNAlxOV7VAM0lZbojtsQ2yK2JErfEF_nkvw1ETKL8Bz03nVpz0m-tosbQ1LXhmJrK-dMe3CMzInd5lXNQdOff0ovksqPlFSsVIX8=",
+          "functionCall": {
+            "id": "adk-870e1c71-8270-4c98-b356-6510a15fbd2a",
+            "args": {
+              "search_number": "0105473148"
+            },
+            "name": "search_invoices_by_any_number"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 22,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22
+        }
+      ],
+      "promptTokenCount": 14584,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14584
+        }
+      ],
+      "thoughtsTokenCount": 103,
+      "totalTokenCount": 14709,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-aeee1d82-435b-4ce5-98e0-5e82eb305603",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "e5e6e3cd-858f-431b-b6e7-cf65481a920d",
+    "timestamp": 1759465742.472538
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-870e1c71-8270-4c98-b356-6510a15fbd2a",
+            "name": "search_invoices_by_any_number",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-aeee1d82-435b-4ce5-98e0-5e82eb305603",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "99d787b0-9d08-4d12-88a1-2224b80e7b7b",
+    "timestamp": 1759465748.530401
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "text": "No se encontraron facturas con el número 0105473148. Por favor, verifica el número e intenta de nuevo."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14254
+        }
+      ],
+      "cachedContentTokenCount": 14254,
+      "candidatesTokenCount": 30,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 30
+        }
+      ],
+      "promptTokenCount": 14624,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14725
+        }
+      ],
+      "totalTokenCount": 14654,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-aeee1d82-435b-4ce5-98e0-5e82eb305603",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "ef5e8051-e939-4f9c-bc4e-8323af962e69",
+    "timestamp": 1759465748.541463
+  }
+]

@@ -1,0 +1,207 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CugCAR_MhbbXikmDJdmPsto1YtJLY_yERpT7aYVbi6PSsqYhk1XVz9BDPQYHMOkTZp7p3hjKPOZBqH-du_6oQzHBO12hl5SinOXdF-tP4pWjm1dW4kzJUKWw9bNXJkQisZEEAiASpCmolZiXgFFjqnPHl4fgUkdARMqBl9PMxsRmD5h5Dcc4ItObuZkxXTFL9y5ZZ4JN61OYcDkXh_1PovCYzYynmOA4HxzH6ticH0LTqvkxTs4Ua9x8XHJHpNovYcBPdyQsscXLbbWXq-5ni0yseSvdxoRiydH0iuO8w3sQ1UyqcFjAWyDVP09trnu3QtXkSuqwoGbdomqWMGXR-RmBT3zYd3A0QHFf9wG7kWuqBYqlgR69Gwb2QTF69gLA8CGv7EJslQnlEieWF5irg0UiF7rKHhWjMc0MJuky1XgDMbzwLpi6V44fCT3HAyyiX4Q855OIqIK_8wNlF3BzHLsdLwP4sxEp3CK9",
+          "functionCall": {
+            "id": "adk-75072492-a194-401a-bb2e-d5cbbd602cbd",
+            "args": {
+              "limit_count": 10
+            },
+            "name": "search_invoices_recent_by_date"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "candidatesTokenCount": 13,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 13
+        }
+      ],
+      "promptTokenCount": 14575,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14575
+        }
+      ],
+      "thoughtsTokenCount": 76,
+      "totalTokenCount": 14664,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-f4967d0f-16ae-49b1-bbe3-65f129d222e7",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "f79cda80-34d9-4a94-be06-6c3126b6c5a4",
+    "timestamp": 1759494031.138339
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-75072492-a194-401a-bb2e-d5cbbd602cbd",
+            "name": "search_invoices_recent_by_date",
+            "response": {
+              "result": "[{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105552024/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105552024/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"40\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"600\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"847972\"},{\"Cantidad\":\"6\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"30\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"64400\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"11\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"21804\"},{\"Cantidad\":\"3\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000040\",\"Material\":\"CGH15_AL\",\"Moneda\":\"CLP\",\"Peso\":\"45\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"66431\"}],\"Factura\":\"0105552024\",\"Nombre\":\"DISTRIBUIDORA DE GAS MARIA DEL TRAN\",\"Rut\":\"78139724-5\",\"Solicitante\":\"0012660521\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105552023/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105552023/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"7\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000040\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"315\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"586978\"},{\"Cantidad\":\"10\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"50\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"107330\"},{\"Cantidad\":\"7\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000050\",\"Material\":\"CGH15_AL\",\"Moneda\":\"CLP\",\"Peso\":\"105\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"155003\"},{\"Cantidad\":\"15\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"165\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"327067\"},{\"Cantidad\":\"80\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"1200\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1736344\"}],\"Factura\":\"0105552023\",\"Nombre\":\"GLADYS DEL CARMEN CANCINO APABLAZA\",\"Rut\":\"8993081-2\",\"Solicitante\":\"0012062962\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105552022/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105552022/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"60\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"900\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1302258\"},{\"Cantidad\":\"20\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CGH15_AL\",\"Moneda\":\"CLP\",\"Peso\":\"300\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"442866\"},{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CGH15\",\"Moneda\":\"CLP\",\"Peso\":\"75\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"110717\"}],\"Factura\":\"0105552022\",\"Nombre\":\"GLADYS DEL CARMEN CANCINO APABLAZA\",\"Rut\":\"8993081-2\",\"Solicitante\":\"0012062962\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105552021/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105552021/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"3\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"135\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"251563\"},{\"Cantidad\":\"11\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CGH15_AL\",\"Moneda\":\"CLP\",\"Peso\":\"165\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"243576\"},{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"25\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"53667\"}],\"Factura\":\"0105552021\",\"Nombre\":\"JUAN OCTAVIO FUENZALIDA FARIAS\",\"Rut\":\"16434280-8\",\"Solicitante\":\"0012274220\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105551986/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105551986/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"5\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"10733\"}],\"Factura\":\"0105551986\",\"Nombre\":\"MARIO ANTONIO SARAVIA CASTRO\",\"Rut\":\"17171086-3\",\"Solicitante\":\"0012290087\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105551985/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105551985/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"5\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"10733\"},{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"75\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"105972\"},{\"Cantidad\":\"2\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"90\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"167708\"}],\"Factura\":\"0105551985\",\"Nombre\":\"DISTRIBUIDORA DE GAS JOSE JAQUE GUT\",\"Rut\":\"77488473-4\",\"Solicitante\":\"0012529361\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105551983/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105551983/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"8\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"40\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"87465\"},{\"Cantidad\":\"6\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000040\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"270\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"504323\"},{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000050\",\"Material\":\"CGH15_AL\",\"Moneda\":\"CLP\",\"Peso\":\"75\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"111717\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000060\",\"Material\":\"CGH15\",\"Moneda\":\"CLP\",\"Peso\":\"15\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"22343\"},{\"Cantidad\":\"50\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"750\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1094714\"},{\"Cantidad\":\"3\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"33\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"66013\"}],\"Factura\":\"0105551983\",\"Nombre\":\"DISTRIBUIDOR DE GAS EN BOMBONAS PAT\",\"Rut\":\"77249094-1\",\"Solicitante\":\"0012518194\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105551978/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105551978/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"55\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"109022\"},{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"45\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"83855\"}],\"Factura\":\"0105551978\",\"Nombre\":\"COMERCIAL Y SERVICIOS RAFAELLA SPA\",\"Rut\":\"77317155-6\",\"Solicitante\":\"0012280130\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105551957/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105551957/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"5\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"10733\"}],\"Factura\":\"0105551957\",\"Nombre\":\"MARIO ANTONIO SARAVIA CASTRO\",\"Rut\":\"17171086-3\",\"Solicitante\":\"0012290087\",\"fecha\":\"2025-10-03\"},{\"Copia_Cedible_cf_proxy\":\"gs://miguel-test/descargas/0105551949/Copia_Cedible_cf.pdf\",\"Copia_Tributaria_cf_proxy\":\"gs://miguel-test/descargas/0105551949/Copia_Tributaria_cf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"49\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"735\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1063266\"},{\"Cantidad\":\"10\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"50\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"107330\"},{\"Cantidad\":\"3\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"135\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"251563\"}],\"Factura\":\"0105551949\",\"Nombre\":\"GASCOMUNAL SUR SPA\",\"Rut\":\"78076965-3\",\"Solicitante\":\"0012673713\",\"fecha\":\"2025-10-03\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-f4967d0f-16ae-49b1-bbe3-65f129d222e7",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "8a0bea17-25e2-4d65-af83-82b22b335b8d",
+    "timestamp": 1759494038.953781
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CqUGAR_MhbZuM0axf5YPQGufT0XWmQdlXNmgCyNqDOeTfma7ge0fCJXSSupbxnUQuz1v0MMmuvbk-0ocZ1I1-4SRIodd1AXq0r1ugMC5zN3Y1m2NnmJpmtuLRVjxhdDnKurtgUJSxaDtW0wE3hNKl4rvIRLOmSUASynpPEgy8Aj_gWXtpsEvf7Cjyh1OFRcBGnzwsXf29S6_gGNZt5IaolTMHmMbGI-S6Ig7TiNU7nNHT09P727b3Yr0UCiUUDiTY2QuPRNX2Vej3KO0tfDdXO3zmHTx2IUh8FLEoOS0eUQtxzqiNn9DoFmvJBgHqbCcywvaP53qFvewsSKAEx3l5wHzB5qIadXRT3GuZ7DNF251kA8OAU2oAd1iMXmLeIOfcTFRbryHBKCwrX3rBUQar4qG09aQnvATralb9q4zXJIwwxXZR0rYIu6nM-xjBij5Rm5M9GJ__vWSQcAuBDFFf2Qhzc7-CGdYJmSXrlWdyoZnHwC7oRpUwoeS-Nlf3sYrJfdPwLgegowb_hu8G_K-YdEpZKceg53IsNMQXHLcbZk5SFlL_7zwlnsFOxQnuk3OCgDqL0TQFKgn1Ga8Y47J-zau2732Yk9DMN237LXf2XVz8MSRe896dKH5dfAS6WvHavd_M2szK3ne4_9m_XnQZjLbQfZw_-wWvlcIiS-oQZ53UcFrjilpamAWJ_auqM3mq-4aqJOzN0MlLkKydcoXOYcSiXSo1hXlxXCwSxAuf_521Cjkrracc0RZcN9gyv8qinfMqOznSbWjvDaPHaVRkOreTuNWNMphPJorxBZUNpYjJOI2qeIbqfiw9kJagFhCap6zIBbVlIh3tWxwG3gG-QRZbuyR47hu7JtvrVup0iTqU1Wst8CLjh9_vhj8V2ZCYXpEupyINzxmlRz0chZdY2-jf-yVARpXkKWTavcg60VmH1vPJCtNju_WPxZ-ffhw6XGdyrRP96yhqL-JRS7fnh1ILb0pa3kHE6U6rfV9Th20tavcWXOdSmlUVBIxRkDrbDLyz8y6nPw4qaAz2z0SDBRXS-BfTAV9u9E8Ln2Y8yNWfNK5vwXe9w==",
+          "functionCall": {
+            "id": "adk-225bb854-96ea-4851-9b7b-842e94b2492b",
+            "args": {
+              "pdf_urls": "gs://miguel-test/descargas/0105552024/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105552024/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105552023/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105552023/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105552022/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105552022/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105552021/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105552021/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105551986/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105551986/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105551985/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105551985/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105551983/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105551983/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105551978/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105551978/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105551957/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105551957/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105551949/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105551949/Copia_Tributaria_cf.pdf",
+              "invoice_count": 10
+            },
+            "name": "create_standard_zip"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14491
+        }
+      ],
+      "cachedContentTokenCount": 14491,
+      "candidatesTokenCount": 601,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 601
+        }
+      ],
+      "promptTokenCount": 17694,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 17767
+        }
+      ],
+      "thoughtsTokenCount": 220,
+      "totalTokenCount": 18515,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-f4967d0f-16ae-49b1-bbe3-65f129d222e7",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "1ccfbaa0-0d03-4117-a56f-0bc3aea9ca6b",
+    "timestamp": 1759494038.964638
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-225bb854-96ea-4851-9b7b-842e94b2492b",
+            "name": "create_standard_zip",
+            "response": {
+              "success": true,
+              "zip_id": "03019067-5bb6-4570-b106-ac05315e3f46",
+              "zip_filename": "zip_03019067-5bb6-4570-b106-ac05315e3f46.zip",
+              "download_url": "https://storage.googleapis.com/agent-intelligence-zips/zip_03019067-5bb6-4570-b106-ac05315e3f46.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T122124Z&X-Goog-Expires=86457&X-Goog-SignedHeaders=host&X-Goog-Signature=0ba8ca40af2ef60ab80b52483a8906941f7f249d91ee4e906731aa3fc33cf1c92acdabee612c1ec2da1ab4a23d1fa33ad0e1083c1e49d25c428f166af9392fc3cfe736eb68548e901b33e6b5ef77440cecf244379005e936b43594b54b557c530a056257cb56eeb0b59ca8cc62ee38638f269199d7aa72e0c8cd455bda360ef9cfc4f287524b7772bc0c94fde6147deb1cf37b585b813a48da627d024020a369a0a4d96ccb6a5670409733cef1328e35f6ad5f05e1550d0d8b7bd31211fa19549d5b143c065bc8d0155a3943708d18f8cf27c7b2ed40f8906bcb20aa44963c591c7b787edfd9d134c212fa8845ca97a11ceca472c8e522bcfb2f388216449908",
+              "files_included": 20,
+              "message": "[OK] ZIP creado exitosamente: zip_03019067-5bb6-4570-b106-ac05315e3f46.zip con 20 archivos",
+              "stdout": "Ejecutandose en desarrollo local\nCONFIG Arquitectura dual validada:\n   [LECTURA]:\n      - Proyecto: datalake-gasco\n      - Dataset: sap_analitico_facturas_pdf_qa\n      - Bucket: miguel-test\n      - Tabla principal: pdfs_modelo\n   [ESCRITURA]:\n      - Proyecto: agent-intelligence-gasco\n      - Dataset: zip_operations\n      - Bucket: agent-intelligence-zips\n      - Tabla ZIPs: zip_files\n   [SERVICIOS]:\n      - Región: us-central1\n      - Puerto API: 8080\n      - Puerto PDF: 8011\n      - Cloud Run: False\n   [LIMITS]:\n      - Max PDF links: 10\n      - ZIP threshold: 3\n      - ZIP preview: 3\n   [SIGNED URLs ESTABILIDAD]:\n      - Timezone: UTC\n      - Expiración: 24h\n      - Buffer: 5min\n      - Max retries: 3\n      - Monitoreo: True\n      - Time sync timeout: 10s\n   [THINKING MODE - ESTRATEGIA 8]:\n      - Habilitado: False\n      - Budget: 1024 tokens\n      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible\n{\n  \"success\": true,\n  \"zip_id\": \"03019067-5bb6-4570-b106-ac05315e3f46\",\n  \"download_url\": \"http://localhost:8011/zips/zip_03019067-5bb6-4570-b106-ac05315e3f46.zip\",\n  \"zip_filename\": \"zip_03019067-5bb6-4570-b106-ac05315e3f46.zip\",\n  \"total_size_bytes\": 414513,\n  \"files_included\": 20,\n  \"files_missing\": 0,\n  \"generation_time_ms\": 489\n}\n\nZIP creado exitosamente!\nURL de descarga: http://localhost:8011/zips/zip_03019067-5bb6-4570-b106-ac05315e3f46.zip\n"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-f4967d0f-16ae-49b1-bbe3-65f129d222e7",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "d3e7d410-477f-473b-bd5f-37a9ae0bd08f",
+    "timestamp": 1759494084.854667
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "Cq0RAR_MhbZaFF_6eep8F7qOGrfZFcnZ44WcHpfauCQE4RYZ7Ggh6aXoBY4Hqx3a4UY3xwkNPe2HTygPwB2nQnxwVYwR8WBf8k_xhdcL40TgzZswriNBPEcATcBLlpGr-ZK2Mydj-wUqHT3I8SITMQvyFiRR0QWeZIR-dYaMEwi9-K-IEEPjFN6kUX3nGXD8AIqYsEXnf_LKQCj2WKiIKi8jP5wo7WAkG5_L8SJFRPic4ddkEJ4Vy98DMaAgvKuwHU_jsmq8J1F7u7CQgJ40rNgKXeoe284pAjmKIIjPUZYGLPeMM9s866E5EUCkdr35QrXTKbdgQvuzHvSZ6SFBMwri8rCpHzH_NBX83kNAqK1jwSLbHwKr4_kbPEiskHfb1UE22yFHngeRDfo0yN4T9dzTCljKwPS2xhUSGfJM-DwPH0lXUKkPldi-yvw7W1ZrJUIqIwQDq7cva0Ru2AvnGpWq-dNtaRIkNOB7EeuQH48_sTA_ugwzQUe5Xey9OPUUBl4qYQA_vP7BZeWEzWUjPG5V2NSY-8xGkNawiVZ2bWHscxDng2SkFZUUfdUftn8YnhRaf_GZOclhSTVpcczXYL7TlHyeKtjlyUHjC8pZ5nCAg4XMqNhhtehGOg3g_V480Nyb_TlhEEk_H7r5zO92eMuzBM4yiPOPawOrsyRWRNBEeMsiAbOnUY-sxTx0MH_0PsOOKhhsX7az-WQ-j-VTS1TIJKr4OlNzGrrNL1cjZzn2fmUNRKBrKOuwrtYh6NmJMVxA_UoaYWpLgontFhxDVNSqxy-UNPrnZfgJZSOFxOqa_TMw_P_8UKDWsBzVrbrwNSti7FJKLom-HvQGPeh24zQz6s8dv3i-kpPpS9I32eF2qMDPTRFOMlQQvKATO9gc6sEECBSxKCLqaI-OBqE6w8CFPTioPvdSsN958YKc5rFEe1swbizRKoPOeBy7SkirvIrlWCfrA-9xE7l_NC2l0A1wEZta8-NL61Y0BBwtbLEdz_6znTBAw-64ANon8ZJ6CSDjKafDg2PyfYB3u-oObEGc6paFw1lHKr6NVG_KFeAMeWQAHFE7icRHjmUR8K1zGtp1MKTGMiMKQJRLR1X8vfPg71quk0GUBvafMG0RXLvjafO3GpSdGTbOiJB5WB7fVhx_sDquwl8XEdzX40djTwr49DERSC_KTMhgNaAdSKE0YALJ43mlwbLS2ROhngkSkzZZpCWa_w0UoTEpV06PDAtO5d5yan3LnOsNAyaJLvRwK63t4n9R08HDp5nFy678L5YTEgtIvN6VtnpMcv83tSVsm1vGXLQO4diyMyFFRHazxmpOl-AplPqktm8TtD3uecctmgHZHq4cTMdflvkZmEo4N2crbnr1AQW9Vb8XKNDBl1dqs7cDYYdo6pNSzXUGdU_nrQ_eZMX7VZMzSBjb3at_md35bGFx3Tt-TG5AhONU3G4A4SnuFIv-x2RI6QXvHncvKun6fhYvnRF0jjURICzh0iqeKHfXtY4U27bJDSG2ZzXvRI6ePLMVg7CZrwgGNmAMQjTgF-85vYCtTRCyE7zuwuCIPOGZYaKU-oPJFM4QdOdSSIuGKSkEjeze8CB2fypNb9nVkwO91LbdamOWLRjt0fvByqNuH-afGwfrkS_KIrdVKcfHzbRWPovXf_9WOKyx0GDqb7wmyzr7hUaanjKA_LgHLmROXZmsv_MZlXMel71hsUazgNv3kjsH9_H_cTKSWsZdh7o86r1vsVPFAHEfVxaHnPsFnPQ8piXW_nq4KoLIyJSkJBMbfQUjIJ6qxaihla5Dmvt5TKV31KCfIWidJe0e9ALQDkcqDY8LWkGoqrqk24nIb8vZAN9sBJJN_zZFGYHWRvdeX-e25H7OfiOKSv-4oU4ISx4b-NVujVyIyZZQGMsLJD2l_ZAHZinDaivl7HJ2rRYgf9RyABlkdXykjieMtg64igPy5BLKJVsccRFUyt2SRheFavI2Pcb5yIjP9qv1kyc5QYLd-NJp_BR3UpXYKvXcBf5iQ8JmkKt5oevRTT8sdRkG4gkx46jvowfgmNJwyIkVSvBjE28iNnggwq6xP51sMUf9jRAtkWPLi7oc-17AT50cCU21Xub5HP8z8OKfDE6DEIBn3JZh96dV4OVWwax9_1ahp732dRyzXYBs3qWE6oQnoweH-IvFVboHi9CCT4uaGz8cK4-rfLZMjSmSM2FHoPA4RjvgYos1D_IQW73tzSanHkTviU_Kl0-urWnIbqatCWGVycZcihFoTQ1Se-vuZgmkxfWLJxkO2jGiw4gqV7T9Q6mh5EaGeZ6bZBDL_-MWw1OJ8fc9cFeuf141CGDpWWgdEyEXcGyuzRTRAblsR67HqMVMSv6aAvuUu7QuzLTvBm6VFvZZdrkdAq-OzLl2Gyoqfi944MPHptGlLh1IqIdSi4tuDY_5haGezuc4cbsJ-eEnnFENNCCf1h1EDJvTtU6CT6U_gYBucTc_49HjH-R5SgQiZGzGCvYZ_QqDA48twpg5EvpEzUKob9e2olODrmARpjXCp99csKF7SJCwio0iyWeP2T2rBCiYfiulRRE5incC_A8kb1kfnb8c_upJmvmcA57Attk6twpugHznoQwHvnpHWW6EWg30nmf_P3vGoJ8A0ic56-YAlA2oroJWje6UOYoxolB_NP5Qh7LmlxmI6be2cB12pIb9hSkgxeEsmdW1Mv4dEOFUHwOlZSTLz2WyvXxvLupSUy2eQg68rf5uetOvtPPS7bWOzuCP_wxazmdeyqjw6NhwcY62Y8V3m7k5mBYI529MFzGcOoxlECFsWL4KTxUOykWe8O9u98Rx9Po8cUv9DJZcheEFUl9ROgwQ6o58Pk2pYKtRGNxWWs4oNQ8fUw1l4oP0DDxwASkbCumCAN0r_o9l1dXas28vUQG_qNcqWTm-kvmjTLL8I0g1dvYrUR3EVtNtpvmXsMp8lCIfbS-I2QoiAR_Mhbb6DbqFqlPqJ0kGijTm3j4V8F3ntdxW7osnC9a_lA==",
+          "text": "📊 10 facturas encontradas (período: 2025-10-03 - 2025-10-03)\n\n📋 Listado de facturas:\n• Factura 0105552024 - DISTRIBUIDORA DE GAS MARIA DEL TRAN (RUT: 78139724-5) - Fecha: 2025-10-03\n• Factura 0105552023 - GLADYS DEL CARMEN CANCINO APABLAZA (RUT: 8993081-2) - Fecha: 2025-10-03\n• Factura 0105552022 - GLADYS DEL CARMEN CANCINO APABLAZA (RUT: 8993081-2) - Fecha: 2025-10-03\n• Factura 0105552021 - JUAN OCTAVIO FUENZALIDA FARIAS (RUT: 16434280-8) - Fecha: 2025-10-03\n• Factura 0105551986 - MARIO ANTONIO SARAVIA CASTRO (RUT: 17171086-3) - Fecha: 2025-10-03\n• Factura 0105551985 - DISTRIBUIDORA DE GAS JOSE JAQUE GUT (RUT: 77488473-4) - Fecha: 2025-10-03\n• Factura 0105551983 - DISTRIBUIDOR DE GAS EN BOMBONAS PAT (RUT: 77249094-1) - Fecha: 2025-10-03\n• Factura 0105551978 - COMERCIAL Y SERVICIOS RAFAELLA SPA (RUT: 77317155-6) - Fecha: 2025-10-03\n• Factura 0105551957 - MARIO ANTONIO SARAVIA CASTRO (RUT: 17171086-3) - Fecha: 2025-10-03\n• Factura 0105551949 - GASCOMUNAL SUR SPA (RUT: 78076965-3) - Fecha: 2025-10-03\n\n📦 Descarga completa:\n🔗 [Descargar ZIP con todas las facturas](https://storage.googleapis.com/agent-intelligence-zips/zip_03019067-5bb6-4570-b106-ac05315e3f46.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T122124Z&X-Goog-Expires=86457&X-Goog-SignedHeaders=host&X-Goog-Signature=0ba8ca40af2ef60ab80b52483a8906941f7f249d91ee4e906731aa3fc33cf1c92acdabee612c1ec2da1ab4a23d1fa33ad0e1083c1e49d25c428f166af9392fc3cfe736eb68548e901b33e6b5ef77440cecf244379005e936b43594b54b557c530a056257cb56eeb0b59ca8cc62ee38638f269199d7aa72e0c8cd455bda360ef9cfc4f287524b7772bc0c94fde6147deb1cf37b585b813a48da627d024020a369a0a4d96ccb6a5670409733cef1328e35f6ad5f05e1550d0d8b7bd31211fa19549d5b143c065bc8d0155a3943708d18f8cf27c7b2ed40f8906bcb20aa44963c591c7b787edfd9d134c212fa8845ca97a11ceca472c8e522bcfb2f388216449908)\n\nEl archivo ZIP contiene todos los documentos disponibles de las 10 facturas encontradas."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 17254
+        }
+      ],
+      "cachedContentTokenCount": 17254,
+      "candidatesTokenCount": 1261,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1261
+        }
+      ],
+      "promptTokenCount": 19646,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 19937
+        }
+      ],
+      "thoughtsTokenCount": 1296,
+      "totalTokenCount": 22203,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-f4967d0f-16ae-49b1-bbe3-65f129d222e7",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "5e2ba5d4-f29a-4b29-b575-ad450202ba36",
+    "timestamp": 1759494084.874024
+  }
+]

@@ -1,0 +1,293 @@
+[
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CqUIAR_MhbaYLYRDbjff0jzeVuJzy61GX2IsrslzRZeUl7IwHk2-bnFxEOwDMVZrlimWvGrvvo2yGPkseV2raIIV0n90IZYdZEEMrr4N2-YDb3DNXJRAbqsNSGlLxzXufKnUwvBGpcWNbv7iQNsO_htU3TSAK4aF3Q2Opgh_yoKwxI1Po4Y4uqhEaV5RxDSVib2ZYY_hXm6Jb63G4MPge0IwlwSfKbszx2K9DoyT0q2ohZ9Ckwz2_WtaBIw4iGZc6E4TpUGdMwTN38iXfkKtekAWWUvKy0KtSUUhqIH3KZrZZPqY_UHCZJef9qzOkr-WWLJQmmnU8_lNvnNfmLHejadGQkg2RGVS3b8-uljXdtmocRNr2K-PH2-R6-g41BAF5cCVlYbfvZPsua96J4ABHEjyVXHTq6rPGra1IPlM4T2wz6gr50STHl1ebabRtMHxw2ylr_GSDIvKwPUU_1upEHFkPJvrKGYq1hEOMV4tvNliYUQd17EAvkK7KBCTHDiuI_EqLQaYT-xpVbJ9oi7di87iXIBT8RoOtk2z1PuaGygBQyUNn7mGgB3BUSwxKOU3kaOjRYUm0wpR9ovIy7bFkdVnCpRqSXFhovKRkjLu3e3mrNDO7GJoTAbeu5DESb1HLLgrdyMTyyfBDqHgRy5hEGJlbiG7JXT-U6Z93VKHpgpWiLAOdF-MbiKMro7lrRLncXCsOsrY3gONKJNBDU097q0npkOd3hjsV6ON4N13AGIjmlSrgvQHXUzv4VkiNYPC0cF7CupTv4ku-D-eUOxduigkZrGyoLKR6nwXsLqwYPbK2Te3cb6-lEtituTvxtQ8NpLeYWtPeRFnJDWF4J6dmu-9gnmHtsLzG1k33LgwMXcHQ-9YprhcylHpAAgPK0xIwjjoyR_05mrJ0Mwlik7a-TEpK_yVPqeAYiYCyRpNOAke2nloVGznXLMUIJM1NCnuxcQFyGBmg8CST7iAd69ze9P0lvXQA3tcR51w2-cc8VO-2JQ0O3vcaH9YQpA92J7Vo3cQVlQ7jdQml5n61av8pWZ_Q4qLQTBS1aMUQxXGSQIWAAcqXM-FUCnz7y-z_MdDd_wRQUAWdmOBwBoeX91J_ep7pWbU6TzbPZra3f94ssyQIJWg8i7diU8hnGGs9TxLBVsWEsnV4GxTpTfrqPKGx9mpw96H4OGtH4EAnaTrRh6KjAWNAMNrDXWfhSE6USWtJ8EpTSdG4-rxbfAk3cWPk3tuVUJiXqj7zblpg6rmzAlPnRuw03T28IalRz89D3AdZV8PoqtP03AQ_OTfK2UY7oHunCSKFVVJpkO_u5EFtLH_A98haNNYImrYO3X59Aty6juUrIX_EENhJ_GT6A-Q365sUz8LxIw6PorbFog06E0D715PuTOmm-cOJM6IAw6Z-SfhiXNnkjo=",
+          "functionCall": {
+            "id": "adk-fa8857b4-4821-4380-a68c-59542f7fd268",
+            "args": {
+              "proveedor_name": "Comercializadora Pimentel"
+            },
+            "name": "search_invoices_by_proveedor"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14257
+        }
+      ],
+      "cachedContentTokenCount": 14257,
+      "candidatesTokenCount": 16,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16
+        }
+      ],
+      "promptTokenCount": 14575,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14575
+        }
+      ],
+      "thoughtsTokenCount": 282,
+      "totalTokenCount": 14873,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "8fab2538-4a7f-41b5-9b5c-93e5a98b7e08",
+    "timestamp": 1759495582.209668
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-fa8857b4-4821-4380-a68c-59542f7fd268",
+            "name": "search_invoices_by_proveedor",
+            "response": {
+              "result": "\"The query returned 0 rows.\""
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "7de9617e-9437-4632-aac4-b2783929920a",
+    "timestamp": 1759495589.930562
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CqACAR_Mhbay_guYdjt76jQsHTVn6SnY0OiNVAsivLdJYMusbq9TEtg0hpmiORbNfBHhczZJFbd-OgAcMVqgqns_NJLlqQ1QVnWhX8n4DMftJbc3tB2TqoYYaSktrP9dw4rx5H_a6mU4qcGtmhxmNP-PVkzKlv7MFOhPTPuLFXQ3Six1N6cYwdiO6h2Lhk3hBDj7zGp7owJ-UhA5_jPfhu00cP6PBogXgE8vwZAgc8_BTT8SBJ5H3LTQmtRM3B05po-OKe0OvcRK7Vsablk6R-KkD5yMbuuo3YRIUvZB_WYRMQkkKLZf5t5kuAnCZsIsKLKMTtpzF6vKTRpqLhh06dYtpIkw0msHqWCg5npbeJbtO4UYvtg5zhZJTqlkFsiSf3UR",
+          "functionCall": {
+            "id": "adk-defbe29d-f880-4914-8ac9-2fac85da0e02",
+            "args": {
+              "cliente_name": "Comercializadora Pimentel"
+            },
+            "name": "search_invoices_by_cliente"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14277
+        }
+      ],
+      "cachedContentTokenCount": 14277,
+      "candidatesTokenCount": 16,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16
+        }
+      ],
+      "promptTokenCount": 14607,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14887
+        }
+      ],
+      "thoughtsTokenCount": 75,
+      "totalTokenCount": 14698,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "2ef2c971-fe2b-415e-9500-dd9ca5fa0d92",
+    "timestamp": 1759495589.949676
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-defbe29d-f880-4914-8ac9-2fac85da0e02",
+            "name": "search_invoices_by_cliente",
+            "response": {
+              "result": "[{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105546778/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105546778/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105546778/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105546778/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"6\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"270\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"393774\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105546778/Doc_Termico.pdf\",\"Factura\":\"0105546778\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105544542/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105544542/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105544542/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105544542/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"1\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"DIF_PREC\",\"Moneda\":\"CLP\",\"Peso\":\"1\",\"PesoUnidad\":\"KG\",\"ValorTotal\":null}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105544542/Doc_Termico.pdf\",\"Factura\":\"0105544542\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105542523/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105542523/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105542523/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105542523/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"6\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000040\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"270\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"394315\"},{\"Cantidad\":\"20\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"100\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"190660\"},{\"Cantidad\":\"64\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"704\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"922625\"},{\"Cantidad\":\"120\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"1800\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"2792766\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105542523/Doc_Termico.pdf\",\"Factura\":\"0105542523\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105537720/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105537720/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105537720/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105537720/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"6\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"270\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"394315\"},{\"Cantidad\":\"40\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"440\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"589841\"},{\"Cantidad\":\"120\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"1800\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"2846765\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105537720/Doc_Termico.pdf\",\"Factura\":\"0105537720\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105535663/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105535663/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105535663/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105535663/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"4\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"180\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"262516\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105535663/Doc_Termico.pdf\",\"Factura\":\"0105535663\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105525213/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105525213/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105525213/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105525213/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"96\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"1056\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1415618\"},{\"Cantidad\":\"115\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"1725\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"2728151\"},{\"Cantidad\":\"10\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"450\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"657192\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105525213/Doc_Termico.pdf\",\"Factura\":\"0105525213\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105521731/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105521731/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105521731/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105521731/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"225\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"328147\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105521731/Doc_Termico.pdf\",\"Factura\":\"0105521731\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105517543/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105517543/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105517543/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105517543/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"170\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"2550\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"3905470\"},{\"Cantidad\":\"86\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"946\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1268159\"},{\"Cantidad\":\"12\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000040\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"540\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"788630\"},{\"Cantidad\":\"20\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"100\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"190660\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105517543/Doc_Termico.pdf\",\"Factura\":\"0105517543\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105510495/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105510495/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105510495/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105510495/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"6\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"270\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"394315\"},{\"Cantidad\":\"64\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"704\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"929671\"},{\"Cantidad\":\"120\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"1800\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"2810780\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105510495/Doc_Termico.pdf\",\"Factura\":\"0105510495\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"},{\"Copia_Cedible_cf\":\"gs://miguel-test/descargas/0105497961/Copia_Cedible_cf.pdf\",\"Copia_Cedible_sf\":\"gs://miguel-test/descargas/0105497961/Copia_Cedible_sf.pdf\",\"Copia_Tributaria_cf\":\"gs://miguel-test/descargas/0105497961/Copia_Tributaria_cf.pdf\",\"Copia_Tributaria_sf\":\"gs://miguel-test/descargas/0105497961/Copia_Tributaria_sf.pdf\",\"DetallesFactura\":[{\"Cantidad\":\"90\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000020\",\"Material\":\"CN11\",\"Moneda\":\"CLP\",\"Peso\":\"990\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"1327142\"},{\"Cantidad\":\"5\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000040\",\"Material\":\"CN45\",\"Moneda\":\"CLP\",\"Peso\":\"225\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"328597\"},{\"Cantidad\":\"39\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000010\",\"Material\":\"CN05\",\"Moneda\":\"CLP\",\"Peso\":\"195\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"371787\"},{\"Cantidad\":\"166\",\"CantidadUnidad\":\"EA\",\"Factura_Pos\":\"000030\",\"Material\":\"CN15\",\"Moneda\":\"CLP\",\"Peso\":\"2490\",\"PesoUnidad\":\"KG\",\"ValorTotal\":\"3938027\"}],\"Doc_Termico\":\"gs://miguel-test/descargas/0105497961/Doc_Termico.pdf\",\"Factura\":\"0105497961\",\"Nombre\":\"COMERCIALIZADORA PIMENTEL SPA\",\"Rut\":\"77396654-0\",\"Solicitante\":\"0012523939\"}]"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "dd0d79a5-bd45-4816-803a-c901aa317e5b",
+    "timestamp": 1759495596.318146
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CskPAR_MhbblZGquWwRSt4_vb8J3T-v1IU0Ddif1eAHZrQW8AjTzSNyt3TMvUiB_cUECG6X20tsmfZA6HfRnBMGM-j2EH3EjQOuR6BuChjLTN5KIQBabFzQjSFvHaThL-zDnYV-m01NUcJr8aQgdp1NWmnmveyeaV7ytR0q60uJm6jpKV-iOUfpKSKYuyDMipPTh3hioXgO03l30QU1rA9oVSvimJV2WvgyUn9bY6iyHz3oK4gwvokolIBdPTVqijUpNuoPD5KrLvcupWioqmzdZ2wJGle9Wr7brimCaR0iPS5nQKufzE2RBC_KSO1zam99sxufJ4kveUMbMSEbMs-M41O9lgsltXgW2a3BsaoP8wrbbQLj10FLMwKcR4Xd1n5Y6rLGBVE8sg8DgxS1SK42YW-bQt4eoXHEBTtSgCHVrdmMbQT6ZUxqjMBaYY9Pq7I4mJf1dr1YY8MmSEa0vReDTnz-wJa9zbJ_kqR8JHhxb_jLFea3rLkvNxHsdW6J-4-RUw1TvBTkIJy5FiicEqUY8MQ9Wzs3wRlwE7_J9NNoAZFDLJoRpfQrqGVGnG64hGgvTxuFg4neXZisBsgZXAEYsvfDAN0pkDA2VmQkXP7_NEAH7wGrdAs5w8exI4EexMDIn-dGXDMvie02krE8LlKOrXngTG0vmodxCl_vd6R83a4Xj-fvU1qnlm576zsW3s5IaTo47LpYgMcnV4KJBRoXEVZgMgjD6HrzPHFZNLrq0gkKHLUyEA6hDiwXuetMQM9J2JveOA14V8TYKVOAPtx95iDUc3tbIYfLjs0FZyT6j44vCBvxMHRFiSydnY8DP09gv5XBLnswGQjgxqrhV-eJATsQPhV1tMZdHdYtbR1YRtNFifwWY3uGO1V6PS-lQtS7Fn8QLibHVER06nWJ9Wm4gt0YuNzsF0YdfYII1QsgJpOoZ34BJQOl560TkRyPaLarn6Yy0S6VgM7uQK7I1GG5cK570kt250VyD2inmqhCl8G0fectRd9dNvz_Mejl0o5RQ3FhH3R2Xs0eaQg0iEtiNOeGa5CJjp-n8vu8fnvkCSy8gONjwOGP4FMQsZAeCghdTIzExLNNV1cdejfON9pnWUondyGoRaHdyLUTfpCAMdNLQ3m0v2lMBnCJvInsSohAfjKXr3zp6nBtqO2Z80GbkJyBBj9RXRUBrRzOG_OOAHRFUy-l5Kq3lrcaSuM0K_QYlqmdL_ijwElCeK17H9fnfojipXW1ACJw-Y6DNwIiASSCtVH4onpIMDAVmXZNZhQhXJ7u7gWZwd51NB67JibQzu1u-DGfp1IC8cobfZraTh4rjd8pS3foSDLAtc0d7F47RCqGuJzRuyiIVvmaudow6L6el8HAL3sY6BMib5lZOOlesdtaAbljAJ16OoYJGvvzklfJZPg9X8DTW51TNpbWvV2XGg-8sXy1Wd0IgzsTNdlFwE9jJ6yiPMHyf2dOFg4PNqm4VGywEINyUgJpJ6LszH3t__MUeCzKImG_4vTDkK-pdTvLLpokktn26EpkcFTgH5Gf6qgtpqW5D04V4ORiXgN06yN15zJRsZTQkHK2qw9-FGoVZMF10m_Dx_uyNg30aS12hJuJ4pSMchd1FKDk0l8UWj_ibyojXTvKqmHL1bYKvkE9DDLIzpJDOpXJ-EQBI1XoQ47D-VqQnwLAcV3YDs1ByhWqz2s46FOQRIo11iVxWJNaAUjT4WZaGaELINFMfPL-PWNmb9Qujwt0TyW1e051Gx01Lx-MuN8-uvoia3PlpuEqTq6v5CyIVDksCUg4qjeQxIqQk6E8Hz3Rgo6-4RkB8WIN1dzw7BLPIzh6exeEEIkBVL7Fd1GnEu2c_6RM_mKOHqV1Df-hSpvU51v-BavNRjj8YsoUkFlMOMLN_XwJZJYxSZBvilk4pjQ08y_N4OssWp1KPzsVdSEFyeMoUKWS7T7nPNKrm6uMrgmAqOBgfHnUCsNwa4YTM1LnIkiGm4owvw13LIl35pG1NJkmpp3vJpkvqoD4rgZqPKo9p0YbuUScSzlVZL5P-stp9sxgKfWqsQa8lCiESSn7Uw1njGnp6m1JA-vUmQn7lw7O6SN23SMbNXItk4P17WYJw0-O8xeZtV-rSk7paltFA0mZ3GJXwLXw5u6LZS7NBXSaal7oLhQ8u_phZjtwRmmwjFPgKOOcPqsw05ar2h3wMVM4UloKIaJ04-JpMGLNoT_TNFPnbp7gw8HnIy_ONyUD8FoAb0bmur1nMfp-htBEd7_Id4Xc1wJLjzObh3olTrMeuLIpqN5uaxnZgw8gjI4W7OWpoGYXkBv59RZpmljAXV3TSZoQQfIeZLATcxp6XsQo2uY6CvKS1zsOaDoBRpypMguwndTSoX_Je93utw1YqOfjieKoIYuj8584RqEKixOtOs_uo8XsSPTBmIDrfDJyE7QE1D8cwjgw4rhiAgYDrcM-iHCi8UZ566yitBfb4w2o1Ct9sGp19u4tHSysZQQUiS0lVp-HcWWeEzS3JHdcF3ZuZtJncr8-9mJoH1zlsIQXnM202vLSVKdp45zAWD2oqMMp9E_NY_gVHKqnHGp1isMA1isEgJGSOFE1k1o868KM-eqUOlw0UAQ90Susi8rSpdXIf2f55ObW1PUpiOBrkbWAtgobvfIYMwd0GiA==",
+          "functionCall": {
+            "id": "adk-2f02ec2f-0f80-4a2d-88d5-3e053c8dfb82",
+            "args": {
+              "invoice_count": 10,
+              "pdf_urls": "gs://miguel-test/descargas/0105546778/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105546778/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105546778/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105546778/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105546778/Doc_Termico.pdf,gs://miguel-test/descargas/0105544542/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105544542/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105544542/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105544542/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105544542/Doc_Termico.pdf,gs://miguel-test/descargas/0105542523/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105542523/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105542523/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105542523/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105542523/Doc_Termico.pdf,gs://miguel-test/descargas/0105537720/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105537720/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105537720/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105537720/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105537720/Doc_Termico.pdf,gs://miguel-test/descargas/0105535663/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105535663/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105535663/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105535663/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105535663/Doc_Termico.pdf,gs://miguel-test/descargas/0105525213/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105525213/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105525213/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105525213/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105525213/Doc_Termico.pdf,gs://miguel-test/descargas/0105521731/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105521731/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105521731/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105521731/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105521731/Doc_Termico.pdf,gs://miguel-test/descargas/0105517543/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105517543/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105517543/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105517543/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105517543/Doc_Termico.pdf,gs://miguel-test/descargas/0105510495/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105510495/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105510495/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105510495/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105510495/Doc_Termico.pdf,gs://miguel-test/descargas/0105497961/Copia_Cedible_cf.pdf,gs://miguel-test/descargas/0105497961/Copia_Cedible_sf.pdf,gs://miguel-test/descargas/0105497961/Copia_Tributaria_cf.pdf,gs://miguel-test/descargas/0105497961/Copia_Tributaria_sf.pdf,gs://miguel-test/descargas/0105497961/Doc_Termico.pdf"
+            },
+            "name": "create_standard_zip"
+          }
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 14568
+        }
+      ],
+      "cachedContentTokenCount": 14568,
+      "candidatesTokenCount": 1461,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 1461
+        }
+      ],
+      "promptTokenCount": 18335,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 18688
+        }
+      ],
+      "thoughtsTokenCount": 736,
+      "totalTokenCount": 20532,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "longRunningToolIds": [],
+    "id": "c6c4ebc1-44cf-462f-a0df-16c4b1d0937d",
+    "timestamp": 1759495596.336218
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "functionResponse": {
+            "id": "adk-2f02ec2f-0f80-4a2d-88d5-3e053c8dfb82",
+            "name": "create_standard_zip",
+            "response": {
+              "success": true,
+              "zip_id": "6555138d-5d62-4a59-bc51-9ab25576a59a",
+              "zip_filename": "zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip",
+              "download_url": "https://storage.googleapis.com/agent-intelligence-zips/zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T124804Z&X-Goog-Expires=86457&X-Goog-SignedHeaders=host&X-Goog-Signature=1db7b8bd23ea278cd9ce4f7fd0a2b2d4b702b656097c9fd45eefa5c950cbc7bff2cbab85b502f2334af76d30180d0db11a87a53514b8bab1456c1fa2d7ef29536f640365f7812fc9e0ff1237ea2f170f751aaa0f347e84872b529f44a79675c4534bf93d972e1f2bfbd15a616f4d90bba590e1f536f33a1e62f92d747a9a0dcff329291abc6e21285f66638e3263beb058ff44823616b874b90b079185845f62dee9b3a41f6f7d35eab41a009d6916973e73a9ccd3a4f7cad81e4a260406a64c5b6bbe0e44f58a6ec9dbafeb97b2d7b1efb7cf86c33f61493d439c01bdd3a1a3f236915c762b16132d50a54010e0ffefe2cf0f00a0c50ca0094d38241bcf74b4",
+              "files_included": 50,
+              "message": "[OK] ZIP creado exitosamente: zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip con 50 archivos",
+              "stdout": "Ejecutandose en desarrollo local\nCONFIG Arquitectura dual validada:\n   [LECTURA]:\n      - Proyecto: datalake-gasco\n      - Dataset: sap_analitico_facturas_pdf_qa\n      - Bucket: miguel-test\n      - Tabla principal: pdfs_modelo\n   [ESCRITURA]:\n      - Proyecto: agent-intelligence-gasco\n      - Dataset: zip_operations\n      - Bucket: agent-intelligence-zips\n      - Tabla ZIPs: zip_files\n   [SERVICIOS]:\n      - Región: us-central1\n      - Puerto API: 8080\n      - Puerto PDF: 8011\n      - Cloud Run: False\n   [LIMITS]:\n      - Max PDF links: 10\n      - ZIP threshold: 3\n      - ZIP preview: 3\n   [SIGNED URLs ESTABILIDAD]:\n      - Timezone: UTC\n      - Expiración: 24h\n      - Buffer: 5min\n      - Max retries: 3\n      - Monitoreo: True\n      - Time sync timeout: 10s\n   [THINKING MODE - ESTRATEGIA 8]:\n      - Habilitado: False\n      - Budget: 1024 tokens\n      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible\n{\n  \"success\": true,\n  \"zip_id\": \"6555138d-5d62-4a59-bc51-9ab25576a59a\",\n  \"download_url\": \"http://localhost:8011/zips/zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip\",\n  \"zip_filename\": \"zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip\",\n  \"total_size_bytes\": 785940,\n  \"files_included\": 50,\n  \"files_missing\": 0,\n  \"generation_time_ms\": 1572\n}\n\nZIP creado exitosamente!\nURL de descarga: http://localhost:8011/zips/zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip\n"
+            }
+          }
+        }
+      ],
+      "role": "user"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "5e2712e4-cee5-4d05-8cf3-6c9c3c00c2dc",
+    "timestamp": 1759495685.032406
+  },
+  {
+    "content": {
+      "parts": [
+        {
+          "thoughtSignature": "CpgZAR_MhbbWnRdk_l-Gd9CffGbDfFq2fI5YfYwq7KesbLxlvE3RAwm6GhlekBvsazlM38vPjIC0F9wGesrBtrhvTVHMixsDPUnUKOhNq0e2hz0CJcNYspyEh__pqIw0EQHSSW9s-3vmNElFrCdJOjNZwxuJgv5LgwQqFKD5i7MTHZkvc-uTdXfgGx2DjSW1tPVtE6KRBk8GGiXG2K6v1AmcCb1_Kv3GVypvoP0PUprjBl-dKn8kNLIQqWutRuyifUQ9lSIl_hxz-9AJmJsp2KXJwrgZir8fvIded1eqQrd_6JB2FUVc1pXB-D4pffAiytoc4K8AJcebqqsg2Yq_YgGBmBjCPu2ag3BQWUBC92WvzjuBpGbmGTQ4hRwmPI-ApDOwUn_hv4AuR6GekIb2S6canei8lQLOnvlabeVc5TQ0OszdaBEnPwDHbea-W8g1QY9i2yL3gAnisA8elEpNTXf-miB1T6jexC-lPvlLCdZc7lgVV4vtCWISRIISxQ058eTG7_OEk0Zm8-ZFP0wKlDBjKD86qAEcLWMEoTWNzSddBbqCvtiG-Yj27X8Iya3DsGS_pcNZ-Au8oHgNuJdB9nLvcVr1jR47_vVsqDgtwZJeuNNxsiBh9wa4lgdizXyu5BmDU0NaUuDG-LAssLv3dFhhQRHpEFv29Axo5ffYZMMIOzSo89pzesEZzFII48QdyKio1TU5H6-0AaO5_gL52Pf9OlVI4tSsu0rPO7-SnsOqm-IWN-M3UhQIfBouvJ21YFUzejlWmlEfj7jSMbTtNNeMGnjj7urCwgILEQYQ8kPjq7CcJ3lLJIbZBrLrWeg81Hkqfagr0f65jA1zdOKzLrmuftHe2TzKt_ALJd6VtplVhrSlcirdJ6VE6ljdIDa7IKO3d9_PnIdjOv0NWmtNIXmEFAyi5clzfpbNNh95n23AeZ3aYK8fWo9dMfhTC14-EvAeTuj3CJYPCnnRLb41twIDvfXAoq2aMKeruv00AhWY6WagFXJggzLYmieiiKfEITqUiBeTj7lDzOxx5r7wI0FZvJALSlMLdkt8JNqOVpGKgVJM4OMPuvcLJxFg5D8YYhlDveFTEA8EnJqqDRuktooNah8D9A4Ww392hpombzTKgxbhtW51D8RADaqLt0SRlaSB99hIG6N9lzZkVxfNC52gR0FL-vtsHQ1SBE-dnHLh3cfCua_Z5LwXT3E6SnIQ7y9qdkhWm_ymzMxcU_qxWm7kmz_aDE965bZ-IF-lAy0FOpEPd8IzU1bzXzAiyovWPZ9JzItINDRFVDL1RiXS1x8Jx30PxA8ATdk0aPvMsdZEAYnBafYdrM2bk9wbePf6hZ7GakhAITEL8N774aVhHDCH5tlVkG7DZuSCI_gc3pnbFgHhnnSHGYQGPhYGp7BfFucI1UhZP8ojd0CtfkeG62O3B0ndJtoQJ1hGDzsJl6zhnGUEODHR4SI90dPqS2pvUXcKcYTWsxkR4ZWE0iMUPKj8LSGsHtms6mHm5WKR9xI5b7lYLH5AKaGsIyYUMkSyr0nVv2Q39kTTJs_6URXzu4mHX0w18Xc_PDLeGoeO6xRogJL2XRk3VNiBm0-b7T0zazAvcfTLw9IgPm1VSVUn5j4qEQqLf0WW4g5fSYNyGaGYV-xGCHbDD8cXocPQMyEFJUIzPVCC9uQBExsWXIJx4iYI7Qx4QWZ3g4iqVmXQmoY1ljVBEimH8R0606UZovE9APsF5Ds8wy5r0zqvMdiIGDADXSUguG14UKBZdnGv8veE874I___pqJ8G_PjZrfQuJwTMM0tfotUCpe9s3V5M_RBYZY3UKuQwY59lWUKCsS4CbPNVWG4V3f5E7SAK6u9jP9Nh91weSQa-IuBPQgHAhaSI4YkgCKpwLfwKOe69PNE9J3QKrxiJzRsB81z2QMBKjB5l1pwEvQc7iNI-esVw1NWodWicEm0wPxFndI3lbgscZp3mpqzhMHvrUZjnCP_763evlFLNEpkpTEr3ZCEAGzSrbBI4cZwPVF8sdUbungLxDmxW2uBXHaFeV6WFwOOHP9aXlx9dw19u-1OA16_QlzU7OFKu216oVk3GqcuzV8Zjv44EAOVXn6BH8nU5-SrtUPEFhzA19OksVHVMqQLfavITnNEqLSNjibtidkXt8OWJFjxOE5P_R3q048SJ-a77Kbj-7dX6yQFFRoW4SCJaeBvYju2HKxOpRgQ7vx-i_TxOv_SwlA56aciwyiCTZ3Obpffu_6Xwr6rintyckvlkVEg3nHCKcvdR21XZaHMRutbg7M1QqSt3IZiFH9u3q9aap9kdfEOJg6-AYMeF-zIDHm6w1FUnGKz1j0xVeDYXIXJRGoQIHJjRS7AokrueXu5pWro6hau_yQvYzBGSIs5x5HtlAKNMWgmJerDIbp7C_MTrtrBrPpOR3sD2rhOiGv5s-UoMtAdTTQ_reAGm-bk5HnzH-dK-nqws0sdD_HEdpaTRC97CfkbQKH-RbDOmPJ6EL--mqF3aTWw5zC0wgv0SL0mPMcnqb8dPFEFlN9zWOK4X6b7JIdsoIz5CIEJv3U0Iz0HuGHn66qJRT_YvY4NHTVZVf-f1hwDr91aj-3w_wF3WTirfGbZZT-kW9HFPmzMgmV2aQGDIzy7i1OdnRhqTHBis0BiQtklz8vF6JP-Ug22TftpzUiRoSUABLC5JYaVfZRmcBiVAfP2bCJHV0m77d7pBKjAJheJ22DlD-KG0KL3LeuKVWd-hCRUlMd09TqOtL35eJJh_CinnfAA2SVWCsKZBAjup7SkhNdm9GJXBQ-VU3nZHtcUNwspE48JehQdNCS6PI7xx07x2wyyoGUaRgLdX_WR_4Hwd9XoAnK85FdVR8NELV0K8jJFq3aiH8zmruKAUy3lxvzo93gvAwQQWNcA7jun1JAoLY-SRj5TUVYlabvRABHtsOjcSQimKoGxt9d7BtN92rC7rN96ENZpTyDWbj1zWe9tP_DO2mnjfDhE03-R2aAzesyWS9KSXItWYuvZF3gcePnHXZ8ETi0jqye3zGWoWPIgXsc_y8KxwYgB2rKGOelYQkZNa7O7-hGwVeUZO1jh9FaeIoEj3ivva9VSgT2B-FwTXagygwIXGTJ6gOGITnU8W3K85kUZQMzfsrNyEL8Dkj4aEbnUo8o6lofWMrhrVM62VfHdVx-GFCelWqQmVDXkaCOoFoNK5LjJfVn3982xVRFzUxw77mVeMfIzLQ5U37UVp9i4g-abSOaiZ66ZigOwBjj6LYmftLuMUTZ-Vh5i4G1tQEEGqV8t5wt2uQx8sTfodAA9uYlbajIkrnKJk0K-8Z0fhuWGDkvUhOaBoS3rlVD4dLUJChvKxr3Em3ZrOHxEIypiAaFRRUq0SK9k29-UXNrjngzGrelukssIONiuA7whze8lXvZh95IOCvXPEmlZF94aFO6gfhOCCyw8KdUDCcuoCo9_fDPH16Bz8JtGEpWzVegPiG7jj2w8mo-74Oh9CGKjq25AV_ChAji0JFQXADEqCYtlsRYbBzUYXB81LmupIRZkYQZY18RsyQxgx3RzlI5UtrjkXfXrIgMUFGepCnbhxfahkrCq9b_DWwAf2_sPGtzsjkrS9ISfNw5wTgg4w8sDUkgWIS8k0_FaDLmTwg_biV6Q-vjvizGe64Ugo6ZQQ5yYJOyNFnkCCdXyg4RxfHR4tYeflA8wym8QVKKz_VEPFVtChK0IlQeAdmERXgbaG85wesmvr63nIkwvIDYwpafjCtIpNomvjOAuHWBvvyjTwjqIQfYhqiOi0inm_0QZYoxGJZnEPEkYlfCrCjfAtTYgiT3IDwTKKXm-N_DeEdmTplIhUklz4VzaWD7V5cGgG5QOQ72kz00apai1ssRMnzgO38x9l-WIysdjIt_UMQ7ERWJf7pOrcXvySH4wzC_0TEvsVrzi_U_fOBYzotS6dOkLDkd8r8zJazkIQTfrHFpxa5kj_XmjF5gRgVa95QXW-JTW6lSz2BlVp2nHwDWhAyuMG3RmuoOdMUZ_St-KudBqr7n_c2FflzZGtOa0KvqeMoGjEGAxTZMSKTC4PfHPTjAO-vmtkzlaQm0A5JoU2DiqrymPol0V2nY5JXnaMhQt08w7G7GZ9C9a2JjaO3JXfPk20gIQKafnGfa_gPyuAuJk89DSykuW495FeOGpvdZQTjAJpjVbK0riA8B72exRhuCQbtBogokKNAndOXtH09UZNGTEudkNrGHBRmEGf9xcj9V0u9FwsikQrASfU1fXjtKmnamwwlp6RKh7-XvEYflLgkGFTPSqv7DdZQoUAOSG2lwo=",
+          "text": "📊 10 facturas encontradas para Comercializadora Pimentel.\n\n📋 Listado de facturas:\n• Factura 0105546778 - COMERCIALIZADORA PIMENTEL SPA (RUT: 77396654-0)\n• Factura 0105544542 - COMERCIALIZADORA PIMENTEL SPA (RUT: 77396654-0)\n• Factura 0105542523 - COMERCIALIZADORA PIMENTEL SPA (RUT: 77396654-0)\n• ... (7 facturas más)\n\n📦 Descarga completa:\n🔗 [Descargar ZIP con todas las facturas](https://storage.googleapis.com/agent-intelligence-zips/zip_6555138d-5d62-4a59-bc51-9ab25576a59a.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=adk-agent-sa%40agent-intelligence-gasco.iam.gserviceaccount.com%2F20251003%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20251003T124804Z&X-Goog-Expires=86457&X-Goog-SignedHeaders=host&X-Goog-Signature=1db7b8bd23ea278cd9ce4f7fd0a2b2d4b702b656097c9fd45eefa5c950cbc7bff2cbab85b502f2334af76d30180d0db11a87a53514b8bab1456c1fa2d7ef29536f640365f7812fc9e0ff1237ea2f170f751aaa0f347e84872b529f44a79675c4534bf93d972e1f2bfbd15a616f4d90bba590e1f536f33a1e62f92d747a9a0dcff329291abc6e21285f66638e3263beb058ff44823616b874b90b079185845f62dee9b3a41f6f7d35eab41a009d6916973e73a9ccd3a4f7cad81e4a260406a64c5b6bbe0e44f58a6ec9dbafeb97b2d7b1efb7cf86c33f61493d439c01bdd3a1a3f236915c762b16132d50a54010e0ffefe2cf0f00a0c50ca0094d38241bcf74b4)\n\nEl archivo ZIP contiene todos los documentos disponibles de las 10 facturas encontradas."
+        }
+      ],
+      "role": "model"
+    },
+    "finishReason": "STOP",
+    "usageMetadata": {
+      "cacheTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 16586
+        }
+      ],
+      "cachedContentTokenCount": 16586,
+      "candidatesTokenCount": 818,
+      "candidatesTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 818
+        }
+      ],
+      "promptTokenCount": 21147,
+      "promptTokensDetails": [
+        {
+          "modality": "TEXT",
+          "tokenCount": 22234
+        }
+      ],
+      "thoughtsTokenCount": 1458,
+      "totalTokenCount": 23423,
+      "trafficType": "ON_DEMAND"
+    },
+    "invocationId": "e-0a62c4fd-1e52-4865-8b8e-44c705e9181a",
+    "author": "invoice_pdf_finder_agent",
+    "actions": {
+      "stateDelta": {},
+      "artifactDelta": {},
+      "requestedAuthConfigs": {}
+    },
+    "id": "2972a957-b2b8-4ebf-929c-690415a33443",
+    "timestamp": 1759495685.048398
+  }
+]

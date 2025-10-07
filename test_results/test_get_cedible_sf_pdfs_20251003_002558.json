@@ -1,0 +1,40 @@
+{
+  "content": {
+    "parts": [
+      {
+        "thoughtSignature": "CsEHAR_MhbYSz40cYZFkIzalqyr5QmpQiwTLXJt1xD8lnkyrnDVNAvj5cjIIAEvVy2O1MXE9phpLOWHVhH5m7dB57LZ1HtxDkaMENOoJkIl7X_Oca9QsOur4-QDZyVQEfIgNkfLbOUE3YbRRpmXWHCDmhCFBSxN9fyODY27VFzH_vh2tXg9UJef25FtWZw_6H46KMEaVxXApG7Di-Y9kWtr0z67kCQCWrBaEmZTz_Oskj8xdDbrXfTkRqWC_6xPOw1KiLx7lowD0nVVKICE_Yjsv7ijwsjZq79vLpis8KaFcYlXfNxBA-r1gbA6TAgX_Nl0GdLnXVXBTHkLr-VKHJY966cDNsqoQcxD2zUUv9TsOlt7_KZZdDLAY2GQQv6Wy02sPIMjcXEUg15zGKC0S1pjwUVSxRKrR871Lfr0EYuU44uUJFb0KoNkckFEiqwePyuMtQNOw1iVx954Mu6TfNsAevb6_O9ztJ8txmXxN0x5jRx5g5jMKR94sx3zNQp-l2qJXEPkUKRAvZN3dCUvSgRc_cmBKKTx5GdIPRI-NG-zuQ5Eu8z3nBfPYoLAIQ4dwL0cNy4cVpm4HGgEUI6OWy3JCqaRebkYbId6kOpC5J74KyIb61d77yu86rcI8vDyzd_IU5ewrOHg6UCTPj8eeH5YfbfXWg3xo-Zj5TOeWci-bltGMtkz9ABtarUI1IwvfZhiGe1FWELfLFeH2McZ8PV2fuwkZrBJr3DoneFQLnaQTvlI-oZrrtr2zCtn5c3uiznJYU1p03CMSKhexlHWS28bMJaZSd_g8H5eSGQN7KZKSWDp9WvSaRMZ413TdOyMba1yCfFj3ubE0AhMzqtkSj0d_nFNOak2Rn0kofmtU9twFTIQ2wh8bwxGqST_AuRBAzytmpyDpXXqCSrpxHpg8fS-jyYLh19VUaJ0K8S6h7-9Zx5hxsUIw4PnlN4_nEyNMjL7CerGD0DOfqy76ZAAqs21qGuX6uk47kxUQjL8hBG-FG8g5HfMlnD568WExygWD6MteoQn_gTBvHYiBhFZqC-e01EqXVq5FnIXHALmNQQ71GacoCooZJCtSdBpn3Ueh8yEmbtG-q0qdkCDgUcz5S_I7pfnUnn7KLkUtdXNyYo7l_shuMxLZUBGTzTeo8mWvZfLWixjgrc7GqY-ISRlzf9nleBj0trNimRQrwe3x1W-cjL2ahmyjR_yQF18qvmD5Q8usyf22zVwajBiUf8TEUQiMBkodJwuKLzM4MFdvbRD0OmyyNR0_0LV8d65DfwDrhT0A3w==",
+        "text": "No puedo buscar específicamente solo por \"Copia Cedible sin Fondo\" (cedible SF). Sin embargo, puedo buscar todas las facturas que tengan Copia Cedible (incluyendo con y sin fondo). ¿Te gustaría que haga esa búsqueda?"
+      }
+    ],
+    "role": "model"
+  },
+  "finishReason": "STOP",
+  "usageMetadata": {
+    "candidatesTokenCount": 48,
+    "candidatesTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 48
+      }
+    ],
+    "promptTokenCount": 14569,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 14569
+      }
+    ],
+    "thoughtsTokenCount": 242,
+    "totalTokenCount": 14859,
+    "trafficType": "ON_DEMAND"
+  },
+  "invocationId": "e-4ed4f718-cd32-41c1-9a19-e53a1f35d63c",
+  "author": "invoice_pdf_finder_agent",
+  "actions": {
+    "stateDelta": {},
+    "artifactDelta": {},
+    "requestedAuthConfigs": {}
+  },
+  "id": "77eaf3d8-7d28-4e51-ac0f-7323d180855f",
+  "timestamp": 1759461952.936282
+}

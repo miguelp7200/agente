@@ -1,0 +1,97 @@
+{
+    "test_case": "search_invoices_by_factura_number",
+    "description": "Buscar factura por número específico de factura",
+    "category": "search",
+    "subcategory": "basic",
+    "test_data": {
+        "input": {
+            "query": "necesito me busques factura 0105473148",
+            "params": {
+                "expected_factura_number": "0105473148",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "search_invoices_by_factura_number",
+            "expected_columns": [
+                "Factura",
+                "Fecha_Emision",
+                "Rut",
+                "Nombre",
+                "Solicitante",
+                "Monto_Total_Factura",
+                "Copia_Tributaria_cf",
+                "Copia_Cedible_cf"
+            ],
+            "expected_count_range": {
+                "min": 0,
+                "max": 1,
+                "typical": 1
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Query histórica del CSV: 'necesito me busques factura 0105473148'. Búsqueda exacta crítica."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar search_invoices_by_factura_number",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "search_invoices_by_factura_number",
+            "priority": "high"
+        },
+        "criterion_2_factura_parsing": {
+            "description": "El número de factura debe parsearse correctamente",
+            "validation_method": "Verificar parámetro 'numero_factura' = '0105473148'",
+            "expected_value": "0105473148",
+            "priority": "high"
+        },
+        "criterion_3_exact_match": {
+            "description": "Si la factura existe, debe retornarse exactamente 1 resultado",
+            "validation_method": "Verificar cantidad de resultados = 1 si factura existe",
+            "expected_value": "single_result",
+            "priority": "high"
+        },
+        "criterion_4_factura_number_match": {
+            "description": "El número de factura retornado debe coincidir exactamente",
+            "validation_method": "Verificar que Factura = '0105473148'",
+            "expected_value": "exact_match",
+            "priority": "high"
+        },
+        "criterion_5_complete_info": {
+            "description": "La respuesta debe incluir información completa de la factura",
+            "validation_method": "Verificar presencia de: Factura, Fecha_Emision, Rut, Nombre, Monto, PDFs",
+            "expected_value": "all_fields_present",
+            "priority": "medium"
+        },
+        "criterion_6_pdf_urls": {
+            "description": "Los URLs de PDFs deben estar presentes si existen",
+            "validation_method": "Verificar que Copia_Tributaria_cf o Copia_Cedible_cf no son null",
+            "expected_value": "pdf_urls_present",
+            "priority": "low"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando search_invoices_by_factura_number",
+                "INFO: Parámetros: {'numero_factura': '0105473148'}",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Fecha_Emision, Rut, Nombre, Solicitante, Monto_Total_Factura, Copia_Tributaria_cf, Copia_Cedible_cf FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Factura = '0105473148' LIMIT 1",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "critical",
+        "use_cases": [
+            "Búsqueda exacta de factura específica",
+            "Recuperación de información de factura individual",
+            "Acceso directo a PDFs de factura"
+        ],
+        "priority_level": "P0"
+    }
+}
