@@ -1,0 +1,71 @@
+{
+    "test_case": "get_zip_statistics",
+    "description": "Obtener estadísticas de operaciones ZIP en el sistema",
+    "category": "statistics",
+    "subcategory": "general",
+    "test_data": {
+        "input": {
+            "query": "cuántos archivos ZIP se han generado?",
+            "params": {
+                "expected_table": "zip_packages"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_zip_statistics",
+            "expected_metrics": [
+                "total_zips",
+                "total_files_packaged",
+                "zips_by_status"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 1,
+                "typical": 1
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Estadísticas de operaciones ZIP. Lee tabla zip_packages en proyecto WRITE."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_zip_statistics",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_zip_statistics",
+            "priority": "high"
+        },
+        "criterion_2_metrics_present": {
+            "description": "La respuesta debe incluir métricas de ZIPs",
+            "validation_method": "Verificar presencia de total_zips y métricas relacionadas",
+            "expected_value": "zip_metrics_present",
+            "priority": "high"
+        },
+        "criterion_3_numeric_values": {
+            "description": "Las métricas deben ser valores numéricos válidos",
+            "validation_method": "Verificar que total_zips >= 0",
+            "expected_value": "valid_numeric_values",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_zip_statistics",
+                "INFO: Consultando estadísticas de zip_packages"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT COUNT(*) as total_zips, SUM(total_files) as total_files_packaged, COUNT(DISTINCT status) as status_count FROM `agent-intelligence-gasco.zip_operations.zip_packages`",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "low",
+        "use_cases": [
+            "Dashboard de operaciones ZIP",
+            "Métricas de uso del sistema"
+        ],
+        "priority_level": "P3"
+    }
+}

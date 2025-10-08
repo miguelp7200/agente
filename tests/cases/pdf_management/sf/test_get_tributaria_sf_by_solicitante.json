@@ -1,0 +1,89 @@
+{
+    "test_case": "get_tributaria_sf_by_solicitante",
+    "description": "Obtener PDFs tributarias SF de un solicitante específico",
+    "category": "pdf_management",
+    "subcategory": "sf",
+    "test_data": {
+        "input": {
+            "query": "dame las copias tributarias SF del solicitante 0012148561",
+            "params": {
+                "expected_solicitante": "0012148561",
+                "expected_pdf_type": "tributaria_sf",
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_tributaria_sf_by_solicitante",
+            "expected_columns": [
+                "Factura",
+                "Solicitante",
+                "Rut",
+                "Nombre",
+                "Copia_Tributaria_sf"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 50,
+                "typical": 10
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Test específico para PDFs tributarias SF. Parámetro pdf_type='tributaria_sf' filtrado en MCP."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_tributaria_sf_by_solicitante",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_tributaria_sf_by_solicitante",
+            "priority": "high"
+        },
+        "criterion_2_solicitante_parsing": {
+            "description": "El código de solicitante debe parsearse correctamente",
+            "validation_method": "Verificar parámetro 'solicitante' = '0012148561'",
+            "expected_value": "0012148561",
+            "priority": "high"
+        },
+        "criterion_3_pdf_type_filter": {
+            "description": "El parámetro pdf_type debe ser 'tributaria_sf'",
+            "validation_method": "Verificar pdf_type en argumentos = 'tributaria_sf'",
+            "expected_value": "tributaria_sf",
+            "priority": "high"
+        },
+        "criterion_4_tributaria_sf_urls_only": {
+            "description": "Solo deben retornarse URLs de PDFs tributarias SF",
+            "validation_method": "Verificar que solo Copia_Tributaria_sf está presente",
+            "expected_value": "only_tributaria_sf",
+            "priority": "high"
+        },
+        "criterion_5_solicitante_match": {
+            "description": "Todas las facturas deben pertenecer al solicitante especificado",
+            "validation_method": "Verificar que Solicitante = '0012148561' en todos los resultados",
+            "expected_value": "all_solicitantes_match",
+            "priority": "high"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_tributaria_sf_by_solicitante",
+                "INFO: Parámetros: {'solicitante': '0012148561', 'pdf_type': 'tributaria_sf'}",
+                "INFO: Filtrando solo PDFs tributarias SF"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Solicitante, Rut, Nombre, Copia_Tributaria_sf FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Solicitante = '0012148561' AND Copia_Tributaria_sf IS NOT NULL LIMIT 50",
+        "timeout_seconds": 1200,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Obtención de copias tributarias SF sin firma electrónica",
+            "Procesamiento alternativo de facturas tributarias",
+            "Gestión de facturas SF por solicitante"
+        ],
+        "priority_level": "P1"
+    }
+}

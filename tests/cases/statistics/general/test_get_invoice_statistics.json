@@ -1,0 +1,86 @@
+{
+    "test_case": "get_invoice_statistics",
+    "description": "Obtener estadísticas generales del dataset de facturas",
+    "category": "statistics",
+    "subcategory": "general",
+    "test_data": {
+        "input": {
+            "query": "cuantas facturas hay?",
+            "params": {
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "get_invoice_statistics",
+            "expected_metrics": [
+                "total_facturas",
+                "ruts_unicos",
+                "fecha_minima",
+                "fecha_maxima",
+                "monto_total"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 1,
+                "typical": 1
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Query histórica del CSV: 'cuantas facturas hay?'. Estadística fundamental del sistema."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar get_invoice_statistics",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "get_invoice_statistics",
+            "priority": "high"
+        },
+        "criterion_2_metrics_presence": {
+            "description": "La respuesta debe incluir todas las métricas esperadas",
+            "validation_method": "Verificar presencia de: total_facturas, ruts_unicos, fecha_minima, fecha_maxima",
+            "expected_value": "all_metrics_present",
+            "priority": "high"
+        },
+        "criterion_3_total_facturas": {
+            "description": "El total de facturas debe ser un número positivo razonable",
+            "validation_method": "Verificar que total_facturas > 0 y < 10000",
+            "expected_value": "valid_count",
+            "priority": "high"
+        },
+        "criterion_4_date_range": {
+            "description": "El rango de fechas debe ser válido",
+            "validation_method": "Verificar que fecha_minima < fecha_maxima",
+            "expected_value": "valid_date_range",
+            "priority": "medium"
+        },
+        "criterion_5_ruts_unicos": {
+            "description": "El conteo de RUTs únicos debe ser razonable",
+            "validation_method": "Verificar que ruts_unicos > 0 y <= total_facturas",
+            "expected_value": "valid_rut_count",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando get_invoice_statistics",
+                "INFO: Query BigQuery ejecutada exitosamente"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT COUNT(*) as total_facturas, COUNT(DISTINCT Rut) as ruts_unicos, MIN(Fecha_Emision) as fecha_minima, MAX(Fecha_Emision) as fecha_maxima, SUM(Monto_Total_Factura) as monto_total FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "high",
+        "use_cases": [
+            "Vista general del dataset",
+            "Métricas de dashboard principal",
+            "Validación de integridad de datos"
+        ],
+        "priority_level": "P1"
+    }
+}

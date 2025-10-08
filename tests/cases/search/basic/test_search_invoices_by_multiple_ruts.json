@@ -1,0 +1,77 @@
+{
+    "test_case": "search_invoices_by_multiple_ruts",
+    "description": "Buscar facturas de múltiples RUTs simultáneamente",
+    "category": "search",
+    "subcategory": "basic",
+    "test_data": {
+        "input": {
+            "query": "dame las facturas de los ruts 96568740 y 61308000",
+            "params": {
+                "expected_ruts": [
+                    "96568740",
+                    "61308000"
+                ],
+                "expected_table": "pdfs_modelo"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "search_invoices_by_multiple_ruts",
+            "expected_columns": [
+                "Factura",
+                "Rut",
+                "Nombre",
+                "Fecha_Emision",
+                "Monto_Total_Factura"
+            ],
+            "expected_count_range": {
+                "min": 1,
+                "max": 50,
+                "typical": 30
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Herramienta para búsqueda por lista de RUTs. Útil para análisis de múltiples clientes."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar search_invoices_by_multiple_ruts",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "search_invoices_by_multiple_ruts",
+            "priority": "high"
+        },
+        "criterion_2_ruts_parsing": {
+            "description": "Los RUTs deben parsearse como array",
+            "validation_method": "Verificar parámetro 'ruts' contiene ['96568740', '61308000']",
+            "expected_value": "multiple_ruts_array",
+            "priority": "high"
+        },
+        "criterion_3_multiple_ruts_results": {
+            "description": "Resultados deben incluir facturas de ambos RUTs",
+            "validation_method": "Verificar presencia de ambos RUTs en resultados",
+            "expected_value": "both_ruts_present",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando search_invoices_by_multiple_ruts",
+                "INFO: Parámetros: {'ruts': ['96568740', '61308000']}"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT Factura, Rut, Nombre, Fecha_Emision, Monto_Total_Factura FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo` WHERE Rut IN ('96568740', '61308000') LIMIT 50",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "medium",
+        "use_cases": [
+            "Análisis comparativo de clientes",
+            "Auditoría de múltiples RUTs"
+        ],
+        "priority_level": "P2"
+    }
+}

@@ -13,7 +13,8 @@ import tempfile
 import shutil
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Coroutine
+from asyncio import CancelledError
 from google.cloud import storage
 from datetime import datetime, timedelta
 import google.auth
@@ -1433,7 +1434,27 @@ else:
     print(f"[FAST] [THINKING MODE] DESHABILITADO (modo producción rápido)")
     print(f"[INFO] [THINKING MODE] Para habilitar: export ENABLE_THINKING_MODE=true")
 
-root_agent = Agent(
+class CancellableAgent(Agent):
+    """
+    Un wrapper alrededor de google.adk.agents.Agent que intercepta la cancelación
+    de la petición para registrar un mensaje.
+    """
+
+    async def arun(self, *args, **kwargs) -> Coroutine:
+        """
+        Ejecuta el agente y maneja la cancelación de la tarea de forma explícita.
+        """
+        try:
+            # Llama al método arun original de la clase base
+            return await super().arun(*args, **kwargs)
+        except CancelledError:
+            # Aquí es donde se intercepta la cancelación
+            print("[ICON] [CANCELLATION] La petición fue cancelada por el cliente.")
+            # Es importante re-lanzar la excepción para que el framework
+            # pueda limpiar la conexión correctamente.
+            raise
+
+root_agent = CancellableAgent(
     name=agent_config["name"],
     model=agent_config["model"],
     description=agent_config["description"],

@@ -1,0 +1,73 @@
+{
+    "test_case": "list_zip_files",
+    "description": "Listar archivos ZIP generados disponibles en el sistema",
+    "category": "zip_operations",
+    "subcategory": "management",
+    "test_data": {
+        "input": {
+            "query": "qué archivos ZIP tengo disponibles?",
+            "params": {
+                "expected_table": "zip_packages"
+            }
+        },
+        "expected_behavior": {
+            "expected_tool": "list_zip_files",
+            "expected_columns": [
+                "package_id",
+                "package_name",
+                "created_at",
+                "total_files",
+                "status"
+            ],
+            "expected_count_range": {
+                "min": 0,
+                "max": 100,
+                "typical": 10
+            }
+        },
+        "actual_results": {
+            "validation_pending": true,
+            "notes": "Herramienta para listar ZIPs generados. Lee tabla zip_packages en proyecto WRITE."
+        }
+    },
+    "validation_criteria": {
+        "criterion_1_tool_selection": {
+            "description": "El agente debe seleccionar list_zip_files",
+            "validation_method": "Verificar campo 'tool_name' en response",
+            "expected_value": "list_zip_files",
+            "priority": "high"
+        },
+        "criterion_2_zip_info_present": {
+            "description": "La respuesta debe incluir información de ZIPs",
+            "validation_method": "Verificar presencia de package_id, package_name",
+            "expected_value": "zip_info_present",
+            "priority": "high"
+        },
+        "criterion_3_status_info": {
+            "description": "Debe incluir estado de cada ZIP",
+            "validation_method": "Verificar presencia de campo status",
+            "expected_value": "status_present",
+            "priority": "medium"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "expected_log_entries": [
+                "INFO: Ejecutando list_zip_files",
+                "INFO: Consultando tabla zip_packages en proyecto WRITE"
+            ]
+        },
+        "bigquery_query_pattern": "SELECT package_id, package_name, created_at, total_files, status FROM `agent-intelligence-gasco.zip_operations.zip_packages` ORDER BY created_at DESC LIMIT 100",
+        "timeout_seconds": 600,
+        "retry_strategy": "none"
+    },
+    "business_impact": {
+        "user_facing": true,
+        "criticality": "medium",
+        "use_cases": [
+            "Gestión de archivos ZIP generados",
+            "Auditoría de paquetes de facturas"
+        ],
+        "priority_level": "P2"
+    }
+}

@@ -3,6 +3,7 @@ data/
 
 # Ignorar resultados de diagnóstico y pruebas temporales
 diagnosis_results/
+test_results/
 
 # Ignorar outputs temporales de tests
 tests/outputs/
@@ -89,3 +90,9 @@ bq-results-*.csv
 
 # Archivos de github
 .github/
+
+# Documentation exports (NO commitear exports generados)
+docs/exports/
+docs/official/**/*.pdf
+docs/official/**/*.docx
+docs/official/**/*.html
