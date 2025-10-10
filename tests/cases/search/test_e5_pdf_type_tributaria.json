@@ -1,0 +1,87 @@
+{
+    "test_id": "E5",
+    "test_name": "pdf_type_tributaria_only",
+    "description": "Test exhaustivo: Validar filtrado específico pdf_type='tributaria_cf'",
+    "priority": "HIGH",
+    "category": "pdf_type_filtering",
+    "tool_tested": "search_invoices_by_rut_and_year",
+    "query": "Dame las facturas tributarias del RUT 76262399-4 del año 2025",
+    "parameters": {
+        "target_rut": "76262399-4",
+        "target_year": 2025,
+        "pdf_type": "tributaria_cf"
+    },
+    "expected_results": {
+        "tool_selected": "search_invoices_by_rut_and_year",
+        "min_invoices": 1,
+        "max_invoices": 200,
+        "pdf_types": [
+            "Copia_Tributaria_cf"
+        ],
+        "pdf_multiplier": 1,
+        "notes": "Debe retornar SOLO PDFs de tipo Copia_Tributaria_cf, NO Copia_Cedible_cf"
+    },
+    "validation_criteria": [
+        {
+            "id": "VC1",
+            "name": "tool_selection",
+            "description": "Agente debe seleccionar search_invoices_by_rut_and_year",
+            "critical": true
+        },
+        {
+            "id": "VC2",
+            "name": "parameter_extraction",
+            "description": "Parámetros extraídos correctamente incluyendo pdf_type='tributaria_cf'",
+            "critical": true
+        },
+        {
+            "id": "VC3",
+            "name": "pdf_type_filtering",
+            "description": "Solo incluir campo Copia_Tributaria_cf en SELECT",
+            "critical": true
+        },
+        {
+            "id": "VC4",
+            "name": "pdf_count_correct",
+            "description": "Cantidad de PDFs = Cantidad de facturas (1:1, no 2:1)",
+            "critical": true
+        },
+        {
+            "id": "VC5",
+            "name": "no_cedible_pdfs",
+            "description": "No debe incluir PDFs de tipo Copia_Cedible_cf",
+            "critical": true
+        },
+        {
+            "id": "VC6",
+            "name": "response_coherence",
+            "description": "Respuesta menciona solo tipo tributaria",
+            "critical": false
+        }
+    ],
+    "test_execution": {
+        "endpoint": "http://localhost:8001/chat",
+        "method": "POST",
+        "timeout": 300
+    },
+    "status": "PASSED",
+    "executed_at": "2025-10-09 18:40:36",
+    "results": {
+        "zip_created": true,
+        "pdfs_generated": 131,
+        "execution_time": "174.06s",
+        "response_preview": "📊 131 facturas encontradas para el RUT 76262399-4 (período: 2025-01-03 - 2025-10-04)\n\n📋 Listado de facturas:\n• Factura 0105559560 - ALIMENTOS RUNCA VALDIVIA LIMITADA (RUT: 76262399-4) - Fecha: 2025-10-04\n• Factura 0105559559 - ALIMENTOS RUNCA VALDIVIA LIMITADA (RUT: 76262399-4) - Fecha: 2025-10-04\n• Factura 0105559557 - ALIMENTOS RUNCA VALDIVIA LIMITADA (RUT: 76262399-4) - Fecha: 2025-10-04\n• Factura 0105536125 - ALIMENTOS RUNCA VALDIVIA LIMITADA (RUT: 76262399-4) - Fecha: 2025-09-26\n• Factura",
+        "tool_used": [
+            "search_invoices_by_rut_and_year",
+            "create_standard_zip"
+        ],
+        "validations": {
+            "tool_selection": true,
+            "pdf_type_filtering": true,
+            "response_received": true,
+            "sql_execution": true
+        },
+        "invoices_found": 131
+    },
+    "notes": "CRÍTICO: Validar que el parámetro pdf_type funciona correctamente. El backend debe modificar el SQL para incluir solo el campo Copia_Tributaria_cf, no ambos. Esperamos N facturas y N PDFs (no N*2)."
+}
