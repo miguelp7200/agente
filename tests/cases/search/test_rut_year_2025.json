@@ -1,0 +1,160 @@
+{
+    "test_case": "rut_year_2025",
+    "description": "Test search by RUT + Year combination without solicitante filter",
+    "category": "search",
+    "subcategory": "year_filtering",
+    "created_date": "2025-10-09",
+    "test_data": {
+        "input": {
+            "query": "Dame todas las facturas del RUT 76262399-4 del año 2025",
+            "rut": "76262399-4",
+            "year": 2025
+        },
+        "expected_behavior": {
+            "should_recognize_year": true,
+            "should_recognize_rut": true,
+            "should_find_invoices": true,
+            "expected_tool": "search_invoices_by_rut_and_year",
+            "expected_result_type": "multiple_invoices"
+        },
+        "actual_results": {
+            "test_passed": true,
+            "execution_date": "2025-10-09",
+            "year_recognized": 2025,
+            "rut_recognized": "76262399-4",
+            "invoices_found": 60,
+            "date_range": "2025-01-03 - 2025-10-04",
+            "unique_solicitantes": 1,
+            "cliente_name": "ALIMENTOS RUNCA VALDIVIA LIMITADA",
+            "zip_generated": true,
+            "zip_id": "zip_8e8e8dc9-964e-469e-9375-be9674bab82e.zip",
+            "pdfs_estimated": 120,
+            "response_time_seconds": 150,
+            "tools_used": [
+                "search_invoices_by_rut_and_year"
+            ]
+        }
+    },
+    "validation_criteria": {
+        "tool_selection": {
+            "description": "Selecciona la herramienta search_invoices_by_rut_and_year correctamente",
+            "expected_tool": "search_invoices_by_rut_and_year",
+            "status": "PASSED",
+            "actual_tool": "search_invoices_by_rut_and_year",
+            "validation_method": "Check MCP toolbox logs for tool invocation",
+            "verified_date": "2025-10-09"
+        },
+        "parameter_extraction": {
+            "description": "Extrae correctamente RUT y año de la query",
+            "expected_parameters": {
+                "target_rut": "76262399-4",
+                "target_year": 2025
+            },
+            "status": "PASSED",
+            "actual_parameters": {
+                "target_rut": "76262399-4",
+                "target_year": 2025
+            },
+            "validation_method": "Check BigQuery parameters in logs",
+            "verified_date": "2025-10-09"
+        },
+        "year_filtering": {
+            "description": "Filtra correctamente por año 2025 usando EXTRACT(YEAR FROM fecha)",
+            "expected_year": 2025,
+            "status": "PASSED",
+            "actual_year_range": "2025-01-03 to 2025-10-04",
+            "validation_method": "All returned facturas have fecha in 2025",
+            "verified_date": "2025-10-09"
+        },
+        "rut_filtering": {
+            "description": "Filtra correctamente por RUT 76262399-4",
+            "expected_rut": "76262399-4",
+            "status": "PASSED",
+            "actual_rut": "76262399-4",
+            "facturas_count": 60,
+            "validation_method": "All returned facturas have Rut = 76262399-4",
+            "verified_date": "2025-10-09"
+        },
+        "multiple_solicitantes": {
+            "description": "Puede devolver facturas de múltiples solicitantes del mismo RUT",
+            "validation_note": "Sin filtro de solicitante, puede haber varios códigos",
+            "status": "PASSED",
+            "actual_solicitantes": 1,
+            "note": "En este caso todas las facturas del RUT tienen el mismo cliente, pero la herramienta está preparada para múltiples solicitantes",
+            "validation_method": "Check if multiple solicitantes appear in results",
+            "verified_date": "2025-10-09"
+        },
+        "response_quality": {
+            "description": "Respuesta estructurada con facturas y agrupación por solicitante si aplica",
+            "should_contain": [
+                "RUT 76262399-4",
+                "año 2025",
+                "facturas",
+                "links de descarga"
+            ],
+            "should_not_contain": [
+                "error",
+                "no se encontraron",
+                "disculpa"
+            ],
+            "status": "PASSED",
+            "actual_content": {
+                "contains_rut": true,
+                "contains_year": true,
+                "contains_facturas": true,
+                "contains_zip_link": true,
+                "facturas_listed": 60,
+                "errors_detected": false
+            },
+            "validation_method": "Response content validation",
+            "verified_date": "2025-10-09"
+        }
+    },
+    "technical_details": {
+        "mcp_toolbox_logs": {
+            "tool_invocation": "search_invoices_by_rut_and_year",
+            "parameters": {
+                "target_rut": "76262399-4",
+                "target_year": 2025,
+                "pdf_type": "both"
+            },
+            "bigquery_query": "SELECT ... WHERE Rut = @target_rut AND EXTRACT(YEAR FROM fecha) = @target_year ORDER BY fecha DESC, Factura DESC LIMIT 200",
+            "expected_execution_time": "< 5 seconds"
+        },
+        "agent_behavior": {
+            "prompt_recognition": "Reconoce combinación RUT + Año (sin solicitante)",
+            "tool_selection": "Usa herramienta de RUT + año cuando no se menciona solicitante",
+            "response_formatting": "Markdown con tabla de facturas ordenadas por fecha DESC"
+        }
+    },
+    "business_impact": {
+        "user_experience": "Users can query annual invoices by RUT only",
+        "functionality_added": "RUT + Year filtering without requiring solicitante",
+        "use_case": "Annual RUT review across all customer codes"
+    },
+    "test_variants": [
+        {
+            "query": "Facturas 2024 del RUT 96568740-8",
+            "rut": "96568740-8",
+            "year": 2024,
+            "note": "Different RUT and year"
+        },
+        {
+            "query": "Dame las facturas del año 2023 para el RUT 76747198-K",
+            "rut": "76747198-K",
+            "year": 2023,
+            "note": "Alternative phrasing"
+        },
+        {
+            "query": "Busca facturas RUT 61608503-4 año 2025",
+            "rut": "61608503-4",
+            "year": 2025,
+            "note": "Shorter phrasing"
+        }
+    ],
+    "known_limitations": {
+        "max_results": "Limited to 200 facturas per query",
+        "no_solicitante_filter": "Returns ALL solicitantes for the RUT",
+        "date_precision": "Year-level only, no month/day filtering"
+    }
+}

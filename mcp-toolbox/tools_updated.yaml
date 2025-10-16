@@ -1664,6 +1664,241 @@ tools:
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
       default: both
+  search_invoices_by_rut_solicitante_and_year:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n\
+      \  DetallesFactura,\n  CASE\n    WHEN COALESCE(@pdf_type, 'both') IN ('both',\
+      \ 'tributaria_only') AND Copia_Tributaria_cf IS NOT NULL\n    THEN Copia_Tributaria_cf\n\
+      \    ELSE NULL\n  END as Copia_Tributaria_cf_proxy,\n  CASE\n    WHEN COALESCE(@pdf_type,\
+      \ 'both') IN ('both', 'cedible_only') AND Copia_Cedible_cf IS NOT NULL\n  \
+      \  THEN Copia_Cedible_cf\n    ELSE NULL\n  END as Copia_Cedible_cf_proxy\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Rut = @target_rut\n  AND Solicitante = LPAD(@solicitante, 10, '0')\n  AND\
+      \ EXTRACT(YEAR FROM fecha) = @target_year\nORDER BY fecha DESC, Factura DESC\n\
+      LIMIT 200\n"
+    description: '⭐ HERRAMIENTA CRÍTICA: Busca facturas combinando RUT + Solicitante
+      + Año completo.
+
+
+      ESENCIAL para consultas como "Facturas 2025, RUT 76262399-4 cliente 12527236".
+
+
+      Características:
+
+      - Combina TRES filtros: RUT del cliente + Código SAP del solicitante + Año
+
+      - Normalización LPAD automática del solicitante (10 dígitos)
+
+      - Búsqueda específica y precisa para casos con múltiples criterios
+
+      - Cubre año completo (todos los meses y días)
+
+      - Incluye rutas de PDFs con filtrado opcional
+
+
+      Casos de uso:
+
+      - Usuario especifica RUT + cliente/solicitante + año
+
+      - Consultas muy específicas que requieren máxima precisión
+
+      - Búsquedas de facturas de un cliente específico de un proveedor en un año
+
+
+      Ventajas sobre herramientas relacionadas:
+
+      - Más específico que search_invoices_by_rut_and_year (agrega filtro de solicitante)
+
+      - Más flexible que search_invoices_by_rut_and_date_range (no requiere fechas
+      exactas)
+
+      - Perfecto balance entre especificidad y flexibilidad temporal
+
+
+      NUEVO: Soporta filtrado por tipo de PDF mediante parámetro opcional pdf_type.
+
+      '
+    parameters:
+    - name: target_rut
+      type: string
+      description: RUT del cliente en formato con guión (ej. "76262399-4", "9025012-4")
+      required: true
+    - name: solicitante
+      type: string
+      description: Código SAP del solicitante (ej. "12527236", "0012527236"). Se normaliza
+        automáticamente con LPAD a 10 dígitos.
+      required: true
+    - name: target_year
+      type: integer
+      description: Año de las facturas (ej. 2025, 2024, 2023)
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias (CF y SF)
+
+        - ''cedible_only'': Solo facturas cedibles (CF y SF)'
+      required: false
+      default: both
+  search_invoices_by_rut_and_year:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n\
+      \  DetallesFactura,\n  CASE\n    WHEN COALESCE(@pdf_type, 'both') IN ('both',\
+      \ 'tributaria_only') AND Copia_Tributaria_cf IS NOT NULL\n    THEN Copia_Tributaria_cf\n\
+      \    ELSE NULL\n  END as Copia_Tributaria_cf_proxy,\n  CASE\n    WHEN COALESCE(@pdf_type,\
+      \ 'both') IN ('both', 'cedible_only') AND Copia_Cedible_cf IS NOT NULL\n  \
+      \  THEN Copia_Cedible_cf\n    ELSE NULL\n  END as Copia_Cedible_cf_proxy\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Rut = @target_rut\n  AND EXTRACT(YEAR FROM fecha) = @target_year\nORDER\
+      \ BY fecha DESC, Factura DESC\nLIMIT 200\n"
+    description: 'Busca facturas de un RUT específico en un año completo.
+
+
+      Útil para consultas como "Facturas del RUT 76262399-4 en 2025" o "Dame todas
+      las facturas de 2024 del RUT X".
+
+
+      Características:
+
+      - Filtra por RUT del cliente + Año completo
+
+      - Búsqueda más amplia que search_invoices_by_rut_solicitante_and_year (sin
+      filtro de solicitante)
+
+      - Cubre todos los meses y días del año especificado
+
+      - Útil para clientes que tienen múltiples solicitantes/códigos SAP
+
+      - Incluye rutas de PDFs con filtrado opcional
+
+
+      Casos de uso:
+
+      - Usuario solicita facturas de un RUT en un año sin especificar solicitante
+
+      - Análisis anual de facturación de un cliente específico
+
+      - Búsquedas amplias cuando no se conoce el código SAP del solicitante
+
+
+      Ventajas:
+
+      - Más flexible que search_invoices_by_rut_solicitante_and_year (no requiere
+      solicitante)
+
+      - Más específico que search_invoices_by_rut (filtra por año)
+
+      - Balance perfecto para consultas anuales por cliente
+
+
+      NUEVO: Soporta filtrado por tipo de PDF mediante parámetro opcional pdf_type.
+
+      '
+    parameters:
+    - name: target_rut
+      type: string
+      description: RUT del cliente en formato con guión (ej. "76262399-4", "9025012-4")
+      required: true
+    - name: target_year
+      type: integer
+      description: Año de las facturas (ej. 2025, 2024, 2023)
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias (CF y SF)
+
+        - ''cedible_only'': Solo facturas cedibles (CF y SF)'
+      required: false
+      default: both
+  search_invoices_by_solicitante_and_year:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n\
+      \  DetallesFactura,\n  CASE\n    WHEN COALESCE(@pdf_type, 'both') IN ('both',\
+      \ 'tributaria_only') AND Copia_Tributaria_cf IS NOT NULL\n    THEN Copia_Tributaria_cf\n\
+      \    ELSE NULL\n  END as Copia_Tributaria_cf_proxy,\n  CASE\n    WHEN COALESCE(@pdf_type,\
+      \ 'both') IN ('both', 'cedible_only') AND Copia_Cedible_cf IS NOT NULL\n  \
+      \  THEN Copia_Cedible_cf\n    ELSE NULL\n  END as Copia_Cedible_cf_proxy\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Solicitante = LPAD(@solicitante, 10, '0')\n  AND EXTRACT(YEAR FROM fecha)\
+      \ = @target_year\nORDER BY fecha DESC, Factura DESC\nLIMIT 200\n"
+    description: 'Busca facturas de un Solicitante (código SAP) específico en un año
+      completo.
+
+
+      Útil para consultas como "Facturas del cliente 12527236 en 2025" o "Dame facturas
+      del SAP 0012148561 en 2024".
+
+
+      Características:
+
+      - Filtra por Código SAP del solicitante + Año completo
+
+      - Normalización LPAD automática del solicitante (10 dígitos)
+
+      - Búsqueda más amplia que search_invoices_by_rut_solicitante_and_year (sin
+      filtro de RUT)
+
+      - Cubre todos los meses y días del año especificado
+
+      - Útil cuando se conoce el código SAP pero no el RUT
+
+      - Incluye rutas de PDFs con filtrado opcional
+
+
+      Casos de uso:
+
+      - Usuario solicita facturas de un código SAP/cliente en un año
+
+      - Análisis anual de facturación por solicitante específico
+
+      - Búsquedas cuando se tiene el código interno pero no el RUT del cliente
+
+
+      Ventajas:
+
+      - Más flexible que search_invoices_by_rut_solicitante_and_year (no requiere
+      RUT)
+
+      - Más específico que search_invoices_by_solicitante_and_date_range (solo requiere
+      año, no fechas exactas)
+
+      - Normalización automática del código SAP con LPAD
+
+
+      NUEVO: Soporta filtrado por tipo de PDF mediante parámetro opcional pdf_type.
+
+      '
+    parameters:
+    - name: solicitante
+      type: string
+      description: Código SAP del solicitante (ej. "12527236", "0012527236"). Se normaliza
+        automáticamente con LPAD a 10 dígitos.
+      required: true
+    - name: target_year
+      type: integer
+      description: Año de las facturas (ej. 2025, 2024, 2023)
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias (CF y SF)
+
+        - ''cedible_only'': Solo facturas cedibles (CF y SF)'
+      required: false
+      default: both
   validate_context_size_before_search:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1911,6 +2146,9 @@ toolsets:
   - get_date_range_statistics
   - search_invoices_by_proveedor
   - search_invoices_by_company_name_and_date
+  - search_invoices_by_rut_solicitante_and_year
+  - search_invoices_by_rut_and_year
+  - search_invoices_by_solicitante_and_year
   - search_invoices_by_factura_number
   - search_invoices_by_referencia_number
   - search_invoices_by_any_number

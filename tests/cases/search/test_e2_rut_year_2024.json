@@ -1,0 +1,86 @@
+{
+  "test_id": "E2",
+  "test_name": "year_2024_rut_only",
+  "description": "Test exhaustivo: Validar búsqueda por RUT + Año 2024 (sin filtrar por solicitante)",
+  "priority": "HIGH",
+  "category": "temporal_coverage",
+  "tool_tested": "search_invoices_by_rut_and_year",
+  "query": "Dame todas las facturas del RUT 76262399-4 del año 2024",
+  "parameters": {
+    "target_rut": "76262399-4",
+    "target_year": 2024,
+    "pdf_type": "both"
+  },
+  "expected_results": {
+    "tool_selected": "search_invoices_by_rut_and_year",
+    "min_invoices": 0,
+    "max_invoices": 200,
+    "pdf_types": [
+      "Copia_Tributaria_cf",
+      "Copia_Cedible_cf"
+    ],
+    "pdf_multiplier": 2,
+    "notes": "Debe incluir todas las facturas del RUT independiente del solicitante"
+  },
+  "validation_criteria": [
+    {
+      "id": "VC1",
+      "name": "tool_selection",
+      "description": "Agente debe seleccionar search_invoices_by_rut_and_year",
+      "critical": true
+    },
+    {
+      "id": "VC2",
+      "name": "parameter_extraction",
+      "description": "Parámetros extraídos correctamente: RUT, Año 2024",
+      "critical": true
+    },
+    {
+      "id": "VC3",
+      "name": "year_filtering",
+      "description": "Filtrado EXTRACT(YEAR FROM fecha) = 2024",
+      "critical": true
+    },
+    {
+      "id": "VC4",
+      "name": "no_solicitante_filter",
+      "description": "No debe filtrar por solicitante específico",
+      "critical": true
+    },
+    {
+      "id": "VC5",
+      "name": "sql_execution",
+      "description": "Query BigQuery ejecutada sin errores",
+      "critical": true
+    },
+    {
+      "id": "VC6",
+      "name": "response_coherence",
+      "description": "Respuesta incluye todas las facturas del RUT en 2024",
+      "critical": false
+    }
+  ],
+  "test_execution": {
+    "endpoint": "http://localhost:8001/chat",
+    "method": "POST",
+    "timeout": 600
+  },
+  "status": "FAILED",
+  "executed_at": "2025-10-10 10:22:56",
+  "results": {
+    "response_preview": "",
+    "invoices_found": 0,
+    "tool_used": [
+      "search_invoices_by_rut_and_year"
+    ],
+    "zip_created": false,
+    "execution_time": "135.16s",
+    "pdfs_generated": 0,
+    "validations": {
+      "sql_execution": true,
+      "response_received": false,
+      "tool_selection": true
+    }
+  },
+  "notes": "Este test valida que la herramienta busca en TODO el año 2024 sin filtrar por solicitante. Si el RUT tiene múltiples solicitantes, debe incluirlos todos."
+}

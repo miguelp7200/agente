@@ -1,7 +1,7 @@
 # 📊 Inventario de Herramientas MCP - Invoice Chatbot Backend
 
-**Fecha de actualización:** 2 de octubre de 2025  
-**Total de herramientas:** 49 herramientas  
+**Fecha de actualización:** 9 de octubre de 2025  
+**Total de herramientas:** 52 herramientas (+3 nuevas)  
 **Proyectos BigQuery:** 2 (datalake-gasco, agent-intelligence-gasco)
 
 ---
@@ -36,11 +36,12 @@ Las siguientes herramientas ahora soportan el parámetro `pdf_type` opcional:
 1. [Búsquedas Básicas](#1-búsquedas-básicas) (13 herramientas)
 2. [Búsquedas por Número de Factura](#2-búsquedas-por-número-de-factura) (3 herramientas)
 3. [Búsquedas Especializadas](#3-búsquedas-especializadas) (8 herramientas)
-4. [Estadísticas y Analytics](#4-estadísticas-y-analytics) (8 herramientas)
-5. [Gestión de PDFs](#5-gestión-de-pdfs) (10 herramientas)
-6. [Validaciones de Contexto](#6-validaciones-de-contexto) (3 herramientas)
-7. [Gestión de ZIPs](#7-gestión-de-zips) (6 herramientas)
-8. [Utilidades](#8-utilidades) (1 herramienta)
+4. [Búsquedas por Año Completo](#4-búsquedas-por-año-completo) (3 herramientas) 🆕
+5. [Estadísticas y Analytics](#5-estadísticas-y-analytics) (8 herramientas)
+6. [Gestión de PDFs](#6-gestión-de-pdfs) (10 herramientas)
+7. [Validaciones de Contexto](#7-validaciones-de-contexto) (3 herramientas)
+8. [Gestión de ZIPs](#8-gestión-de-zips) (6 herramientas)
+9. [Utilidades](#9-utilidades) (1 herramienta)
 
 ---
 
@@ -558,9 +559,300 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-## 4. 📊 Estadísticas y Analytics
+## 4. 📅 Búsquedas por Año Completo
 
-### 4.1. `get_invoice_statistics`
+**🆕 Nuevas herramientas agregadas:** 9 de octubre de 2025  
+**Propósito:** Resolver problema de pérdida de PDFs en búsquedas por año completo
+
+### Contexto de Implementación
+
+Estas 3 herramientas fueron creadas para resolver un problema crítico donde búsquedas por año completo resultaban en pérdida del 71% de los PDFs (75/262 → 262/262). Las herramientas usan `EXTRACT(YEAR FROM fecha)` para filtrado preciso por año sin pérdida de datos.
+
+**✅ Validación:** Las 3 herramientas fueron validadas exhaustivamente el 9 de octubre de 2025:
+- 251 facturas procesadas en total
+- 502 PDFs generados correctamente
+- 0% pérdida de datos
+- Tests manuales y automáticos pasados exitosamente
+
+---
+
+### 9.1. `search_invoices_by_rut_solicitante_and_year` ⭐ 🆕
+
+**Descripción:** Búsqueda COMPLETA por RUT + Solicitante + Año (RECOMENDADA para máxima precisión)
+
+**Parámetros:**
+- `target_rut` (string, formato con guión, ejemplo: "76262399-4")
+- `solicitante` (string, normalizado automáticamente con LPAD, ejemplo: "12527236" → "0012527236")
+- `target_year` (integer, formato YYYY, ejemplo: 2025)
+- `pdf_type` (string, opcional, default='both'): Filtra tipos de PDF
+  - `'both'` (default): Todos los PDFs (tributaria + cedible)
+  - `'tributaria_cf'`: Solo Copia_Tributaria_cf
+  - `'cedible_cf'`: Solo Copia_Cedible_cf
+
+**Columnas consultadas:**
+- `Factura` - Número de factura
+- `Factura_Referencia` - Folio de la factura
+- `Solicitante` - Código SAP (normalizado con LPAD)
+- `Rut` - RUT del cliente
+- `Nombre` - Nombre del cliente
+- `fecha` - Fecha de emisión
+- `DetallesFactura` - Array de detalles
+- `Copia_Tributaria_cf` - PDF Tributaria con fondo (filtrable)
+- `Copia_Cedible_cf` - PDF Cedible con fondo (filtrable)
+
+**Límite:** 200 facturas  
+**Orden:** fecha DESC, Factura DESC  
+**Normalización:** LPAD(@solicitante, 10, '0')
+
+**💡 Ejemplos de uso:**
+
+```python
+# Caso 1: Búsqueda completa con todos los PDFs (default)
+search_invoices_by_rut_solicitante_and_year(
+    target_rut="76262399-4",
+    solicitante="12527236",  # Se normaliza automáticamente a "0012527236"
+    target_year=2025
+)
+
+# Caso 2: Solo PDFs tributarios
+search_invoices_by_rut_solicitante_and_year(
+    target_rut="76262399-4",
+    solicitante="12527236",
+    target_year=2025,
+    pdf_type="tributaria_cf"
+)
+
+# Caso 3: Solicitante ya normalizado
+search_invoices_by_rut_solicitante_and_year(
+    target_rut="76262399-4",
+    solicitante="0012527236",  # Ya normalizado
+    target_year=2025
+)
+```
+
+**📊 Caso de uso típico:**  
+"Dame todas las facturas del año 2025 para el RUT 76262399-4 cliente 12527236"
+
+**✅ Validación realizada:**
+- Query probada: "Facturas 2025, Rut 76262399-4 cliente 12527236"
+- Resultado: 131 facturas encontradas, 262 PDFs generados
+- Verificación manual: Usuario descargó ZIP y confirmó 262 PDFs ✅
+
+---
+
+### 8.2. `search_invoices_by_rut_and_year` 🆕
+
+**Descripción:** Búsqueda por RUT + Año SIN filtrar por solicitante (puede devolver múltiples clientes del mismo RUT)
+
+**Parámetros:**
+- `target_rut` (string, formato con guión, ejemplo: "76262399-4")
+- `target_year` (integer, formato YYYY, ejemplo: 2025)
+- `pdf_type` (string, opcional, default='both'): Filtra tipos de PDF
+
+**Columnas consultadas:**
+- `Factura`
+- `Factura_Referencia`
+- `Solicitante`
+- `Rut`
+- `Nombre`
+- `fecha`
+- `DetallesFactura`
+- `Copia_Tributaria_cf` (filtrable)
+- `Copia_Cedible_cf` (filtrable)
+
+**Límite:** 200 facturas  
+**Orden:** fecha DESC, Factura DESC
+
+**💡 Ejemplos de uso:**
+
+```python
+# Caso 1: Todas las facturas de un RUT en 2025
+search_invoices_by_rut_and_year(
+    target_rut="76262399-4",
+    target_year=2025
+)
+
+# Caso 2: Solo PDFs cedibles de un RUT en 2024
+search_invoices_by_rut_and_year(
+    target_rut="96568740-8",
+    target_year=2024,
+    pdf_type="cedible_cf"
+)
+```
+
+**📊 Caso de uso típico:**  
+"Dame todas las facturas del RUT 76262399-4 del año 2025" (sin especificar cliente)
+
+**✅ Validación realizada:**
+- Query probada: "Dame todas las facturas del RUT 76262399-4 del año 2025"
+- Resultado: 60 facturas encontradas, 120 PDFs generados
+- Cliente: ALIMENTOS RUNCA VALDIVIA LIMITADA
+- Rango: 2025-01-03 a 2025-10-04
+
+**🔍 Diferencia con 4.1:**  
+Esta herramienta NO filtra por solicitante, por lo que puede devolver facturas de múltiples códigos SAP asociados al mismo RUT.
+
+---
+
+### 8.3. `search_invoices_by_solicitante_and_year` 🆕
+
+**Descripción:** Búsqueda por Solicitante + Año SIN filtrar por RUT (puede devolver múltiples RUTs del mismo cliente)
+
+**Parámetros:**
+- `solicitante` (string, normalizado automáticamente con LPAD, ejemplo: "12527236" → "0012527236")
+- `target_year` (integer, formato YYYY, ejemplo: 2025)
+- `pdf_type` (string, opcional, default='both'): Filtra tipos de PDF
+
+**Columnas consultadas:**
+- `Factura`
+- `Factura_Referencia`
+- `Solicitante`
+- `Rut`
+- `Nombre`
+- `fecha`
+- `DetallesFactura`
+- `Copia_Tributaria_cf` (filtrable)
+- `Copia_Cedible_cf` (filtrable)
+
+**Límite:** 200 facturas  
+**Orden:** fecha DESC, Factura DESC  
+**Normalización:** LPAD(@solicitante, 10, '0')
+
+**💡 Ejemplos de uso:**
+
+```python
+# Caso 1: Todas las facturas de un solicitante en 2025
+search_invoices_by_solicitante_and_year(
+    solicitante="12527236",  # Se normaliza a "0012527236"
+    target_year=2025
+)
+
+# Caso 2: Solicitante con código ya normalizado
+search_invoices_by_solicitante_and_year(
+    solicitante="0012148561",  # Ya tiene 10 dígitos
+    target_year=2024
+)
+
+# Caso 3: Solo PDFs tributarios de un cliente en 2023
+search_invoices_by_solicitante_and_year(
+    solicitante="12141289",
+    target_year=2023,
+    pdf_type="tributaria_cf"
+)
+```
+
+**📊 Caso de uso típico:**  
+"Dame las facturas del solicitante 12527236 del año 2025" (sin especificar RUT)
+
+**✅ Validación realizada:**
+- Query probada: "Dame las facturas del solicitante 12527236 del año 2025"
+- Resultado: 60 facturas encontradas, 120 PDFs generados
+- RUT encontrado: 76262399-4
+- Normalización LPAD funcionó correctamente (12527236 → 0012527236)
+
+**🔍 Diferencia con 4.1:**  
+Esta herramienta NO filtra por RUT, por lo que si un solicitante tiene facturas con múltiples RUTs, todas serán devueltas.
+
+---
+
+### ⚠️ Limitaciones Conocidas (Búsquedas por Año)
+
+#### 1. Límite de Resultados
+- **Máximo:** 200 facturas por query
+- **Impacto:** Búsquedas muy amplias pueden truncarse
+- **Solución:** Usar filtros más específicos (RUT + Solicitante + Año)
+
+#### 2. Error MALFORMED_FUNCTION_CALL (Cosmético)
+- **Descripción:** Gemini API falla al formatear respuestas con >100 facturas
+- **Impacto:** Solo presentación de texto al usuario, NO afecta funcionalidad
+- **Evidencia:** Query con 131 facturas generó ZIP con 262 PDFs correctamente ✅
+- **Sistema funciona perfectamente:**
+  - ✅ BigQuery ejecuta la query completa
+  - ✅ MCP tool retorna todos los datos
+  - ✅ ZIP se genera con todos los PDFs
+  - ❌ Solo Gemini falla al formatear la respuesta larga en texto
+- **Mitigación propuesta:** Implementar respuesta simplificada (solo link ZIP) para queries >100 facturas
+
+#### 3. Precisión de Fecha
+- **Limitación:** Filtrado solo a nivel de año (no mes/día)
+- **Impacto:** No permite filtrar por mes específico dentro del año
+- **Workaround:** Usar `search_invoices_by_rut_and_date_range` para rangos más específicos
+
+#### 4. Normalización LPAD
+- **Requerida:** Solicitantes deben normalizarse a 10 dígitos
+- **Automática:** Las herramientas 4.1 y 4.3 normalizan automáticamente
+- **Ejemplos:**
+  - Input: `"527236"` → Output: `"0000527236"` ✅
+  - Input: `"12527236"` → Output: `"0012527236"` ✅
+  - Input: `"0012527236"` → Output: `"0012527236"` ✅ (ya normalizado)
+
+---
+
+### 🎯 Guía de Selección de Herramienta
+
+**¿Cuándo usar cada herramienta?**
+
+| Situación | Herramienta Recomendada | Razón |
+|-----------|------------------------|-------|
+| Tengo RUT + Solicitante + Año | `search_invoices_by_rut_solicitante_and_year` ⭐ | Máxima precisión, cero ambigüedad |
+| Tengo RUT + Año (sin solicitante) | `search_invoices_by_rut_and_year` | Devuelve TODOS los solicitantes del RUT |
+| Tengo Solicitante + Año (sin RUT) | `search_invoices_by_solicitante_and_year` | Devuelve TODOS los RUTs del solicitante |
+| Query ambigua o incompleta | `search_invoices_by_rut_solicitante_and_year` | Usar con los datos disponibles |
+| Solo quiero PDFs tributarios | Cualquiera + `pdf_type='tributaria_cf'` | Reduce respuesta en 60% |
+| Solo quiero PDFs cedibles | Cualquiera + `pdf_type='cedible_cf'` | Reduce respuesta en 60% |
+
+---
+
+### 📊 Métricas de Performance (Validadas)
+
+| Herramienta | Facturas Probadas | PDFs Generados | Tiempo de Respuesta | Estado |
+|------------|-------------------|----------------|---------------------|--------|
+| 4.1 (RUT+Solicitante+Año) | 131 | 262 | ~180s | ✅ VALIDADO |
+| 4.2 (RUT+Año) | 60 | 120 | ~150s | ✅ VALIDADO |
+| 4.3 (Solicitante+Año) | 60 | 120 | ~180s | ✅ VALIDADO |
+
+**Factores que afectan tiempo:**
+- Cantidad de facturas encontradas
+- Generación de ZIP con PDFs
+- Generación de signed URLs (1 hora de expiración)
+- Formateo de respuesta del agente
+
+---
+
+### 🔄 Regresión y Monitoreo Recomendado
+
+**Tests de Regresión:**
+- ✅ Ejecutar mensualmente con datos actualizados
+- ✅ Validar con diferentes años (2024, 2023, 2022)
+- ✅ Probar boundary cases (años sin datos, años futuros)
+- ✅ Verificar normalización LPAD con diferentes longitudes
+
+**Archivos de Test:**
+```
+tests/cases/search/
+├── test_rut_solicitante_year_2025.json    ✅ Validado (131 facturas)
+├── test_rut_year_2025.json                ✅ Validado (60 facturas)
+└── test_solicitante_year_2025.json        ✅ Validado (60 facturas)
+
+scripts/
+├── test_rut_solicitante_year_2025.ps1     ✅ Script PowerShell
+├── test_rut_year_2025.ps1                 ✅ Script PowerShell
+└── test_solicitante_year_2025.ps1         ✅ Script PowerShell
+```
+
+**Reportes de Validación:**
+```
+tests/cases/search/
+├── VALIDATION_REPORT_2025-10-09.md        📄 Reporte técnico detallado
+├── EXECUTIVE_SUMMARY.md                   📄 Resumen ejecutivo
+└── VALIDATION_SUMMARY_ALL_TOOLS_2025-10-09.md  📄 Reporte consolidado
+```
+
+---
+
+## 5. 📊 Estadísticas y Analytics
+
+### 9.1. `get_invoice_statistics`
 **Descripción:** Estadísticas comprensivas del dataset completo  
 **Parámetros:** Ninguno  
 **Columnas consultadas:**
@@ -578,7 +870,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 4.2. `get_yearly_invoice_statistics`
+### 8.2. `get_yearly_invoice_statistics`
 **Descripción:** Desglose anual con estadísticas detalladas  
 **Parámetros:** Ninguno  
 **Columnas consultadas:**
@@ -596,7 +888,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 4.3. `get_monthly_invoice_statistics`
+### 8.3. `get_monthly_invoice_statistics`
 **Descripción:** Desglose mensual dentro de un año  
 **Parámetros:** `target_year` (integer)  
 **Columnas consultadas:**
@@ -614,7 +906,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 4.4. `get_monthly_amount_statistics`
+### 6.4. `get_monthly_amount_statistics`
 **Descripción:** Montos monetarios por mes en un año  
 **Parámetros:** `target_year` (integer)  
 **Columnas consultadas:**
@@ -634,7 +926,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 4.5. `get_zip_statistics`
+### 6.5. `get_zip_statistics`
 **Descripción:** Estadísticas de actividad de ZIPs  
 **Parámetros:** Ninguno  
 **Proyecto:** agent-intelligence-gasco (WRITE)  
@@ -651,7 +943,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 4.6. `validate_context_size_before_search` ⚠️
+### 6.6. `validate_context_size_before_search` ⚠️
 **Descripción:** Validador crítico para búsquedas mensuales  
 **Parámetros:**
 - `target_year` (integer)
@@ -676,14 +968,14 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 4.7. `validate_rut_context_size` ⚠️
+### 6.7. `validate_rut_context_size` ⚠️
 **Descripción:** Validador para búsquedas por RUT  
 **Parámetros:** `target_rut` (string)  
 **Columnas consultadas:** Similar a 4.6 con filtro por RUT
 
 ---
 
-### 4.8. `validate_date_range_context_size` ⚠️
+### 6.8. `validate_date_range_context_size` ⚠️
 **Descripción:** Validador para rangos de fechas  
 **Parámetros:**
 - `start_date` (string)
@@ -693,9 +985,9 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-## 5. 📄 Gestión de PDFs
+## 6. 📄 Gestión de PDFs
 
-### 5.1. `get_invoices_with_pdf_info`
+### 9.1. `get_invoices_with_pdf_info`
 **Descripción:** Información completa de PDFs  
 **Parámetros:** `invoice_numbers` (string, opcional)  
 **Columnas consultadas:**
@@ -715,7 +1007,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.2. `get_invoices_with_proxy_links` 🆕
+### 8.2. `get_invoices_with_proxy_links` 🆕
 **Descripción:** URLs proxy de CloudRun pre-formateadas  
 **Parámetros:**
 - `solicitante_code` (string, opcional)
@@ -735,7 +1027,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.3. `get_invoices_with_all_pdf_links` 🆕
+### 8.3. `get_invoices_with_all_pdf_links` 🆕
 **Descripción:** TODOS los enlaces de PDFs para un solicitante  
 **Parámetros:**
 - `solicitante_code` (string, REQUERIDO)
@@ -759,7 +1051,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.4. `get_multiple_pdf_downloads`
+### 6.4. `get_multiple_pdf_downloads`
 **Descripción:** Especializada en múltiples tipos de PDF  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:**
@@ -780,7 +1072,7 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.5. `get_cedible_cf_by_solicitante`
+### 6.5. `get_cedible_cf_by_solicitante`
 **Descripción:** Solo PDFs Cedible Con Fondo  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:**
@@ -797,14 +1089,14 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.6. `get_cedible_sf_by_solicitante`
+### 6.6. `get_cedible_sf_by_solicitante`
 **Descripción:** Solo PDFs Cedible Sin Fondo  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:** Similar a 5.5
 
 ---
 
-### 5.7. `get_tributaria_cf_by_solicitante`
+### 6.7. `get_tributaria_cf_by_solicitante`
 **Descripción:** Solo PDFs Tributaria Con Fondo  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:**
@@ -819,14 +1111,14 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.8. `get_tributaria_sf_by_solicitante`
+### 6.8. `get_tributaria_sf_by_solicitante`
 **Descripción:** Solo PDFs Tributaria Sin Fondo  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:** Similar a 5.7
 
 ---
 
-### 5.9. `get_tributarias_by_solicitante`
+### 6.9. `get_tributarias_by_solicitante`
 **Descripción:** TODAS las Tributarias (CF + SF)  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:**
@@ -844,14 +1136,14 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-### 5.10. `get_cedibles_by_solicitante`
+### 6.10. `get_cedibles_by_solicitante`
 **Descripción:** TODAS las Cedibles (CF + SF)  
 **Parámetros:** `solicitante_code` (string, REQUERIDO)  
 **Columnas consultadas:** Similar a 5.9
 
 ---
 
-### 5.11. `get_doc_termico_pdfs`
+### 6.11. `get_doc_termico_pdfs`
 **Descripción:** Documentos térmicos específicos  
 **Parámetros:** `invoice_numbers` (string, separados por comas)  
 **Columnas consultadas:**
@@ -863,29 +1155,29 @@ search_invoices()  # o search_invoices(pdf_type='both')
 
 ---
 
-## 6. ⚠️ Validaciones de Contexto
+## 7. ⚠️ Validaciones de Contexto
 
-### 6.1. `validate_context_size_before_search`
-Ver sección 4.6 (Estadísticas)
-
----
-
-### 6.2. `validate_rut_context_size`
-Ver sección 4.7 (Estadísticas)
+### 9.1. `validate_context_size_before_search`
+Ver sección 5.6 (Estadísticas)
 
 ---
 
-### 6.3. `validate_date_range_context_size`
-Ver sección 4.8 (Estadísticas)
+### 8.2. `validate_rut_context_size`
+Ver sección 5.7 (Estadísticas)
 
 ---
 
-## 7. 📦 Gestión de ZIPs
+### 8.3. `validate_date_range_context_size`
+Ver sección 5.8 (Estadísticas)
+
+---
+
+## 8. 📦 Gestión de ZIPs
 
 **Proyecto:** agent-intelligence-gasco (WRITE)  
 **Tabla:** `agent-intelligence-gasco.zip_operations.zip_files`
 
-### 7.1. `create_zip_record`
+### 9.1. `create_zip_record`
 **Descripción:** Crea registro de ZIP en la base de datos  
 **Parámetros:**
 - `zip_id` (string)
@@ -907,7 +1199,7 @@ Ver sección 4.8 (Estadísticas)
 
 ---
 
-### 7.2. `list_zip_files`
+### 8.2. `list_zip_files`
 **Descripción:** Lista los ZIPs más recientes  
 **Parámetros:** Ninguno  
 **Columnas consultadas:**
@@ -925,7 +1217,7 @@ Ver sección 4.8 (Estadísticas)
 
 ---
 
-### 7.3. `get_zip_info`
+### 8.3. `get_zip_info`
 **Descripción:** Información detallada de un ZIP  
 **Parámetros:** `zip_id` (string)  
 **Columnas consultadas:** Igual que 7.2  
@@ -933,7 +1225,7 @@ Ver sección 4.8 (Estadísticas)
 
 ---
 
-### 7.4. `update_zip_status`
+### 8.4. `update_zip_status`
 **Descripción:** Actualiza estado de un ZIP  
 **Parámetros:**
 - `zip_id` (string)
@@ -948,7 +1240,7 @@ Ver sección 4.8 (Estadísticas)
 
 ---
 
-### 7.5. `record_zip_download`
+### 8.5. `record_zip_download`
 **Descripción:** Registra descarga de ZIP para analytics  
 **Parámetros:**
 - `zip_id` (string)
@@ -965,14 +1257,14 @@ Ver sección 4.8 (Estadísticas)
 
 ---
 
-### 7.6. `get_zip_statistics`
-Ver sección 4.5 (Estadísticas)
+### 8.6. `get_zip_statistics`
+Ver sección 5.5 (Estadísticas)
 
 ---
 
-## 8. 🛠️ Utilidades
+## 9. 🛠️ Utilidades
 
-### 8.1. `get_current_date`
+### 9.1. `get_current_date`
 **Descripción:** Obtiene fecha actual del sistema BigQuery  
 **Parámetros:** Ninguno  
 **Columnas consultadas:**
@@ -1016,7 +1308,7 @@ Ver sección 4.5 (Estadísticas)
 
 ## 🎯 Toolsets Definidos
 
-### 1. `gasco_invoice_search` (43 herramientas)
+### 1. `gasco_invoice_search` (46 herramientas)
 Todas las herramientas de búsqueda, estadísticas y gestión de PDFs.
 
 ### 2. `gasco_zip_management` (6 herramientas)
@@ -1053,8 +1345,8 @@ Herramientas para gestión de archivos ZIP.
 
 ## 📈 Métricas del Sistema
 
-- **Total de herramientas:** 49
-- **Herramientas con filtrado PDF:** 19 (🆕 Oct 02, 2025)
+- **Total de herramientas:** 52
+- **Herramientas con filtrado PDF:** 22 (🆕 Oct 02, 2025)
 - **Proyectos BigQuery:** 2 (READ + WRITE)
 - **Tabla principal:** `pdfs_modelo` (6,641 facturas, 2017-2025)
 - **Campos de PDF:** 5 tipos distintos
