@@ -1,6 +1,9 @@
 # Ignorar datos y muestras
 data/
 
+# Ignorar carpeta temporal
+tmp/
+
 # Ignorar resultados de diagnóstico y pruebas temporales
 diagnosis_results/
 test_results/
