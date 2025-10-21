@@ -1,4 +1,4 @@
-# 🔧 Catálogo de Herramientas MCP
+#  Catálogo de Herramientas MCP
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General
+##  Visión General
 
 Este documento cataloga las **49 herramientas MCP** (Model Context Protocol) disponibles en el Invoice Chatbot Backend, organizadas por categoría funcional con ejemplos prácticos y casos de uso.
 
@@ -46,7 +46,7 @@ Este documento cataloga las **49 herramientas MCP** (Model Context Protocol) dis
 
 ---
 
-## 📚 Tabla de Contenidos
+##  Tabla de Contenidos
 
 1. [Invoice Search Tools](#-invoice-search-tools) (27 herramientas)
 2. [Statistics & Analytics](#-statistics--analytics) (6 herramientas)
@@ -56,7 +56,7 @@ Este documento cataloga las **49 herramientas MCP** (Model Context Protocol) dis
 
 ---
 
-## 🔍 Invoice Search Tools
+##  Invoice Search Tools
 
 ### 1. search_invoices
 
@@ -85,9 +85,9 @@ LIMIT 50
 ```
 
 **Casos de uso**:
-- ✅ Exploración general del dataset
-- ✅ Vista previa de facturas más recientes
-- ✅ Testing inicial del sistema
+-  Exploración general del dataset
+-  Vista previa de facturas más recientes
+-  Testing inicial del sistema
 
 **Ejemplo**:
 ```json
@@ -105,7 +105,7 @@ LIMIT 50
 
 **Descripción**: Busca facturas por RUT del cliente (hasta 1000 resultados).
 
-**⚠️ FLUJO RECOMENDADO**: Usar `validate_rut_context_size` primero para RUTs con muchas facturas.
+** FLUJO RECOMENDADO**: Usar `validate_rut_context_size` primero para RUTs con muchas facturas.
 
 **Parámetros**:
 ```yaml
@@ -132,9 +132,9 @@ LIMIT 1000
 ```
 
 **Casos de uso**:
-- ✅ "Dame las facturas del RUT 9025012-4"
-- ✅ "Facturas de María Torres" (previo lookup de RUT)
-- ✅ Análisis de facturación por cliente específico
+-  "Dame las facturas del RUT 9025012-4"
+-  "Facturas de María Torres" (previo lookup de RUT)
+-  Análisis de facturación por cliente específico
 
 **Ejemplo**:
 ```json
@@ -172,7 +172,7 @@ LIMIT 1000
 
 **Descripción**: Busca facturas de un mes y año específicos (hasta 1000 resultados).
 
-**⚠️ FLUJO OBLIGATORIO**: DEBE usarse DESPUÉS de `validate_context_size_before_search`.
+** FLUJO OBLIGATORIO**: DEBE usarse DESPUÉS de `validate_context_size_before_search`.
 
 **Parámetros**:
 ```yaml
@@ -197,9 +197,9 @@ LIMIT 1000
 ```
 
 **Casos de uso**:
-- ✅ "Dame las facturas de diciembre 2019"
-- ✅ "Facturas de noviembre 2022"
-- ✅ Análisis mensual de facturación
+-  "Dame las facturas de diciembre 2019"
+-  "Facturas de noviembre 2022"
+-  Análisis mensual de facturación
 
 **Workflow recomendado**:
 ```
@@ -229,7 +229,7 @@ LIMIT 1000
 
 **Descripción**: Busca facturas dentro de un rango de fechas (hasta 1000 resultados).
 
-**⚠️ FLUJO RECOMENDADO**: Usar `validate_date_range_context_size` para rangos > 30 días.
+** FLUJO RECOMENDADO**: Usar `validate_date_range_context_size` para rangos > 30 días.
 
 **Parámetros**:
 ```yaml
@@ -254,9 +254,9 @@ LIMIT 1000
 ```
 
 **Casos de uso**:
-- ✅ "Facturas entre el 2019-12-01 y 2019-12-31"
-- ✅ "Dame facturas del primer trimestre 2025"
-- ✅ Análisis de períodos específicos
+-  "Facturas entre el 2019-12-01 y 2019-12-31"
+-  "Dame facturas del primer trimestre 2025"
+-  Análisis de períodos específicos
 
 **Ejemplo**:
 ```json
@@ -276,12 +276,12 @@ LIMIT 1000
 
 **Descripción**: 🌟 **HERRAMIENTA RECOMENDADA POR DEFECTO** para búsquedas numéricas ambiguas.
 
-**⭐ USAR CUANDO**:
+** USAR CUANDO**:
 - Usuario proporciona NÚMERO sin especificar si es ID interno o FOLIO
 - Queries ambiguas: "dame la factura 0022792445"
 - Incertidumbre sobre campo de origen
 
-**❌ NO USAR CUANDO**:
+** NO USAR CUANDO**:
 - Usuario dice explícitamente "ID interno" → usar `search_invoices_by_factura_number`
 - Usuario dice explícitamente "FOLIO" → usar `search_invoices_by_referencia_number`
 
@@ -323,16 +323,16 @@ LIMIT 5
 ```
 
 **Ventajas**:
-- ✅ Cobertura completa: busca en AMBOS campos
-- ✅ Retorna campo `match_type` indicando dónde se encontró
-- ✅ Prioriza matches exactos automáticamente
-- ✅ Maneja números con/sin ceros iniciales
-- ✅ GARANTIZA encontrar la factura sin ambigüedad
+-  Cobertura completa: busca en AMBOS campos
+-  Retorna campo `match_type` indicando dónde se encontró
+-  Prioriza matches exactos automáticamente
+-  Maneja números con/sin ceros iniciales
+-  GARANTIZA encontrar la factura sin ambigüedad
 
 **Casos de uso**:
-- ✅ "Dame la factura 0022792445" (ambiguo)
-- ✅ "Necesito la factura número 12345" (no especifica campo)
-- ✅ Búsquedas generales por número
+-  "Dame la factura 0022792445" (ambiguo)
+-  "Necesito la factura número 12345" (no especifica campo)
+-  Búsquedas generales por número
 
 **Ejemplo**:
 ```json
@@ -393,9 +393,9 @@ LIMIT 25
 ```
 
 **Casos de uso**:
-- ✅ "Facturas del SAP 12148561 en agosto 2025"
-- ✅ "Dame facturas del solicitante X entre fecha Y y Z"
-- ✅ Análisis temporal por empresa/organización
+-  "Facturas del SAP 12148561 en agosto 2025"
+-  "Dame facturas del solicitante X entre fecha Y y Z"
+-  Análisis temporal por empresa/organización
 
 **Ejemplo**:
 ```json
@@ -429,8 +429,8 @@ pdf_type: string (opcional)
 ```
 
 **Casos de uso**:
-- ✅ "Facturas del RUT 9025012-4 en diciembre 2019"
-- ✅ "RUT 76341146-K entre 2022-11-01 y 2022-11-30"
+-  "Facturas del RUT 9025012-4 en diciembre 2019"
+-  "RUT 76341146-K entre 2022-11-01 y 2022-11-30"
 
 ---
 
@@ -447,8 +447,8 @@ pdf_type: string (opcional)
 ```
 
 **Casos de uso**:
-- ✅ "Facturas del 26 de diciembre de 2019"
-- ✅ "Dame las facturas del 2022-11-04"
+-  "Facturas del 26 de diciembre de 2019"
+-  "Dame las facturas del 2022-11-04"
 
 ---
 
@@ -465,8 +465,8 @@ pdf_type: string (opcional)
 ```
 
 **Casos de uso**:
-- ✅ "Las 10 facturas más recientes"
-- ✅ "Dame las últimas 5 facturas"
+-  "Las 10 facturas más recientes"
+-  "Dame las últimas 5 facturas"
 
 ---
 
@@ -495,8 +495,8 @@ LIMIT 1000
 ```
 
 **Casos de uso**:
-- ✅ "Facturas de los RUTs 9025012-4, 76341146-K"
-- ✅ "Dame facturas de María Torres y Luis Gutiérrez"
+-  "Facturas de los RUTs 9025012-4, 76341146-K"
+-  "Dame facturas de María Torres y Luis Gutiérrez"
 
 ---
 
@@ -568,8 +568,8 @@ LIMIT 10
 ```
 
 **Casos de uso**:
-- ✅ "Facturas de AGROSUPER"
-- ✅ "Dame facturas de Embotelladora"
+-  "Facturas de AGROSUPER"
+-  "Dame facturas de Embotelladora"
 
 ---
 
@@ -620,8 +620,8 @@ LIMIT 10
 ```
 
 **Casos de uso**:
-- ✅ "Facturas con monto mayor a $1.000.000"
-- ✅ "Dame facturas superiores a 500000 pesos"
+-  "Facturas con monto mayor a $1.000.000"
+-  "Dame facturas superiores a 500000 pesos"
 
 ---
 
@@ -662,8 +662,8 @@ LIMIT 10
 ```
 
 **Casos de uso**:
-- ✅ "Facturas del RUT 9025012-4 sobre $100.000"
-- ✅ "Dame facturas de alto valor del cliente X"
+-  "Facturas del RUT 9025012-4 sobre $100.000"
+-  "Dame facturas de alto valor del cliente X"
 
 ---
 
@@ -700,8 +700,8 @@ LIMIT 1
 ```
 
 **Casos de uso**:
-- ✅ "Cuál es la factura de mayor monto del solicitante X en septiembre 2025"
-- ✅ "Dame la factura más cara del SAP 12141289 en agosto"
+-  "Cuál es la factura de mayor monto del solicitante X en septiembre 2025"
+-  "Dame la factura más cara del SAP 12141289 en agosto"
 
 ---
 
@@ -716,7 +716,7 @@ LIMIT 1
 
 ---
 
-## 📊 Statistics & Analytics
+##  Statistics & Analytics
 
 ### 28. get_invoice_statistics
 
@@ -755,9 +755,9 @@ FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
 ```
 
 **Casos de uso**:
-- ✅ "Dame estadísticas generales del sistema"
-- ✅ "Cuántas facturas hay en total"
-- ✅ Dashboard inicial de métricas
+-  "Dame estadísticas generales del sistema"
+-  "Cuántas facturas hay en total"
+-  Dashboard inicial de métricas
 
 ---
 
@@ -817,9 +817,9 @@ ORDER BY Ano ASC
 ```
 
 **Casos de uso**:
-- ✅ "Cuántas facturas hay por cada año"
-- ✅ "Dame el desglose anual"
-- ✅ "Evolución de facturación año a año"
+-  "Cuántas facturas hay por cada año"
+-  "Dame el desglose anual"
+-  "Evolución de facturación año a año"
 
 ---
 
@@ -854,9 +854,9 @@ LIMIT @limit_ruts
 ```
 
 **Casos de uso**:
-- ✅ "Cuáles son los RUTs más activos"
-- ✅ "Dame clientes con más de 10 facturas"
-- ✅ Análisis de clientes frecuentes
+-  "Cuáles son los RUTs más activos"
+-  "Dame clientes con más de 10 facturas"
+-  Análisis de clientes frecuentes
 
 ---
 
@@ -893,8 +893,8 @@ FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
 ```
 
 **Casos de uso**:
-- ✅ "Cuál es el rango temporal de datos"
-- ✅ Contexto después de mostrar estadísticas de RUTs
+-  "Cuál es el rango temporal de datos"
+-  Contexto después de mostrar estadísticas de RUTs
 
 ---
 
@@ -930,8 +930,8 @@ LIMIT 100
 ```
 
 **Casos de uso**:
-- ✅ "Estadísticas de facturas entre enero y marzo 2019"
-- ✅ Análisis de actividad por período específico
+-  "Estadísticas de facturas entre enero y marzo 2019"
+-  Análisis de actividad por período específico
 
 ---
 
@@ -961,12 +961,12 @@ LIMIT 10
 ```
 
 **Casos de uso**:
-- ✅ "Qué solicitantes pertenecen al RUT 96568740-8"
-- ✅ "Códigos SAP del RUT X"
+-  "Qué solicitantes pertenecen al RUT 96568740-8"
+-  "Códigos SAP del RUT X"
 
 ---
 
-## 📄 PDF Type Filters
+##  PDF Type Filters
 
 ### 34. get_tributaria_cf_by_solicitante
 
@@ -1034,8 +1034,8 @@ SELECT
        THEN Copia_Tributaria_sf 
        ELSE NULL END as tributaria_sf_url,
   CONCAT(
-    CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Tributaria Con Fondo ' ELSE '' END,
-    CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 'Tributaria Sin Fondo ' ELSE '' END
+    CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 'Tributaria Con Fondo (logo Gasco) ' ELSE '' END,
+    CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 'Tributaria Sin Fondo (sin logo) ' ELSE '' END
   ) as tipos_tributarios_disponibles,
   (CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 1 ELSE 0 END +
    CASE WHEN Copia_Tributaria_sf IS NOT NULL THEN 1 ELSE 0 END) as total_tributarias_disponibles
@@ -1108,8 +1108,8 @@ ORDER BY Factura DESC
 ```
 
 **Casos de uso**:
-- ✅ Mostrar TODAS las opciones de PDF para un solicitante
-- ✅ Análisis de disponibilidad de PDFs
+-  Mostrar TODAS las opciones de PDF para un solicitante
+-  Análisis de disponibilidad de PDFs
 
 ---
 
@@ -1117,11 +1117,11 @@ ORDER BY Factura DESC
 
 **Descripción**: Similar a `get_multiple_pdf_downloads` pero SIEMPRE requiere solicitante.
 
-**⚠️ CRÍTICO**: No retorna facturas sin filtro de solicitante.
+** CRÍTICO**: No retorna facturas sin filtro de solicitante.
 
 ---
 
-## 📦 ZIP Management
+##  ZIP Management
 
 ### 42. create_zip_record
 
@@ -1174,8 +1174,8 @@ LIMIT 10
 ```
 
 **Casos de uso**:
-- ✅ "Muéstrame los ZIPs generados recientemente"
-- ✅ Historial de descargas del usuario
+-  "Muéstrame los ZIPs generados recientemente"
+-  Historial de descargas del usuario
 
 ---
 
@@ -1269,18 +1269,18 @@ FROM `agent-intelligence-gasco.zip_operations.zip_files`
 ```
 
 **Casos de uso**:
-- ✅ Monitoreo del sistema
-- ✅ Reporting de actividad de ZIPs
+-  Monitoreo del sistema
+-  Reporting de actividad de ZIPs
 
 ---
 
-## 🔍 Context Validation
+##  Context Validation
 
 ### 48. validate_context_size_before_search
 
 **Descripción**: Valida si una búsqueda mensual excederá el límite de contexto ANTES de ejecutarla.
 
-**⚠️ FLUJO OBLIGATORIO**: Debe ejecutarse ANTES de `search_invoices_by_month_year`.
+** FLUJO OBLIGATORIO**: Debe ejecutarse ANTES de `search_invoices_by_month_year`.
 
 **Parámetros**:
 ```yaml
@@ -1324,7 +1324,7 @@ WHERE EXTRACT(YEAR FROM fecha) = @target_year
 
 **Descripción**: Valida si un RUT tiene demasiadas facturas para retornar sin filtros adicionales.
 
-**⚠️ FLUJO RECOMENDADO**: Usar ANTES de `search_invoices_by_rut` para RUTs desconocidos.
+** FLUJO RECOMENDADO**: Usar ANTES de `search_invoices_by_rut` para RUTs desconocidos.
 
 **Parámetros**:
 ```yaml
@@ -1367,27 +1367,27 @@ WHERE Rut = @target_rut
 
 **Para búsquedas numéricas ambiguas**:
 ```
-✅ DEFAULT: search_invoices_by_any_number
+ DEFAULT: search_invoices_by_any_number
    - Cobertura completa (Factura + Factura_Referencia)
    - Sin ambigüedad
 
-❌ EVITAR: search_invoices_by_factura_number o search_invoices_by_referencia_number
+ EVITAR: search_invoices_by_factura_number o search_invoices_by_referencia_number
    - Solo usar si usuario especifica explícitamente el campo
 ```
 
 **Para búsquedas mensuales**:
 ```
-✅ FLUJO CORRECTO:
+ FLUJO CORRECTO:
 1. validate_context_size_before_search(year, month)
 2. Si OK → search_invoices_by_month_year(year, month)
 3. Si EXCEED_CONTEXT → Sugerir filtros adicionales
 
-❌ EVITAR: Ejecutar search_invoices_by_month_year sin validación previa
+ EVITAR: Ejecutar search_invoices_by_month_year sin validación previa
 ```
 
 **Para búsquedas por RUT**:
 ```
-✅ FLUJO RECOMENDADO (RUTs desconocidos):
+ FLUJO RECOMENDADO (RUTs desconocidos):
 1. validate_rut_context_size(rut)
 2. Si OK → search_invoices_by_rut(rut)
 3. Si EXCEED_CONTEXT → search_invoices_by_rut_and_date_range(rut, dates)
@@ -1433,8 +1433,8 @@ rut = ensure_rut_format(rut_input)
 | Consulta del Usuario | Herramienta Recomendada | Validación Previa |
 |---------------------|------------------------|------------------|
 | "Dame la factura 0022792445" | `search_invoices_by_any_number` | No |
-| "Facturas de julio 2025" | `search_invoices_by_month_year` | ✅ `validate_context_size_before_search` |
-| "Facturas del RUT 9025012-4" | `search_invoices_by_rut` | ✅ `validate_rut_context_size` (recomendado) |
+| "Facturas de julio 2025" | `search_invoices_by_month_year` |  `validate_context_size_before_search` |
+| "Facturas del RUT 9025012-4" | `search_invoices_by_rut` |  `validate_rut_context_size` (recomendado) |
 | "SAP 12148561 en agosto" | `search_invoices_by_solicitante_and_date_range` | No |
 | "Facturas de mayor monto" | `search_invoices_by_minimum_amount` | No |
 | "Desglose por año" | `get_yearly_invoice_statistics` | No |

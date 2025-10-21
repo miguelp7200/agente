@@ -1,4 +1,4 @@
-# 💻 Guía para Desarrolladores - Invoice Chatbot Backend
+#  Guía para Desarrolladores - Invoice Chatbot Backend
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General
+##  Visión General
 
 Esta guía proporciona toda la información necesaria para **desarrollar, extender y mantener** el código del Invoice Chatbot Backend. Cubre arquitectura de código, patrones de diseño, convenciones y procedimientos de contribución.
 
@@ -27,7 +27,7 @@ Desarrollar un **chatbot conversacional de IA** para búsqueda y gestión de fac
 
 ```
 invoice-backend/
-├── my-agents/                          # 🤖 Agente conversacional ADK
+├── my-agents/                          #  Agente conversacional ADK
 │   └── gcp-invoice-agent-app/
 │       ├── agent.py                    # Core del agente (1400+ líneas)
 │       ├── agent_prompt.yaml           # System instructions (500+ líneas)
@@ -35,7 +35,7 @@ invoice-backend/
 │       ├── conversation_callbacks.py   # Logging y token tracking
 │       └── mcp_config.json             # Configuración MCP
 │
-├── src/                                # 📦 Código fuente modular
+├── src/                                #  Código fuente modular
 │   ├── gcs_stability/                  # Sistema de estabilidad GCS
 │   │   ├── signed_url_service.py       # Servicio centralizado
 │   │   ├── gcs_stable_urls.py          # Generación robusta URLs
@@ -49,32 +49,32 @@ invoice-backend/
 │   ├── retry_handler.py                # Handler genérico de retry
 │   └── agent_retry_wrapper.py          # Wrapper de retry
 │
-├── mcp-toolbox/                        # 🔧 Herramientas MCP
+├── mcp-toolbox/                        #  Herramientas MCP
 │   ├── tools_updated.yaml              # 49 herramientas BigQuery
 │   ├── toolbox                         # Binary MCP (117MB)
 │   └── README.md
 │
-├── deployment/                         # 🚀 Deployment
+├── deployment/                         #  Deployment
 │   └── backend/
 │       ├── Dockerfile                  # Container image
 │       ├── start_backend.sh            # Multi-service startup
 │       ├── deploy.ps1                  # Deploy automation
 │       └── requirements.txt            # Python dependencies
 │
-├── tests/                              # 🧪 Testing framework
+├── tests/                              #  Testing framework
 │   ├── cases/                          # JSON test cases
 │   ├── scripts/                        # PowerShell test scripts
 │   ├── curl-tests/                     # Curl automation
 │   └── automation/                     # Test automation
 │
-├── infrastructure/                     # 🏗️ GCP Infrastructure
+├── infrastructure/                     #  GCP Infrastructure
 │   ├── create_bigquery_infrastructure.py
 │   └── setup_dataset_tabla.py
 │
-├── config.py                           # ⚙️ Configuración central
-├── local_pdf_server.py                 # 📄 PDF proxy server
-├── create_complete_zip.py              # 📦 ZIP creator
-└── zip_packager.py                     # 📦 ZIP packager utilities
+├── config.py                           #  Configuración central
+├── local_pdf_server.py                 #  PDF proxy server
+├── create_complete_zip.py              #  ZIP creator
+└── zip_packager.py                     #  ZIP packager utilities
 ```
 
 ### Módulos Clave
@@ -90,7 +90,7 @@ invoice-backend/
 
 ---
 
-## 🏗️ Arquitectura de Código
+##  Arquitectura de Código
 
 ### Patrón: Dual Project Architecture
 
@@ -102,18 +102,18 @@ PROJECT_ID_READ = "datalake-gasco"           # Solo LECTURA (facturas)
 PROJECT_ID_WRITE = "agent-intelligence-gasco" # LECTURA+ESCRITURA (ops)
 
 # NUNCA mezclar proyectos en queries
-# ✅ CORRECTO:
+#  CORRECTO:
 query_read = f"SELECT * FROM `{PROJECT_ID_READ}.sap_analitico_facturas_pdf_qa.pdfs_modelo`"
 query_write = f"INSERT INTO `{PROJECT_ID_WRITE}.chat_analytics.conversation_logs`"
 
-# ❌ INCORRECTO:
+#  INCORRECTO:
 query_wrong = f"SELECT * FROM `{PROJECT_ID_WRITE}.sap_analitico_facturas_pdf_qa.pdfs_modelo`"
 ```
 
 **Justificación**: Separación de datos de producción (READ) y operaciones (WRITE) para:
-- ✅ Seguridad: Facturas en proyecto protegido
-- ✅ Compliance: Auditoría de accesos separada
-- ✅ Performance: Queries de analytics no afectan producción
+-  Seguridad: Facturas en proyecto protegido
+-  Compliance: Auditoría de accesos separada
+-  Performance: Queries de analytics no afectan producción
 
 ---
 
@@ -145,9 +145,9 @@ exec adk api_server --host=0.0.0.0 --port=$PORT \
 ```
 
 **Orden crítico**:
-1. ✅ MCP Toolbox PRIMERO (puerto 5000)
-2. ✅ PDF Server SEGUNDO (puerto 8011)
-3. ✅ ADK Agent ÚLTIMO (puerto 8080) - proceso foreground
+1.  MCP Toolbox PRIMERO (puerto 5000)
+2.  PDF Server SEGUNDO (puerto 8011)
+3.  ADK Agent ÚLTIMO (puerto 8080) - proceso foreground
 
 **Por qué este orden**:
 - ADK Agent necesita conectarse a MCP Toolbox al iniciar
@@ -190,10 +190,10 @@ def retry_with_exponential_backoff(
 ```
 
 **Casos de uso**:
-- ✅ **SignatureDoesNotMatch**: Clock skew temporal
-- ✅ **Gemini 500 errors**: Sobrecarga temporal
-- ✅ **BigQuery quota**: Rate limiting
-- ❌ **No usar para**: Errores de lógica, validación, permisos
+-  **SignatureDoesNotMatch**: Clock skew temporal
+-  **Gemini 500 errors**: Sobrecarga temporal
+-  **BigQuery quota**: Rate limiting
+-  **No usar para**: Errores de lógica, validación, permisos
 
 ---
 
@@ -266,13 +266,13 @@ def generate_signed_url_impersonated(gs_url: str) -> str:
 ```
 
 **Permisos requeridos**:
-- ✅ Service Account Token Creator (en service account target)
-- ✅ Storage Object Viewer (para leer metadata)
-- ✅ IAM Service Account Signer (para signing)
+-  Service Account Token Creator (en service account target)
+-  Storage Object Viewer (para leer metadata)
+-  IAM Service Account Signer (para signing)
 
 ---
 
-## 🔧 Componentes Principales
+##  Componentes Principales
 
 ### 1. ADK Agent (agent.py)
 
@@ -334,7 +334,7 @@ def count_tokens_official(text: str) -> int:
         result = token_counter_model.count_tokens(text)
         return result.total_tokens
     except Exception as e:
-        print(f"❌ [TOKEN] Error: {e}")
+        print(f" [TOKEN] Error: {e}")
         return len(text) // 4
 ```
 
@@ -401,7 +401,7 @@ def auto_zip_interceptor(app, user_id, session_id, message):
     # IMPORTANTE: Validar nombre de campo correcto
     if zip_result.get("success") and zip_result.get("download_url"):
         # Modificar mensaje con ZIP link
-        zip_message = f"\n\n📦 **Paquete ZIP creado automáticamente**\n..."
+        zip_message = f"\n\n **Paquete ZIP creado automáticamente**\n..."
         message["content"]["parts"][0]["text"] += zip_message
     
     return message
@@ -415,6 +415,7 @@ def auto_zip_interceptor(app, user_id, session_id, message):
 
 **Estructura YAML**:
 ```yaml
+# Indentación: 2 espacios
 tools:
   # Toolset 1: Invoice Search (27 herramientas)
   - name: search_invoices_by_month_year
@@ -437,7 +438,7 @@ tools:
         Nombre,
         Fecha_de_Emision,
         Total_Valor_Neto,
-        Copia_Tributaria_cf,  -- Solo 2 PDFs (optimizado)
+        Copia_Tributaria_cf,  # Solo 2 PDFs (optimizado)
         Copia_Cedible_cf
       FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
       WHERE EXTRACT(MONTH FROM Fecha_de_Emision) = @month
@@ -448,7 +449,7 @@ tools:
   # Toolset 2: ZIP Management (2 herramientas)
   - name: create_complete_zip
     description: |
-      📦 Crear paquete ZIP con PDFs de facturas
+       Crear paquete ZIP con PDFs de facturas
       
       USE WHEN:
       - Usuario pide "genera un zip"
@@ -478,13 +479,13 @@ description: |
 
 **Pattern 2: SQL parametrizado**
 ```sql
--- ✅ CORRECTO: Usar parámetros BigQuery
+--  CORRECTO: Usar parámetros BigQuery
 SELECT * FROM table
-WHERE field = @parameter  -- ← Parametrizado (seguro)
+WHERE field = @parameter  # ← Parametrizado (seguro)
 
--- ❌ INCORRECTO: String concatenation
+--  INCORRECTO: String concatenation
 SELECT * FROM table
-WHERE field = '{value}'  -- ← SQL injection risk
+WHERE field = '{value}'  # ← SQL injection risk
 ```
 
 **Pattern 3: LPAD para códigos SAP**
@@ -540,13 +541,13 @@ response_format:
   invoice_list: |
     **Facturas encontradas (X):**
     
-    1. 📄 **Factura 0022792445**
+    1.  **Factura 0022792445**
        - RUT: 12345678-9 - EMPRESA SA
        - Fecha: 15/08/2025
        - Monto: $1,234,567 CLP
        - PDFs:
-         * [Tributaria CF](url1)
-         * [Cedible CF](url2)
+          * [Tributaria CF](url1)
+          * [Cedible CF](url2)
 
 # Sección 5: Manejo de errores (líneas 400-500)
 error_handling:
@@ -560,10 +561,10 @@ error_handling:
 ```
 
 **Principios de diseño**:
-1. ✅ **Claridad**: Lenguaje directo sin ambigüedades
-2. ✅ **Priorización**: Reglas con niveles de prioridad explícitos
-3. ✅ **Ejemplos**: Queries reales de usuarios como referencia
-4. ✅ **Formato consistente**: Emojis y estructura estandarizada
+1.  **Claridad**: Lenguaje directo sin ambigüedades
+2.  **Priorización**: Reglas con niveles de prioridad explícitos
+3.  **Ejemplos**: Queries reales de usuarios como referencia
+4.  **Formato consistente**: Emojis y estructura estandarizada
 
 ---
 
@@ -638,9 +639,9 @@ class ConversationTracker:
         errors = self.client.insert_rows_json(self.table_id, [row])
         
         if errors:
-            print(f"❌ [LOGGING] Errors: {errors}")
+            print(f" [LOGGING] Errors: {errors}")
         else:
-            print(f"📊 Token usage: {tokens['total']} total")
+            print(f" Token usage: {tokens['total']} total")
 ```
 
 **Integración con agent.py**:
@@ -871,14 +872,14 @@ CLOUD_RUN_SERVICE_URL = os.getenv(
 ```
 
 **Principios de configuración**:
-1. ✅ **Environment variables first**: Leer siempre de `os.getenv()`
-2. ✅ **Defaults sensatos**: Valores por defecto para desarrollo local
-3. ✅ **Type casting**: Convertir strings a tipos apropiados
-4. ✅ **Documentación inline**: Comentarios explicativos
+1.  **Environment variables first**: Leer siempre de `os.getenv()`
+2.  **Defaults sensatos**: Valores por defecto para desarrollo local
+3.  **Type casting**: Convertir strings a tipos apropiados
+4.  **Documentación inline**: Comentarios explicativos
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Estructura de Tests
 
@@ -957,31 +958,31 @@ $BODY = @{
 } | ConvertTo-Json -Depth 10
 
 # 4. Execute
-$RESPONSE = Invoke-RestMethod `
-    -Uri "$SERVICE_URL/run" `
-    -Method POST `
+$RESPONSE = Invoke-RestMethod \
+    -Uri "$SERVICE_URL/run" \
+    -Method POST \
     -Headers @{ 
         "Authorization" = "Bearer $TOKEN"
         "Content-Type" = "application/json"
-    } `
-    -Body $BODY `
+    } \
+    -Body $BODY \
     -TimeoutSec 120
 
 # 5. Validate
 if ($RESPONSE.content.parts[0].text -match "Facturas encontradas") {
-    Write-Host "✅ Test PASSED" -ForegroundColor Green
+    Write-Host " Test PASSED" -ForegroundColor Green
 } else {
-    Write-Host "❌ Test FAILED" -ForegroundColor Red
+    Write-Host " Test FAILED" -ForegroundColor Red
 }
 
 # 6. Display response
-Write-Host "`n📄 Response:" -ForegroundColor Cyan
+Write-Host "`n Response:" -ForegroundColor Cyan
 $RESPONSE.content.parts[0].text
 ```
 
 ---
 
-## 🔨 Desarrollo Local
+##  Desarrollo Local
 
 ### Setup Inicial
 
@@ -1063,7 +1064,7 @@ curl -X POST http://localhost:8080/run \
   -d '{
     "appName": "gcp-invoice-agent-app",
     "userId": "local-test",
-    "sessionId": "test-'$(date +%s)'",
+    "sessionId": "test-$(date +%s)",
     "newMessage": {
       "parts": [{"text": "dame las últimas 5 facturas"}],
       "role": "user"
@@ -1223,7 +1224,7 @@ AutoVersion flag documentation.
 
 ---
 
-## 🤝 Proceso de Contribución
+##  Proceso de Contribución
 
 ### 1. Fork y Branch
 
@@ -1312,15 +1313,15 @@ git push origin feature/descripcion-corta
 5. Merge a main
 
 **Criterios de aprobación**:
-- ✅ Código limpio y documentado
-- ✅ Tests pasan (CI/CD)
-- ✅ Sin conflictos con main
-- ✅ Convenciones respetadas
-- ✅ Performance no degradada
+-  Código limpio y documentado
+-  Tests pasan (CI/CD)
+-  Sin conflictos con main
+-  Convenciones respetadas
+-  Performance no degradada
 
 ---
 
-## 🔧 Debugging
+##  Debugging
 
 ### Logs Locales
 
@@ -1444,15 +1445,15 @@ def memory_intensive_function():
 
 ---
 
-## 📚 Referencias
+##  Referencias
 
 ### Documentación Relacionada
 
-- 📊 **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
+-  **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
 - 📘 **User Guide**: `docs/official/user/10_USER_GUIDE.md`
-- 🏗️ **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
-- 🚀 **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
-- 🔧 **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
+-  **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
+-  **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
+-  **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
 
 ### Documentación Externa
 
@@ -1471,7 +1472,7 @@ def memory_intensive_function():
 
 ---
 
-## ✅ Checklist de Desarrollador
+##  Checklist de Desarrollador
 
 ### Setup Inicial
 - [ ] Repositorio clonado
@@ -1518,4 +1519,4 @@ def memory_intensive_function():
 ---
 
 **© 2025 Option - Todos los derechos reservados**  
-**Cliente: Gasco**
+**Cliente**: Gasco

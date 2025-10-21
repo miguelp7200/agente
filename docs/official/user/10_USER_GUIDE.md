@@ -1,4 +1,4 @@
-# 📘 Guía de Usuario - Sistema de Chatbot de Facturas Gasco
+#  Guía de Usuario - Sistema de Chatbot de Facturas Gasco
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,22 +8,22 @@
 
 ---
 
-## 🎯 Introducción
+##  Introducción
 
 Bienvenido al **Sistema de Chatbot de Facturas Gasco**, una herramienta de inteligencia artificial que te permite buscar y descargar facturas usando lenguaje natural conversacional.
 
 ### ¿Qué puedo hacer con este sistema?
 
-- ✅ **Buscar facturas** por múltiples criterios (SAP, RUT, fecha, empresa, folio)
-- ✅ **Descargar PDFs** de manera individual o en archivos ZIP
-- ✅ **Obtener estadísticas** sobre facturas y clientes
-- ✅ **Consultar por períodos** específicos o rangos de fechas
-- ✅ **Analizar facturas** por monto, cliente, solicitante
-- ✅ **Acceder a múltiples versiones** de documentos (CF/SF, Tributaria/Cedible)
+-  **Buscar facturas** por múltiples criterios (SAP, RUT, fecha, empresa, folio)
+-  **Descargar PDFs** de manera individual o en archivos ZIP
+-  **Obtener estadísticas** sobre facturas y clientes
+-  **Consultar por períodos** específicos o rangos de fechas
+-  **Analizar facturas** por monto, cliente, solicitante
+-  **Acceder a múltiples versiones** de documentos (CF/SF, Tributaria/Cedible)
 
 ---
 
-## 🗣️ Cómo Hablar con el Chatbot
+##  Cómo Hablar con el Chatbot
 
 ### Lenguaje Natural
 
@@ -49,9 +49,9 @@ El sistema es **flexible** y entiende diferentes formas de pedir lo mismo:
 
 ---
 
-## 🔍 Tipos de Búsqueda
+##  Tipos de Búsqueda
 
-### 1. Búsqueda por Código SAP/Solicitante 🏢
+### 1. Búsqueda por Código SAP/Solicitante 
 
 El **código SAP** (también llamado "código solicitante") identifica una unidad de negocio específica.
 
@@ -78,7 +78,7 @@ El **código SAP** (también llamado "código solicitante") identifica una unida
 ```
 📋 Factura 0105481293 (2025-08-30)
 👤 Cliente: CENTRAL GAS SPA (RUT: 76747198-K)
-💰 Valor Total: $568,805 CLP
+ Valor Total: $568,805 CLP
 📁 Documentos disponibles:
 • Copia Cedible con Fondo: [Enlace] (con logo Gasco)
 • Copia Tributaria con Fondo: [Enlace] (con logo Gasco)
@@ -86,7 +86,7 @@ El **código SAP** (también llamado "código solicitante") identifica una unida
 
 ---
 
-### 2. Búsqueda por RUT de Cliente 🆔
+### 2. Búsqueda por RUT de Cliente 
 
 Busca facturas asociadas a un RUT específico de cliente.
 
@@ -115,7 +115,7 @@ Busca facturas asociadas a un RUT específico de cliente.
 
 ---
 
-### 3. Búsqueda por Empresa/Cliente 🏭
+### 3. Búsqueda por Empresa/Cliente 
 
 Busca por nombre de empresa (parcial o completo).
 
@@ -144,7 +144,7 @@ El sistema:
 
 ---
 
-### 4. Búsqueda por Fecha/Período 📅
+### 4. Búsqueda por Fecha/Período 
 
 Busca facturas en rangos temporales específicos.
 
@@ -177,7 +177,7 @@ Busca facturas en rangos temporales específicos.
 - **Año por defecto**: Si no especificas año, usa el año actual
 - **Orden descendente**: Las facturas recientes se ordenan de más nueva a más antigua
 
-#### ⚠️ Nota sobre Búsquedas Mensuales Grandes
+####  Nota sobre Búsquedas Mensuales Grandes
 
 Si pides facturas de un mes completo (ej: "facturas de julio 2025") que contenga muchas facturas (>50):
 
@@ -187,7 +187,7 @@ Si pides facturas de un mes completo (ej: "facturas de julio 2025") que contenga
 
 ---
 
-### 5. Búsqueda por Folio/Referencia 📄
+### 5. Búsqueda por Folio/Referencia 
 
 El **folio** (también llamado "factura referencia") es el número visible en la factura impresa.
 
@@ -210,7 +210,7 @@ El **folio** (también llamado "factura referencia") es el número visible en la
 
 ---
 
-### 6. Búsqueda Financiera por Mayor Monto 💰
+### 6. Búsqueda Financiera por Mayor Monto 
 
 Busca la factura de mayor valor en un período específico para un solicitante.
 
@@ -241,7 +241,7 @@ Busca la factura de mayor valor en un período específico para un solicitante.
 📋 Se encontró la factura de mayor monto para el solicitante 0012141289 en septiembre 2025:
 
 Factura [NÚMERO] 
-💰 Valor máximo: $[MONTO] CLP
+ Valor máximo: $[MONTO] CLP
 Cliente: GASCO GLP S.A. (MAIPU)
 Fecha: [FECHA]
 ```
@@ -268,7 +268,7 @@ Filtra facturas por un valor mínimo específico.
 
 ---
 
-## 📊 Consultas de Estadísticas
+##  Consultas de Estadísticas
 
 ### Estadísticas de RUTs Únicos
 
@@ -286,12 +286,12 @@ Filtra facturas por un valor mínimo específico.
 
 **Obtendrás**:
 ```
-📊 Desglose de facturas por año:
+ Desglose de facturas por año:
 • Año 2017: 234 facturas (3.5% del total)
 • Año 2018: 567 facturas (8.5% del total)
 ...
 • Año 2025: 890 facturas (13.4% del total)
-📈 Total verificado: 6,641 facturas
+ Total verificado: 6,641 facturas
 ```
 
 ### Estadísticas Mensuales
@@ -300,17 +300,17 @@ Filtra facturas por un valor mínimo específico.
 
 **Obtendrás**:
 ```
-📊 Estadísticas mensuales para 2025:
+ Estadísticas mensuales para 2025:
 • Enero: 123 facturas
 • Febrero: 145 facturas
 • Marzo: 167 facturas
 ...
-📈 Total año 2025: 1,234 facturas
+ Total año 2025: 1,234 facturas
 ```
 
 ---
 
-## 📦 Descarga de Documentos
+##  Descarga de Documentos
 
 ### Tipos de Documentos Disponibles
 
@@ -327,8 +327,8 @@ Cada factura puede tener hasta **5 tipos de PDFs**:
 ### Documentos por Defecto
 
 **Por defecto**, el sistema entrega **2 tipos de PDF**:
-- ✅ Copia Tributaria Con Fondo (CF)
-- ✅ Copia Cedible Con Fondo (CF)
+-  Copia Tributaria Con Fondo (CF)
+-  Copia Cedible Con Fondo (CF)
 
 ### Solicitar Tipos Específicos
 
@@ -348,15 +348,15 @@ El sistema usará herramientas especializadas:
 
 ### Terminología: CF/SF
 
-⚠️ **Importante**: 
+ **Importante**: 
 - **CF** = **Con Fondo** (logo Gasco de fondo)
 - **SF** = **Sin Fondo** (sin logo)
 
-❌ **NO significa** "con firma" o "sin firma"
+ **NO significa** "con firma" o "sin firma"
 
 ---
 
-## 📥 Formatos de Descarga
+##  Formatos de Descarga
 
 ### Descargas Individuales (≤3 facturas)
 
@@ -365,7 +365,7 @@ Cuando encuentres **3 o menos facturas**, recibirás:
 ```
 📋 Factura 0105481293 (2025-08-30)
 👤 Cliente: CENTRAL GAS SPA (RUT: 76747198-K)
-💰 Valor Total: $568,805 CLP
+ Valor Total: $568,805 CLP
 📁 Documentos disponibles:
 • Copia Cedible con Fondo: [Enlace firmado] (con logo Gasco)
 • Copia Tributaria con Fondo: [Enlace firmado] (con logo Gasco)
@@ -378,14 +378,14 @@ Cuando encuentres **3 o menos facturas**, recibirás:
 Cuando encuentres **más de 3 facturas**, recibirás:
 
 ```
-📊 24 facturas encontradas (período: 2025-07-01 - 2025-07-31)
+ 24 facturas encontradas (período: 2025-07-01 - 2025-07-31)
 
 📋 Listado de facturas:
 • Factura 0105481293 - CENTRAL GAS SPA (RUT: 76747198-K) - Fecha: 2025-07-30
 • Factura 0105481294 - AGROSUPER (RUT: 96568740-8) - Fecha: 2025-07-29
 ... (22 facturas más)
 
-📦 Descarga completa:
+ Descarga completa:
 🔗 [Descargar ZIP con todas las facturas](URL_ZIP)
 
 El archivo ZIP contiene todos los documentos disponibles de las 24 facturas encontradas.
@@ -396,13 +396,13 @@ El archivo ZIP contiene todos los documentos disponibles de las 24 facturas enco
 ### URLs Firmadas
 
 Todos los enlaces de descarga son **URLs firmadas** con:
-- ✅ **Seguridad**: Acceso temporal controlado
-- ✅ **Expiración**: 24 horas de validez
-- ✅ **Sin autenticación adicional**: Solo necesitas el enlace
+-  **Seguridad**: Acceso temporal controlado
+-  **Expiración**: 24 horas de validez
+-  **Sin autenticación adicional**: Solo necesitas el enlace
 
 ---
 
-## 💡 Ejemplos Prácticos de Uso
+##  Ejemplos Prácticos de Uso
 
 ### Caso 1: Buscar Factura Específica por SAP y Fecha
 
@@ -463,7 +463,7 @@ Todos los enlaces de descarga son **URLs firmadas** con:
 
 **Resultado**:
 ```
-📊 Códigos solicitantes para RUT 96568740-8:
+ Códigos solicitantes para RUT 96568740-8:
 
 1. Código: 0012537749
    • Total facturas: 45
@@ -536,7 +536,7 @@ Todos los enlaces de descarga son **URLs firmadas** con:
 
 **Resultado**:
 ```
-📊 Estadísticas mensuales para 2025:
+ Estadísticas mensuales para 2025:
 • Enero: 123 facturas
 • Febrero: 145 facturas
 • Marzo: 167 facturas
@@ -546,12 +546,12 @@ Todos los enlaces de descarga son **URLs firmadas** con:
 • Julio: 189 facturas
 • Agosto: 201 facturas
 • Septiembre: 167 facturas
-📈 Total año 2025: 1,500 facturas
+ Total año 2025: 1,500 facturas
 ```
 
 ---
 
-## 🎓 Terminología Clave
+##  Terminología Clave
 
 ### SAP vs Código Solicitante
 
@@ -571,7 +571,7 @@ Todos los enlaces de descarga son **URLs firmadas** con:
 
 - **CF (Con Fondo)**: Documento con logo de Gasco en el fondo
 - **SF (Sin Fondo)**: Documento sin logo de Gasco
-- ❌ **NO confundir** con "con firma" o "sin firma"
+-  **NO confundir** con "con firma" o "sin firma"
 
 ### Tipos de Documentos
 
@@ -581,7 +581,7 @@ Todos los enlaces de descarga son **URLs firmadas** con:
 
 ---
 
-## ⚠️ Notas Importantes
+##  Notas Importantes
 
 ### Límites de Contexto
 
@@ -618,12 +618,12 @@ Si NO especificas año en tu consulta:
 
 ---
 
-## 🚀 Consejos de Uso Efectivo
+##  Consejos de Uso Efectivo
 
 ### 1. Sé Específico para Mejores Resultados
 
-✅ **Bueno**: *"dame facturas del SAP 12537749 para agosto 2025"*  
-❌ **Menos preciso**: *"dame facturas de agosto"*
+ **Bueno**: *"dame facturas del SAP 12537749 para agosto 2025"*  
+ **Menos preciso**: *"dame facturas de agosto"*
 
 ### 2. Combina Múltiples Filtros
 
@@ -655,7 +655,7 @@ Si una consulta retorna muchos resultados:
 
 ---
 
-## 📞 Soporte y Ayuda
+##  Soporte y Ayuda
 
 ### ¿Tienes Problemas?
 
@@ -677,14 +677,14 @@ Si una consulta retorna muchos resultados:
 
 ---
 
-## 📚 Recursos Adicionales
+##  Recursos Adicionales
 
 ### Documentación Relacionada
 
-- 📊 **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
-- 🏗️ **Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
-- 🚀 **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
-- 🔧 **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
+-  **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
+-  **Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
+-  **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
+-  **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
 
 ### Datasets Disponibles
 
@@ -697,7 +697,7 @@ Si una consulta retorna muchos resultados:
 
 ---
 
-## ✅ Checklist de Primeros Pasos
+##  Checklist de Primeros Pasos
 
 Para nuevos usuarios:
 
@@ -759,16 +759,16 @@ Para nuevos usuarios:
 
 ---
 
-## 🎉 ¡Listo para Empezar!
+##  ¡Listo para Empezar!
 
 Ahora estás listo para usar el **Sistema de Chatbot de Facturas Gasco**. 
 
 **Recuerda**:
-- 🗣️ Usa lenguaje natural conversacional
-- 🎯 Sé específico para mejores resultados
-- 📦 Las descargas grandes se automatizan en ZIP
+-  Usa lenguaje natural conversacional
+-  Sé específico para mejores resultados
+-  Las descargas grandes se automatizan en ZIP
 - 🔗 Enlaces válidos por 24 horas
-- 📊 Aprovecha las estadísticas para explorar
+-  Aprovecha las estadísticas para explorar
 
 **¡Comienza ahora con tu primera consulta!**
 
@@ -790,4 +790,4 @@ Ahora estás listo para usar el **Sistema de Chatbot de Facturas Gasco**.
 ---
 
 **© 2025 Option - Todos los derechos reservados**  
-**Cliente: Gasco**
+**Cliente**: Gasco

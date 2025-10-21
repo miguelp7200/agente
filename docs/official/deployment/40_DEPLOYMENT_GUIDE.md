@@ -1,4 +1,4 @@
-# 🚀 Guía de Despliegue - Invoice Chatbot Backend
+#  Guía de Despliegue - Invoice Chatbot Backend
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General
+##  Visión General
 
 Esta guía proporciona instrucciones completas para desplegar el **Invoice Chatbot Backend** en Google Cloud Run usando el script automatizado `deploy.ps1`.
 
@@ -23,10 +23,10 @@ Esta guía proporciona instrucciones completas para desplegar el **Invoice Chatb
 ### Arquitectura de Deployment
 
 ```
-📦 Docker Container (Cloud Run)
-├── 🤖 ADK Agent (port 8080) - MAIN PROCESS
-├── 🔧 MCP Toolbox (port 5000) - Background
-└── 📄 PDF Server (port 8011) - Background
+ Docker Container (Cloud Run)
+├──  ADK Agent (port 8080) - MAIN PROCESS
+├──  MCP Toolbox (port 5000) - Background
+└──  PDF Server (port 8011) - Background
 ```
 
 ---
@@ -80,8 +80,8 @@ Tu cuenta de Google Cloud debe tener los siguientes roles:
 
 **Verificar permisos**:
 ```powershell
-gcloud projects get-iam-policy agent-intelligence-gasco `
-  --flatten="bindings[].members" `
+gcloud projects get-iam-policy agent-intelligence-gasco \
+  --flatten="bindings[].members" \
   --filter="bindings.members:user:TU_EMAIL"
 ```
 
@@ -102,13 +102,13 @@ gcloud config set project $PROJECT_WRITE
 
 ---
 
-## 🗂️ Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 invoice-backend/
 ├── deployment/
 │   └── backend/
-│       ├── deploy.ps1           ⭐ Script principal de deployment
+│       ├── deploy.ps1            Script principal de deployment
 │       ├── Dockerfile            Docker image definition
 │       ├── start_backend.sh      Script de inicio multi-servicio
 │       └── requirements.txt      Dependencias Python
@@ -129,7 +129,7 @@ invoice-backend/
 
 ---
 
-## 🚀 Deployment Automatizado con deploy.ps1
+##  Deployment Automatizado con deploy.ps1
 
 ### Script Principal: deploy.ps1
 
@@ -137,13 +137,13 @@ El script `deploy.ps1` automatiza **TODO el proceso** de deployment:
 
 ```powershell
 #!/usr/bin/env pwsh
-# 1. ✅ Verificar prerrequisitos (Docker, gcloud, auth)
-# 2. 🏗️ Construir imagen Docker (--no-cache)
+# 1.  Verificar prerrequisitos (Docker, gcloud, auth)
+# 2.  Construir imagen Docker (--no-cache)
 # 3. ⬆️ Subir a Artifact Registry
-# 4. 🚀 Desplegar en Cloud Run
-# 5. 🔄 Activar tráfico en nueva revisión
-# 6. ✅ Validar deployment (health checks)
-# 7. 📊 Mostrar resumen y URLs
+# 4.  Desplegar en Cloud Run
+# 5.  Activar tráfico en nueva revisión
+# 6.  Validar deployment (health checks)
+# 7.  Mostrar resumen y URLs
 ```
 
 ### Opción Recomendada: AutoVersion
@@ -164,38 +164,38 @@ cd deployment/backend
 
 **Output esperado**:
 ```
-🚀 ========================================
+ ========================================
    INVOICE CHATBOT BACKEND DEPLOYMENT
    Version: v1.0.0-20251006-143022
    Target: agent-intelligence-gasco/invoice-backend
 ========================================
 
-ℹ️  Verificando prerrequisitos...
-✅ Autenticado como: victor.calle@gasco.cl
+  Verificando prerrequisitos...
+ Autenticado como: victor.calle@gasco.cl
 
-ℹ️  Imagen target: us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:v1.0.0-20251006-143022
+  Imagen target: us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:v1.0.0-20251006-143022
 
-ℹ️  Construyendo imagen Docker con cache limpio...
-✅ Imagen construida exitosamente con cache limpio
+  Construyendo imagen Docker con cache limpio...
+ Imagen construida exitosamente con cache limpio
 
-ℹ️  Subiendo imagen a Artifact Registry...
-✅ Imagen subida exitosamente
+  Subiendo imagen a Artifact Registry...
+ Imagen subida exitosamente
 
-ℹ️  Desplegando en Cloud Run con revisión única...
-ℹ️  Suffix de revisión: r20251006-143045
-✅ Nueva revisión creada: r20251006-143045
+  Desplegando en Cloud Run con revisión única...
+  Suffix de revisión: r20251006-143045
+ Nueva revisión creada: r20251006-143045
 
-ℹ️  Activando tráfico en la nueva revisión...
-✅ Tráfico activado en nueva revisión
+  Activando tráfico en la nueva revisión...
+ Tráfico activado en nueva revisión
 
-ℹ️  Obteniendo URL del servicio...
-✅ Servicio disponible en: https://invoice-backend-819133916464.us-central1.run.app
+  Obteniendo URL del servicio...
+ Servicio disponible en: https://invoice-backend-819133916464.us-central1.run.app
 
-ℹ️  Ejecutando pruebas de validación...
-✅ Health check: OK
-✅ Test de sesión: OK
+  Ejecutando pruebas de validación...
+ Health check: OK
+ Test de sesión: OK
 
-🎉 ========================================
+ ========================================
    DEPLOYMENT COMPLETADO EXITOSAMENTE
 ========================================
 ```
@@ -271,7 +271,7 @@ cd deployment/backend
 
 ---
 
-## 🏗️ Proceso de Build Detallado
+##  Proceso de Build Detallado
 
 ### Dockerfile Multi-Stage
 
@@ -316,11 +316,11 @@ CMD ["/bin/bash", "./start_backend.sh"]
 #!/bin/bash
 set -e
 
-echo "🚀 Iniciando Invoice Chatbot Backend..."
+echo " Iniciando Invoice Chatbot Backend..."
 
 # 1. Verificar variables críticas
 if [ -z "$GOOGLE_CLOUD_PROJECT_READ" ]; then
-    echo "❌ Error: PROJECT_READ no configurado"
+    echo " Error: PROJECT_READ no configurado"
     exit 1
 fi
 
@@ -346,13 +346,13 @@ exec adk api_server --host=0.0.0.0 --port=$PORT \
 ```
 
 **Orden de inicio crítico**:
-1. ✅ MCP Toolbox PRIMERO (dependencia de ADK)
-2. ✅ PDF Server SEGUNDO (usado por ADK)
-3. ✅ ADK Agent ÚLTIMO (proceso principal)
+1.  MCP Toolbox PRIMERO (dependencia de ADK)
+2.  PDF Server SEGUNDO (usado por ADK)
+3.  ADK Agent ÚLTIMO (proceso principal)
 
 ---
 
-## ☁️ Configuración de Cloud Run
+##  Configuración de Cloud Run
 
 ### Configuración Aplicada por deploy.ps1
 
@@ -365,9 +365,9 @@ $deployArgs = @(
     "--port", "8080",
     
     # Environment Variables
-    "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,
-                       GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,
-                       GOOGLE_CLOUD_LOCATION=us-central1,
+    "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,\
+                       GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,\
+                       GOOGLE_CLOUD_LOCATION=us-central1,\
                        IS_CLOUD_RUN=true",
     
     # Service Account
@@ -419,7 +419,7 @@ MCP_TOOLBOX_PORT=5000  # MCP Toolbox (interno)
 
 ---
 
-## 🔐 Service Account y Permisos
+##  Service Account y Permisos
 
 ### Service Account: adk-agent-sa
 
@@ -453,7 +453,7 @@ gcloud projects get-iam-policy agent-intelligence-gasco \
 
 ---
 
-## 🎭 Gestión de Revisiones
+##  Gestión de Revisiones
 
 ### Estrategia de Revisión Única
 
@@ -473,10 +473,10 @@ gcloud run services update-traffic invoice-backend --to-latest
 ```
 
 **Beneficios**:
-- ✅ **Deployment sin downtime**: Nueva revisión sin afectar tráfico
-- ✅ **Validación antes de activar**: Health checks antes de dirigir usuarios
-- ✅ **Rollback instantáneo**: Cambiar tráfico a revisión anterior
-- ✅ **Trazabilidad**: Cada deployment tiene timestamp único
+-  **Deployment sin downtime**: Nueva revisión sin afectar tráfico
+-  **Validación antes de activar**: Health checks antes de dirigir usuarios
+-  **Rollback instantáneo**: Cambiar tráfico a revisión anterior
+-  **Trazabilidad**: Cada deployment tiene timestamp único
 
 ### Ver Revisiones Activas
 
@@ -514,7 +514,7 @@ gcloud run services update-traffic invoice-backend \
 
 ---
 
-## ✅ Validación Post-Deployment
+##  Validación Post-Deployment
 
 ### 1. Health Check Automático
 
@@ -524,9 +524,9 @@ El script ejecuta validación automática:
 # Health check usando /list-apps
 $token = gcloud auth print-identity-token
 $headers = @{ "Authorization" = "Bearer $token" }
-$response = Invoke-WebRequest `
-  -Uri "$SERVICE_URL/list-apps" `
-  -Headers $headers `
+$response = Invoke-WebRequest \
+  -Uri "$SERVICE_URL/list-apps" \
+  -Headers $headers \
   -TimeoutSec 30
 
 # Esperado: 200 OK con lista de apps
@@ -539,10 +539,10 @@ $response = Invoke-WebRequest `
 $sessionId = "test-deploy-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $sessionUrl = "$SERVICE_URL/apps/gcp-invoice-agent-app/users/deploy-test/sessions/$sessionId"
 
-Invoke-RestMethod `
-  -Uri $sessionUrl `
-  -Method POST `
-  -Headers $headers `
+Invoke-RestMethod \
+  -Uri $sessionUrl \
+  -Method POST \
+  -Headers $headers \
   -Body "{}"
 ```
 
@@ -569,13 +569,13 @@ $body = @{
     }
 } | ConvertTo-Json -Depth 10
 
-Invoke-RestMethod `
-  -Uri "https://invoice-backend-819133916464.us-central1.run.app/run" `
-  -Method POST `
+Invoke-RestMethod \
+  -Uri "https://invoice-backend-819133916464.us-central1.run.app/run" \
+  -Method POST \
   -Headers @{ 
       "Authorization" = "Bearer $token"
       "Content-Type" = "application/json"
-  } `
+  } \
   -Body $body
 ```
 
@@ -596,7 +596,7 @@ gcloud run services logs read invoice-backend \
 
 ---
 
-## 🔄 Rollback y Recuperación
+##  Rollback y Recuperación
 
 ### Rollback Inmediato
 
@@ -633,20 +633,20 @@ gcloud run revisions delete invoice-backend-r20251006-143045 \
 
 ---
 
-## 📊 Monitoreo y Observabilidad
+##  Monitoreo y Observabilidad
 
 ### Cloud Console
 
-**URL**: https://console.cloud.google.com/run/detail/us-central1/invoice-backend?project=agent-intelligence-gasco
+**URL**: https://console.cloud. google.com/run/detail/us-central1/invoice-backend?project=agent-intelligence-gasco
 
 **Métricas disponibles**:
-- ✅ Request count (requests/segundo)
-- ✅ Request latency (P50, P95, P99)
-- ✅ Error rate (4xx, 5xx)
-- ✅ Instance count (activas/inactivas)
-- ✅ CPU utilization
-- ✅ Memory utilization
-- ✅ Container startup time (cold start)
+-  Request count (requests/segundo)
+-  Request latency (P50, P95, P99)
+-  Error rate (4xx, 5xx)
+-  Instance count (activas/inactivas)
+-  CPU utilization
+-  Memory utilization
+-  Container startup time (cold start)
 
 ### Logs Estructurados
 
@@ -687,7 +687,7 @@ Configurar alertas en Cloud Monitoring para:
 
 **Síntomas**:
 ```
-❌ Error en construcción de Docker
+ Error en construcción de Docker
 ```
 
 **Diagnóstico**:
@@ -701,10 +701,10 @@ docker build --no-cache -f deployment/backend/Dockerfile -t test:latest . --prog
 ```
 
 **Soluciones**:
-- ✅ Reiniciar Docker Desktop
-- ✅ Verificar espacio en disco (>10GB libre)
-- ✅ Limpiar caché Docker: `docker system prune -a`
-- ✅ Verificar requirements.txt válido
+-  Reiniciar Docker Desktop
+-  Verificar espacio en disco (>10GB libre)
+-  Limpiar caché Docker: `docker system prune -a`
+-  Verificar requirements.txt válido
 
 ---
 
@@ -712,7 +712,7 @@ docker build --no-cache -f deployment/backend/Dockerfile -t test:latest . --prog
 
 **Síntomas**:
 ```
-❌ Error subiendo imagen
+ Error subiendo imagen
 denied: Permission denied
 ```
 
@@ -745,7 +745,7 @@ gcloud config set project agent-intelligence-gasco
 
 **Síntomas**:
 ```
-❌ Error en deployment inicial a Cloud Run
+ Error en deployment inicial a Cloud Run
 ERROR: (gcloud.run.deploy) INVALID_ARGUMENT: ...
 ```
 
@@ -787,7 +787,7 @@ gcloud projects add-iam-policy-binding agent-intelligence-gasco \
 
 **Síntomas**:
 ```
-⚠️  Health check falló (código: 503)
+  Health check falló (código: 503)
 ```
 
 **Diagnóstico**:
@@ -862,7 +862,7 @@ gcloud run services update invoice-backend \
 
 ---
 
-## 🔧 Configuraciones Avanzadas
+##  Configuraciones Avanzadas
 
 ### Cold Start Optimization
 
@@ -893,7 +893,7 @@ gcloud run services update invoice-backend \
 
 ```powershell
 # 1. Verificar dominio en Cloud Console
-# https://console.cloud.google.com/run/domains
+# https://console.cloud. google.com/run/domains
 
 # 2. Mapear dominio al servicio
 gcloud run domain-mappings create \
@@ -946,14 +946,14 @@ gcloud run services update invoice-backend \
 
 ---
 
-## 📚 Recursos Adicionales
+##  Recursos Adicionales
 
 ### Documentación Relacionada
 
-- 📊 **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
+-  **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
 - 📘 **User Guide**: `docs/official/user/10_USER_GUIDE.md`
-- 🏗️ **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
-- 🔧 **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
+-  **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
+-  **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
 
 ### Scripts Útiles
 
@@ -981,7 +981,7 @@ cd deployment/backend
 
 ---
 
-## ✅ Checklist de Deployment
+##  Checklist de Deployment
 
 ### Pre-Deployment
 
@@ -1015,16 +1015,16 @@ cd deployment/backend
 
 ---
 
-## 🎯 Mejores Prácticas
+##  Mejores Prácticas
 
 ### 1. Siempre Usa `-AutoVersion`
 
-✅ **Recomendado**:
+ **Recomendado**:
 ```powershell
 .\deploy.ps1 -AutoVersion
 ```
 
-❌ **Evitar**:
+ **Evitar**:
 ```powershell
 .\deploy.ps1  # Genera versión genérica sin trazabilidad
 ```
@@ -1035,12 +1035,12 @@ cd deployment/backend
 
 ### 2. Nunca Omitas Build en Producción
 
-✅ **Recomendado**:
+ **Recomendado**:
 ```powershell
 .\deploy.ps1 -AutoVersion  # Build completo
 ```
 
-❌ **Evitar en producción**:
+ **Evitar en producción**:
 ```powershell
 .\deploy.ps1 -SkipBuild  # Solo para testing
 ```
@@ -1087,7 +1087,7 @@ Versión: $Version
 Revisión: $RevisionSuffix
 Deployed by: $(gcloud config get-value account)
 Changes: [Descripción de cambios]
-Tests: ✅ Passed
+Tests:  Passed
 "@
 
 $deploymentLog | Out-File -Append deployment_history.log
@@ -1095,7 +1095,7 @@ $deploymentLog | Out-File -Append deployment_history.log
 
 ---
 
-## 🚀 Quick Reference Card
+##  Quick Reference Card
 
 ### Deployment Rápido (90% casos)
 
@@ -1126,7 +1126,7 @@ curl https://invoice-backend-819133916464.us-central1.run.app/list-apps
 
 ---
 
-## 📞 Soporte
+##  Soporte
 
 ### Contactos
 
@@ -1160,4 +1160,4 @@ curl https://invoice-backend-819133916464.us-central1.run.app/list-apps
 ---
 
 **© 2025 Option - Todos los derechos reservados**  
-**Cliente: Gasco**
+**Cliente**: Gasco

@@ -1,4 +1,4 @@
-# 🏗️ Arquitectura del Sistema - Invoice Chatbot Backend
+# Arquitectura del Sistema - Invoice Chatbot Backend
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General de la Arquitectura
+## Visión General de la Arquitectura
 
 El **Sistema de Chatbot de Facturas Gasco** implementa una arquitectura moderna de **3 componentes principales** con **separación dual de proyectos** en Google Cloud Platform para máxima seguridad y gobernanza de datos.
 
@@ -25,26 +25,26 @@ El **Sistema de Chatbot de Facturas Gasco** implementa una arquitectura moderna 
 
 ---
 
-## 📐 Arquitectura de Alto Nivel
+## Arquitectura de Alto Nivel
 
 ```mermaid
 flowchart TB
-    subgraph Frontend["🌐 Frontend (Next.js)"]
+    subgraph Frontend["Frontend (Next.js)"]
         UI[Interface de Usuario]
     end
     
-    subgraph CloudRun["☁️ Cloud Run - invoice-backend"]
-        ADK["🤖 ADK Agent<br/>(localhost:8001)"]
-        MCP["🔧 MCP Toolbox<br/>(localhost:5000)"]
-        PDF["📄 PDF Server<br/>(localhost:8080)"]
+    subgraph CloudRun["Cloud Run - invoice-backend"]
+        ADK["ADK Agent<br/>(localhost:8080)"]
+        MCP["MCP Toolbox<br/>(localhost:5000)"]
+        PDF["PDF Server<br/>(localhost:8011)"]
     end
     
-    subgraph GCP_READ["📊 GCP: datalake-gasco (READ-ONLY)"]
+    subgraph GCP_READ["GCP: datalake-gasco (READ-ONLY)"]
         BQ_READ[("BigQuery<br/>pdfs_modelo<br/>6,641 facturas")]
         GCS_READ[("Cloud Storage<br/>miguel-test<br/>PDFs originales")]
     end
     
-    subgraph GCP_WRITE["💾 GCP: agent-intelligence-gasco (READ-WRITE)"]
+    subgraph GCP_WRITE["GCP: agent-intelligence-gasco (READ-WRITE)"]
         BQ_WRITE[("BigQuery<br/>zip_operations<br/>Logs & Analytics")]
         GCS_WRITE[("Cloud Storage<br/>agent-intelligence-zips<br/>ZIPs generados")]
     end
@@ -72,13 +72,13 @@ flowchart TB
 5. **MCP** → SQL Query → **BigQuery (datalake-gasco)** READ-ONLY
 6. **BigQuery** → Retorna facturas → **MCP** → **ADK**
 7. **ADK** → Genera respuesta estructurada → **PDF Server**
-8. **PDF Server** → Genera **Signed URLs** (GCS) → Retorna a **ADK**
+8. **Generación de Signed URL**: El **ADK Agent** genera las URLs firmadas para los PDFs/ZIPs (apoyándose en el **PDF Server** principalmente para desarrollo local).
 9. **ADK** → Logs tokens → **BigQuery (agent-intelligence-gasco)** WRITE
 10. **ADK** → Respuesta final → **Frontend** → **Usuario**
 
 ---
 
-## 🔷 Arquitectura Dual: Separación READ/WRITE
+## Arquitectura Dual: Separación READ/WRITE
 
 ### Concepto Crítico
 
@@ -86,15 +86,15 @@ La arquitectura implementa **dos proyectos Google Cloud completamente separados*
 
 ```mermaid
 flowchart LR
-    subgraph READ["🔒 PROJECT READ<br/>datalake-gasco"]
-        READ_DATA["📊 Datos de Producción<br/>SOLO LECTURA<br/><br/>✅ BigQuery: pdfs_modelo<br/>✅ GCS: miguel-test<br/>✅ 6,641 facturas<br/>✅ Período: 2017-2025"]
+    subgraph READ["PROJECT READ<br/>datalake-gasco"]
+        READ_DATA["Datos de Producción<br/>SOLO LECTURA<br/><br/>BigQuery: pdfs_modelo<br/>GCS: miguel-test<br/>6,641 facturas<br/>Período: 2017-2025"]
     end
     
-    subgraph WRITE["📝 PROJECT WRITE<br/>agent-intelligence-gasco"]
-        WRITE_OPS["💾 Operaciones del Agente<br/>LECTURA/ESCRITURA<br/><br/>✅ BigQuery: zip_operations<br/>✅ GCS: agent-intelligence-zips<br/>✅ Logs de conversaciones<br/>✅ Token tracking<br/>✅ Analytics"]
+    subgraph WRITE["PROJECT WRITE<br/>agent-intelligence-gasco"]
+        WRITE_OPS["Operaciones del Agente<br/>LECTURA/ESCRITURA<br/><br/>BigQuery: zip_operations<br/>GCS: agent-intelligence-zips<br/>Logs de conversaciones<br/>Token tracking<br/>Analytics"]
     end
     
-    Agent["🤖 ADK Agent<br/>Service Account<br/>adk-agent-sa"]
+    Agent["ADK Agent<br/>Service Account<br/>adk-agent-sa"]
     
     Agent -->|"READ (SQL Queries)"| READ
     Agent -->|"WRITE (Logs, ZIPs)"| WRITE
@@ -134,20 +134,20 @@ BUCKET_WRITE = "agent-intelligence-zips"
 
 ---
 
-## 🎨 Arquitectura de 3 Componentes
+## Arquitectura de 3 Componentes
 
 ### Componente 1: ADK Agent (Google Agent Development Kit)
 
 ```mermaid
 graph TB
-    subgraph ADK["🤖 ADK Agent - gcp-invoice-agent-app"]
+    subgraph ADK["ADK Agent - gcp-invoice-agent-app"]
         Agent["agent.py<br/>Main Agent Logic"]
         Prompt["agent_prompt.yaml<br/>System Instructions<br/>4,000+ líneas"]
         Callbacks["conversation_callbacks.py<br/>Token Tracking"]
         Config["agent_prompt_config.py<br/>Configuration"]
     end
     
-    subgraph Gemini["🧠 Vertex AI"]
+    subgraph Gemini["Vertex AI"]
         Model["Gemini 2.5 Flash<br/>temperature=0.3<br/>thinking_budget=1024"]
     end
     
@@ -161,18 +161,18 @@ graph TB
 ```
 
 **Responsabilidades**:
-- ✅ Procesamiento de lenguaje natural conversacional
-- ✅ Selección inteligente de herramientas MCP (49 tools)
-- ✅ Generación de respuestas estructuradas en español
-- ✅ Tracking de tokens y métricas de uso
-- ✅ Logging de conversaciones completas
-- ✅ Gestión de sesiones multi-usuario
+- Procesamiento de lenguaje natural conversacional
+- Selección inteligente de herramientas MCP (49 tools)
+- Generación de respuestas estructuradas en español
+- Tracking de tokens y métricas de uso
+- Logging de conversaciones completas
+- Gestión de sesiones multi-usuario
 
 **Tecnologías**:
 - **Framework**: Google ADK (Agent Development Kit)
 - **Modelo IA**: Gemini 2.5 Flash (Vertex AI)
 - **Temperatura**: 0.3 (balance determinismo/flexibilidad)
-- **Puerto**: 8001 (interno en contenedor Cloud Run)
+- **Puerto**: 8080 (público, gestionado por Cloud Run)
 - **Protocolo**: HTTP RESTful
 
 **Configuración Crítica**:
@@ -200,18 +200,18 @@ system_instructions: |
 
 ```mermaid
 graph TB
-    subgraph MCP["🔧 MCP Toolbox Server"]
+    subgraph MCP["MCP Toolbox Server"]
         Server["MCP Server<br/>localhost:5000"]
         Config["tools_updated.yaml<br/>49 herramientas"]
         Binary["mcp-toolbox binary<br/>(117MB)"]
     end
     
-    subgraph Tools["📦 Categorías de Herramientas"]
-        Search["🔍 Búsqueda<br/>14 tools"]
-        Stats["📊 Estadísticas<br/>8 tools"]
-        Financial["💰 Análisis Financiero<br/>5 tools"]
-        PDF["📄 PDFs Especializados<br/>6 tools"]
-        Utility["🛠️ Utilidades<br/>16 tools"]
+    subgraph Tools["Categorías de Herramientas"]
+        Search["Búsqueda<br/>14 tools"]
+        Stats["Estadísticas<br/>8 tools"]
+        Financial["Análisis Financiero<br/>5 tools"]
+        PDF["PDFs Especializados<br/>6 tools"]
+        Utility["Utilidades<br/>16 tools"]
     end
     
     Server --> Config
@@ -254,14 +254,14 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph PDFServer["📄 PDF Server - local_pdf_server.py"]
-        Proxy["HTTP Server<br/>localhost:8080"]
+    subgraph PDFServer["PDF Server - local_pdf_server.py"]
+        Proxy["HTTP Server<br/>localhost:8011"]
         Signer["Signed URL Generator<br/>Impersonated Credentials"]
         Zipper["ZIP Creator<br/>create_complete_zip.py"]
         Stability["GCS Stability System<br/>Clock Skew Compensation"]
     end
     
-    subgraph GCS["☁️ Google Cloud Storage"]
+    subgraph GCS["Google Cloud Storage"]
         ReadBucket["miguel-test<br/>PDFs Originales"]
         WriteBucket["agent-intelligence-zips<br/>ZIPs Generados"]
     end
@@ -289,10 +289,10 @@ graph TB
    - Almacenamiento en bucket agent-intelligence-zips
 
 3. **Sistema de Estabilidad GCS**:
-   - ⏰ Compensación automática de clock skew
-   - 🔄 Retry exponencial (max 3 intentos)
-   - 📊 Monitoreo JSON estructurado
-   - 🌍 Configuración UTC forzada
+   - Compensación automática de clock skew
+   - Retry exponencial (max 3 intentos)
+   - Monitoreo JSON estructurado
+   - Configuración UTC forzada
 
 **Configuración**:
 ```python
@@ -306,7 +306,7 @@ TZ = "UTC"  # Crítico para estabilidad
 
 ---
 
-## 🗄️ Arquitectura de Datos
+## Arquitectura de Datos
 
 ### BigQuery: Tabla Principal (pdfs_modelo)
 
@@ -340,8 +340,8 @@ erDiagram
         float response_time_ms "Latencia"
     }
     
-    zip_packages {
-        string package_id PK
+    zip_files {
+        string zip_id PK
         timestamp created_at
         string download_url "Signed URL"
         int invoice_count "Facturas"
@@ -370,25 +370,25 @@ agent_response_word_count INT64
 ```
 
 **Beneficios**:
-- 💰 Estimación de costos: $0.075/1M input, $0.30/1M output
-- 📈 Análisis de correlación texto-tokens
-- 🔍 Identificación de tokens cacheados (optimización)
-- 📊 Top conversaciones costosas
-- 🧠 Tracking de Thinking Mode
+- Estimación de costos: $0.075/1M input, $0.30/1M output
+- Análisis de correlación texto-tokens
+- Identificación de tokens cacheados (optimización)
+- Top conversaciones costosas
+- Tracking de Thinking Mode
 
 ---
 
-## 🔐 Arquitectura de Seguridad
+## Arquitectura de Seguridad
 
 ### Service Account: adk-agent-sa
 
 ```mermaid
 graph TB
-    subgraph SA["🔑 Service Account"]
+    subgraph SA["Service Account"]
         Agent["adk-agent-sa@<br/>agent-intelligence-gasco<br/>.iam.gserviceaccount.com"]
     end
     
-    subgraph Permissions["🛡️ Permisos IAM"]
+    subgraph Permissions["Permisos IAM"]
         P1["BigQuery Data Viewer<br/>(datalake-gasco)"]
         P2["BigQuery User<br/>(agent-intelligence-gasco)"]
         P3["Storage Object Viewer<br/>(miguel-test)"]
@@ -419,47 +419,47 @@ sequenceDiagram
     Note over PDF: Usa credenciales<br/>impersonadas
     PDF->>PDF: Genera URL firmada<br/>(exp: 24h)
     PDF->>GCS: Valida acceso
-    GCS-->>PDF: ✅ Acceso permitido
+    GCS-->>PDF: Acceso permitido
     PDF-->>ADK: Signed URL
     ADK-->>User: URL en respuesta
     
     User->>GCS: GET con signed URL
     Note over GCS: Valida firma<br/>y expiración
-    GCS-->>User: ✅ Descarga PDF
+    GCS-->>User: Descarga PDF
     
     Note over User,GCS: Después de 24h
     User->>GCS: GET con URL expirada
-    GCS-->>User: ❌ 403 Forbidden
+    GCS-->>User: 403 Forbidden
 ```
 
 **Características de Seguridad**:
-- ✅ **Expiración automática**: 24 horas
-- ✅ **Sin autenticación adicional**: Solo el enlace
-- ✅ **Credenciales impersonadas**: Cross-project access
-- ✅ **Compensación de clock skew**: Estabilidad garantizada
-- ✅ **Retry automático**: Hasta 3 intentos con backoff
+- **Expiración automática**: 24 horas
+- **Sin autenticación adicional**: Solo el enlace
+- **Credenciales impersonadas**: Cross-project access
+- **Compensación de clock skew**: Estabilidad garantizada
+- **Retry automático**: Hasta 3 intentos con backoff
 
 ---
 
-## 🚀 Arquitectura de Deployment
+## Arquitectura de Deployment
 
 ### Cloud Run: Serverless Container
 
 ```mermaid
 graph TB
-    subgraph CR["☁️ Cloud Run Service"]
+    subgraph CR["Cloud Run Service"]
         Container["Docker Container<br/>invoice-backend"]
         Instances["Auto-scaling<br/>0-10 instancias"]
         LB["Load Balancer<br/>Interno"]
     end
     
-    subgraph Config["⚙️ Configuración"]
+    subgraph Config["Configuración"]
         Env["Environment Variables<br/>PROJECT_ID_READ<br/>PROJECT_ID_WRITE<br/>IS_CLOUD_RUN=true"]
-        Resources["Recursos<br/>2 vCPU<br/>2 GB RAM<br/>Timeout: 3600s"]
+        Resources["Recursos<br/>4 vCPU<br/>4Gi Memory<br/>Timeout: 3600s"]
         SA["Service Account<br/>adk-agent-sa"]
     end
     
-    Internet["🌐 Internet"]
+    Internet["Internet"]
     
     Internet -->|HTTPS| LB
     LB --> Container
@@ -519,25 +519,25 @@ adk api_server --host=0.0.0.0 --port=8080 my-agents --allow_origins="*"
 
 ---
 
-## 📊 Arquitectura de Monitoreo
+## Arquitectura de Monitoreo
 
 ### Sistema de Token Tracking
 
 ```mermaid
 graph TB
-    subgraph Conversation["💬 Conversación"]
+    subgraph Conversation["Conversación"]
         User["Usuario<br/>Pregunta"]
         Agent["ADK Agent<br/>Procesa"]
         Gemini["Gemini API<br/>Genera respuesta"]
     end
     
-    subgraph Tracking["📊 Token Tracking"]
+    subgraph Tracking["Token Tracking"]
         Callback["Callbacks<br/>before/after_agent"]
         Metadata["usage_metadata<br/>from Gemini"]
         Calculator["Token Calculator<br/>Estimación de costos"]
     end
     
-    subgraph Storage["💾 BigQuery Analytics"]
+    subgraph Storage["BigQuery Analytics"]
         Table["conversation_logs<br/>9 campos de tokens"]
         Queries["8 queries SQL<br/>Análisis"]
     end
@@ -573,7 +573,7 @@ graph TB
 
 ---
 
-## 🔄 Flujos Críticos del Sistema
+## Flujos Críticos del Sistema
 
 ### Flujo 1: Búsqueda Simple por SAP
 
@@ -660,7 +660,7 @@ sequenceDiagram
     
     CB->>BQ: INSERT INTO conversation_logs
     Note over BQ: Persiste 9 campos<br/>de tokens + metadata
-    BQ-->>CB: ✅ Guardado
+    BQ-->>CB: Guardado
     CB-->>ADK: Continue
     
     Note over ADK: Conversación completa
@@ -668,7 +668,7 @@ sequenceDiagram
 
 ---
 
-## 🎛️ Configuración Crítica
+## Configuración Crítica
 
 ### Variables de Entorno (.env)
 
@@ -747,24 +747,24 @@ def validate_config():
     if errors:
         raise ValueError(f"Errores: {', '.join(errors)}")
     
-    print("✅ Configuración dual validada correctamente")
+    print("Configuración dual validada correctamente")
 ```
 
 ---
 
-## 📈 Escalabilidad y Performance
+## Escalabilidad y Performance
 
 ### Auto-Scaling en Cloud Run
 
 ```mermaid
 graph LR
-    subgraph Load["📊 Carga de Tráfico"]
+    subgraph Load["Carga de Tráfico"]
         Low["Bajo<br/>0-10 req/min"]
         Medium["Medio<br/>10-50 req/min"]
         High["Alto<br/>50+ req/min"]
     end
     
-    subgraph Instances["🚀 Instancias Cloud Run"]
+    subgraph Instances["Instancias Cloud Run"]
         I0["0 instancias<br/>(idle)"]
         I1["1-3 instancias<br/>(normal)"]
         I10["4-10 instancias<br/>(pico)"]
@@ -804,7 +804,7 @@ graph LR
 
 ---
 
-## 🛡️ Resiliencia y Estabilidad
+## Resiliencia y Estabilidad
 
 ### Sistema de Retry para Signed URLs
 
@@ -855,46 +855,40 @@ GET https://invoice-backend-819133916464.us-central1.run.app/list-apps
 
 ---
 
-## 🔍 Diagramas de Componentes Detallados
+## Diagramas de Componentes Detallados
 
 ### Componente ADK Agent - Detallado
 
 ```mermaid
 graph TB
-    subgraph ADKInternal["🤖 ADK Agent Interno"]
-        HTTP["HTTP Server<br/>FastAPI"]
-        Router["Request Router<br/>/run, /run_sse, /list-apps"]
-        SessionMgr["Session Manager<br/>Multi-usuario"]
+    subgraph ADKInternal["ADK Agent Internals"]
+        HTTP["HTTP Server (FastAPI)"]
+        Router["Request Router<br/>(/run, /list-apps)"]
+        SessionMgr["Session Manager"]
         
         subgraph Core["Core Engine"]
-            Prompt["Prompt Processor<br/>4,000+ líneas YAML"]
-            ToolSelector["Tool Selector<br/>49 herramientas MCP"]
-            ResponseGen["Response Generator<br/>Markdown formatting"]
+            Prompt["Prompt Processor"]
+            ToolSelector["Tool Selector"]
+            ResponseGen["Response Generator"]
         end
         
-        subgraph Callbacks["Callbacks"]
-            Before["before_agent<br/>Timestamp, metrics"]
-            After["after_agent<br/>Token tracking"]
-            ToolBefore["before_tool<br/>Tool logging"]
+        subgraph Callbacks["Callback System"]
+            Before["before_agent"]
+            After["after_agent"]
+            ToolBefore["before_tool"]
         end
     end
     
-    Gemini["🧠 Gemini 2.5 Flash"]
-    MCP["🔧 MCP Toolbox"]
-    BQ["💾 BigQuery Analytics"]
+    Gemini["Gemini 2.5 Flash"]
+    MCP["MCP Toolbox"]
+    BQ["BigQuery Analytics"]
     
-    HTTP --> Router
-    Router --> SessionMgr
-    SessionMgr --> Prompt
-    Prompt --> ToolSelector
-    ToolSelector <-->|Tool calls| MCP
-    ToolSelector <-->|API requests| Gemini
-    ToolSelector --> ResponseGen
+    HTTP --> Router --> SessionMgr --> Core
+    Core -->|Tool calls| MCP
+    Core <-->|API requests| Gemini
     
-    SessionMgr --> Before
-    SessionMgr --> After
-    SessionMgr --> ToolBefore
-    After -->|Persist tokens| BQ
+    SessionMgr --> Callbacks
+    After -->|Persists metrics| BQ
     
     style ADKInternal fill:#e3f2fd
     style Core fill:#fff3e0
@@ -905,7 +899,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph MCPInternal["🔧 MCP Toolbox Interno"]
+    subgraph MCPInternal["MCP Toolbox Interno"]
         MCPServer["MCP Server<br/>HTTP Listener :5000"]
         
         subgraph Parser["YAML Parser"]
@@ -914,11 +908,11 @@ graph TB
         end
         
         subgraph Categories["Tool Categories"]
-            Search["🔍 14 Búsqueda"]
-            Stats["📊 8 Estadísticas"]
-            Financial["💰 5 Financiero"]
-            PDF["📄 6 PDFs"]
-            Util["🛠️ 16 Utilidades"]
+            Search["14 Búsqueda"]
+            Stats["8 Estadísticas"]
+            Financial["5 Financiero"]
+            PDF["6 PDFs"]
+            Util["16 Utilidades"]
         end
         
         subgraph Execution["Execution Engine"]
@@ -928,7 +922,7 @@ graph TB
         end
     end
     
-    BQ["📊 BigQuery<br/>datalake-gasco"]
+    BQ["BigQuery<br/>datalake-gasco"]
     
     MCPServer --> Config
     Config --> Validator
@@ -957,7 +951,7 @@ graph TB
 
 ---
 
-## 📚 Patrones de Diseño Aplicados
+## Patrones de Diseño Aplicados
 
 ### 1. Separation of Concerns (Arquitectura Dual)
 
@@ -997,7 +991,7 @@ graph TB
 
 ---
 
-## 🚦 Limitaciones y Consideraciones
+## Limitaciones y Consideraciones
 
 ### Limitaciones Técnicas
 
@@ -1027,47 +1021,47 @@ graph TB
 
 ---
 
-## 🔮 Roadmap de Arquitectura
+## Roadmap de Arquitectura
 
 ### Corto Plazo (1-3 meses)
 
-- ✅ **Implementado**: Token tracking completo
-- ✅ **Implementado**: PDF filtering optimizado
-- ✅ **Implementado**: GCS stability system
-- 🔄 **En progreso**: Dashboard de métricas tiempo real
-- 📋 **Planeado**: Alertas automáticas de costos
+- **Implementado**: Token tracking completo
+- **Implementado**: PDF filtering optimizado
+- **Implementado**: GCS stability system
+- **En progreso**: Dashboard de métricas tiempo real
+- **Planeado**: Alertas automáticas de costos
 
 ### Mediano Plazo (3-6 meses)
 
-- 📋 Cache layer para consultas frecuentes
-- 📋 API pública para integraciones externas
-- 📋 Multi-región deployment (disaster recovery)
-- 📋 Webhook notifications para eventos
+- Cache layer para consultas frecuentes
+- API pública para integraciones externas
+- Multi-región deployment (disaster recovery)
+- Webhook notifications para eventos
 
 ### Largo Plazo (6-12 meses)
 
-- 📋 Machine Learning para predicción de consultas
-- 📋 GraphQL API alternativo
-- 📋 Integración directa con ERP/SAP
-- 📋 Self-service analytics dashboard
+- Machine Learning para predicción de consultas
+- GraphQL API alternativo
+- Integración directa con ERP/SAP
+- Self-service analytics dashboard
 
 ---
 
-## 📖 Referencias y Documentación
+## Referencias y Documentación
 
 ### Documentación Oficial
 
-- 📚 **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
-- 📘 **User Guide**: `docs/official/user/10_USER_GUIDE.md`
-- 🚀 **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
-- 🔧 **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
+- **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
+- **User Guide**: `docs/official/user/10_USER_GUIDE.md`
+- **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
+- **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
 
 ### Documentación Técnica
 
-- 🔍 **DEBUGGING_CONTEXT.md**: Historial técnico completo (4610 líneas)
-- 🆕 **TOKEN_USAGE_TRACKING.md**: Sistema de monitoreo de costos
-- 📊 **GCP_SERVICES_INVENTORY.md**: Inventario de servicios GCP
-- 🛠️ **CLAUDE.md**: Instrucciones para desarrollo
+- **DEBUGGING_CONTEXT.md**: Historial técnico completo (4610 líneas)
+- **TOKEN_USAGE_TRACKING.md**: Sistema de monitoreo de costos
+- **GCP_SERVICES_INVENTORY.md**: Inventario de servicios GCP
+- **CLAUDE.md**: Instrucciones para desarrollo
 
 ### Recursos Externos
 
@@ -1078,27 +1072,27 @@ graph TB
 
 ---
 
-## ✅ Conclusión
+## Conclusión
 
 El **Sistema de Chatbot de Facturas Gasco** implementa una arquitectura moderna, escalable y segura basada en principios de diseño de sistemas distribuidos cloud-native:
 
 ### Logros Arquitectónicos
 
-✅ **Separación de Concerns**: Arquitectura dual READ/WRITE  
-✅ **Escalabilidad**: Serverless auto-scaling 0-10 instancias  
-✅ **Seguridad**: Service accounts con mínimos privilegios  
-✅ **Observabilidad**: Token tracking completo con 9 métricas  
-✅ **Performance**: 100% consistencia, 60% optimización PDFs  
-✅ **Resiliencia**: Retry patterns, signed URLs estables  
+- **Separación de Concerns**: Arquitectura dual READ/WRITE  
+- **Escalabilidad**: Serverless auto-scaling 0-10 instancias  
+- **Seguridad**: Service accounts con mínimos privilegios  
+- **Observabilidad**: Token tracking completo con 9 métricas  
+- **Performance**: 100% consistencia, 60% optimización PDFs  
+- **Resiliencia**: Retry patterns, signed URLs estables  
 
 ### Características Clave
 
-- 🤖 **3 Componentes especializados**: ADK, MCP, PDF Server
-- 📊 **49 Herramientas MCP**: Búsqueda, estadísticas, financiero
-- 🔐 **Arquitectura dual**: Separación READ/WRITE para seguridad
-- 💰 **Token tracking**: Monitoreo completo de costos Gemini API
-- ⚡ **Optimizado**: 60% reducción en tamaño de respuestas
-- 🛡️ **Estable**: 100% confiabilidad en signed URLs
+- **3 Componentes especializados**: ADK, MCP, PDF Server
+- **49 Herramientas MCP**: Búsqueda, estadísticas, financiero
+- **Arquitectura dual**: Separación READ/WRITE para seguridad
+- **Token tracking**: Monitoreo completo de costos Gemini API
+- **Optimizado**: 60% reducción en tamaño de respuestas
+- **Estable**: 100% confiabilidad en signed URLs
 
 ---
 
@@ -1109,7 +1103,7 @@ El **Sistema de Chatbot de Facturas Gasco** implementa una arquitectura moderna,
 
 ---
 
-## 📝 Historial de Cambios
+## Historial de Cambios
 
 | Versión | Fecha | Autor | Cambios |
 |---------|-------|-------|---------|
@@ -1119,3 +1113,19 @@ El **Sistema de Chatbot de Facturas Gasco** implementa una arquitectura moderna,
 
 **© 2025 Option - Todos los derechos reservados**  
 **Cliente: Gasco**
+tos, DevOps, Technical Leads  
+**Nivel**: Arquitectónico  
+
+---
+
+## Historial de Cambios
+
+| Versión | Fecha | Autor | Cambios |
+|---------|-------|-------|---------|
+| 1.0 | 2025-10-06 | Option Team | Arquitectura completa - Primera versión |
+
+---
+
+**© 2025 Option - Todos los derechos reservados**  
+**Cliente: Gasco**
+iente: Gasco**

@@ -1,4 +1,4 @@
-# 🧪 Framework de Testing - Invoice Chatbot
+#  Framework de Testing - Invoice Chatbot
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General
+##  Visión General
 
 El **Invoice Chatbot Testing Framework** es un sistema de testing automatizado de **4 capas** diseñado para validar exhaustivamente las 49 herramientas MCP, endpoints ADK, y la calidad de respuestas del agente conversacional.
 
@@ -40,17 +40,17 @@ El **Invoice Chatbot Testing Framework** es un sistema de testing automatizado d
 
 | Métrica | Valor | Estado |
 |---------|-------|--------|
-| **Herramientas MCP Validadas** | 49/49 | ✅ 100% |
-| **Test Cases JSON** | 24+ | ✅ |
-| **Scripts PowerShell** | 24 | ✅ |
-| **Scripts Curl** | 24+ | ✅ |
-| **Queries SQL Validación** | 10 | ✅ |
-| **Tasa de Éxito** | 100% | ✅ |
-| **Tiempo Total Ejecución** | ~5-8 min | ⚡ |
+| **Herramientas MCP Validadas** | 49/49 |  100% |
+| **Test Cases JSON** | 24+ |  |
+| **Scripts PowerShell** | 24 |  |
+| **Scripts Curl** | 24+ |  |
+| **Queries SQL Validación** | 10 |  |
+| **Tasa de Éxito** | 100% |  |
+| **Tiempo Total Ejecución** | ~5-8 min |  |
 
 ---
 
-## 📚 Tabla de Contenidos
+##  Tabla de Contenidos
 
 1. [Arquitectura de 4 Capas](#-arquitectura-de-4-capas)
 2. [Capa 1: JSON Test Cases](#-capa-1-json-test-cases)
@@ -65,7 +65,7 @@ El **Invoice Chatbot Testing Framework** es un sistema de testing automatizado d
 
 ---
 
-## 🏗️ Arquitectura de 4 Capas
+##  Arquitectura de 4 Capas
 
 ### Diseño Jerárquico
 
@@ -231,7 +231,7 @@ tests/
 | RUT + Monto | `search_invoices_by_rut_and_amount` | Baja |
 | Solicitante + Fecha | `search_invoices_by_solicitante_and_date_range` | Alta |
 
-#### 📄 Descarga de PDFs Específicos (6 tests)
+####  Descarga de PDFs Específicos (6 tests)
 
 | Test | Herramienta MCP | Tipo PDF |
 |------|----------------|----------|
@@ -242,14 +242,14 @@ tests/
 | Cedibles múltiples | `get_cedibles_by_solicitante` | Ambos |
 | Tributarias múltiples | `get_tributarias_by_solicitante` | Ambos |
 
-#### 📊 Estadísticas y Analytics (2 tests)
+####  Estadísticas y Analytics (2 tests)
 
 | Test | Herramienta MCP | Métricas |
 |------|----------------|----------|
 | RUTs únicos | `get_unique_ruts_statistics` | Conteos, actividad |
 | Estadísticas generales | `get_invoice_statistics` | Totales, promedios |
 
-#### 📦 Generación de ZIPs (1 test)
+####  Generación de ZIPs (1 test)
 
 | Test | Herramienta MCP | Validación |
 |------|----------------|------------|
@@ -257,7 +257,7 @@ tests/
 
 ---
 
-## 🖥️ Capa 2: PowerShell Scripts
+##  Capa 2: PowerShell Scripts
 
 ### Estructura de Scripts
 
@@ -276,7 +276,7 @@ tests/
 ### Template de Script PowerShell
 
 ```powershell
-# 🧪 TEST: Búsqueda de facturas por RUT específico
+#  TEST: Búsqueda de facturas por RUT específico
 # ================================================
 # Herramienta MCP: search_invoices_by_rut
 # Parámetros: target_rut = "9025012-4"
@@ -294,7 +294,7 @@ $SessionId = "test-session-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 $Query = "dame las facturas del RUT 9025012-4"
 
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║  🧪 TEST: Búsqueda de facturas por RUT específico       ║" -ForegroundColor Cyan
+Write-Host "║   TEST: Búsqueda de facturas por RUT específico       ║" -ForegroundColor Cyan
 Write-Host "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 # Request body
@@ -327,7 +327,7 @@ try {
     # Extraer respuesta del agente
     $AgentResponse = $Response.events[0].content.parts[0].text
 
-    Write-Host "✅ RESPUESTA RECIBIDA:" -ForegroundColor Green
+    Write-Host " RESPUESTA RECIBIDA:" -ForegroundColor Green
     Write-Host $AgentResponse
     Write-Host ""
 
@@ -337,51 +337,51 @@ try {
 
     # Check 1: RUT presente
     if ($AgentResponse -match "9025012-4") {
-        Write-Host "✅ CHECK 1: RUT presente en respuesta" -ForegroundColor Green
+        Write-Host " CHECK 1: RUT presente en respuesta" -ForegroundColor Green
         $PassedChecks++
     } else {
-        Write-Host "❌ CHECK 1: RUT NO presente en respuesta" -ForegroundColor Red
+        Write-Host " CHECK 1: RUT NO presente en respuesta" -ForegroundColor Red
     }
 
     # Check 2: Palabra "facturas"
     if ($AgentResponse -match "facturas") {
-        Write-Host "✅ CHECK 2: Palabra 'facturas' presente" -ForegroundColor Green
+        Write-Host " CHECK 2: Palabra 'facturas' presente" -ForegroundColor Green
         $PassedChecks++
     } else {
-        Write-Host "❌ CHECK 2: Palabra 'facturas' NO presente" -ForegroundColor Red
+        Write-Host " CHECK 2: Palabra 'facturas' NO presente" -ForegroundColor Red
     }
 
     # Check 3: URLs de descarga
     if ($AgentResponse -match "localhost:8011" -or $AgentResponse -match "storage.googleapis.com") {
-        Write-Host "✅ CHECK 3: URLs de descarga presentes" -ForegroundColor Green
+        Write-Host " CHECK 3: URLs de descarga presentes" -ForegroundColor Green
         $PassedChecks++
     } else {
-        Write-Host "❌ CHECK 3: URLs de descarga NO presentes" -ForegroundColor Red
+        Write-Host " CHECK 3: URLs de descarga NO presentes" -ForegroundColor Red
     }
 
     # Check 4: Sin errores
     if ($AgentResponse -notmatch "error|disculpa|no encontré") {
-        Write-Host "✅ CHECK 4: Sin mensajes de error" -ForegroundColor Green
+        Write-Host " CHECK 4: Sin mensajes de error" -ForegroundColor Green
         $PassedChecks++
     } else {
-        Write-Host "❌ CHECK 4: Mensajes de error detectados" -ForegroundColor Red
+        Write-Host " CHECK 4: Mensajes de error detectados" -ForegroundColor Red
     }
 
     # Resumen
     Write-Host "`n" + ("═" * 60) -ForegroundColor Cyan
-    Write-Host "📊 RESUMEN: $PassedChecks/$TotalChecks checks pasados" -ForegroundColor $(if ($PassedChecks -eq $TotalChecks) { "Green" } else { "Yellow" })
+    Write-Host " RESUMEN: $PassedChecks/$TotalChecks checks pasados" -ForegroundColor $(if ($PassedChecks -eq $TotalChecks) { "Green" } else { "Yellow" })
     Write-Host ("═" * 60) -ForegroundColor Cyan
 
     if ($PassedChecks -eq $TotalChecks) {
-        Write-Host "`n🎉 TEST EXITOSO - Todas las validaciones pasaron" -ForegroundColor Green
+        Write-Host "`n TEST EXITOSO - Todas las validaciones pasaron" -ForegroundColor Green
         exit 0
     } else {
-        Write-Host "`n⚠️  TEST PARCIAL - Algunas validaciones fallaron" -ForegroundColor Yellow
+        Write-Host "`n  TEST PARCIAL - Algunas validaciones fallaron" -ForegroundColor Yellow
         exit 1
     }
 
 } catch {
-    Write-Host "❌ ERROR EN REQUEST:" -ForegroundColor Red
+    Write-Host " ERROR EN REQUEST:" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     Write-Host $_.Exception.Response -ForegroundColor Red
     exit 2
@@ -391,7 +391,7 @@ try {
 ### Runner Principal: `test_local_chatbot.ps1`
 
 ```powershell
-# 🧪 RUNNER PRINCIPAL DE TESTS LOCALES
+#  RUNNER PRINCIPAL DE TESTS LOCALES
 # =====================================
 # Ejecuta todos los tests contra localhost:8080
 # =====================================
@@ -405,7 +405,7 @@ $TestsDir = "$PSScriptRoot"
 $TestFiles = Get-ChildItem -Path "$TestsDir/cases" -Filter $TestPattern
 
 Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║  🧪 RUNNER PRINCIPAL - Tests Locales                       ║" -ForegroundColor Cyan
+Write-Host "║   RUNNER PRINCIPAL - Tests Locales                       ║" -ForegroundColor Cyan
 Write-Host "╚════════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 
 $TotalTests = $TestFiles.Count
@@ -413,7 +413,7 @@ $PassedTests = 0
 $FailedTests = 0
 
 foreach ($TestFile in $TestFiles) {
-    Write-Host "`n▶️  Ejecutando: $($TestFile.Name)" -ForegroundColor Yellow
+    Write-Host "`n  Ejecutando: $($TestFile.Name)" -ForegroundColor Yellow
     
     # Ejecutar test correspondiente
     $TestScript = Join-Path $TestsDir "scripts\test_$($TestFile.BaseName).ps1"
@@ -425,18 +425,18 @@ foreach ($TestFile in $TestFiles) {
         } else {
             $FailedTests++
             if (-not $ContinueOnError) {
-                Write-Host "`n⛔ Abortando ejecución (usa -ContinueOnError para continuar)" -ForegroundColor Red
+                Write-Host "`n Abortando ejecución (usa -ContinueOnError para continuar)" -ForegroundColor Red
                 break
             }
         }
     } else {
-        Write-Host "⚠️  Script no encontrado: $TestScript" -ForegroundColor Yellow
+        Write-Host "  Script no encontrado: $TestScript" -ForegroundColor Yellow
     }
 }
 
 # Resumen final
 Write-Host "`n" + ("═" * 80) -ForegroundColor Cyan
-Write-Host "📊 RESUMEN FINAL DE TESTS" -ForegroundColor Cyan
+Write-Host " RESUMEN FINAL DE TESTS" -ForegroundColor Cyan
 Write-Host ("═" * 80) -ForegroundColor Cyan
 Write-Host "Total:   $TotalTests tests" -ForegroundColor White
 Write-Host "Pasados: $PassedTests tests" -ForegroundColor Green
@@ -444,17 +444,17 @@ Write-Host "Fallidos: $FailedTests tests" -ForegroundColor $(if ($FailedTests -g
 Write-Host ("═" * 80) -ForegroundColor Cyan
 
 if ($FailedTests -eq 0) {
-    Write-Host "`n🎉 TODOS LOS TESTS PASARON" -ForegroundColor Green
+    Write-Host "`n TODOS LOS TESTS PASARON" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "`n⚠️  ALGUNOS TESTS FALLARON" -ForegroundColor Yellow
+    Write-Host "`n  ALGUNOS TESTS FALLARON" -ForegroundColor Yellow
     exit 1
 }
 ```
 
 ---
 
-## 🌐 Capa 3: Curl Scripts
+##  Capa 3: Curl Scripts
 
 ### Estructura de Scripts Curl
 
@@ -471,7 +471,7 @@ tests/
 
 ```bash
 #!/bin/bash
-# 🧪 TEST CURL: Búsqueda de facturas por RUT
+#  TEST CURL: Búsqueda de facturas por RUT
 # ==========================================
 # Testing HTTP directo sin dependencias
 # ==========================================
@@ -484,7 +484,7 @@ QUERY="dame las facturas del RUT 9025012-4"
 
 echo ""
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║  🧪 TEST CURL: Búsqueda por RUT                         ║"
+echo "║   TEST CURL: Búsqueda por RUT                         ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -520,13 +520,13 @@ RESPONSE=$(curl -s -X POST \
 
 # Verificar éxito
 if [ $? -eq 0 ]; then
-    echo "✅ Request exitoso"
+    echo " Request exitoso"
     echo ""
     
     # Extraer respuesta del agente
     AGENT_RESPONSE=$(echo "$RESPONSE" | jq -r '.events[0].content.parts[0].text')
     
-    echo "📄 RESPUESTA DEL AGENTE:"
+    echo " RESPUESTA DEL AGENTE:"
     echo "$AGENT_RESPONSE"
     echo ""
     
@@ -536,56 +536,56 @@ if [ $? -eq 0 ]; then
     
     # Check 1: RUT presente
     if echo "$AGENT_RESPONSE" | grep -q "9025012-4"; then
-        echo "✅ CHECK 1: RUT presente"
+        echo " CHECK 1: RUT presente"
         ((CHECKS_PASSED++))
     else
-        echo "❌ CHECK 1: RUT NO presente"
+        echo " CHECK 1: RUT NO presente"
     fi
     
     # Check 2: URLs de descarga
     if echo "$AGENT_RESPONSE" | grep -qE "(localhost:8011|storage.googleapis.com)"; then
-        echo "✅ CHECK 2: URLs de descarga presentes"
+        echo " CHECK 2: URLs de descarga presentes"
         ((CHECKS_PASSED++))
     else
-        echo "❌ CHECK 2: URLs NO presentes"
+        echo " CHECK 2: URLs NO presentes"
     fi
     
     # Check 3: Sin errores
     if ! echo "$AGENT_RESPONSE" | grep -qiE "(error|disculpa|no encontré)"; then
-        echo "✅ CHECK 3: Sin mensajes de error"
+        echo " CHECK 3: Sin mensajes de error"
         ((CHECKS_PASSED++))
     else
-        echo "❌ CHECK 3: Mensajes de error detectados"
+        echo " CHECK 3: Mensajes de error detectados"
     fi
     
     # Resumen
     echo ""
     echo "════════════════════════════════════════════════════════"
-    echo "📊 RESUMEN: $CHECKS_PASSED/$TOTAL_CHECKS checks pasados"
+    echo " RESUMEN: $CHECKS_PASSED/$TOTAL_CHECKS checks pasados"
     echo "════════════════════════════════════════════════════════"
     
     if [ $CHECKS_PASSED -eq $TOTAL_CHECKS ]; then
         echo ""
-        echo "🎉 TEST EXITOSO"
+        echo " TEST EXITOSO"
         exit 0
     else
         echo ""
-        echo "⚠️  TEST PARCIAL"
+        echo "  TEST PARCIAL"
         exit 1
     fi
 else
-    echo "❌ ERROR EN REQUEST"
+    echo " ERROR EN REQUEST"
     exit 2
 fi
 ```
 
 ### Ventajas de Scripts Curl
 
-- ✅ **Sin dependencias**: Solo require curl y jq
-- ✅ **Portable**: Funciona en Linux, macOS, Windows (Git Bash)
-- ✅ **Debugging**: Fácil inspección de requests/responses raw
-- ✅ **CI/CD**: Integración directa en pipelines
-- ✅ **Performance**: Mínimo overhead
+-  **Sin dependencias**: Solo require curl y jq
+-  **Portable**: Funciona en Linux, macOS, Windows (Git Bash)
+-  **Debugging**: Fácil inspección de requests/responses raw
+-  **CI/CD**: Integración directa en pipelines
+-  **Performance**: Mínimo overhead
 
 ---
 
@@ -612,7 +612,7 @@ sql_validation/
 **01_validation_invoice_counts.sql**:
 ```sql
 -- ═══════════════════════════════════════════════════════════════
--- 📊 VALIDACIÓN 1: Conteos Generales de Facturas
+--  VALIDACIÓN 1: Conteos Generales de Facturas
 -- ═══════════════════════════════════════════════════════════════
 -- Valida integridad y consistencia de conteos básicos
 -- ═══════════════════════════════════════════════════════════════
@@ -627,13 +627,13 @@ SELECT
   
   -- Validaciones de integridad
   CASE
-    WHEN COUNT(*) = COUNT(DISTINCT Factura) THEN '✅ Sin duplicados'
-    ELSE '❌ Facturas duplicadas detectadas'
+    WHEN COUNT(*) = COUNT(DISTINCT Factura) THEN ' Sin duplicados'
+    ELSE ' Facturas duplicadas detectadas'
   END as integridad_facturas,
   
   CASE
-    WHEN COUNT(*) > 0 THEN '✅ Dataset no vacío'
-    ELSE '❌ Dataset vacío'
+    WHEN COUNT(*) > 0 THEN ' Dataset no vacío'
+    ELSE ' Dataset vacío'
   END as integridad_dataset,
   
   -- Métricas de completitud
@@ -648,8 +648,8 @@ FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`;
 -- facturas_unicas: 6641
 -- ruts_unicos: ~1204
 -- solicitantes_unicos: ~1189
--- integridad_facturas: ✅ Sin duplicados
--- integridad_dataset: ✅ Dataset no vacío
+-- integridad_facturas:  Sin duplicados
+-- integridad_dataset:  Dataset no vacío
 -- pct_rut_populated: 100.00
 -- pct_solicitante_populated: 100.00
 -- pct_nombre_populated: 100.00
@@ -660,7 +660,7 @@ FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`;
 **02_validation_pdf_types.sql**:
 ```sql
 -- ═══════════════════════════════════════════════════════════════
--- 📄 VALIDACIÓN 2: Disponibilidad de Tipos de PDF
+--  VALIDACIÓN 2: Disponibilidad de Tipos de PDF
 -- ═══════════════════════════════════════════════════════════════
 -- Valida que todos los tipos de PDF estén disponibles
 -- ═══════════════════════════════════════════════════════════════
@@ -683,13 +683,13 @@ SELECT
   
   -- Validaciones de completitud
   CASE
-    WHEN COUNT(CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 1 END) = COUNT(*) THEN '✅ 100% cobertura'
-    ELSE '⚠️  Cobertura incompleta'
+    WHEN COUNT(CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 1 END) = COUNT(*) THEN ' 100% cobertura'
+    ELSE '  Cobertura incompleta'
   END as validacion_tributaria_cf,
   
   CASE
-    WHEN COUNT(CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 1 END) = COUNT(*) THEN '✅ 100% cobertura'
-    ELSE '⚠️  Cobertura incompleta'
+    WHEN COUNT(CASE WHEN Copia_Cedible_cf IS NOT NULL THEN 1 END) = COUNT(*) THEN ' 100% cobertura'
+    ELSE '  Cobertura incompleta'
   END as validacion_cedible_cf
 
 FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`;
@@ -702,8 +702,8 @@ FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`;
 -- doc_termico_count: 6641
 -- pct_tributaria_cf: 100.00
 -- pct_cedible_cf: 100.00
--- validacion_tributaria_cf: ✅ 100% cobertura
--- validacion_cedible_cf: ✅ 100% cobertura
+-- validacion_tributaria_cf:  100% cobertura
+-- validacion_cedible_cf:  100% cobertura
 ```
 
 ### Ejecución de Validaciones SQL
@@ -713,7 +713,7 @@ FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`;
 $SqlFiles = Get-ChildItem -Path "sql_validation" -Filter "*.sql" | Sort-Object Name
 
 foreach ($SqlFile in $SqlFiles) {
-    Write-Host "`n📊 Ejecutando: $($SqlFile.Name)" -ForegroundColor Cyan
+    Write-Host "`n Ejecutando: $($SqlFile.Name)" -ForegroundColor Cyan
     
     bq query `
         --use_legacy_sql=false `
@@ -721,9 +721,9 @@ foreach ($SqlFile in $SqlFiles) {
         < $SqlFile.FullName
     
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Validación pasada" -ForegroundColor Green
+        Write-Host " Validación pasada" -ForegroundColor Green
     } else {
-        Write-Host "❌ Validación fallida" -ForegroundColor Red
+        Write-Host " Validación fallida" -ForegroundColor Red
     }
 }
 ```
@@ -737,11 +737,11 @@ foreach ($SqlFile in $SqlFiles) {
 **Ubicación**: `tests/interactive_test_runner.py`
 
 **Características**:
-- ✅ Menú interactivo con opciones numeradas
-- ✅ Ejecución de tests individuales o en lote
-- ✅ Visualización de respuestas completas
-- ✅ Estadísticas en tiempo real
-- ✅ Re-ejecución de tests fallidos
+-  Menú interactivo con opciones numeradas
+-  Ejecución de tests individuales o en lote
+-  Visualización de respuestas completas
+-  Estadísticas en tiempo real
+-  Re-ejecución de tests fallidos
 
 **Uso**:
 ```powershell
@@ -751,17 +751,17 @@ python tests\interactive_test_runner.py
 **Menu**:
 ```
 ╔══════════════════════════════════════════════════════════╗
-║  🧪 INTERACTIVE TEST RUNNER - Invoice Chatbot           ║
+║   INTERACTIVE TEST RUNNER - Invoice Chatbot           ║
 ╚══════════════════════════════════════════════════════════╝
 
 1. 📋 Listar todos los tests disponibles
-2. 🎯 Ejecutar test individual
-3. 🚀 Ejecutar todos los tests
+2.  Ejecutar test individual
+3.  Ejecutar todos los tests
 4. 🔁 Re-ejecutar tests fallidos
-5. 📊 Ver estadísticas de última ejecución
-6. ⚙️  Configurar timeouts
+5.  Ver estadísticas de última ejecución
+6.   Configurar timeouts
 7. 📖 Inspeccionar archivo test
-0. ❌ Salir
+0.  Salir
 
 Selecciona una opción [0-7]:
 ```
@@ -773,10 +773,10 @@ Selecciona una opción [0-7]:
 **Ubicación**: `tests/simple_test_runner.py`
 
 **Características**:
-- ✅ Auto-descubrimiento de archivos test
-- ✅ Ejecución secuencial automática
-- ✅ Detección de generación de ZIPs
-- ✅ Resumen estadístico final
+-  Auto-descubrimiento de archivos test
+-  Ejecución secuencial automática
+-  Detección de generación de ZIPs
+-  Resumen estadístico final
 
 **Uso**:
 ```powershell
@@ -786,22 +786,22 @@ python tests\simple_test_runner.py
 **Output**:
 ```
 ╔════════════════════════════════════════════════════════════╗
-║  🚀 SIMPLE TEST RUNNER - Ejecución Automática             ║
+║   SIMPLE TEST RUNNER - Ejecución Automática             ║
 ╚════════════════════════════════════════════════════════════╝
 
-📄 Descubriendo tests...
+ Descubriendo tests...
    Encontrados: 24 archivos .test.json
 
-▶️  [1/24] facturas_solicitante_0012148561.test.json
-   ⏱️  3.2s - ✅ PASSED
+  [1/24] facturas_solicitante_0012148561.test.json
+   ⏱️  3.2s -  PASSED
 
-▶️  [2/24] facturas_rut_especifico_9025012-4.test.json
-   ⏱️  2.8s - ✅ PASSED
+  [2/24] facturas_rut_especifico_9025012-4.test.json
+   ⏱️  2.8s -  PASSED
 
 ...
 
 ════════════════════════════════════════════════════════════
-📊 RESUMEN FINAL
+ RESUMEN FINAL
 ════════════════════════════════════════════════════════════
 Total:    24 tests
 Pasados:  24 tests (100%)
@@ -809,7 +809,7 @@ Fallidos: 0 tests (0%)
 Tiempo:   5m 32s
 ════════════════════════════════════════════════════════════
 
-🎉 TODOS LOS TESTS PASARON
+ TODOS LOS TESTS PASARON
 ```
 
 ---
@@ -819,9 +819,9 @@ Tiempo:   5m 32s
 **Ubicación**: `scripts/run_all_tests.ps1`
 
 **Características**:
-- ✅ Redireccionamiento a runners especializados
-- ✅ Soporte Local y Cloud Run
-- ✅ Ejecución de ambos ambientes
+-  Redireccionamiento a runners especializados
+-  Soporte Local y Cloud Run
+-  Ejecución de ambos ambientes
 
 **Uso**:
 ```powershell
@@ -837,7 +837,7 @@ Tiempo:   5m 32s
 
 ---
 
-## 🚀 Cómo Ejecutar Tests
+##  Cómo Ejecutar Tests
 
 ### Setup Inicial
 
@@ -891,7 +891,7 @@ $env:ADK_API_URL = "https://invoice-backend-819133916464.us-central1.run.app"
 
 ---
 
-## ➕ Cómo Añadir Nuevos Tests
+##  Cómo Añadir Nuevos Tests
 
 ### Paso 1: Crear JSON Test Case
 
@@ -982,7 +982,7 @@ bq query --use_legacy_sql=false < sql_validation\11_validation_mi_nueva_funciona
 
 ---
 
-## 🔄 CI/CD Integration
+##  CI/CD Integration
 
 ### GitHub Actions Workflow
 
@@ -1041,7 +1041,7 @@ jobs:
       
       - name: Run SQL validations
         run: |
-          for sql_file in sql_validation/*.sql; do
+          for sql_file in sql_validation/*.sql;
             bq query --use_legacy_sql=false < "$sql_file"
           done
 ```
@@ -1092,7 +1092,7 @@ steps:
 
 **Síntoma**:
 ```
-❌ ERROR: Connection refused to localhost:8080
+ ERROR: Connection refused to localhost:8080
 ```
 
 **Solución**:
@@ -1111,7 +1111,7 @@ tail -f ~/.adk/logs/api_server.log
 
 **Síntoma**:
 ```
-❌ ERROR: MCP tool 'search_invoices_by_rut' failed
+ ERROR: MCP tool 'search_invoices_by_rut' failed
 ```
 
 **Solución**:
@@ -1133,8 +1133,8 @@ gcloud auth application-default print-access-token
 
 **Síntoma**:
 ```
-✅ Test individual: PASSED
-❌ Batch execution: FAILED
+ Test individual: PASSED
+ Batch execution: FAILED
 ```
 
 **Solución**:
@@ -1151,7 +1151,7 @@ python tests\test_invoice_chatbot.py --debug
 
 ---
 
-## 📊 Métricas y Reportes
+##  Métricas y Reportes
 
 ### Métricas Capturadas
 
@@ -1177,7 +1177,7 @@ python tests\test_invoice_chatbot.py --debug
 
 ---
 
-## 🎯 Best Practices
+##  Best Practices
 
 ### Organización de Tests
 
@@ -1202,7 +1202,7 @@ python tests\test_invoice_chatbot.py --debug
 
 ---
 
-## 📚 Referencias
+##  Referencias
 
 - **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
 - **API Reference**: `docs/official/api/60_API_REFERENCE.md`

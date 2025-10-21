@@ -1,4 +1,4 @@
-# 📡 Referencia de API - Invoice Chatbot Backend
+#  Referencia de API - Invoice Chatbot Backend
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General
+##  Visión General
 
 Esta referencia documenta **todas las APIs** del Invoice Chatbot Backend para integración con sistemas externos, desarrollo de clientes y automatización.
 
@@ -37,7 +37,7 @@ PDF_PROXY_BASE_URL="http://localhost:8011"  # Interno al container
 
 ---
 
-## 🤖 ADK API - Agent Endpoints
+##  ADK API - Agent Endpoints
 
 ### Autenticación
 
@@ -78,18 +78,18 @@ Authorization: Bearer <token>
 ```
 
 **Uso**:
-- ✅ Health checks en deployment
-- ✅ Monitoring de disponibilidad
-- ✅ Validación de configuración
+-  Health checks en deployment
+-  Monitoring de disponibilidad
+-  Validación de configuración
 
 **Ejemplo PowerShell**:
 ```powershell
-$response = Invoke-RestMethod `
-  -Uri "https://invoice-backend-819133916464.us-central1.run.app/list-apps" `
+$response = Invoke-RestMethod \
+  -Uri "https://invoice-backend-819133916464.us-central1.run.app/list-apps" \
   -Headers @{ "Authorization" = "Bearer $(gcloud auth print-identity-token)" }
 
 if ($response.apps -contains "gcp-invoice-agent-app") {
-    Write-Host "✅ Service UP"
+    Write-Host " Service UP"
 }
 ```
 
@@ -147,7 +147,7 @@ interface RunAgentRequest {
         "role": "model",
         "parts": [
           {
-            "text": "**Facturas encontradas (5):**\n\n1. 📄 **Factura 0022792445**\n   - RUT: 12537749-0 - COMERCIALIZADORA PIMENTEL LIMITADA\n   - Fecha: 15/08/2025\n   - Monto: $1,234,567 CLP\n   - PDFs:\n     * [Tributaria CF](https://storage.googleapis.com/...)\n     * [Cedible CF](https://storage.googleapis.com/...)\n\n..."
+            "text": "**Facturas encontradas (5):**\n\n1.  **Factura 0022792445**\n   - RUT: 12537749-0 - COMERCIALIZADORA PIMENTEL LIMITADA\n   - Fecha: 15/08/2025\n   - Monto: $1,234,567 CLP\n   - PDFs:\n     * [Tributaria CF](https://storage.googleapis.com/...)\n     * [Cedible CF](https://storage.googleapis.com/...)\n\n..."
           }
         ]
       },
@@ -223,7 +223,7 @@ curl -X POST \
   -d '{
     "appName": "gcp-invoice-agent-app",
     "userId": "test-user",
-    "sessionId": "test-'$(date +%s)'",
+    "sessionId": "test-$(date +%s)",
     "newMessage": {
       "parts": [{"text": "dame las últimas 5 facturas"}],
       "role": "user"
@@ -436,7 +436,7 @@ Lista artefactos generados en una sesión (PDFs, ZIPs).
 
 ---
 
-## 🔧 MCP API - Model Context Protocol
+##  MCP API - Model Context Protocol
 
 ### Arquitectura MCP
 
@@ -584,7 +584,7 @@ Content-Type: application/json
 
 ---
 
-## 📄 PDF Proxy API
+##  PDF Proxy API
 
 ### Arquitectura PDF Proxy
 
@@ -684,7 +684,7 @@ Host: localhost:8011
 
 ---
 
-## 🗄️ BigQuery Schemas
+##  BigQuery Schemas
 
 ### Table: pdfs_modelo (Facturas)
 
@@ -805,13 +805,13 @@ ORDER BY date DESC;
 
 ---
 
-### Table: zip_packages (ZIP Tracking)
+### Table: zip_files (ZIP Tracking)
 
-**Full name**: `agent-intelligence-gasco.zip_operations.zip_packages`
+**Full name**: `agent-intelligence-gasco.zip_operations.zip_files`
 
 **Schema**:
 ```sql
-CREATE TABLE `agent-intelligence-gasco.zip_operations.zip_packages` (
+CREATE TABLE `agent-intelligence-gasco.zip_operations.zip_files` (
   -- Identificadores
   zip_filename STRING,               -- Nombre del archivo ZIP
   session_id STRING,                 -- Sesión que lo creó
@@ -837,7 +837,7 @@ CREATE TABLE `agent-intelligence-gasco.zip_operations.zip_packages` (
 
 ---
 
-## 📊 Rate Limits y Quotas
+##  Rate Limits y Quotas
 
 ### ADK API (Cloud Run)
 
@@ -948,7 +948,7 @@ Access-Control-Allow-Methods: "GET, HEAD, OPTIONS"
 
 ---
 
-## 🧪 Testing y Ejemplos
+##  Testing y Ejemplos
 
 ### Collection Postman
 
@@ -1115,17 +1115,17 @@ print(answer)
 
 ---
 
-## 📚 Referencias
+##  Referencias
 
 ### Documentación Relacionada
 
-- 📊 **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
+-  **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
 - 📘 **User Guide**: `docs/official/user/10_USER_GUIDE.md`
-- 🏗️ **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
+-  **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
 - 💻 **Developer Guide**: `docs/official/developer/30_DEVELOPER_GUIDE.md`
-- 🚀 **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
-- 🔧 **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
-- 🔧 **MCP Tools Catalog**: `docs/official/tools/70_MCP_TOOLS_CATALOG.md`
+-  **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
+-  **Operations Guide**: `docs/official/operations/50_OPERATIONS_GUIDE.md`
+-  **MCP Tools Catalog**: `docs/official/tools/70_MCP_TOOLS_CATALOG.md`
 
 ### Especificaciones Oficiales
 
@@ -1141,7 +1141,7 @@ print(answer)
 
 ---
 
-## ✅ Checklist de Integración
+##  Checklist de Integración
 
 ### Setup Inicial
 - [ ] Acceso a Google Cloud configurado

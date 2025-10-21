@@ -1,4 +1,4 @@
-# 🔧 Guía de Operaciones - Invoice Chatbot Backend
+#  Guía de Operaciones - Invoice Chatbot Backend
 
 **Proyecto**: Invoice Chatbot Backend  
 **Cliente**: Gasco  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Visión General
+##  Visión General
 
 Esta guía proporciona procedimientos operacionales completos para **monitorear, mantener y resolver problemas** del Invoice Chatbot Backend en producción.
 
@@ -24,23 +24,23 @@ Esta guía proporciona procedimientos operacionales completos para **monitorear,
 ### Servicios Bajo Operación
 
 ```
-📊 SISTEMA COMPLETO
-├── 🤖 ADK Agent (Cloud Run)
+ SISTEMA COMPLETO
+├──  ADK Agent (Cloud Run)
 │   ├── Gemini 2.5 Flash (IA conversacional)
 │   ├── Temperature 0.3 (producción)
 │   └── Thinking Mode OFF (velocidad)
 │
-├── 🔧 MCP Toolbox (49 herramientas)
+├──  MCP Toolbox (49 herramientas)
 │   ├── BigQuery operations
 │   ├── Invoice search & analytics
 │   └── ZIP package creation
 │
-├── 📄 PDF Server (signed URLs)
+├──  PDF Server (signed URLs)
 │   ├── GCS proxy (miguel-test bucket)
 │   ├── ZIP generation (agent-intelligence-zips)
 │   └── URL validation & stability
 │
-└── 💾 Data Layer
+└──  Data Layer
     ├── BigQuery (6,641 facturas 2017-2025)
     ├── GCS buckets (PDFs + ZIPs)
     └── Conversation logs (analytics)
@@ -48,7 +48,7 @@ Esta guía proporciona procedimientos operacionales completos para **monitorear,
 
 ---
 
-## 📊 Monitoreo del Sistema
+##  Monitoreo del Sistema
 
 ### 1. Health Checks Críticos
 
@@ -74,10 +74,10 @@ curl -H "Authorization: Bearer $TOKEN" \
 ```
 
 **Estado del servicio**:
-- ✅ **200 OK + JSON válido**: Sistema operacional
-- ⚠️ **500 Internal Error**: ADK agent con problemas
-- ❌ **502/503/504**: Cloud Run o MCP Toolbox no responden
-- ❌ **Connection timeout**: Servicio no disponible
+-  **200 OK + JSON válido**: Sistema operacional
+-  **500 Internal Error**: ADK agent con problemas
+-  **502/503/504**: Cloud Run o MCP Toolbox no responden
+-  **Connection timeout**: Servicio no disponible
 
 #### Health Check Detallado
 
@@ -110,10 +110,10 @@ Invoke-RestMethod `
 ```
 
 **Validaciones**:
-- ✅ Respuesta en <60 segundos
-- ✅ JSON válido con facturas
-- ✅ PDFs signed URLs generadas
-- ✅ Sin errores en response
+-  Respuesta en <60 segundos
+-  JSON válido con facturas
+-  PDFs signed URLs generadas
+-  Sin errores en response
 
 ---
 
@@ -123,7 +123,7 @@ Invoke-RestMethod `
 
 **Cloud Console**:
 ```
-URL: https://console.cloud.google.com/run/detail/us-central1/invoice-backend?project=agent-intelligence-gasco
+URL: https://console.cloud. google.com/run/detail/us-central1/invoice-backend?project=agent-intelligence-gasco
 
 Tabs importantes:
 ├── METRICS (principal)
@@ -173,12 +173,12 @@ El sistema genera logs estructurados con prefijos específicos:
 
 | Prefijo | Componente | Propósito |
 |---------|------------|-----------|
-| **📊** | Token Tracking | Monitoreo de consumo Gemini API |
-| **🔧** | GCS Stability | Signed URLs y clock skew |
-| **✅** | Success Operations | Operaciones exitosas |
-| **❌** | Errors | Errores y excepciones |
-| **⚠️** | Warnings | Advertencias y degradaciones |
-| **🎯** | Business Logic | Decisiones de negocio |
+| **** | Token Tracking | Monitoreo de consumo Gemini API |
+| **** | GCS Stability | Signed URLs y clock skew |
+| **** | Success Operations | Operaciones exitosas |
+| **** | Errors | Errores y excepciones |
+| **** | Warnings | Advertencias y degradaciones |
+| **** | Business Logic | Decisiones de negocio |
 | **🔍** | Debug | Información de debugging |
 
 #### Consultar Logs
@@ -226,14 +226,14 @@ gcloud run services logs read invoice-backend \
 # Buscar logs de token usage
 gcloud run services logs read invoice-backend \
   --region=us-central1 \
-  --filter="textPayload:📊" \
+  --filter="textPayload:" \
   --limit=20
 ```
 
 **Ejemplo de log esperado**:
 ```
-📊 Token usage: prompt=1500, candidates=3200, total=4700
-📊 Text metrics: question_chars=85, response_chars=12450
+ Token usage: prompt=1500, candidates=3200, total=4700
+ Text metrics: question_chars=85, response_chars=12450
 ```
 
 **2. GCS signed URLs (estabilidad)**:
@@ -271,7 +271,7 @@ gcloud run services logs read invoice-backend \
 
 **Configurar alertas en Cloud Console**:
 ```
-URL: https://console.cloud.google.com/monitoring/alerting?project=agent-intelligence-gasco
+URL: https://console.cloud. google.com/monitoring/alerting?project=agent-intelligence-gasco
 ```
 
 #### Alertas Críticas (L1)
@@ -398,7 +398,7 @@ LIMIT 20;
 **Ver costos estimados**:
 ```bash
 # Cloud Billing report
-# URL: https://console.cloud.google.com/billing/reports?project=agent-intelligence-gasco
+# URL: https://console.cloud. google.com/billing/reports?project=agent-intelligence-gasco
 
 # Filtrar por:
 # - Service: Cloud Run
@@ -407,10 +407,10 @@ LIMIT 20;
 ```
 
 **Factores de costo Cloud Run**:
-- ⚡ **CPU time**: 4 vCPU × tiempo activo
-- 💾 **Memory**: 4GB × tiempo activo
-- 📊 **Request count**: Número de invocaciones
-- 🌐 **Network egress**: Tráfico saliente (PDFs, ZIPs)
+-  **CPU time**: 4 vCPU × tiempo activo
+-  **Memory**: 4GB × tiempo activo
+-  **Request count**: Número de invocaciones
+-  **Network egress**: Tráfico saliente (PDFs, ZIPs)
 
 ---
 
@@ -532,9 +532,9 @@ gcloud monitoring time-series list \
 #### Problema 1: Servicio No Responde (502/503)
 
 **Síntomas**:
-- ❌ Error 502 Bad Gateway
-- ❌ Error 503 Service Unavailable
-- ❌ Health check fails
+-  Error 502 Bad Gateway
+-  Error 503 Service Unavailable
+-  Health check fails
 
 **Diagnóstico**:
 ```bash
@@ -601,9 +601,9 @@ gcloud run services update invoice-backend \
 #### Problema 2: Latencia Alta (>60s)
 
 **Síntomas**:
-- ⚠️ P95 latency > 60s
-- ⚠️ Users reportan lentitud
-- ⚠️ Timeouts frecuentes
+-  P95 latency > 60s
+-  Users reportan lentitud
+-  Timeouts frecuentes
 
 **Diagnóstico**:
 ```bash
@@ -660,9 +660,9 @@ gcloud run services update invoice-backend \
 #### Problema 3: SignatureDoesNotMatch (PDFs/ZIPs)
 
 **Síntomas**:
-- ❌ XML error al descargar PDFs
-- ❌ "SignatureDoesNotMatch" en logs
-- ❌ ZIPs no descargables
+-  XML error al descargar PDFs
+-  "SignatureDoesNotMatch" en logs
+-  ZIPs no descargables
 
 **Diagnóstico**:
 ```bash
@@ -685,7 +685,7 @@ gcloud run services logs read invoice-backend \
 # Buscar log específico
 gcloud run services logs read invoice-backend \
   --region=us-central1 \
-  --filter="textPayload:'🔧 [GCS] Usando sistema robusto'" \
+  --filter="textPayload:' [GCS] Usando sistema robusto'" \
   --limit=5
 
 # Esperado: Log presente
@@ -698,7 +698,8 @@ gcloud run services logs read invoice-backend \
 # COPY src/ ./src/
 
 cd deployment/backend
-.\deploy.ps1 -AutoVersion
+.
+/deploy.ps1 -AutoVersion
 ```
 
 **C. Aumentar buffer de signed URLs**:
@@ -714,9 +715,9 @@ gcloud run services update invoice-backend \
 #### Problema 4: Error Rate Alto (>5%)
 
 **Síntomas**:
-- ⚠️ 5xx errors frecuentes
-- ⚠️ Error rate > 5%
-- ⚠️ Users reportan errores
+-  5xx errors frecuentes
+-  Error rate > 5%
+-  Users reportan errores
 
 **Diagnóstico**:
 ```bash
@@ -767,9 +768,9 @@ gcloud run services update invoice-backend \
 #### Problema 5: Token Limit Exceeded
 
 **Síntomas**:
-- ❌ `input token count exceeds maximum`
-- ❌ Query rechazada por sistema
-- ⚠️ Guidance de "use filtros"
+-  `input token count exceeds maximum`
+-  Query rechazada por sistema
+-  Guidance de "use filtros"
 
 **Diagnóstico**:
 ```bash
@@ -820,9 +821,9 @@ get_yearly_invoice_statistics: 1000  # Antes 2000
 #### Problema 6: BigQuery Quota Exceeded
 
 **Síntomas**:
-- ❌ "Quota exceeded" en logs
-- ❌ BigQuery errors frecuentes
-- ⚠️ Consultas lentas o fallando
+-  "Quota exceeded" en logs
+-  BigQuery errors frecuentes
+-  Consultas lentas o fallando
 
 **Diagnóstico**:
 ```bash
@@ -850,7 +851,7 @@ gcloud compute project-info describe \
 
 **B. Request quota increase**:
 ```
-URL: https://console.cloud.google.com/iam-admin/quotas?project=datalake-gasco
+URL: https://console.cloud. google.com/iam-admin/quotas?project=datalake-gasco
 Service: BigQuery API
 Metric: Queries per day
 ```
@@ -868,7 +869,7 @@ LIMIT 100
 
 ---
 
-## 🔄 Mantenimiento Programado
+##  Mantenimiento Programado
 
 ### Tareas Diarias
 
@@ -877,31 +878,31 @@ LIMIT 100
 **Script automatizado**:
 ```powershell
 # scripts/daily_health_check.ps1
-Write-Host "🏥 Daily Health Check - $(Get-Date)" -ForegroundColor Cyan
+Write-Host " Daily Health Check - $(Get-Date)" -ForegroundColor Cyan
 
 # 1. Health endpoint
 $health = Invoke-RestMethod "https://invoice-backend-819133916464.us-central1.run.app/list-apps"
 if ($health.apps -contains "gcp-invoice-agent-app") {
-    Write-Host "✅ Service UP" -ForegroundColor Green
+    Write-Host " Service UP" -ForegroundColor Green
 } else {
-    Write-Host "❌ Service DOWN" -ForegroundColor Red
+    Write-Host " Service DOWN" -ForegroundColor Red
 }
 
 # 2. Error rate (last 24h)
-$errors = gcloud logging read `
-  "resource.type=cloud_run_revision AND severity>=ERROR" `
-  --limit=1000 `
-  --freshness=24h `
+$errors = gcloud logging read \
+  "resource.type=cloud_run_revision AND severity>=ERROR" \
+  --limit=1000 \
+  --freshness=24h \
   --format="value(severity)" | Measure-Object
 
-Write-Host "📊 Errors (24h): $($errors.Count)"
+Write-Host " Errors (24h): $($errors.Count)"
 
 # 3. Instance count
-$instances = gcloud run services describe invoice-backend `
-  --region=us-central1 `
+$instances = gcloud run services describe invoice-backend \
+  --region=us-central1 \
   --format="value(status.observedGeneration)"
 
-Write-Host "🖥️ Active instances: $instances"
+Write-Host " Active instances: $instances"
 ```
 
 #### 2. Limpieza de Logs
@@ -990,7 +991,7 @@ gcloud run revisions list \
 ```sql
 -- Cost breakdown por mes
 SELECT
-  FORMAT_TIMESTAMP('%Y-%m', timestamp) as month,
+  FORMAT_TIMESTAMP '%Y-%m', timestamp) as month,
   COUNT(DISTINCT session_id) as unique_sessions,
   COUNT(*) as total_queries,
   SUM(total_token_count) as total_tokens,
@@ -1042,7 +1043,7 @@ cp config.py backups/$(date +%Y%m)/config.py
 
 ---
 
-## 📞 Soporte y Escalamiento
+##  Soporte y Escalamiento
 
 ### Niveles de Soporte
 
@@ -1055,12 +1056,12 @@ cp config.py backups/$(date +%Y%m)/config.py
 - Escalamiento a L2 si no resuelve en 15min
 
 **Acciones permitidas**:
-- ✅ Restart de Cloud Run service
-- ✅ Consultar logs básicos
-- ✅ Health check manual
-- ❌ Cambiar configuración
-- ❌ Rollback de revisiones
-- ❌ Modificar código
+-  Restart de Cloud Run service
+-  Consultar logs básicos
+-  Health check manual
+-  Cambiar configuración
+-  Rollback de revisiones
+-  Modificar código
 
 **Escalamiento a L2 cuando**:
 - Error persiste después de restart
@@ -1080,12 +1081,12 @@ cp config.py backups/$(date +%Y%m)/config.py
 - Escalamiento a L3 si requiere código
 
 **Acciones permitidas**:
-- ✅ Rollback a revisión anterior
-- ✅ Ajustar CPU/Memory/Timeout
-- ✅ Modificar environment variables
-- ✅ Analizar queries BigQuery
-- ❌ Modificar código fuente
-- ❌ Cambiar IAM policies
+-  Rollback a revisión anterior
+-  Ajustar CPU/Memory/Timeout
+-  Modificar environment variables
+-  Analizar queries BigQuery
+-  Modificar código fuente
+-  Cambiar IAM policies
 
 **Escalamiento a L3 cuando**:
 - Bug en código identificado
@@ -1105,11 +1106,11 @@ cp config.py backups/$(date +%Y%m)/config.py
 - Documentación técnica
 
 **Acciones permitidas**:
-- ✅ Modificar código fuente
-- ✅ Actualizar MCP tools
-- ✅ Cambiar agent prompts
-- ✅ Modificar IAM policies
-- ✅ Arquitectura y diseño
+-  Modificar código fuente
+-  Actualizar MCP tools
+-  Cambiar agent prompts
+-  Modificar IAM policies
+-  Arquitectura y diseño
 
 ---
 
@@ -1221,7 +1222,7 @@ Si problemas detectados en primeros 30 minutos:
 
 ---
 
-## 📚 Runbooks Específicos
+##  Runbooks Específicos
 
 ### Runbook 1: Deployment Fallido
 
@@ -1256,7 +1257,8 @@ Si problemas detectados en primeros 30 minutos:
 5. **Fix y redeploy**:
    ```powershell
    cd deployment/backend
-   .\deploy.ps1 -AutoVersion
+   .
+   /deploy.ps1 -AutoVersion
    ```
 
 ---
@@ -1314,14 +1316,14 @@ Si problemas detectados en primeros 30 minutos:
 
 2. **Si falla, verificar revision activa**:
    ```bash
-   gcloud run services describe invoice-backend \
+gcloud run services describe invoice-backend \
      --region=us-central1 \
      --format="value(status.traffic)"
    ```
 
 3. **Si no hay tráfico asignado, activar**:
    ```bash
-   gcloud run services update-traffic invoice-backend \
+gcloud run services update-traffic invoice-backend \
      --to-latest \
      --region=us-central1
    ```
@@ -1334,7 +1336,8 @@ Si problemas detectados en primeros 30 minutos:
 5. **Test manual**:
    ```powershell
    # Test completo de sesión
-   .\scripts\health_check_detailed.ps1
+   .
+   /scripts/health_check_detailed.ps1
    ```
 
 ---
@@ -1343,37 +1346,41 @@ Si problemas detectados en primeros 30 minutos:
 
 ### Documentación Relacionada
 
-- 📊 **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
+-  **Executive Summary**: `docs/official/executive/00_EXECUTIVE_SUMMARY.md`
 - 📘 **User Guide**: `docs/official/user/10_USER_GUIDE.md`
-- 🏗️ **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
-- 🚀 **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
+-  **System Architecture**: `docs/official/architecture/20_SYSTEM_ARCHITECTURE.md`
+-  **Deployment Guide**: `docs/official/deployment/40_DEPLOYMENT_GUIDE.md`
 - 💻 **Developer Guide**: `docs/official/developer/30_DEVELOPER_GUIDE.md`
 
 ### Enlaces Útiles
 
-- **Cloud Run Console**: https://console.cloud.google.com/run/detail/us-central1/invoice-backend?project=agent-intelligence-gasco
-- **Cloud Logging**: https://console.cloud.google.com/logs?project=agent-intelligence-gasco
-- **Cloud Monitoring**: https://console.cloud.google.com/monitoring?project=agent-intelligence-gasco
-- **BigQuery Console**: https://console.cloud.google.com/bigquery?project=datalake-gasco
-- **IAM Console**: https://console.cloud.google.com/iam-admin/iam?project=agent-intelligence-gasco
+- **Cloud Run Console**: https://console.cloud. google.com/run/detail/us-central1/invoice-backend?project=agent-intelligence-gasco
+- **Cloud Logging**: https://console.cloud. google.com/logs?project=agent-intelligence-gasco
+- **Cloud Monitoring**: https://console.cloud. google.com/monitoring?project=agent-intelligence-gasco
+- **BigQuery Console**: https://console.cloud. google.com/bigquery?project=datalake-gasco
+- **IAM Console**: https://console.cloud. google.com/iam-admin/iam?project=agent-intelligence-gasco
 
 ### Scripts de Soporte
 
 ```powershell
 # Health checks
-.\scripts\health_check_detailed.ps1
+.
+/scripts/health_check_detailed.ps1
 
 # Test específicos
-.\scripts\test_sap_codigo_solicitante_agosto_2025.ps1
-.\scripts\test_comercializadora_pimentel_agosto_2025.ps1
+.
+/scripts/test_sap_codigo_solicitante_agosto_2025.ps1
+.
+/scripts/test_comercializadora_pimentel_agosto_2025.ps1
 
 # Diagnosis
-.\scripts\diagnose_service.ps1
+.
+/scripts/diagnose_service.ps1
 ```
 
 ---
 
-## ✅ Checklist Operacional
+##  Checklist Operacional
 
 ### Daily Operations
 
@@ -1419,4 +1426,4 @@ Si problemas detectados en primeros 30 minutos:
 ---
 
 **© 2025 Option - Todos los derechos reservados**  
-**Cliente: Gasco**
+**Cliente**: Gasco

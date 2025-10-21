@@ -1,4 +1,4 @@
-# 📖 Glosario de Términos - Invoice Chatbot Backend
+#  Glosario de Términos - Invoice Chatbot Backend
 
 **Documento ID**: `INVOICE-CHATBOT-GLOSSARY-90`  
 **Versión**: 1.0.0  

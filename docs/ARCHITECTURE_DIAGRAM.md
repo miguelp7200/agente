@@ -1,4 +1,4 @@
-# 🏗️ Arquitectura del Sistema: Invoice Chatbot Backend
+# Arquitectura del Sistema: Invoice Chatbot Backend
 
 **Proyecto**: Invoice Chatbot - Arquitectura Dual-Project GCP  
 **Fecha**: Octubre 2025  
@@ -6,7 +6,7 @@
 
 ---
 
-## 📊 Vista General de la Arquitectura
+## Vista General de la Arquitectura
 
 ```mermaid
 graph LR
@@ -73,9 +73,9 @@ graph LR
 
 ---
 
-## 📖 Explicación del Flujo (Paso a Paso)
+## Explicación del Flujo (Paso a Paso)
 
-### 🔄 Flujo Principal
+### Flujo Principal
 
 #### **Paso 1: Query (Consulta del Usuario)**
 - El usuario escribe una consulta en lenguaje natural
@@ -133,7 +133,7 @@ graph LR
 
 ---
 
-## 🔧 Glosario de Componentes
+## Glosario de Componentes
 
 ### **Usuario**
 Persona que utiliza el chatbot para buscar y descargar facturas.
@@ -216,21 +216,21 @@ Bucket para almacenar archivos ZIP temporales.
 
 ---
 
-## 🎯 Decisiones Clave del Sistema
+## Decisiones Clave del Sistema
 
 ### ¿Por qué Individual vs ZIP?
 
 **Individual (< 5 facturas):**
-- ✅ Descarga inmediata, sin esperar
-- ✅ No consume espacio en servidor
-- ✅ URLs válidas 1 hora
-- ❌ Puede ser tedioso si son varias facturas
+- Descarga inmediata, sin esperar
+- No consume espacio en servidor
+- URLs válidas 1 hora
+- Puede ser tedioso si son varias facturas
 
 **ZIP (≥ 5 facturas):**
-- ✅ Una sola descarga
-- ✅ Más organizado para muchas facturas
-- ✅ URLs válidas 24 horas
-- ❌ Requiere tiempo de generación (~5-30 seg)
+- Una sola descarga
+- Más organizado para muchas facturas
+- URLs válidas 24 horas
+- Requiere tiempo de generación (~5-30 seg)
 
 ### ¿Por qué dos proyectos GCP?
 
@@ -241,7 +241,7 @@ Bucket para almacenar archivos ZIP temporales.
 
 ---
 
-## 📊 Ejemplo Concreto
+## Ejemplo Concreto
 
 **Caso de Uso: "Dame las facturas del RUT 12345678-9 de enero 2025"**
 
@@ -258,5 +258,4 @@ Bucket para almacenar archivos ZIP temporales.
 
 ---
 
-**¿Todo más claro ahora? 🎓**
-
+**¿Todo más claro ahora?**
