@@ -1544,21 +1544,27 @@ LOG_LEVEL=INFO                       # Nivel de logging
 
 ## 🚀 **Setup para Continuar Desarrollo**
 
-### **Servidores requeridos:**
+### **🆕 ARQUITECTURA SIMPLIFICADA (Nov 2025 - PDF Server Eliminado)**
+
+**IMPORTANTE**: El PDF Server proxy (local_pdf_server.py) fue **completamente eliminado** del sistema. Ahora todos los PDFs y ZIPs se descargan directamente usando **Google Cloud Storage Signed URLs** con 24 horas de expiración.
+
+### **Servidores requeridos (Actualizado):**
 ```powershell
-# Terminal 1: MCP Toolbox
+# Terminal 1: MCP Toolbox (puerto 5000)
 cd mcp-toolbox
 .\toolbox.exe --tools-file="tools_updated.yaml" --logging-format standard --log-level DEBUG --ui
 
-# Terminal 2: ADK Agent
-.venv\Scripts\activate
-adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
+# Terminal 2: ADK Agent (puerto 8080)
+# NOTA: El puerto cambió de 8001 a 8080 según Dockerfile
+cd deployment\backend
+.\start_backend.sh  # Inicia MCP Toolbox + ADK Agent con gestión automática
 ```
 
 ### **URLs importantes:**
 - **MCP Toolbox UI:** http://localhost:5000/ui
-- **ADK Agent API:** http://localhost:8001
-- **Test endpoint:** POST http://localhost:8001/run
+- **ADK Agent API:** http://localhost:8080 (cambió de 8001)
+- **Test endpoint:** POST http://localhost:8080/run
+- **⚠️ DEPRECADO:** ~~http://localhost:8011~~ (PDF Server eliminado)
 
 ### **🧪 Testing Rápido - Comandos Esenciales:**
 
@@ -1585,11 +1591,14 @@ adk api_server --port 8001 my-agents --allow_origins="*" --log_level DEBUG
 ```powershell
 # Verificar servidores activos
 Get-Process | Where-Object {$_.ProcessName -eq "toolbox"}       # MCP Toolbox
-netstat -ano | findstr :8001                                   # ADK Agent
+netstat -ano | findstr :8080                                    # ADK Agent (puerto actualizado)
 
 # Test endpoints
-curl http://localhost:5000/ui                                  # MCP UI
-curl http://localhost:8001/list-apps                           # ADK Health
+curl http://localhost:5000/ui                                   # MCP UI
+curl http://localhost:8080/list-apps                            # ADK Health (puerto actualizado)
+
+# ⚠️ DEPRECADO - No verificar PDF Server (eliminado):
+# netstat -ano | findstr :8011  # ← YA NO EXISTE
 ```
 
 ## 📋 **Queries Validadas y Funcionando**
@@ -1757,6 +1766,158 @@ Get-Process | Where-Object {$_.ProcessName -eq "python" -and $_.Path -like "*age
 
 ---
 
+## 🚀 **ELIMINACIÓN PDF SERVER - MIGRACIÓN A SIGNED URLs (2025-11-11)**
+
+### **🎯 Refactorización Mayor: Eliminación Completa del PDF Server**
+
+**Issue identificado:** El servidor proxy de descargas PDF (local_pdf_server.py) estaba obsoleto porque:
+- ❌ **Problema**: Cloud Run no permite descargas directas desde buckets a través de proxy localhost
+- ❌ **Limitación**: URLs `http://localhost:8011/` no accesibles desde navegadores de usuarios
+- ✅ **Solución correcta**: Usar Google Cloud Storage Signed URLs directamente
+
+#### **📋 Cambios Implementados (19 tareas completadas):**
+
+**1. Infraestructura Git:**
+- ✅ Repositorio git inicializado localmente
+- ✅ Remote origin configurado: https://github.com/vhcg77/invoice-chatbot-backend.git
+- ✅ Ramas sincronizadas: main, development
+- ✅ Feature branch creado: `feature/remove-pdf-server` desde development
+
+**2. Configuración Cloud Run:**
+- ✅ Servicio de test configurado: `invoice-backend-test`
+- ✅ URL test: https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app
+- ✅ URL producción: https://invoice-backend-yuhrx5x2ra-uc.a.run.app (no modificado)
+
+**3. Eliminación de Código (local_pdf_server.py - 851 líneas):**
+```bash
+# Archivos eliminados:
+- local_pdf_server.py (servidor proxy completo)
+
+# Referencias removidas:
+- deployment/backend/start_backend.sh: Líneas 117-137 (startup PDF Server)
+- deployment/backend/Dockerfile: COPY local_pdf_server.py, ENV PDF_SERVER_PORT
+- config.py: PDF_SERVER_PORT comentado con "DEPRECATED"
+- zip_packager.py: Imports y referencias marcadas DEPRECATED
+```
+
+**4. Reemplazo de URLs Localhost:**
+```python
+# ANTES (agent.py):
+http://localhost:8011/zips/{filename}  # URLs proxy no accesibles
+
+# DESPUÉS (agent.py):
+generate_signed_zip_url(zip_path)  # Google Cloud Storage Signed URLs
+# Resultado: https://storage.googleapis.com/agent-intelligence-zips/...?X-Goog-Algorithm=...
+```
+
+**5. Mejoras en deploy.ps1:**
+```powershell
+# Nuevas capacidades:
+- Soporte multi-ambiente: -Environment test|dev|staging|prod
+- Verificación de servicios existentes antes de usar --no-traffic
+- Manejo correcto de orden de funciones PowerShell
+- Creación automática de servicios nuevos sin --no-traffic flag
+```
+
+**6. Testing y Validación:**
+```powershell
+# Tests ejecutados exitosamente (3/3 PASSED):
+.\tests\cloudrun\test_cf_sf_terminology_TEST_ENV.ps1
+# ✅ ZIP generation con signed URLs (1 signed URL)
+# ✅ Terminología CF/SF correcta
+# ✅ Sin URLs localhost:8011
+
+.\tests\cloudrun\test_get_multiple_pdf_downloads_TEST_ENV.ps1  
+# ✅ Descarga individual de PDFs (2 signed URLs)
+# ✅ URLs storage.googleapis.com con X-Goog-Algorithm
+
+.\tests\cloudrun\test_search_invoices_by_date_TEST_ENV.ps1
+# ✅ Búsqueda por fecha (julio 2025)
+# ✅ ZIP con signed URL (24h expiration)
+```
+
+**7. Autenticación Cloud Run:**
+```powershell
+# Problema resuelto: 403 Forbidden
+# Solución: Get-CloudRunAuthHeaders.ps1
+$headers = Get-CloudRunAuthHeaders
+# Authorization: Bearer $(gcloud auth print-identity-token)
+```
+
+**8. Documentación y Cleanup:**
+```markdown
+# Archivos actualizados:
+- README.md: Removido PDF Server de file tree y setup instructions
+- AUTH_FIX_INSTRUCTIONS.md: Guía de autenticación Cloud Run
+- .github/instructions/todos.instructions.md: 19/19 tareas completadas
+```
+
+#### **📊 Estadísticas del Cambio:**
+
+```bash
+# Merge a development (commit d236e4b):
+14 files changed
++683 insertions
+-1000 deletions
+Net: -317 lines (código más limpio)
+
+# Archivos principales modificados:
+- local_pdf_server.py (DELETED - 851 lines)
+- agent.py (signed URLs implementadas)
+- deploy.ps1 (multi-environment support)
+- start_backend.sh (PDF Server startup removed)
+- Dockerfile (limpieza de referencias)
+- 3 nuevos test scripts CloudRun
+```
+
+#### **✅ Resultados de Testing (100% Success):**
+
+| Test | Resultado | Validaciones | Observaciones |
+|------|-----------|--------------|---------------|
+| ZIP CF/SF terminology | ✅ PASSED | 6/6 | 1 signed URL, sin localhost |
+| Multiple PDF downloads | ✅ PASSED | 5/5 | 2 PDFs individuales, storage.googleapis.com |
+| Search by date (julio) | ✅ PASSED | 8/8 | ZIP con signed URL, 24h expiration |
+
+#### **🔄 Estado Git:**
+
+```bash
+# Branches sincronizadas con GitHub:
+- development: d236e4b (merge commit con todos los cambios)
+- feature/remove-pdf-server: preservada en GitHub para referencia
+- main: sin cambios (producción intacta)
+
+# Próximo paso opcional:
+- Deploy a producción: invoice-backend (actualmente sin modificar)
+```
+
+#### **🎯 Beneficios de la Migración:**
+
+- ✅ **Simplicidad**: Un componente menos que mantener (PDF Server eliminado)
+- ✅ **Seguridad**: Signed URLs con expiración de 24 horas
+- ✅ **Escalabilidad**: GCS maneja distribución global automáticamente
+- ✅ **Compatibilidad**: URLs accesibles desde cualquier navegador/cliente
+- ✅ **Performance**: Sin proxy intermedio, descarga directa desde GCS
+- ✅ **Mantenibilidad**: -851 líneas de código, menos complejidad
+
+#### **⚠️ Breaking Changes:**
+
+```python
+# DEPRECADO en config.py:
+# PDF_SERVER_PORT = 8011  # ← Ya no existe
+
+# DEPRECADO en zip_packager.py:
+# get_zip_download_url(filename, port)  # ← Usar generate_signed_zip_url() en su lugar
+```
+
+#### **📚 Documentación de Referencia:**
+
+- **Deployment**: `deployment/README-DEPLOYMENT.md`
+- **Testing CloudRun**: `tests/cloudrun/README.md`
+- **Autenticación**: `tests/cloudrun/AUTH_FIX_INSTRUCTIONS.md`
+- **Todos completados**: `.github/instructions/todos.instructions.md`
+
+---
+
 ## 🚀 **OPTIMIZACIONES Y MEJORAS RECIENTES (2025-09-11)**
 
 ### **🎯 Comprehensive Project Optimization (Commit 755a9d3)**
@@ -1911,37 +2072,60 @@ search_invoices_by_proveedor: 20 → 10 (-50%)
 
 **💡 PARA NUEVO CHAT**: Usar cualquiera de las 4 capas según necesidad de validación. Sistema completamente implementado y documentado.
 
-### **Últimas Acciones Realizadas (2025-09-09 y 2025-09-10):**
+### **Últimas Acciones Realizadas (2025-11-11):**
 ```bash
-# Git commits más recientes:
+# Git commits más recientes (branch development):
 git log --oneline -5
+
+d236e4b - Merge feature/remove-pdf-server: Remove PDF Server proxy and use signed URLs exclusively
+c8b5e2e - docs: Update README and add AUTH_FIX_INSTRUCTIONS for Cloud Run testing
+0ea4c7d - feat: Add Cloud Run test scripts with signed URL validation
+8a0f5e1 - fix: Enhance deploy.ps1 with test environment and service existence check
+4d9c2b3 - refactor: Remove PDF Server completely and migrate to signed URLs
+
+# CAMBIO MAYOR (2025-11-11):
+# ✅ PDF Server eliminado completamente (local_pdf_server.py - 851 líneas)
+# ✅ Migración a Google Cloud Storage Signed URLs (24h expiration)
+# ✅ Testing 100% exitoso en invoice-backend-test
+# ✅ Merge a development completado (14 archivos, +683/-1000 líneas)
+# ✅ Sincronización con GitHub exitosa
+
+# Commits anteriores (contexto):
 # feat: Implementar Test Automation Framework completo (2025-09-10)
 # feat: Generar 42 scripts curl automáticamente desde JSON test cases
-# feat: Validar production CloudRun con automated test exitoso
 # feat: Implementar ZIP automático para >3 facturas (2025-09-09)
-# fix: Corregir terminología CF/SF a "con fondo/sin fondo" 
+# fix: Corregir terminología CF/SF a "con fondo/sin fondo"
 ```
 
-### **Archivos Modificados Recientemente:**
-1. **`.env`** - ZIP_THRESHOLD cambiado de 5 a 3
-2. **`agent_prompt.yaml`** - Lógica condicional actualizada para >3 facturas + terminología "Listado" corregida  
-3. **`tools_updated.yaml`** - Normalización LPAD y descripciones CF/SF + **LPAD en get_invoices_with_all_pdf_links** + **ESTRATEGIA 5: Tool description 15→42 líneas**
-4. **`agent.py`** - Mapping de documentos CF/SF corregido + **Fix emojis para Windows cp1252**
-5. **`config.py`** - **ESTRATEGIA 6: temperature=0.1** + **Fix emojis para Windows cp1252**
-6. **🆕 `tests/automation/`** - Framework completo de Test Automation implementado:
-   - `generators/curl-test-generator.ps1` - Generador automático de scripts
-   - `curl-tests/` - 42 scripts ejecutables en 4 categorías
-   - `analyze-test-results.ps1` - Sistema de análisis y reportes
-   - `README.md` - Documentación completa del framework
-7. **🆕 `scripts/test_facturas_solicitante_12475626.ps1`** - Test de validación PROBLEMA 7
-8. **🆕 `debug/`** - Sistema completo de diagnóstico frontend-backend:
-   - `scripts/capture_annual_stats.ps1` - Captura de respuestas raw
-   - `scripts/test_multiple_scenarios.ps1` - Testing de múltiples escenarios
-   - `scripts/compare_responses.ps1` - Análisis comparativo automatizado
-   - `README.md`, `USAGE_GUIDE.md`, `FINDINGS.md` - Documentación completa
-9. **🆕 `tests/test_estrategia_5_6_exhaustivo.ps1`** - **Script de validación exhaustiva (400+ líneas, 30 iteraciones)**
-10. **🆕 `docs/ESTRATEGIA_5_RESUMEN.md`** - **Documentación completa de implementación E5+E6 (350+ líneas)**
-11. **🆕 `docs/ROADMAP_REDUCCION_INCERTIDUMBRE.md`** - **Actualizado con resultados de validación y métricas**
+### **Archivos Modificados Recientemente (2025-11-11 - Eliminación PDF Server):**
+
+**🔴 ELIMINADO:**
+1. **`local_pdf_server.py`** - Servidor proxy completo eliminado (851 líneas)
+
+**📝 MODIFICADOS (Migración Signed URLs):**
+2. **`deployment/backend/start_backend.sh`** - Removidas líneas 117-137 (PDF Server startup)
+3. **`deployment/backend/Dockerfile`** - Eliminado COPY local_pdf_server.py y ENV PDF_SERVER_PORT
+4. **`my-agents/gcp-invoice-agent-app/agent.py`** - URLs localhost reemplazadas por generate_signed_zip_url()
+5. **`config.py`** - PDF_SERVER_PORT comentado como DEPRECATED
+6. **`zip_packager.py`** - Referencias marcadas DEPRECATED, parámetros legacy mantenidos
+7. **`README.md`** - Removido PDF Server de file tree y setup instructions
+
+**🚀 NUEVOS (Testing & Deployment):**
+8. **`deployment/backend/deploy.ps1`** - Enhanced con soporte multi-ambiente y verificación de servicios
+9. **`tests/cloudrun/Get-CloudRunAuthHeaders.ps1`** - Helper de autenticación Cloud Run
+10. **`tests/cloudrun/test_cf_sf_terminology_TEST_ENV.ps1`** - Test ZIP + signed URLs
+11. **`tests/cloudrun/test_get_multiple_pdf_downloads_TEST_ENV.ps1`** - Test PDFs individuales
+12. **`tests/cloudrun/test_search_invoices_by_date_TEST_ENV.ps1`** - Test búsqueda por fecha
+13. **`tests/cloudrun/AUTH_FIX_INSTRUCTIONS.md`** - Guía de autenticación Cloud Run
+14. **`.github/instructions/todos.instructions.md`** - Tracking de 19 tareas (100% completado)
+
+**📋 ARCHIVOS ANTERIORES (Contexto Histórico):**
+15. **`.env`** - ZIP_THRESHOLD=3
+16. **`agent_prompt.yaml`** - Lógica condicional >3 facturas + ESTRATEGIA 5
+17. **`tools_updated.yaml`** - LPAD normalization + descripciones detalladas
+18. **`tests/automation/`** - Framework completo de Test Automation (42+ scripts)
+19. **`debug/`** - Sistema de diagnóstico frontend-backend
+20. **`docs/ESTRATEGIA_5_RESUMEN.md`** - Documentación E5+E6 (100% consistencia)
 
 ### **Casos de Uso Completamente Validados:**
 ```yaml
@@ -1958,6 +2142,13 @@ RESPONSE_FORMATS_IMPLEMENTED:
   resumido_format: ">3 facturas → Lista resumida + ZIP único"
   temporal_format: "última factura → Solo la más reciente + contexto transparente"
   terminology_correct: "CF = con fondo, SF = sin fondo (NO firma)"
+
+SIGNED_URLS_MIGRATION: # 🆕 VALIDADO 2025-11-11
+  zip_downloads: "https://storage.googleapis.com/agent-intelligence-zips/...?X-Goog-Algorithm=..."
+  pdf_downloads: "https://storage.googleapis.com/miguel-test/...?X-Goog-Signature=..."
+  expiration: "24 horas (86400 segundos)"
+  no_localhost: "✅ Sin URLs localhost:8011 en ninguna respuesta"
+  cloud_run_tested: "✅ invoice-backend-test funcionando 100%"
 ```
 
 ### **Contexto Técnico Inmediato:**
@@ -1966,14 +2157,33 @@ RESPONSE_FORMATS_IMPLEMENTED:
 - **GCS bucket PDFs:** `miguel-test` 
 - **GCS bucket ZIPs:** `agent-intelligence-zips`
 - **Code normalization:** `LPAD(@solicitante, 10, '0')` funcionando
-- **URL signing:** 3600s timeout para descarga de PDFs
+- **🆕 Signed URLs:** 24 horas (86400s) expiration con X-Goog-Algorithm signatures
+- **🆕 Cloud Run Test:** https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app
+- **🆕 Cloud Run Prod:** https://invoice-backend-yuhrx5x2ra-uc.a.run.app (sin modificar)
+- **⚠️ DEPRECADO:** ~~localhost:8011 (PDF Server eliminado completamente)~~
 
 ### **Próximos Temas Sugeridos:**
-1. **Ejecutar test pendiente:** `test_factura_referencia_8677072.ps1` 
-2. **Optimizar búsquedas por RUT** (si el cliente lo requiere)
-3. **Implementar búsquedas por rango de fechas** más flexibles
-4. **Mejorar manejo de consultas ambiguas**
-5. **Agregar validaciones adicionales** para edge cases
+1. **🚀 [OPCIONAL] Deploy a Producción:** 
+   - Aplicar cambios de signed URLs a `invoice-backend` (servicio producción)
+   - Comando: `cd deployment\backend; .\deploy.ps1 -AutoVersion`
+   - Validar que producción funcione sin PDF Server
+
+2. **🧹 [OPCIONAL] Cleanup Feature Branch:**
+   - Eliminar rama local: `git branch -d feature/remove-pdf-server`
+   - Rama preservada en GitHub para referencia histórica
+
+3. **✅ [COMPLETADO] Migración Signed URLs:**
+   - ✅ PDF Server eliminado completamente
+   - ✅ Testing 100% exitoso en invoice-backend-test
+   - ✅ Merge a development completado
+   - ✅ Sincronización GitHub exitosa
+
+4. **📋 Backlog Original:**
+   - **Ejecutar test pendiente:** `test_factura_referencia_8677072.ps1` 
+   - **Optimizar búsquedas por RUT** (si el cliente lo requiere)
+   - **Implementar búsquedas por rango de fechas** más flexibles
+   - **Mejorar manejo de consultas ambiguas**
+   - **Agregar validaciones adicionales** para edge cases
 
 ## 📋 **GUÍA: Patrón para Crear Scripts PowerShell de Testing**
 
