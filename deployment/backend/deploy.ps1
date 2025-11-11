@@ -38,9 +38,12 @@
 .PARAMETER LocalPort
     Puerto para deployment local (por defecto 8001)
 
+.PARAMETER ServiceName
+    Nombre personalizado del servicio Cloud Run (por defecto 'invoice-backend' o 'invoice-backend-test' para Environment=test)
+
 .EXAMPLE
     .\deploy.ps1
-    Deployment estándar a producción
+    Deployment estándar a producción (invoice-backend)
     
 .EXAMPLE
     .\deploy.ps1 -Local
@@ -57,11 +60,15 @@
 .EXAMPLE
     .\deploy.ps1 -Local -ConfigValidation
     Deployment local con validación de configuración
+    
+.EXAMPLE
+    .\deploy.ps1 -Environment test
+    Deployment a servicio de test (invoice-backend-test) para pruebas sin afectar producción
 #>
 
 param(
     [string]$Version = $null,
-    [ValidateSet('local', 'dev', 'staging', 'prod')]
+    [ValidateSet('local', 'dev', 'staging', 'prod', 'test')]
     [string]$Environment = 'prod',
     [switch]$Local,
     [switch]$ValidateOnly,
@@ -69,7 +76,8 @@ param(
     [switch]$SkipBuild,
     [switch]$SkipTests,
     [switch]$AutoVersion,
-    [int]$LocalPort = 8001
+    [int]$LocalPort = 8001,
+    [string]$ServiceName = $null
 )
 
 # Obtener versión del proyecto o generar única
@@ -99,7 +107,18 @@ if (-not $Version) {
 # Configuración
 $PROJECT_ID = "agent-intelligence-gasco"
 $REGION = "us-central1"
-$SERVICE_NAME = "invoice-backend"
+
+# Determinar nombre del servicio según entorno
+if ($ServiceName) {
+    $SERVICE_NAME = $ServiceName
+    Write-Info "Usando nombre de servicio personalizado: $SERVICE_NAME"
+} elseif ($Environment -eq 'test') {
+    $SERVICE_NAME = "invoice-backend-test"
+    Write-Info "Modo test: usando servicio $SERVICE_NAME"
+} else {
+    $SERVICE_NAME = "invoice-backend"
+}
+
 $REPOSITORY = "invoice-chatbot"
 $IMAGE_NAME = "backend"
 $SERVICE_ACCOUNT = "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
