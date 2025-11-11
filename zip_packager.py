@@ -2,14 +2,17 @@
 """
 Módulo para generar paquetes ZIP de facturas PDF
 Maneja la creación física de archivos ZIP con métricas y manejo de errores
+Incluye optimización de descarga paralela usando ThreadPoolExecutor
 """
 
 import zipfile
 import time
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import io
 
 from config import SAMPLES_DIR, ZIPS_DIR
 # PDF_SERVER_PORT removed - using signed URLs only
@@ -25,6 +28,7 @@ class ZipPackager:
         source_dir: Path = SAMPLES_DIR,
         output_dir: Path = ZIPS_DIR,
         server_port: int = 8011,  # Legacy parameter, no longer used
+        max_workers: int = 10,  # Número de descargas paralelas
     ):
         """
         Inicializa el empaquetador ZIP
@@ -33,10 +37,12 @@ class ZipPackager:
             source_dir: Directorio donde están los PDFs originales
             output_dir: Directorio donde se generarán los ZIPs
             server_port: DEPRECATED - Parameter kept for backward compatibility
+            max_workers: Número máximo de workers para descarga paralela (default: 10)
         """
         self.source_dir = Path(source_dir)
         self.output_dir = Path(output_dir)
         self.server_port = server_port
+        self.max_workers = max_workers
 
         # Asegurar que el directorio de salida existe
         self.output_dir.mkdir(exist_ok=True)
@@ -45,12 +51,59 @@ class ZipPackager:
         logger.info(f"   [SOURCE] PDFs fuente: {self.source_dir}")
         logger.info(f"   [OUTPUT] ZIPs destino: {self.output_dir}")
         logger.info(f"   [SERVER] Puerto servidor: {self.server_port}")
+        logger.info(f"   [PARALLEL] Max workers: {self.max_workers}")
+
+    def _descargar_y_preparar_archivo(
+        self, pdf_filename: str
+    ) -> Optional[Tuple[str, bytes]]:
+        """
+        Descarga un archivo PDF y prepara su contenido para el ZIP.
+        Esta función se ejecuta en paralelo usando ThreadPoolExecutor.
+
+        Args:
+            pdf_filename: Nombre del archivo PDF a descargar
+
+        Returns:
+            Tupla (nombre_en_zip, contenido_bytes) o None si el archivo no existe
+        """
+        try:
+            # Buscar archivo directamente primero
+            pdf_path = self.source_dir / pdf_filename
+
+            # Si no existe directamente, buscar recursivamente
+            if not pdf_path.exists():
+                found_files = list(self.source_dir.rglob(pdf_filename))
+                if found_files:
+                    pdf_path = found_files[0]  # Tomar el primero si hay múltiples
+
+            if pdf_path.exists():
+                # Leer contenido del archivo
+                with open(pdf_path, "rb") as f:
+                    contenido = f.read()
+
+                file_size = len(contenido)
+                logger.debug(
+                    f"[PARALLEL] [SUCCESS] Descargado: {pdf_filename} ({file_size:,} bytes)"
+                )
+
+                return (pdf_filename, contenido)
+            else:
+                logger.warning(
+                    f"[PARALLEL] [ERROR] PDF no encontrado: {pdf_filename}"
+                )
+                return None
+
+        except Exception as e:
+            logger.error(
+                f"[PARALLEL] [ERROR] Error descargando {pdf_filename}: {e}"
+            )
+            return None
 
     def generate_zip(
         self, zip_id: str, pdf_filenames: List[str], zip_filename: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Genera un archivo ZIP con los PDFs especificados
+        Genera un archivo ZIP con los PDFs especificados usando descarga paralela.
 
         Args:
             zip_id: Identificador único del ZIP
@@ -75,43 +128,79 @@ class ZipPackager:
 
             logger.info(f"[PROCESS] Generando ZIP: {zip_filename}")
             logger.info(f"[INPUT] PDFs solicitados: {len(pdf_filenames)}")
+            logger.info(
+                f"[PARALLEL] Usando descarga paralela con {self.max_workers} workers"
+            )
 
             # Métricas de seguimiento
             files_included = []
             files_missing = []
             total_size_before = 0
+            parallel_download_time = 0
 
-            # Crear el archivo ZIP
+            # 🚀 OPTIMIZACIÓN: Crear el archivo ZIP con descarga paralela
+            parallel_start = time.time()
+
             with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for pdf_filename in pdf_filenames:
-                    # Buscar archivo directamente primero
-                    pdf_path = self.source_dir / pdf_filename
+                # Usar ThreadPoolExecutor para descargar hasta max_workers archivos a la vez
+                with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                    # Crear una lista de "futuros", cada uno representa una descarga
+                    futuros = [
+                        executor.submit(self._descargar_y_preparar_archivo, filename)
+                        for filename in pdf_filenames
+                    ]
 
-                    # Si no existe directamente, buscar recursivamente
-                    if not pdf_path.exists():
-                        found_files = list(self.source_dir.rglob(pdf_filename))
-                        if found_files:
-                            pdf_path = found_files[
-                                0
-                            ]  # Tomar el primero si hay múltiples
+                    # A medida que cada descarga se completa, escribir su resultado en el ZIP
+                    for futuro in as_completed(futuros):
+                        resultado = futuro.result()
 
-                    if pdf_path.exists():
-                        # Archivo encontrado - agregar al ZIP
-                        file_size = pdf_path.stat().st_size
-                        total_size_before += file_size
+                        if resultado:
+                            nombre_en_zip, contenido_archivo = resultado
+                            file_size = len(contenido_archivo)
 
-                        zipf.write(pdf_path, pdf_filename)
-                        files_included.append(
-                            {"filename": pdf_filename, "size_bytes": file_size}
-                        )
+                            # Escribir archivo al ZIP
+                            zipf.writestr(nombre_en_zip, contenido_archivo)
 
-                        logger.debug(
-                            f"[SUCCESS] Incluido: {pdf_filename} ({file_size:,} bytes)"
-                        )
-                    else:
-                        # Archivo no encontrado
-                        files_missing.append(pdf_filename)
-                        logger.warning(f"[ERROR] PDF no encontrado: {pdf_filename}")
+                            # Actualizar métricas
+                            total_size_before += file_size
+                            files_included.append(
+                                {"filename": nombre_en_zip, "size_bytes": file_size}
+                            )
+
+                            logger.debug(
+                                f"[SUCCESS] Incluido en ZIP: {nombre_en_zip} ({file_size:,} bytes)"
+                            )
+                        else:
+                            # El archivo no pudo ser descargado
+                            # Identificar cuál archivo falló (necesitamos buscar en la lista original)
+                            # Para simplificar, agregamos a missing_files después del loop
+                            pass
+
+            parallel_end = time.time()
+            parallel_download_time = int((parallel_end - parallel_start) * 1000)
+
+            # Identificar archivos faltantes
+            included_filenames = {item["filename"] for item in files_included}
+            files_missing = [
+                filename
+                for filename in pdf_filenames
+                if filename not in included_filenames
+            ]
+
+            # Log de resultados de descarga paralela
+            logger.info(
+                f"[PARALLEL] [SUCCESS] Descarga paralela completada en {parallel_download_time}ms"
+            )
+            logger.info(
+                f"[PARALLEL] [SUCCESS] Archivos descargados: {len(files_included)}/{len(pdf_filenames)}"
+            )
+
+            if files_missing:
+                logger.warning(
+                    f"[PARALLEL] [WARNING] Archivos faltantes: {len(files_missing)}"
+                )
+                for missing in files_missing:
+                    logger.warning(f"   [ERROR] {missing}")
 
             # Métricas finales
             end_time = time.time()
@@ -120,14 +209,18 @@ class ZipPackager:
 
             # Construir URL de descarga
             local_path = f"zips/{zip_filename}"
-            
+
             # Detectar si estamos en Cloud Run y construir URL apropiada
             import os
+
             is_cloud_run = os.getenv("K_SERVICE") is not None
-            
+
             if is_cloud_run:
                 # En Cloud Run, usar la URL del servicio
-                cloud_run_url = os.getenv("CLOUD_RUN_SERVICE_URL", "https://invoice-backend-819133916464.us-central1.run.app")
+                cloud_run_url = os.getenv(
+                    "CLOUD_RUN_SERVICE_URL",
+                    "https://invoice-backend-819133916464.us-central1.run.app",
+                )
                 download_url = f"{cloud_run_url}/{local_path}"
             else:
                 # En desarrollo local, usar localhost
@@ -144,7 +237,7 @@ class ZipPackager:
                 state = "READY"
                 error_message = None
 
-            # Resultado
+            # Resultado con métricas de paralelización
             result = {
                 "state": state,
                 "zip_id": zip_id,
@@ -153,6 +246,8 @@ class ZipPackager:
                 "download_url": download_url,
                 "total_size_bytes": zip_size_bytes,
                 "generation_time_ms": duration_ms,
+                "parallel_download_time_ms": parallel_download_time,
+                "max_workers_used": self.max_workers,
                 "files_requested": len(pdf_filenames),
                 "files_included": len(files_included),
                 "files_missing": len(files_missing),
@@ -169,7 +264,9 @@ class ZipPackager:
             logger.info(f"[SUCCESS] ZIP generado exitosamente:")
             logger.info(f"   [ZIP] Archivo: {zip_filename}")
             logger.info(f"   📏 Tamaño: {zip_size_bytes:,} bytes")
-            logger.info(f"   ⏱️ Duración: {duration_ms}ms")
+            logger.info(f"   ⏱️ Duración total: {duration_ms}ms")
+            logger.info(f"   🚀 Descarga paralela: {parallel_download_time}ms")
+            logger.info(f"   👷 Workers usados: {self.max_workers}")
             logger.info(
                 f"   [FILE] Archivos: {len(files_included)}/{len(pdf_filenames)}"
             )
@@ -177,8 +274,12 @@ class ZipPackager:
 
             if files_missing:
                 logger.warning(f"[WARNING] Archivos faltantes: {len(files_missing)}")
-                for missing in files_missing:
+                for missing in files_missing[:5]:  # Mostrar solo los primeros 5
                     logger.warning(f"   [ERROR] {missing}")
+                if len(files_missing) > 5:
+                    logger.warning(
+                        f"   [ERROR] ... y {len(files_missing) - 5} más"
+                    )
 
             return result
 
@@ -198,6 +299,8 @@ class ZipPackager:
                 "download_url": None,
                 "total_size_bytes": 0,
                 "generation_time_ms": duration_ms,
+                "parallel_download_time_ms": 0,
+                "max_workers_used": self.max_workers,
                 "files_requested": len(pdf_filenames),
                 "files_included": 0,
                 "files_missing": len(pdf_filenames),
