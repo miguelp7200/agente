@@ -62,7 +62,6 @@ invoice-backend/
 │   └── curl-tests/                 # Tests con curl
 │
 ├── config.py                       # Configuración central del proyecto
-├── local_pdf_server.py             # Servidor proxy de PDFs
 └── README.md                       # Este archivo
 ```
 
@@ -96,7 +95,7 @@ pip install -r requirements.txt
 export GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
 export GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
 export GOOGLE_CLOUD_LOCATION=us-central1
-export PDF_SERVER_PORT=8011
+# PDF_SERVER_PORT=8011  # DEPRECATED - Using signed URLs
 ```
 
 ### 3. Configuración de MCP Toolbox
@@ -128,10 +127,7 @@ chmod +x deployment/backend/start_backend.sh
 # Terminal 1: MCP Toolbox
 ./mcp-toolbox/toolbox --tools-file=./mcp-toolbox/tools_updated.yaml --port=5000
 
-# Terminal 2: PDF Server
-python local_pdf_server.py
-
-# Terminal 3: ADK Agent Server
+# Terminal 2: ADK Agent Server
 adk api_server --host=0.0.0.0 --port=8080 my-agents --allow_origins="*"
 ```
 

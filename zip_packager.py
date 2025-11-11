@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 import uuid
 
-from config import SAMPLES_DIR, ZIPS_DIR, PDF_SERVER_PORT
+from config import SAMPLES_DIR, ZIPS_DIR
+# PDF_SERVER_PORT removed - using signed URLs only
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class ZipPackager:
         self,
         source_dir: Path = SAMPLES_DIR,
         output_dir: Path = ZIPS_DIR,
-        server_port: int = PDF_SERVER_PORT,
+        server_port: int = 8011,  # Legacy parameter, no longer used
     ):
         """
         Inicializa el empaquetador ZIP
@@ -31,7 +32,7 @@ class ZipPackager:
         Args:
             source_dir: Directorio donde están los PDFs originales
             output_dir: Directorio donde se generarán los ZIPs
-            server_port: Puerto del servidor local para construir URLs
+            server_port: DEPRECATED - Parameter kept for backward compatibility
         """
         self.source_dir = Path(source_dir)
         self.output_dir = Path(output_dir)
@@ -302,13 +303,14 @@ def generate_zip_package(
     return packager.generate_zip(zip_id, pdf_filenames)
 
 
-def get_zip_download_url(zip_filename: str, server_port: int = PDF_SERVER_PORT) -> str:
+def get_zip_download_url(zip_filename: str, server_port: int = 8011) -> str:
     """
     Construye URL de descarga para un ZIP
+    DEPRECATED - Use generate_signed_zip_url() instead
 
     Args:
         zip_filename: Nombre del archivo ZIP
-        server_port: Puerto del servidor local
+        server_port: DEPRECATED - No longer used
 
     Returns:
         URL completa de descarga
