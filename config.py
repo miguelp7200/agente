@@ -273,7 +273,10 @@ if IS_CLOUD_RUN:
 else:
     print("Ejecutandose en desarrollo local")
     # En local, usar configuración de desarrollo
-    PDF_SERVER_PORT = int(os.getenv("PDF_SERVER_PORT", "8011"))
+    # ================================================================
+# 🌐 PDF SERVER CONFIGURATION (DEPRECATED - Using signed URLs)
+# ================================================================
+# PDF_SERVER_PORT = int(os.getenv("PDF_SERVER_PORT", "8011"))  # REMOVED - Use signed URLs instead
 
 # ==============================================
 # VALIDACIÓN DE CONFIGURACIÓN

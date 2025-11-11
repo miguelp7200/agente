@@ -24,7 +24,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY my-agents/ ./my-agents/
 COPY mcp-toolbox/ ./mcp-toolbox/
 COPY src/ ./src/
-COPY local_pdf_server.py ./
 COPY config.py ./
 COPY create_complete_zip.py ./
 COPY zip_packager.py ./
@@ -44,7 +43,6 @@ ENV GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
 ENV GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
 ENV GOOGLE_CLOUD_LOCATION=us-central1
 ENV PORT=8080
-ENV PDF_SERVER_PORT=8011
 ENV MCP_TOOLBOX_PORT=5000
 ENV IS_CLOUD_RUN=true
 

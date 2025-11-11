@@ -28,7 +28,6 @@ from config import (
     ZIP_THRESHOLD,
     ZIP_PREVIEW_LIMIT,
     ZIP_EXPIRATION_DAYS,
-    PDF_SERVER_PORT,
     BUCKET_NAME_READ,
     SAMPLES_DIR,
     CLOUD_RUN_SERVICE_URL,
@@ -449,14 +448,8 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             # ZIP creado exitosamente
             zip_filename = f"zip_{zip_id}.zip"
 
-            # En Cloud Run: usar signed URLs de Google Cloud Storage
-            # En local: usar servidor proxy
-            if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                # Generar signed URL de Google Cloud Storage
-                download_url = generate_signed_zip_url(zip_filename)
-            else:
-                # Desarrollo local: usar proxy server normal
-                download_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+            # Generar signed URL de Google Cloud Storage para el ZIP
+            download_url = generate_signed_zip_url(zip_filename)
 
             success_msg = f"[OK] ZIP creado exitosamente: {zip_filename} con {len(downloaded_files)} archivos"
             print(f"[OK] [ZIP CREATION] {success_msg}")
@@ -622,11 +615,8 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         # Verificar que el archivo existe
         if not blob.exists():
             print(f"[ICON] [GCS] Archivo no encontrado: {zip_filename}")
-            # Retornar URL de proxy local como fallback si el archivo no existe
-            if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-                return f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-            else:
-                return f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
+            # Archivo no existe - retornar error en lugar de fallback
+            raise FileNotFoundError(f"ZIP file not found in GCS: {zip_filename}")
 
         # Usar IAM-based signing con service account automático en Cloud Run
         from datetime import datetime, timezone, timedelta
@@ -652,16 +642,13 @@ def generate_signed_zip_url(zip_filename: str) -> str:
 
         return signed_url
 
+    except FileNotFoundError as e:
+        print(f"[ICON] [GCS] {e}")
+        raise
     except Exception as e:
         print(f"[ICON] [GCS] Error general: {e}")
-        # Fallback final a URL de proxy local
-        if CLOUD_RUN_SERVICE_URL and CLOUD_RUN_SERVICE_URL != "":
-            fallback_url = f"{CLOUD_RUN_SERVICE_URL}/zips/{zip_filename}"
-        else:
-            fallback_url = f"http://localhost:{PDF_SERVER_PORT}/zips/{zip_filename}"
-
-        print(f"[ICON] [GCS] Usando URL de proxy final como fallback: {fallback_url}")
-        return fallback_url
+        # Re-lanzar excepción en lugar de retornar fallback
+        raise RuntimeError(f"Failed to generate signed URL for {zip_filename}: {e}")
 
 
 # <--- FUNCIÓN AUXILIAR: Validador de URLs GCS --->

@@ -111,28 +111,6 @@ for i in {1..5}; do
     fi
 done
 
-# 4. Iniciar PDF Server en puerto dedicado
-# En Cloud Run, usar puerto interno diferente al principal
-if [ "$IS_CLOUD_RUN" = "true" ] || [ "$PORT" = "8080" ]; then
-    # Cloud Run: PDF Server en puerto interno, ADK manejará proxy
-    log "🚀 Iniciando PDF Server en puerto 8011 (Cloud Run interno)..."
-    PDF_SERVER_PORT=8011 python local_pdf_server.py &
-    PDF_PID=$!
-    
-    log "⏳ Esperando PDF Server inicialización..."
-    sleep 5
-    log "✅ PDF Server iniciado en puerto 8011 (interno)"
-else
-    # Desarrollo local: PDF Server en puerto configurado
-    log "🚀 Iniciando PDF Server en puerto $PDF_SERVER_PORT (desarrollo local)..."
-    python local_pdf_server.py &
-    PDF_PID=$!
-    
-    log "⏳ Esperando PDF Server inicialización..."
-    sleep 5
-    log "✅ PDF Server iniciado en puerto $PDF_SERVER_PORT"
-fi
-
 # 4. Verificar que ADK está disponible
 if ! command -v adk &> /dev/null; then
     log "❌ Error: ADK no está instalado"
@@ -158,7 +136,7 @@ if [ "$IS_CLOUD_RUN" = "true" ] || [ "$PORT" = "8080" ]; then
     log "🌐 CORS permitido para todos los orígenes en producción"
     
     # Trap para cleanup
-    trap 'log "🛑 Deteniendo servicios..."; kill $PDF_PID $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
+    trap 'log "🛑 Deteniendo servicios..."; kill $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
     
     # Ejecutar ADK directamente (este será el proceso principal)
     exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
@@ -168,7 +146,7 @@ else
     log "🌐 CORS permitido para todos los orígenes en producción"
 
     # Trap para cleanup en caso de señales (desarrollo local)
-    trap 'log "🛑 Deteniendo servicios..."; kill $PDF_PID $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
+    trap 'log "🛑 Deteniendo servicios..."; kill $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
 
     # Ejecutar ADK (este será el proceso principal en desarrollo local)
     exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"

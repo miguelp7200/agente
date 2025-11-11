@@ -38,9 +38,12 @@
 .PARAMETER LocalPort
     Puerto para deployment local (por defecto 8001)
 
+.PARAMETER ServiceName
+    Nombre personalizado del servicio Cloud Run (por defecto 'invoice-backend' o 'invoice-backend-test' para Environment=test)
+
 .EXAMPLE
     .\deploy.ps1
-    Deployment estándar a producción
+    Deployment estándar a producción (invoice-backend)
     
 .EXAMPLE
     .\deploy.ps1 -Local
@@ -57,11 +60,15 @@
 .EXAMPLE
     .\deploy.ps1 -Local -ConfigValidation
     Deployment local con validación de configuración
+    
+.EXAMPLE
+    .\deploy.ps1 -Environment test
+    Deployment a servicio de test (invoice-backend-test) para pruebas sin afectar producción
 #>
 
 param(
     [string]$Version = $null,
-    [ValidateSet('local', 'dev', 'staging', 'prod')]
+    [ValidateSet('local', 'dev', 'staging', 'prod', 'test')]
     [string]$Environment = 'prod',
     [switch]$Local,
     [switch]$ValidateOnly,
@@ -69,40 +76,9 @@ param(
     [switch]$SkipBuild,
     [switch]$SkipTests,
     [switch]$AutoVersion,
-    [int]$LocalPort = 8001
+    [int]$LocalPort = 8001,
+    [string]$ServiceName = $null
 )
-
-# Obtener versión del proyecto o generar única
-if (-not $Version) {
-    if ($AutoVersion) {
-        # Usar versión del proyecto + timestamp
-        try {
-            $projectVersion = & .\version.ps1 current
-            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-            $Version = "$projectVersion-$timestamp"
-            Write-Info "Usando versión del proyecto: $Version"
-        }
-        catch {
-            Write-Warning "No se pudo leer version.json, usando timestamp"
-            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-            $Version = "v$timestamp"
-        }
-    }
-    else {
-        # Generar versión única con timestamp
-        $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-        $Version = "v$timestamp"
-        Write-Info "Generando versión única: $Version"
-    }
-}
-
-# Configuración
-$PROJECT_ID = "agent-intelligence-gasco"
-$REGION = "us-central1"
-$SERVICE_NAME = "invoice-backend"
-$REPOSITORY = "invoice-chatbot"
-$IMAGE_NAME = "backend"
-$SERVICE_ACCOUNT = "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
 
 # Colores para output
 $GREEN = "`e[32m"
@@ -399,6 +375,51 @@ function Get-EnvFilePath {
     return $null
 }
 
+# ============================================================================
+# CONFIGURACIÓN - Después de definir funciones
+# ============================================================================
+
+# Obtener versión del proyecto o generar única
+if (-not $Version) {
+    if ($AutoVersion) {
+        # Usar versión del proyecto + timestamp
+        try {
+            $projectVersion = & .\version.ps1 current
+            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+            $Version = "$projectVersion-$timestamp"
+            Write-Info "Usando versión del proyecto: $Version"
+        }
+        catch {
+            Write-Warning "No se pudo leer version.json, usando timestamp"
+            $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+            $Version = "v$timestamp"
+        }
+    }
+    else {
+        # Generar versión única con timestamp
+        $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+        $Version = "v$timestamp"
+    }
+}
+
+# Configuración de proyectos GCP
+$PROJECT_ID = "agent-intelligence-gasco"
+$REGION = "us-central1"
+$REPOSITORY = "invoice-chatbot"
+$IMAGE_NAME = "backend"
+$SERVICE_ACCOUNT = "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com"
+
+# Determinar nombre del servicio según entorno
+if ($ServiceName) {
+    $SERVICE_NAME = $ServiceName
+    Write-Info "Usando nombre de servicio personalizado: $SERVICE_NAME"
+} elseif ($Environment -eq 'test') {
+    $SERVICE_NAME = "invoice-backend-test"
+    Write-Info "Modo test: usando servicio $SERVICE_NAME"
+} else {
+    $SERVICE_NAME = "invoice-backend"
+}
+
 # Determinar modo de operación
 $IsLocalDeployment = $Local -or ($Environment -eq 'local')
 $deploymentMode = if ($IsLocalDeployment) { "LOCAL" } else { "CLOUD RUN" }
@@ -584,61 +605,73 @@ if ($IsLocalDeployment) {
         exit 1
     }
     Write-Success "Imagen subida exitosamente"
-}
 
-# 5. Desplegar en Cloud Run con revisión única
-Write-Info "Desplegando en Cloud Run con revisión única..."
-$RevisionSuffix = "r$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-Write-Info "Suffix de revisión: $RevisionSuffix"
-
-$deployArgs = @(
-    "run", "deploy", $SERVICE_NAME,
-    "--image", $FULL_IMAGE_NAME,
-    "--region", $REGION,
-    "--project", $PROJECT_ID,
-    "--allow-unauthenticated",
-    "--port", "8080",
-    "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true",
-    "--service-account", $SERVICE_ACCOUNT,
-    "--memory", "4Gi",
-    "--cpu", "4",
-    "--timeout", "3600s",
-    "--max-instances", "10",
-    "--concurrency", "5",
-    "--revision-suffix", $RevisionSuffix,
-    "--no-traffic",
-    "--quiet"
-)
-
-& gcloud @deployArgs
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Error en deployment inicial a Cloud Run"
-    exit 1
-}
-Write-Success "Nueva revisión creada: $RevisionSuffix"
-
-# 5.1. Activar tráfico en la nueva revisión
-Write-Info "Activando tráfico en la nueva revisión..."
-gcloud run services update-traffic $SERVICE_NAME --to-latest --region=$REGION --project=$PROJECT_ID --quiet
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Error activando tráfico en nueva revisión"
-    exit 1
-}
-Write-Success "Tráfico activado en nueva revisión"
-
-# 6. Obtener URL del servicio
-Write-Info "Obteniendo URL del servicio..."
-$SERVICE_URL = gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(status.url)" 2>$null
-if ($SERVICE_URL) {
-    Write-Success "Servicio disponible en: $SERVICE_URL"
+    # 5. Desplegar en Cloud Run con revisión única
+    Write-Info "Desplegando en Cloud Run con revisión única..."
+    $RevisionSuffix = "r$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+    Write-Info "Suffix de revisión: $RevisionSuffix"
     
-    # 6.1. Opcional: Redesplegar con URL configurada (si es necesario)
-    # Por ahora omitimos este paso para simplificar y acelerar el deploy
-    Write-Info "URL del servicio configurada automáticamente"
-}
-else {
-    Write-Warning "No se pudo obtener URL del servicio"
-}
+    # Verificar si el servicio ya existe
+    Write-Info "Verificando si el servicio existe..."
+    $serviceExists = gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(metadata.name)" 2>$null
+    
+    $deployArgs = @(
+        "run", "deploy", $SERVICE_NAME,
+        "--image", $FULL_IMAGE_NAME,
+        "--region", $REGION,
+        "--project", $PROJECT_ID,
+        "--allow-unauthenticated",
+        "--port", "8080",
+        "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true",
+        "--service-account", $SERVICE_ACCOUNT,
+        "--memory", "4Gi",
+        "--cpu", "4",
+        "--timeout", "3600s",
+        "--max-instances", "10",
+        "--concurrency", "5",
+        "--revision-suffix", $RevisionSuffix,
+        "--quiet"
+    )
+    
+    # Solo agregar --no-traffic si el servicio ya existe
+    if ($serviceExists) {
+        Write-Info "Servicio existente detectado - usando --no-traffic para deployment seguro"
+        $deployArgs += "--no-traffic"
+    } else {
+        Write-Info "Nuevo servicio - desplegando con tráfico inmediato"
+    }
+
+    & gcloud @deployArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Error en deployment inicial a Cloud Run"
+        exit 1
+    }
+    Write-Success "Nueva revisión creada: $RevisionSuffix"
+
+    # 5.1. Activar tráfico en la nueva revisión (solo si usamos --no-traffic)
+    if ($serviceExists) {
+        Write-Info "Activando tráfico en la nueva revisión..."
+        gcloud run services update-traffic $SERVICE_NAME --to-latest --region=$REGION --project=$PROJECT_ID --quiet
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Error activando tráfico en nueva revisión"
+            exit 1
+        }
+        Write-Success "Tráfico activado en nueva revisión"
+    }
+
+    # 6. Obtener URL del servicio
+    Write-Info "Obteniendo URL del servicio..."
+    $SERVICE_URL = gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(status.url)" 2>$null
+    if ($SERVICE_URL) {
+        Write-Success "Servicio disponible en: $SERVICE_URL"
+        
+        # 6.1. Opcional: Redesplegar con URL configurada (si es necesario)
+        # Por ahora omitimos este paso para simplificar y acelerar el deploy
+        Write-Info "URL del servicio configurada automáticamente"
+    }
+    else {
+        Write-Warning "No se pudo obtener URL del servicio"
+    }
 
     # 7. Pruebas de validación Cloud Run
     if (-not $SkipTests -and $SERVICE_URL) {
