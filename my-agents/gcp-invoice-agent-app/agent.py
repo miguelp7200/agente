@@ -12,6 +12,7 @@ import requests
 import tempfile
 import shutil
 import time
+import json
 from pathlib import Path
 from typing import Optional, Coroutine
 from asyncio import CancelledError
@@ -448,6 +449,15 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             # ZIP creado exitosamente
             zip_filename = f"zip_{zip_id}.zip"
 
+            # Parsear resultado del script para extraer métricas
+            zip_result = {}
+            try:
+                if result.stdout:
+                    zip_result = json.loads(result.stdout)
+                    print(f"[OK] [ZIP CREATION] Métricas capturadas: generation_time={zip_result.get('generation_time_ms')}ms")
+            except json.JSONDecodeError as e:
+                print(f"[WARNING] No se pudo parsear resultado del ZIP: {e}")
+
             # Generar signed URL de Google Cloud Storage para el ZIP
             download_url = generate_signed_zip_url(zip_filename)
 
@@ -455,14 +465,19 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             print(f"[OK] [ZIP CREATION] {success_msg}")
             print(f"[OK] [ZIP CREATION] URL de descarga: {download_url}")
 
-            # [ICON] LOGGING: Registrar ZIP exitoso
+            # [ICON] LOGGING: Registrar ZIP exitoso con métricas de performance
             if logging_available and conversation_tracker is not None:
                 zip_data = {
                     "zip_generated": True,
                     "zip_id": zip_id,
                     "download_type": "zip",
-                    # Nota: zip_generation_duration_ms y pdf_count_in_zip no están en el schema de BigQuery
-                    # Si se necesitan, agregar al schema: agent-intelligence-gasco.chat_analytics.conversation_logs
+                    # Métricas de performance de la generación del ZIP
+                    "zip_generation_time_ms": zip_result.get("generation_time_ms"),
+                    "zip_parallel_download_time_ms": zip_result.get("parallel_download_time_ms"),
+                    "zip_max_workers_used": zip_result.get("max_workers_used"),
+                    "zip_files_included": zip_result.get("files_included", len(downloaded_files)),
+                    "zip_files_missing": zip_result.get("files_missing", 0),
+                    "zip_total_size_bytes": zip_result.get("total_size_bytes"),
                 }
                 conversation_tracker.manual_log_zip_creation(zip_data)
 
