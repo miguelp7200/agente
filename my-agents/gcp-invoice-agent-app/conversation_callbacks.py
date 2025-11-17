@@ -264,9 +264,19 @@ class ConversationTracker:
                     and "zip_id" not in self.current_conversation
                 ):
                     self.current_conversation["zip_id"] = zip_data["zip_filename"]
-                logger.info(
-                    f"📦 ZIP logging manual: {zip_data.get('zip_id', 'unknown')[:8]}"
-                )
+                
+                # Log de métricas de performance si están disponibles
+                if "zip_generation_time_ms" in zip_data:
+                    logger.info(
+                        f"📦 ZIP logging manual: {zip_data.get('zip_id', 'unknown')[:8]} - "
+                        f"Generation: {zip_data.get('zip_generation_time_ms')}ms, "
+                        f"Parallel Download: {zip_data.get('zip_parallel_download_time_ms')}ms, "
+                        f"Workers: {zip_data.get('zip_max_workers_used')}"
+                    )
+                else:
+                    logger.info(
+                        f"📦 ZIP logging manual: {zip_data.get('zip_id', 'unknown')[:8]}"
+                    )
         except Exception as e:
             logger.error(f"❌ Error en manual_log_zip_creation: {e}")
 
@@ -475,6 +485,13 @@ class ConversationTracker:
                 # 🆕 NUEVOS CAMPOS: Métricas de texto - Respuesta del agente
                 "agent_response_length": agent_response_metrics.get("length"),
                 "agent_response_word_count": agent_response_metrics.get("word_count"),
+                # 🆕 NUEVOS CAMPOS: Métricas de performance de ZIP
+                "zip_generation_time_ms": data.get("zip_generation_time_ms"),
+                "zip_parallel_download_time_ms": data.get("zip_parallel_download_time_ms"),
+                "zip_max_workers_used": data.get("zip_max_workers_used"),
+                "zip_files_included": data.get("zip_files_included"),
+                "zip_files_missing": data.get("zip_files_missing"),
+                "zip_total_size_bytes": data.get("zip_total_size_bytes"),
             }
 
             # Log de métricas capturadas
@@ -483,6 +500,13 @@ class ConversationTracker:
                           f"prompt={token_metrics['prompt_token_count']}, "
                           f"candidates={token_metrics['candidates_token_count']}, "
                           f"total={token_metrics['total_token_count']}")
+            
+            # Log de métricas de ZIP si están disponibles
+            if data.get("zip_generation_time_ms"):
+                logger.info(f"💾 Métricas de ZIP listas para BigQuery: "
+                          f"generation={data.get('zip_generation_time_ms')}ms, "
+                          f"parallel_download={data.get('zip_parallel_download_time_ms')}ms, "
+                          f"workers={data.get('zip_max_workers_used')}")
 
             # Remover campos internos no necesarios para BigQuery
             enriched.pop("start_time", None)

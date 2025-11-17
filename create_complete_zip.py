@@ -179,6 +179,8 @@ def create_complete_zip(invoice_filenames, zip_id=None, expiration_days=7):
             "files_included": zip_result["files_included"],
             "files_missing": zip_result["files_missing"],
             "generation_time_ms": zip_result["generation_time_ms"],
+            "parallel_download_time_ms": zip_result.get("parallel_download_time_ms"),
+            "max_workers_used": zip_result.get("max_workers_used"),
         }
 
     except Exception as e:
@@ -197,9 +199,11 @@ def main():
         )
         sys.exit(1)
 
-    # Configurar logging
+    # Configurar logging para que vaya a stderr (no contaminar stdout con JSON)
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        stream=sys.stderr,
     )
 
     # Obtener ZIP ID y archivos de argumentos
@@ -209,15 +213,16 @@ def main():
     # Crear ZIP completo
     result = create_complete_zip(invoice_filenames, zip_id)
 
-    # Mostrar resultado
+    # Mostrar resultado JSON en stdout (sin contaminación)
     print(json.dumps(result, indent=2))
 
+    # Los mensajes adicionales van a stderr para no contaminar el JSON
     if result["success"]:
-        print(f"\nZIP creado exitosamente!")
-        print(f"URL de descarga: {result['download_url']}")
+        print(f"\nZIP creado exitosamente!", file=sys.stderr)
+        print(f"URL de descarga: {result['download_url']}", file=sys.stderr)
         sys.exit(0)
     else:
-        print(f"\nError: {result['error']}")
+        print(f"\nError: {result['error']}", file=sys.stderr)
         sys.exit(1)
 
 
