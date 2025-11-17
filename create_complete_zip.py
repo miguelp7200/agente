@@ -197,9 +197,11 @@ def main():
         )
         sys.exit(1)
 
-    # Configurar logging
+    # Configurar logging para que vaya a stderr (no contaminar stdout con JSON)
     logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        stream=sys.stderr
     )
 
     # Obtener ZIP ID y archivos de argumentos
