@@ -444,6 +444,9 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         )
 
         print(f"[ICON] [ZIP CREATION] Return code: {result.returncode}")
+        print(f"[DEBUG] [ZIP CREATION] stdout length: {len(result.stdout) if result.stdout else 0}")
+        print(f"[DEBUG] [ZIP CREATION] stdout preview: {repr(result.stdout[:500]) if result.stdout else 'EMPTY'}")
+        print(f"[DEBUG] [ZIP CREATION] stderr preview: {repr(result.stderr[:500]) if result.stderr else 'EMPTY'}")
 
         if result.returncode == 0:
             # ZIP creado exitosamente
@@ -455,6 +458,8 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
                 if result.stdout:
                     zip_result = json.loads(result.stdout)
                     print(f"[OK] [ZIP CREATION] Métricas capturadas: generation_time={zip_result.get('generation_time_ms')}ms")
+                else:
+                    print(f"[WARNING] [ZIP CREATION] stdout está vacío - no hay métricas disponibles")
             except json.JSONDecodeError as e:
                 print(f"[WARNING] No se pudo parsear resultado del ZIP: {e}")
 
