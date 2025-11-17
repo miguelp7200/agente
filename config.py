@@ -41,14 +41,19 @@ PROJECT_ID = PROJECT_ID_READ  # Por defecto, operaciones de lectura
 # Validación y corrección del PROJECT_ID_READ
 if PROJECT_ID_READ != "datalake-gasco":
     print(f"WARNING PROJECT_ID_READ detectado: {PROJECT_ID_READ}", file=sys.stderr)
-    print(f"FIXED Forzando proyecto de lectura correcto: datalake-gasco", file=sys.stderr)
+    print(
+        f"FIXED Forzando proyecto de lectura correcto: datalake-gasco", file=sys.stderr
+    )
     PROJECT_ID_READ = "datalake-gasco"
     os.environ["GOOGLE_CLOUD_PROJECT_READ"] = PROJECT_ID_READ
 
 # Validación del PROJECT_ID_WRITE
 if PROJECT_ID_WRITE != "agent-intelligence-gasco":
     print(f"WARNING PROJECT_ID_WRITE detectado: {PROJECT_ID_WRITE}", file=sys.stderr)
-    print(f"FIXED Forzando proyecto de escritura correcto: agent-intelligence-gasco", file=sys.stderr)
+    print(
+        f"FIXED Forzando proyecto de escritura correcto: agent-intelligence-gasco",
+        file=sys.stderr,
+    )
     PROJECT_ID_WRITE = "agent-intelligence-gasco"
     os.environ["GOOGLE_CLOUD_PROJECT_WRITE"] = PROJECT_ID_WRITE
 
@@ -373,12 +378,12 @@ def validate_config():
     if ENABLE_THINKING_MODE:
         print(
             f"      - [DIAGNOSTICO] Modo diagnóstico activo - se mostrará razonamiento del modelo",
-            file=sys.stderr
+            file=sys.stderr,
         )
     else:
         print(
             f"      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible",
-            file=sys.stderr
+            file=sys.stderr,
         )
 
 
