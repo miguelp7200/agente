@@ -17,8 +17,8 @@ import os
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding='utf-8')
 
-# Agregar directorio raíz al path
-sys.path.append(str(Path(__file__).parent))
+# Agregar directorio raíz al path (ahora está 2 niveles arriba)
+sys.path.append(str(Path(__file__).parent.parent.parent))
 
 # Configurar proyecto y región ANTES de importar vertexai
 os.environ["GOOGLE_CLOUD_PROJECT"] = "agent-intelligence-gasco"
