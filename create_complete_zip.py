@@ -211,15 +211,16 @@ def main():
     # Crear ZIP completo
     result = create_complete_zip(invoice_filenames, zip_id)
 
-    # Mostrar resultado
+    # Mostrar resultado JSON en stdout (sin contaminación)
     print(json.dumps(result, indent=2))
-
+    
+    # Los mensajes adicionales van a stderr para no contaminar el JSON
     if result["success"]:
-        print(f"\nZIP creado exitosamente!")
-        print(f"URL de descarga: {result['download_url']}")
+        print(f"\nZIP creado exitosamente!", file=sys.stderr)
+        print(f"URL de descarga: {result['download_url']}", file=sys.stderr)
         sys.exit(0)
     else:
-        print(f"\nError: {result['error']}")
+        print(f"\nError: {result['error']}", file=sys.stderr)
         sys.exit(1)
 
 
