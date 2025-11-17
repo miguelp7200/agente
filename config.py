@@ -6,6 +6,7 @@ Usa Application Default Credentials (ADC) para autenticación
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -39,15 +40,15 @@ PROJECT_ID = PROJECT_ID_READ  # Por defecto, operaciones de lectura
 
 # Validación y corrección del PROJECT_ID_READ
 if PROJECT_ID_READ != "datalake-gasco":
-    print(f"WARNING PROJECT_ID_READ detectado: {PROJECT_ID_READ}")
-    print(f"FIXED Forzando proyecto de lectura correcto: datalake-gasco")
+    print(f"WARNING PROJECT_ID_READ detectado: {PROJECT_ID_READ}", file=sys.stderr)
+    print(f"FIXED Forzando proyecto de lectura correcto: datalake-gasco", file=sys.stderr)
     PROJECT_ID_READ = "datalake-gasco"
     os.environ["GOOGLE_CLOUD_PROJECT_READ"] = PROJECT_ID_READ
 
 # Validación del PROJECT_ID_WRITE
 if PROJECT_ID_WRITE != "agent-intelligence-gasco":
-    print(f"WARNING PROJECT_ID_WRITE detectado: {PROJECT_ID_WRITE}")
-    print(f"FIXED Forzando proyecto de escritura correcto: agent-intelligence-gasco")
+    print(f"WARNING PROJECT_ID_WRITE detectado: {PROJECT_ID_WRITE}", file=sys.stderr)
+    print(f"FIXED Forzando proyecto de escritura correcto: agent-intelligence-gasco", file=sys.stderr)
     PROJECT_ID_WRITE = "agent-intelligence-gasco"
     os.environ["GOOGLE_CLOUD_PROJECT_WRITE"] = PROJECT_ID_WRITE
 
@@ -266,12 +267,12 @@ CLOUD_RUN_SERVICE_URL = os.getenv(
 
 # Configuraciones específicas para Cloud Run
 if IS_CLOUD_RUN:
-    print("Ejecutandose en Cloud Run")
+    print("Ejecutandose en Cloud Run", file=sys.stderr)
     # En Cloud Run, usar siempre el puerto asignado por el entorno
     PORT = int(os.getenv("PORT", "8080"))
     PDF_SERVER_PORT = PORT  # URLs consistentes
 else:
-    print("Ejecutandose en desarrollo local")
+    print("Ejecutandose en desarrollo local", file=sys.stderr)
     # En local, usar configuración de desarrollo
     # ================================================================
 # 🌐 PDF SERVER CONFIGURATION (DEPRECATED - Using signed URLs)
@@ -339,43 +340,45 @@ def validate_config():
     if errors:
         raise ValueError(f"Errores de configuración: {', '.join(errors)}")
 
-    print(f"CONFIG Arquitectura dual validada:")
-    print(f"   [LECTURA]:")
-    print(f"      - Proyecto: {PROJECT_ID_READ}")
-    print(f"      - Dataset: {DATASET_ID_READ}")
-    print(f"      - Bucket: {BUCKET_NAME_READ}")
-    print(f"      - Tabla principal: pdfs_modelo")
-    print(f"   [ESCRITURA]:")
-    print(f"      - Proyecto: {PROJECT_ID_WRITE}")
-    print(f"      - Dataset: {DATASET_ID_WRITE}")
-    print(f"      - Bucket: {BUCKET_NAME_WRITE}")
-    print(f"      - Tabla ZIPs: zip_files")
-    print(f"   [SERVICIOS]:")
-    print(f"      - Región: {LOCATION}")
-    print(f"      - Puerto API: {PORT}")
-    print(f"      - Puerto PDF: {PDF_SERVER_PORT}")
-    print(f"      - Cloud Run: {IS_CLOUD_RUN}")
-    print(f"   [LIMITS]:")
-    print(f"      - Max PDF links: {MAX_PDF_LINKS_DISPLAY}")
-    print(f"      - ZIP threshold: {ZIP_THRESHOLD}")
-    print(f"      - ZIP preview: {ZIP_PREVIEW_LIMIT}")
-    print(f"   [SIGNED URLs ESTABILIDAD]:")
-    print(f"      - Timezone: {TZ}")
-    print(f"      - Expiración: {SIGNED_URL_EXPIRATION_HOURS}h")
-    print(f"      - Buffer: {SIGNED_URL_BUFFER_MINUTES}min")
-    print(f"      - Max retries: {MAX_SIGNATURE_RETRIES}")
-    print(f"      - Monitoreo: {SIGNED_URL_MONITORING_ENABLED}")
-    print(f"      - Time sync timeout: {TIME_SYNC_TIMEOUT}s")
-    print(f"   [THINKING MODE - ESTRATEGIA 8]:")
-    print(f"      - Habilitado: {ENABLE_THINKING_MODE}")
-    print(f"      - Budget: {THINKING_BUDGET} tokens")
+    print(f"CONFIG Arquitectura dual validada:", file=sys.stderr)
+    print(f"   [LECTURA]:", file=sys.stderr)
+    print(f"      - Proyecto: {PROJECT_ID_READ}", file=sys.stderr)
+    print(f"      - Dataset: {DATASET_ID_READ}", file=sys.stderr)
+    print(f"      - Bucket: {BUCKET_NAME_READ}", file=sys.stderr)
+    print(f"      - Tabla principal: pdfs_modelo", file=sys.stderr)
+    print(f"   [ESCRITURA]:", file=sys.stderr)
+    print(f"      - Proyecto: {PROJECT_ID_WRITE}", file=sys.stderr)
+    print(f"      - Dataset: {DATASET_ID_WRITE}", file=sys.stderr)
+    print(f"      - Bucket: {BUCKET_NAME_WRITE}", file=sys.stderr)
+    print(f"      - Tabla ZIPs: zip_files", file=sys.stderr)
+    print(f"   [SERVICIOS]:", file=sys.stderr)
+    print(f"      - Región: {LOCATION}", file=sys.stderr)
+    print(f"      - Puerto API: {PORT}", file=sys.stderr)
+    print(f"      - Puerto PDF: {PDF_SERVER_PORT}", file=sys.stderr)
+    print(f"      - Cloud Run: {IS_CLOUD_RUN}", file=sys.stderr)
+    print(f"   [LIMITS]:", file=sys.stderr)
+    print(f"      - Max PDF links: {MAX_PDF_LINKS_DISPLAY}", file=sys.stderr)
+    print(f"      - ZIP threshold: {ZIP_THRESHOLD}", file=sys.stderr)
+    print(f"      - ZIP preview: {ZIP_PREVIEW_LIMIT}", file=sys.stderr)
+    print(f"   [SIGNED URLs ESTABILIDAD]:", file=sys.stderr)
+    print(f"      - Timezone: {TZ}", file=sys.stderr)
+    print(f"      - Expiración: {SIGNED_URL_EXPIRATION_HOURS}h", file=sys.stderr)
+    print(f"      - Buffer: {SIGNED_URL_BUFFER_MINUTES}min", file=sys.stderr)
+    print(f"      - Max retries: {MAX_SIGNATURE_RETRIES}", file=sys.stderr)
+    print(f"      - Monitoreo: {SIGNED_URL_MONITORING_ENABLED}", file=sys.stderr)
+    print(f"      - Time sync timeout: {TIME_SYNC_TIMEOUT}s", file=sys.stderr)
+    print(f"   [THINKING MODE - ESTRATEGIA 8]:", file=sys.stderr)
+    print(f"      - Habilitado: {ENABLE_THINKING_MODE}", file=sys.stderr)
+    print(f"      - Budget: {THINKING_BUDGET} tokens", file=sys.stderr)
     if ENABLE_THINKING_MODE:
         print(
-            f"      - [DIAGNOSTICO] Modo diagnóstico activo - se mostrará razonamiento del modelo"
+            f"      - [DIAGNOSTICO] Modo diagnóstico activo - se mostrará razonamiento del modelo",
+            file=sys.stderr
         )
     else:
         print(
-            f"      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible"
+            f"      - [PRODUCCION] Modo producción - respuestas más rápidas sin razonamiento visible",
+            file=sys.stderr
         )
 
 
