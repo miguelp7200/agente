@@ -444,9 +444,15 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
         )
 
         print(f"[ICON] [ZIP CREATION] Return code: {result.returncode}")
-        print(f"[DEBUG] [ZIP CREATION] stdout length: {len(result.stdout) if result.stdout else 0}")
-        print(f"[DEBUG] [ZIP CREATION] stdout preview: {repr(result.stdout[:500]) if result.stdout else 'EMPTY'}")
-        print(f"[DEBUG] [ZIP CREATION] stderr preview: {repr(result.stderr[:500]) if result.stderr else 'EMPTY'}")
+        print(
+            f"[DEBUG] [ZIP CREATION] stdout length: {len(result.stdout) if result.stdout else 0}"
+        )
+        print(
+            f"[DEBUG] [ZIP CREATION] stdout preview: {repr(result.stdout[:500]) if result.stdout else 'EMPTY'}"
+        )
+        print(
+            f"[DEBUG] [ZIP CREATION] stderr preview: {repr(result.stderr[:500]) if result.stderr else 'EMPTY'}"
+        )
 
         if result.returncode == 0:
             # ZIP creado exitosamente
@@ -457,9 +463,13 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             try:
                 if result.stdout:
                     zip_result = json.loads(result.stdout)
-                    print(f"[OK] [ZIP CREATION] Métricas capturadas: generation_time={zip_result.get('generation_time_ms')}ms")
+                    print(
+                        f"[OK] [ZIP CREATION] Métricas capturadas: generation_time={zip_result.get('generation_time_ms')}ms"
+                    )
                 else:
-                    print(f"[WARNING] [ZIP CREATION] stdout está vacío - no hay métricas disponibles")
+                    print(
+                        f"[WARNING] [ZIP CREATION] stdout está vacío - no hay métricas disponibles"
+                    )
             except json.JSONDecodeError as e:
                 print(f"[WARNING] No se pudo parsear resultado del ZIP: {e}")
 
@@ -478,9 +488,13 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
                     "download_type": "zip",
                     # Métricas de performance de la generación del ZIP
                     "zip_generation_time_ms": zip_result.get("generation_time_ms"),
-                    "zip_parallel_download_time_ms": zip_result.get("parallel_download_time_ms"),
+                    "zip_parallel_download_time_ms": zip_result.get(
+                        "parallel_download_time_ms"
+                    ),
                     "zip_max_workers_used": zip_result.get("max_workers_used"),
-                    "zip_files_included": zip_result.get("files_included", len(downloaded_files)),
+                    "zip_files_included": zip_result.get(
+                        "files_included", len(downloaded_files)
+                    ),
                     "zip_files_missing": zip_result.get("files_missing", 0),
                     "zip_total_size_bytes": zip_result.get("total_size_bytes"),
                 }
@@ -1441,6 +1455,7 @@ else:
     print(f"[FAST] [THINKING MODE] DESHABILITADO (modo producción rápido)")
     print(f"[INFO] [THINKING MODE] Para habilitar: export ENABLE_THINKING_MODE=true")
 
+
 class CancellableAgent(Agent):
     """
     Un wrapper alrededor de google.adk.agents.Agent que intercepta la cancelación
@@ -1460,6 +1475,7 @@ class CancellableAgent(Agent):
             # Es importante re-lanzar la excepción para que el framework
             # pueda limpiar la conexión correctamente.
             raise
+
 
 root_agent = CancellableAgent(
     name=agent_config["name"],
