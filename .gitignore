@@ -70,11 +70,11 @@ logs/logs-adk.txt
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 
-# VS Code and AI tools specific files
-AGENTS.md
-BYTEROVER*.md
-CLAUDE.md
-GEMINI*.md
+# VS Code and AI tools specific files (now in docs/ai-assistants/ and docs/debugging/)
+docs/ai-assistants/AGENTS.md
+docs/debugging/BYTEROVER*.md
+docs/ai-assistants/CLAUDE.md
+docs/ai-assistants/GEMINI*.md
 
 # Debug output directories (keep structure but ignore generated files)
 debug/raw-responses/*.json
