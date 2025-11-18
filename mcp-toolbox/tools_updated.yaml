@@ -57,12 +57,11 @@ tools:
       \ IS NOT NULL\n\n    THEN Copia_Cedible_cf\n\n    ELSE NULL\n\n  END as Copia_Cedible_cf_proxy\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
       \  fecha = @target_date\nORDER BY Factura DESC\nLIMIT 10\n"
-    description: 'Busca facturas de una fecha específica con enlaces de descarga del
-      proxy local.
+    description: 'Busca facturas de una fecha específica con enlaces de descarga directos.
 
       Proporciona la fecha en formato YYYY-MM-DD.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
       Útil para consultas como "Facturas del 26 de diciembre de 2019" o "Facturas
       del 2022-11-04".
@@ -103,12 +102,11 @@ tools:
       con muchas facturas.
 
 
-      Busca facturas de un RUT específico del cliente con enlaces de descarga del
-      proxy local.
+      Busca facturas de un RUT específico del cliente con enlaces de descarga directos.
 
       Proporciona el RUT en formato con guión.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
 
       ⚠️ FLUJO RECOMENDADO para RUTs desconocidos:
@@ -162,11 +160,11 @@ tools:
 
 
       Busca facturas dentro de un rango de fechas específico con enlaces de descarga
-      del proxy local.
+      directos.
 
       Proporciona fechas en formato YYYY-MM-DD.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
 
       ⚠️ FLUJO RECOMENDADO para rangos amplios (>30 días):
@@ -218,13 +216,13 @@ tools:
       \  Rut = @target_rut\n  AND fecha >= @start_date\n  AND fecha <= @end_date\n\
       ORDER BY fecha DESC, Factura DESC\nLIMIT 15\n"
     description: 'Busca facturas de un RUT específico dentro de un rango de fechas
-      con enlaces de descarga del proxy local.
+      con enlaces de descarga directos.
 
       Combina filtrado por RUT del cliente y rango de fechas específico.
 
       Proporciona el RUT en formato con guión y fechas en formato YYYY-MM-DD.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
       Útil para consultas como "Facturas del RUT 9025012-4 en diciembre 2019" o "RUT
       76341146-K entre 2022-11-01 y 2022-11-30".
@@ -296,8 +294,7 @@ tools:
       búsquedas mensuales.
 
 
-      Busca facturas de un mes y año específicos con enlaces de descarga del proxy
-      local.
+      Busca facturas de un mes y año específicos con enlaces de descarga directos.
 
       Utiliza funciones EXTRACT para filtrar por mes y año de forma precisa.
 
@@ -313,7 +310,7 @@ tools:
 
       Proporciona el año como entero (ej. 2019) y el mes como entero (1-12).
 
-      Retorna hasta 1000 facturas más recientes con URLs del proxy local listas para
+      Retorna hasta 1000 facturas más recientes con URLs firmadas listas para
       descargar.
 
       Útil para consultas como "Facturas de diciembre 2019" o "Facturas de noviembre
@@ -359,14 +356,14 @@ tools:
       \  Rut IN UNNEST(SPLIT(@rut_list, ','))\nORDER BY Rut, fecha DESC, Factura DESC\n\
       LIMIT 1000\n"
     description: 'Busca facturas de múltiples RUTs específicos con enlaces de descarga
-      del proxy local.
+      directos.
 
       Utiliza funciones UNNEST y SPLIT para procesar una lista de RUTs separados por
       comas.
 
       Proporciona los RUTs como string separados por comas, sin espacios adicionales.
 
-      Retorna facturas con URLs del proxy local listas para descargar, agrupadas por
+      Retorna facturas con URLs firmadas listas para descargar, agrupadas por
       RUT.
 
       Útil para consultas como "Facturas de los RUTs 9025012-4,76341146-K" o "Facturas
@@ -404,13 +401,13 @@ tools:
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nORDER BY\
       \ fecha DESC, Factura DESC\nLIMIT @limit_count\n"
     description: 'Busca las facturas más recientes del sistema con enlaces de descarga
-      del proxy local.
+      directos.
 
       Ordena por fecha descendente (más reciente primero) y luego por número de factura.
 
       Permite especificar el número máximo de resultados a retornar.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
       Útil para consultas como "Las 10 facturas más recientes" o "Últimas 5 facturas".
 
@@ -492,7 +489,7 @@ tools:
 
       Utiliza búsqueda exacta y también búsqueda sin ceros iniciales para mayor flexibilidad.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
       Usar cuando el usuario pregunte específicamente por "factura" o "ID de factura".
 
@@ -535,7 +532,7 @@ tools:
 
       Utiliza búsqueda exacta y también búsqueda sin ceros iniciales para mayor flexibilidad.
 
-      Retorna facturas con URLs del proxy local listas para descargar.
+      Retorna facturas con URLs firmadas listas para descargar.
 
       Usar cuando el usuario pregunte por "referencia", "número de referencia" o el
       número que aparece en la factura impresa.
@@ -791,30 +788,7 @@ tools:
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
       default: both
-  get_invoices_with_proxy_links:
-    kind: bigquery-sql
-    source: gasco_invoices_read
-    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  CONCAT('https://invoice-backend-819133916464.us-central1.run.app/invoice/',\
-      \ Factura, '.pdf') as proxy_download_url,\n  CASE\n    WHEN Copia_Tributaria_cf\
-      \ IS NOT NULL THEN 'Disponible'\n    ELSE 'No disponible'\n  END as pdf_tributaria_status,\n\
-      \  CASE\n    WHEN Copia_Cedible_cf IS NOT NULL THEN 'Disponible'\n    ELSE 'No\
-      \ disponible'\n  END as pdf_cedible_status\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
-      WHERE\n  (COALESCE(@solicitante_code, '') = '' OR Solicitante = @solicitante_code)\n\
-      ORDER BY Factura DESC\nLIMIT 25\n"
-    description: 'Obtiene facturas con URLs del proxy local ya formateadas para descargas
-      directas.
 
-      Esta herramienta genera automáticamente los enlaces de descarga correctos.
-
-      Úsala cuando necesites proveer enlaces de descarga listos para usar.
-
-      '
-    parameters:
-    - name: solicitante_code
-      type: string
-      description: Código de solicitante específico (ej. "0012148561"). Opcional.
-      required: false
-      default: ""
   get_invoices_with_all_pdf_links:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -1375,7 +1349,7 @@ tools:
 
       Útil para encontrar facturas de alto valor de un cliente específico.
 
-      Incluye URLs proxy para descarga directa de todos los tipos de PDF.
+      Incluye URLs firmadas para descarga directa de todos los tipos de PDF.
 
 
 
@@ -2158,7 +2132,6 @@ toolsets:
   - get_monthly_invoice_statistics
   - get_monthly_amount_statistics
   - get_invoices_with_pdf_info
-  - get_invoices_with_proxy_links
   - get_invoices_with_all_pdf_links
   - get_multiple_pdf_downloads
   - get_cedible_cf_by_solicitante
