@@ -29,6 +29,8 @@ from config import (
     ZIP_THRESHOLD,
     ZIP_PREVIEW_LIMIT,
     ZIP_EXPIRATION_DAYS,
+    ZIP_CREATION_TIMEOUT,
+    ZIP_MAX_CONCURRENT_DOWNLOADS,
     BUCKET_NAME_READ,
     SAMPLES_DIR,
     CLOUD_RUN_SERVICE_URL,
@@ -250,68 +252,92 @@ def log_token_analysis(
         }
 
 
+def download_single_pdf(url_info):
+    """Helper para descargar un solo PDF (para uso en ThreadPoolExecutor)"""
+    url, i, total, samples_dir, bucket_name = url_info
+    try:
+        if "gs://miguel-test/descargas/" not in url:
+            print(f"[ICON] [PDF DOWNLOAD] URL inválida {i+1}: {url}")
+            return None
+
+        # Extraer la ruta GCS
+        gcs_start = url.find("gs://miguel-test/descargas/") + len(
+            "gs://miguel-test/descargas/"
+        )
+        gcs_path = url[gcs_start:]
+
+        if "/" not in gcs_path:
+            print(f"[ICON] [PDF DOWNLOAD] Ruta GCS inválida {i+1}: {gcs_path}")
+            return None
+
+        parts = gcs_path.split("/")
+        invoice_number = parts[0]
+        pdf_filename = parts[1]
+
+        # Crear nombre único local
+        unique_filename = f"{invoice_number}_{pdf_filename}"
+        local_path = Path(samples_dir) / unique_filename
+
+        # Inicializar cliente (thread-safe)
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+
+        # Descargar desde GCS
+        blob_path = f"descargas/{gcs_path}"
+        blob = bucket.blob(blob_path)
+
+        if not blob.exists():
+            print(f"[ICON] [PDF DOWNLOAD] Blob no existe en GCS: {blob_path}")
+            return None
+
+        print(f"[ICON] [PDF DOWNLOAD] Descargando {i+1}/{total}: {unique_filename}")
+        blob.download_to_filename(str(local_path))
+
+        print(
+            f"[OK] [PDF DOWNLOAD] Descargado: {unique_filename} ({local_path.stat().st_size} bytes)"
+        )
+        return unique_filename
+
+    except Exception as e:
+        print(f"[ICON] [PDF DOWNLOAD] Error descargando PDF {i+1}: {e}")
+        return None
+
+
 def download_pdfs_from_gcs(pdf_urls, samples_dir):
     """
-    Descarga PDFs desde Google Cloud Storage al directorio local
+    Descarga PDFs desde Google Cloud Storage al directorio local usando paralelismo
     """
-    print(f"[ICON] [PDF DOWNLOAD] Iniciando descarga de {len(pdf_urls)} PDFs...")
+    print(
+        f"[ICON] [PDF DOWNLOAD] Iniciando descarga paralela de {len(pdf_urls)} PDFs..."
+    )
 
     # Asegurar que el directorio existe
     Path(samples_dir).mkdir(parents=True, exist_ok=True)
 
-    # Inicializar cliente de GCS
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(BUCKET_NAME_READ)
+    # Preparar argumentos para workers
+    download_tasks = []
+    for i, url in enumerate(pdf_urls):
+        download_tasks.append((url, i, len(pdf_urls), samples_dir, BUCKET_NAME_READ))
 
     downloaded_files = []
 
-    for i, url in enumerate(pdf_urls):
-        try:
-            if "gs://miguel-test/descargas/" not in url:
-                print(f"[ICON] [PDF DOWNLOAD] URL inválida {i+1}: {url}")
-                continue
+    # Usar ThreadPoolExecutor para descargas paralelas
+    import concurrent.futures
 
-            # Extraer la ruta GCS
-            gcs_start = url.find("gs://miguel-test/descargas/") + len(
-                "gs://miguel-test/descargas/"
-            )
-            gcs_path = url[gcs_start:]  # "0101547522/Copia_Cedible_cf.pdf"
+    # Usar configuración de concurrencia o default seguro
+    max_workers = globals().get("ZIP_MAX_CONCURRENT_DOWNLOADS", 10)
+    print(f"[ICON] [PDF DOWNLOAD] Usando {max_workers} workers simultáneos")
 
-            if "/" not in gcs_path:
-                print(f"[ICON] [PDF DOWNLOAD] Ruta GCS inválida {i+1}: {gcs_path}")
-                continue
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Mapear tareas
+        future_to_url = {
+            executor.submit(download_single_pdf, task): task for task in download_tasks
+        }
 
-            parts = gcs_path.split("/")
-            invoice_number = parts[0]  # "0101547522"
-            pdf_filename = parts[1]  # "Copia_Cedible_cf.pdf"
-
-            # Crear nombre único local
-            unique_filename = f"{invoice_number}_{pdf_filename}"
-            local_path = Path(samples_dir) / unique_filename
-
-            # Descargar desde GCS
-            blob_path = (
-                f"descargas/{gcs_path}"  # "descargas/0101547522/Copia_Cedible_cf.pdf"
-            )
-            blob = bucket.blob(blob_path)
-
-            if not blob.exists():
-                print(f"[ICON] [PDF DOWNLOAD] Blob no existe en GCS: {blob_path}")
-                continue
-
-            print(
-                f"[ICON] [PDF DOWNLOAD] Descargando {i+1}/{len(pdf_urls)}: {unique_filename}"
-            )
-            blob.download_to_filename(str(local_path))
-
-            downloaded_files.append(unique_filename)
-            print(
-                f"[OK] [PDF DOWNLOAD] Descargado: {unique_filename} ({local_path.stat().st_size} bytes)"
-            )
-
-        except Exception as e:
-            print(f"[ICON] [PDF DOWNLOAD] Error descargando PDF {i+1}: {e}")
-            continue
+        for future in concurrent.futures.as_completed(future_to_url):
+            result = future.result()
+            if result:
+                downloaded_files.append(result)
 
     print(
         f"[OK] [PDF DOWNLOAD] Completado: {len(downloaded_files)}/{len(pdf_urls)} archivos descargados"
@@ -440,7 +466,7 @@ def create_standard_zip(pdf_urls: str, invoice_count: int = 0):
             capture_output=True,
             text=True,
             cwd=str(Path(__file__).parent.parent.parent),
-            timeout=120,  # Timeout de 2 minutos
+            timeout=ZIP_CREATION_TIMEOUT,  # Usar timeout configurado
         )
 
         print(f"[ICON] [ZIP CREATION] Return code: {result.returncode}")
@@ -724,12 +750,17 @@ def _is_valid_gcs_url(url: str) -> bool:
 
 
 # <--- ADICIÓN 2: Nueva función/herramienta para URLs individuales con estabilidad GCS --->
-def generate_individual_download_links(pdf_urls: str) -> dict:
+def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) -> dict:
     """
     Toma URLs de GCS y genera URLs firmadas seguras para cada una con mejoras de estabilidad.
     SIEMPRE genera URLs firmadas usando credenciales impersonadas en TODOS los entornos.
     Incorpora mejoras contra SignatureDoesNotMatch y clock skew.
     Debe ser llamada por el agente cuando se encuentran MENOS de 5 facturas.
+
+    Args:
+        pdf_urls: String con URLs separadas por comas
+        allow_zip: Si es True, permite intentar crear un ZIP si hay muchos PDFs.
+                   Si es False, fuerza la generación de links individuales (para evitar bucles).
     """
     print(
         f"[ICON] [LINKS INDIVIDUALES] Generando enlaces firmados con mejoras de estabilidad..."
@@ -760,7 +791,7 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     pdf_count = len(pdf_urls_list)
     zip_threshold = int(os.getenv("ZIP_THRESHOLD", "3"))
 
-    if pdf_count > zip_threshold:
+    if allow_zip and pdf_count > zip_threshold:
         print(
             f"[FIX] [INTERCEPTOR AUTO-ZIP] DETECTADO: {pdf_count} PDFs > {zip_threshold}"
         )
@@ -797,6 +828,8 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             print(
                 f"[ICON] [INTERCEPTOR AUTO-ZIP] Fallback: Continuando con URLs individuales..."
             )
+    elif not allow_zip and pdf_count > zip_threshold:
+        print(f"[ICON] [INTERCEPTOR AUTO-ZIP] Omitido explícitamente (allow_zip=False)")
 
     # [ICON] FILTRO DE URLs PROBLEMÁTICAS: Excluir URLs que causan errores de firma
     original_count = len(pdf_urls_list)
