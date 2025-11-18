@@ -81,9 +81,7 @@ def generate_stable_signed_url(
 
         # 3.5. CRÍTICO: Verificar que el blob existe antes de generar URL
         if not blob.exists():
-            error_msg = (
-                f"Blob not found: gs://{bucket_name}/{blob_name}"
-            )
+            error_msg = f"Blob not found: gs://{bucket_name}/{blob_name}"
             logger.error(error_msg)
             raise FileNotFoundError(error_msg)
 

@@ -95,6 +95,9 @@ def _is_signature_error(exception: Exception) -> bool:
     """
     Detectar si una excepción es un error de signature mismatch de GCS.
 
+    FASE 3: Mejorada detección con patrones adicionales de encoding,
+    clock skew, y timeout específicos de GCS.
+
     Args:
         exception: Excepción a analizar
 
@@ -111,6 +114,17 @@ def _is_signature_error(exception: Exception) -> bool:
         "the request signature we calculated does not match",
         "invalid signature",
         "expired signature",
+        # FASE 3: Patrones adicionales de encoding y clock skew
+        "access denied",
+        "invalid unicode",
+        "unicodeencodeerror",
+        "clock skew",
+        "request time too skewed",
+        "requesttimetoskewed",
+        # FASE 3: Timeouts que pueden indicar problemas de firma
+        "connection timeout",
+        "read timeout",
+        "timed out",
     ]
 
     # Verificar patrones en el mensaje de error
@@ -127,6 +141,20 @@ def _is_signature_error(exception: Exception) -> bool:
                 if pattern in response_text:
                     logger.debug(f"Error de signature en respuesta HTTP: {pattern}")
                     return True
+
+            # FASE 3: Verificar códigos de estado específicos
+            # 403 (Forbidden) y 401 (Unauthorized) pueden ser por firma
+            if hasattr(exception.response, "status_code"):
+                if exception.response.status_code in [401, 403]:
+                    logger.debug(
+                        f"HTTP {exception.response.status_code} - posible error de signature"
+                    )
+                    return True
+
+    # FASE 3: Detectar errores de timeout que pueden ser por clock skew
+    if isinstance(exception, (requests.exceptions.Timeout, TimeoutError)):
+        logger.debug("Timeout detectado - puede ser por clock skew")
+        return True
 
     return False
 

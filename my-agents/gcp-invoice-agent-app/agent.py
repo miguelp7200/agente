@@ -23,6 +23,86 @@ from google.auth import impersonated_credentials
 from vertexai.generative_models import GenerativeModel
 from google.genai import types  # [TARGET] ESTRATEGIA 6: Para GenerateContentConfig
 
+
+# FASE 3: Métricas globales de signed URLs
+_SIGNED_URL_METRICS = {
+    "success_count": 0,
+    "failure_count": 0,
+    "retry_count": 0,
+    "generation_times": [],
+    "error_categories": {},
+}
+
+
+def _update_signed_url_metrics(category: str, success: bool) -> None:
+    """
+    FASE 3: Actualizar métricas globales de signed URLs.
+
+    Args:
+        category: Categoría del resultado ("success" o error category)
+        success: True si exitoso, False si error
+    """
+    global _SIGNED_URL_METRICS
+
+    if success:
+        _SIGNED_URL_METRICS["success_count"] += 1
+    else:
+        _SIGNED_URL_METRICS["failure_count"] += 1
+        _SIGNED_URL_METRICS["error_categories"][category] = (
+            _SIGNED_URL_METRICS["error_categories"].get(category, 0) + 1
+        )
+
+
+def get_signed_url_metrics() -> dict:
+    """
+    FASE 3: Obtener métricas actuales de generación de signed URLs.
+
+    Returns:
+        Diccionario con contadores de éxito/fallo, retries y categorías
+    """
+    global _SIGNED_URL_METRICS
+
+    total = _SIGNED_URL_METRICS["success_count"] + _SIGNED_URL_METRICS["failure_count"]
+    success_rate = (
+        (_SIGNED_URL_METRICS["success_count"] / total * 100) if total > 0 else 0
+    )
+
+    return {
+        "success_count": _SIGNED_URL_METRICS["success_count"],
+        "failure_count": _SIGNED_URL_METRICS["failure_count"],
+        "retry_count": _SIGNED_URL_METRICS["retry_count"],
+        "success_rate": round(success_rate, 2),
+        "error_breakdown": dict(_SIGNED_URL_METRICS["error_categories"]),
+        "avg_generation_time_ms": (
+            round(
+                sum(_SIGNED_URL_METRICS["generation_times"])
+                / len(_SIGNED_URL_METRICS["generation_times"]),
+                2,
+            )
+            if _SIGNED_URL_METRICS["generation_times"]
+            else 0
+        ),
+    }
+
+
+# Importar retry wrapper para signed URLs con errores de signature
+try:
+    from src.gcs_stability.gcs_retry_logic import retry_on_signature_error
+
+    RETRY_DECORATOR_AVAILABLE = True
+    print("[OK] [FASE 3] retry_on_signature_error decorator cargado")
+except ImportError as e:
+    print(f"[WARNING] [FASE 3] No se pudo importar retry decorator: {e}")
+    RETRY_DECORATOR_AVAILABLE = False
+
+    # Crear decorator dummy que no hace nada
+    def retry_on_signature_error(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from config import (
@@ -255,13 +335,13 @@ def log_token_analysis(
 
 
 def log_signed_url_failure(
-    url_type: str,
-    error_category: str,
-    details: dict,
-    gs_url: str = None
+    url_type: str, error_category: str, details: dict, gs_url: str = None
 ) -> None:
     """
     Registra fallos en la generación de signed URLs para análisis y debugging.
+
+    FASE 3: Incluye métricas de éxito/fallo por categoría de error para
+    monitoreo y análisis de tendencias.
 
     Args:
         url_type: Tipo de URL ("zip", "individual", "legacy_fallback")
@@ -272,6 +352,9 @@ def log_signed_url_failure(
         gs_url: URL de GCS que causó el problema (opcional, truncada a 100)
     """
     from datetime import datetime, timezone
+
+    # FASE 3: Actualizar contadores de métricas
+    _update_signed_url_metrics(error_category, success=False)
 
     log_entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -814,8 +897,20 @@ def _is_valid_gcs_url(url: str) -> bool:
 
     # Lista expandida de caracteres problemáticos que corrompen firmas
     problematic_chars = [
-        "<", ">", '"', "'", "&", "%", "+",  # Originales
-        "?", "#", "|", "\\", "$", "*", "`",  # Nuevos
+        "<",
+        ">",
+        '"',
+        "'",
+        "&",
+        "%",
+        "+",  # Originales
+        "?",
+        "#",
+        "|",
+        "\\",
+        "$",
+        "*",
+        "`",  # Nuevos
     ]
     if any(char in url for char in problematic_chars):
         log_signed_url_failure(
@@ -1060,7 +1155,10 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
                 }
 
             # Generar URLs firmadas con retry automático
-            stable_urls = url_service.generate_batch_urls(bucket_name, blob_names)
+            # FASE 3: Wrapper con retry para sistema robusto
+            stable_urls = _generate_robust_urls_with_retry(
+                url_service, bucket_name, blob_names
+            )
 
             if not stable_urls:
                 return {
@@ -1097,10 +1195,42 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
     return _generate_individual_download_links_legacy(pdf_urls_list)
 
 
+@retry_on_signature_error(max_retries=2, base_delay=90, max_delay=300)
+def _generate_robust_urls_with_retry(
+    url_service, bucket_name: str, blob_names: list
+) -> list:
+    """
+    Wrapper con retry para generación batch de URLs del sistema robusto.
+
+    FASE 3: Aplica retry automático a generate_batch_urls() para manejar
+    errores transitorios de signature (max 2 reintentos, delay base 90s).
+
+    Args:
+        url_service: Instancia de SignedURLService
+        bucket_name: Nombre del bucket GCS
+        blob_names: Lista de nombres de blobs
+
+    Returns:
+        Lista de signed URLs generadas
+    """
+    return url_service.generate_batch_urls(bucket_name, blob_names)
+
+
+@retry_on_signature_error(max_retries=2, base_delay=90, max_delay=300)
 def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
     """
     Implementación legacy de generación de URLs firmadas.
     Fallback cuando el sistema robusto no está disponible.
+
+    FASE 3: Incluye retry automático con exponential backoff para
+    errores SignatureDoesNotMatch (max 2 reintentos, delay base 90s).
+    """
+    """
+    Implementación legacy de generación de URLs firmadas.
+    Fallback cuando el sistema robusto no está disponible.
+    
+    FASE 3: Incluye retry automático con exponential backoff para
+    errores SignatureDoesNotMatch (max 2 reintentos, delay base 90s).
     """
     from datetime import datetime, timezone, timedelta
     from urllib.parse import quote
@@ -1231,6 +1361,8 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
                 credentials=target_credentials,
             )
 
+            # FASE 3: Registrar éxito en métricas
+            _update_signed_url_metrics("success", success=True)
             secure_links.append(signed_url)
 
         except Exception as e:
