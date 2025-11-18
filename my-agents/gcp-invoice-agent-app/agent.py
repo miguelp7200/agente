@@ -47,6 +47,8 @@ from config import (
     # [THINK] ESTRATEGIA 8: Importar configuración de Thinking Mode
     ENABLE_THINKING_MODE,
     THINKING_BUDGET,
+    # Feature flag para signed URLs
+    USE_ROBUST_SIGNED_URLS,
 )
 
 # Importar sistema robusto de signed URLs
@@ -250,6 +252,54 @@ def log_token_analysis(
             "total_tokens": 0,
             "status": "[ICON] ERROR",
         }
+
+
+def log_signed_url_failure(
+    url_type: str,
+    error_category: str,
+    details: dict,
+    gs_url: str = None
+) -> None:
+    """
+    Registra fallos en la generación de signed URLs para análisis y debugging.
+
+    Args:
+        url_type: Tipo de URL ("zip", "individual", "legacy_fallback")
+        error_category: Categoría del error
+            ("encoding", "clock_skew", "null_validation", "blob_not_found",
+             "credentials", "signature_mismatch", "timeout", "unknown")
+        details: Diccionario con detalles adicionales del error
+        gs_url: URL de GCS que causó el problema (opcional, truncada a 100)
+    """
+    from datetime import datetime, timezone
+
+    log_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "url_type": url_type,
+        "error_category": error_category,
+        "details": details,
+    }
+
+    # Agregar muestra de gs_url si está disponible (truncada)
+    if gs_url:
+        log_entry["gs_url_sample"] = gs_url[:100]
+    elif "gs_url" in details:
+        log_entry["gs_url_sample"] = str(details["gs_url"])[:100]
+
+    # Log estructurado para parsing automático
+    print(f"[SIGNED_URL_FAILURE] {json.dumps(log_entry)}")
+
+    # Opcional: persistir en BigQuery si conversation_tracker disponible
+    if (
+        logging_available
+        and conversation_tracker is not None
+        and hasattr(conversation_tracker, "current_conversation")
+        and conversation_tracker.current_conversation
+    ):
+        # Agregar al tracking de conversación
+        conversation_tracker.current_conversation.setdefault(
+            "signed_url_failures", []
+        ).append(log_entry)
 
 
 def download_single_pdf(url_info):
@@ -848,11 +898,12 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
             "error": f"Todas las URLs ({original_count}) fueron filtradas por ser problemáticas",
         }
 
-    # Usar servicio estable si está disponible
-    if GCS_STABILITY_AVAILABLE:
+    # Usar servicio estable si está disponible Y feature flag activado
+    if USE_ROBUST_SIGNED_URLS and GCS_STABILITY_AVAILABLE:
         try:
             print(
-                "[ICON] [ESTABILIDAD GCS] Usando SignedURLService para generación estable..."
+                "[OK] [ROBUST] Usando sistema robusto de signed URLs "
+                "(feature flag activado)..."
             )
 
             # Verificar sincronización de tiempo
@@ -982,7 +1033,13 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
 
 
 def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
-    """Implementación legacy de generación de URLs firmadas (sin mejoras de estabilidad)"""
+    """
+    Implementación legacy de generación de URLs firmadas.
+    Fallback cuando el sistema robusto no está disponible.
+    """
+    from datetime import datetime, timezone, timedelta
+    from urllib.parse import quote
+
     # Configurar credenciales impersonadas para firmar URLs
     try:
         credentials, project = google.auth.default()
@@ -997,42 +1054,159 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
 
         storage_client = storage.Client(credentials=target_credentials)
         print(
-            f"[OK] [LINKS INDIVIDUALES] Cliente GCS inicializado con credenciales impersonadas para PDFs en {BUCKET_NAME_READ}"
+            f"[OK] [LEGACY] Cliente GCS inicializado con "
+            f"credenciales impersonadas para PDFs en {BUCKET_NAME_READ}"
         )
     except Exception as e:
-        print(
-            f"[ICON] [LINKS INDIVIDUALES] Error configurando credenciales impersonadas: {e}"
+        error_msg = f"Error de autenticación: {e}"
+        log_signed_url_failure(
+            url_type="legacy_fallback",
+            error_category="credentials",
+            details={"error": str(e), "stage": "authentication"},
         )
-        return {"success": False, "error": f"Error de autenticación: {e}"}
+        return {"success": False, "error": error_msg}
 
     secure_links = []
+    failed_count = 0
 
     for gs_url in pdf_urls_list:
         try:
-            # � VALIDACIÓN CRÍTICA: Verificar campos NULL antes de procesar
-            if gs_url is None or gs_url.strip() == "" or gs_url.upper() == "NULL":
-                print(
-                    f"[ICON] [LINKS INDIVIDUALES] Campo NULL detectado, omitiendo: '{gs_url}'"
+            # VALIDACIÓN EXPANDIDA: NULL, empty, "None", "null", whitespace
+            if (
+                gs_url is None
+                or not gs_url
+                or not gs_url.strip()
+                or gs_url.upper() == "NULL"
+                or gs_url.upper() == "NONE"
+                or gs_url.strip() == "[]"
+            ):
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="null_validation",
+                    details={"gs_url": str(gs_url), "type": type(gs_url).__name__},
+                    gs_url=str(gs_url),
                 )
+                failed_count += 1
                 continue
 
-        except Exception as e:
-            print(f"[ICON] [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
+            # Validar que sea URL gs://
+            if not gs_url.startswith("gs://"):
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="invalid_format",
+                    details={"gs_url": gs_url, "reason": "missing gs:// prefix"},
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
 
+            # Extraer bucket y blob path
+            parts = gs_url[5:].split("/", 1)  # Remover 'gs://'
+            if len(parts) != 2:
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="invalid_format",
+                    details={
+                        "gs_url": gs_url,
+                        "reason": "invalid path structure",
+                        "parts_count": len(parts),
+                    },
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
+
+            bucket_name, blob_path = parts
+
+            # Validar bucket name
+            if not bucket_name or len(bucket_name) > 63:
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="invalid_bucket",
+                    details={
+                        "gs_url": gs_url,
+                        "bucket_name": bucket_name,
+                        "length": len(bucket_name),
+                    },
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
+
+            # Obtener blob
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_path)
+
+            # CRÍTICO: Verificar que el blob existe
+            if not blob.exists():
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="blob_not_found",
+                    details={
+                        "gs_url": gs_url,
+                        "bucket": bucket_name,
+                        "blob_path": blob_path,
+                    },
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
+
+            # Configurar expiración con buffer para clock skew
+            buffer_minutes = 5  # Buffer básico
+            expiration_time = datetime.now(timezone.utc) + timedelta(
+                hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes
+            )
+
+            # Generar signed URL
+            signed_url = blob.generate_signed_url(
+                version="v4",
+                expiration=expiration_time,
+                method="GET",
+                credentials=target_credentials,
+            )
+
+            secure_links.append(signed_url)
+
+        except Exception as e:
+            log_signed_url_failure(
+                url_type="legacy_fallback",
+                error_category="unknown",
+                details={
+                    "gs_url": gs_url,
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                },
+                gs_url=gs_url,
+            )
+            failed_count += 1
+            continue
+
+    # Validación de resultados
     if not secure_links:
         return {
             "success": False,
-            "error": "No se pudo generar ninguna URL de descarga segura.",
+            "error": (
+                f"No se pudo generar ninguna URL de descarga segura. "
+                f"Procesadas: {len(pdf_urls_list)}, Fallidas: {failed_count}"
+            ),
+            "failed_count": failed_count,
+            "total_count": len(pdf_urls_list),
         }
 
-    print(f"[OK] [LINKS INDIVIDUALES] {len(secure_links)} enlaces firmados generados.")
+    print(
+        f"[OK] [LEGACY] {len(secure_links)} enlaces firmados generados. "
+        f"Fallidas: {failed_count}"
+    )
 
-    # [ICON] VALIDACIÓN FINAL: Verificar que todas las URLs están bien formadas
+    # Validación de longitud de URLs
     validated_links = []
     for i, url in enumerate(secure_links):
         if len(url) > 2000:
-            print(
-                f"[ICON] [LINKS INDIVIDUALES] Omitiendo URL #{i+1} por longitud anormal ({len(url)} chars)"
+            log_signed_url_failure(
+                url_type="legacy_fallback",
+                error_category="url_too_long",
+                details={"url_index": i, "length": len(url)},
             )
             continue
         validated_links.append(url)
@@ -1043,16 +1217,20 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
             "error": "Todas las URLs generadas fueron malformadas y omitidas.",
         }
 
-    # DEBUG: Mostrar algunas URLs para verificar el formato
+    # DEBUG: Mostrar muestras
     if validated_links:
-        print(f"[ICON] [DEBUG] Primera URL generada: {validated_links[0][:100]}...")
+        print(f"[DEBUG] [LEGACY] Primera URL: {validated_links[0][:100]}...")
         if len(validated_links) > 1:
-            print(f"[ICON] [DEBUG] Última URL generada: {validated_links[-1][:100]}...")
+            print(f"[DEBUG] [LEGACY] Última URL: {validated_links[-1][:100]}...")
 
     return {
         "success": True,
         "download_urls": validated_links,
-        "message": f"Se han generado {len(validated_links)} enlaces de descarga firmados.",
+        "message": (
+            f"Se han generado {len(validated_links)} enlaces de descarga "
+            f"firmados (legacy)."
+        ),
+        "failed_count": failed_count,
     }
 
 
