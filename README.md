@@ -228,7 +228,7 @@ El sistema implementa URLs firmadas para descargas seguras de archivos ZIP:
 
 ```bash
 # Ejecutar script de validación rápida
-python quick_validate_tokens.py
+python scripts/validation/quick_validate_tokens.py
 
 # Ejecutar queries de análisis completo en BigQuery
 # (usar archivo: sql_validation/validate_token_usage_tracking.sql)
@@ -344,7 +344,7 @@ gcloud auth application-default login
 **Solución**:
 ```bash
 # 1. Verificar que el schema está actualizado
-python apply_token_schema_update.py
+python scripts/bigquery/apply_token_schema_update.py
 
 # 2. Verificar logs del agente
 grep "Usage metadata capturado" logs/logs-adk.txt
@@ -354,10 +354,12 @@ grep "Usage metadata capturado" logs/logs-adk.txt
 
 ## 📚 Documentación Adicional
 
-- [CLAUDE.md](./CLAUDE.md) - Instrucciones para Claude Code
-- [DEBUGGING_CONTEXT.md](./DEBUGGING_CONTEXT.md) - Contexto de debugging y issues resueltos
+- [CLAUDE.md](./docs/ai-assistants/CLAUDE.md) - Instrucciones para Claude Code
+- [DEBUGGING_CONTEXT.md](./docs/debugging/DEBUGGING_CONTEXT.md) - Contexto de debugging y issues resueltos
 - [TOKEN_USAGE_TRACKING.md](./docs/TOKEN_USAGE_TRACKING.md) - Documentación completa del sistema de tokens
 - [SETUP_INFRAESTRUCTURA.md](./infrastructure/SETUP_INFRAESTRUCTURA.md) - Setup de infraestructura GCP
+- [DEPLOYMENT_ARCHITECTURE.md](./docs/DEPLOYMENT_ARCHITECTURE.md) - Arquitectura de deployment
+- [REPOSITORY_ANALYSIS.md](./docs/REPOSITORY_ANALYSIS.md) - Análisis de estructura del repositorio
 
 ## 📜 Licencia
 

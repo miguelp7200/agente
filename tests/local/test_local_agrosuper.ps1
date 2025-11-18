@@ -94,7 +94,7 @@ if ($UseLocal) {
         $healthCheck = Invoke-RestMethod -Uri "$backendUrl/list-apps" -TimeoutSec 10
         Write-Log -Message "✅ Servidor local está corriendo" -Level 'INFO' -Color Green
     } catch {
-        Write-Log -Message "❌ Servidor local no está corriendo. Ejecuta primero: .\test_local_fix.ps1" -Level 'ERROR' -Color Red
+        Write-Log -Message "❌ Servidor local no está corriendo. Ejecuta primero: tests/local/test_local_fix.ps1" -Level 'ERROR' -Color Red
         exit 1
     }
 }

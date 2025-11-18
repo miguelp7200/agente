@@ -103,39 +103,54 @@ def generate_stable_signed_url(
                 from google.auth import impersonated_credentials, default
                 from google.auth.transport.requests import Request
 
-                service_account_email = os.getenv("SERVICE_ACCOUNT_EMAIL",
-                                                "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com")
-
-                # Obtener credenciales por defecto de Cloud Run
-                source_credentials, _ = default()
-
-                # Crear credenciales impersonadas CON delegates para signing
-                target_credentials = impersonated_credentials.Credentials(
-                    source_credentials=source_credentials,
-                    target_principal=service_account_email,
-                    target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
-                    delegates=[]  # Importante para signing
+                service_account_email = os.getenv(
+                    "SERVICE_ACCOUNT_EMAIL",
+                    "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com",
                 )
 
-                # Refrescar las credenciales antes de usar
-                request = Request()
-                target_credentials.refresh(request)
+                signed_url = None
+                try:
+                    # Obtener credenciales por defecto de Cloud Run
+                    source_credentials, _ = default()
 
-                # Generar signed URL con las credenciales impersonadas refreshed
-                signed_url = blob.generate_signed_url(
-                    expiration=expiration,
-                    method=method,
-                    version="v4",
-                    credentials=target_credentials,
-                )
+                    # Crear credenciales impersonadas CON delegates para signing
+                    target_credentials = impersonated_credentials.Credentials(
+                        source_credentials=source_credentials,
+                        target_principal=service_account_email,
+                        target_scopes=[
+                            "https://www.googleapis.com/auth/cloud-platform"
+                        ],
+                        delegates=[],  # Importante para signing
+                    )
 
-                logger.info(f"Signed URL generada con impersonation para {service_account_email}")
+                    # Refrescar las credenciales antes de usar
+                    request = Request()
+                    target_credentials.refresh(request)
+
+                    # Generar signed URL con las credenciales impersonadas refreshed
+                    signed_url = blob.generate_signed_url(
+                        expiration=expiration,
+                        method=method,
+                        version="v4",
+                        credentials=target_credentials,
+                    )
+
+                    logger.info(
+                        f"Signed URL generada con impersonation para {service_account_email}"
+                    )
+                except Exception as imp_error:
+                    logger.warning(f"Impersonation falló: {imp_error}")
+                    signed_url = None
 
                 # Si aún falla, intentar con IAM generateSignedUrl API
                 if not signed_url:
                     logger.warning("Signed URL con impersonation falló, usando IAM API")
                     signed_url = _generate_signed_url_via_iam_api(
-                        bucket_name, blob_name, expiration, method, service_account_email
+                        bucket_name,
+                        blob_name,
+                        expiration,
+                        method,
+                        service_account_email,
                     )
         else:
             # Usar el método original con credenciales específicas
@@ -311,7 +326,7 @@ def _generate_signed_url_via_iam_api(
     blob_name: str,
     expiration: datetime,
     method: str,
-    service_account_email: str
+    service_account_email: str,
 ) -> str:
     """
     Generar signed URL usando la IAM API directamente.
@@ -334,8 +349,8 @@ def _generate_signed_url_via_iam_api(
 
         # Calcular timestamp y fecha
         now = datetime.now(timezone.utc)
-        timestamp = now.strftime('%Y%m%dT%H%M%SZ')
-        date_stamp = now.strftime('%Y%m%d')
+        timestamp = now.strftime("%Y%m%dT%H%M%SZ")
+        date_stamp = now.strftime("%Y%m%d")
 
         # Calcular expires en segundos desde ahora
         expires_seconds = int((expiration - now).total_seconds())
@@ -357,7 +372,9 @@ def _generate_signed_url_via_iam_api(
         canonical_request = f"{method}\n{canonical_uri}\n{canonical_query}\n{canonical_headers}\n{signed_headers}\n{payload_hash}"
 
         # Hash de la canonical request
-        canonical_request_hash = hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
+        canonical_request_hash = hashlib.sha256(
+            canonical_request.encode("utf-8")
+        ).hexdigest()
 
         # String to sign
         credential_scope = f"{date_stamp}/auto/storage/goog4_request"
@@ -369,18 +386,28 @@ def _generate_signed_url_via_iam_api(
 
         # Llamar a IAM signBlob API
         import googleapiclient.discovery
-        iam_service = googleapiclient.discovery.build('iam', 'v1', credentials=credentials)
+
+        iam_service = googleapiclient.discovery.build(
+            "iam", "v1", credentials=credentials
+        )
 
         sign_request = {
-            'payload': base64.b64encode(string_to_sign.encode('utf-8')).decode('utf-8')
+            "bytesToSign": base64.b64encode(string_to_sign.encode("utf-8")).decode(
+                "utf-8"
+            )
         }
 
-        response = iam_service.projects().serviceAccounts().signBlob(
-            name=f"projects/-/serviceAccounts/{service_account_email}",
-            body=sign_request
-        ).execute()
+        response = (
+            iam_service.projects()
+            .serviceAccounts()
+            .signBlob(
+                name=f"projects/-/serviceAccounts/{service_account_email}",
+                body=sign_request,
+            )
+            .execute()
+        )
 
-        signature = response['signature']
+        signature = response["signature"]
 
         # Construir la signed URL final
         signed_url = f"https://storage.googleapis.com{canonical_uri}?{canonical_query}&X-Goog-Signature={signature}"
