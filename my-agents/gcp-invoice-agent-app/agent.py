@@ -724,15 +724,43 @@ def generate_signed_zip_url(zip_filename: str) -> str:
 
         # Verificar que el archivo existe
         if not blob.exists():
+            error_msg = f"ZIP file not found in GCS: {zip_filename}"
+            log_signed_url_failure(
+                url_type="zip",
+                error_category="blob_not_found",
+                details={
+                    "zip_filename": zip_filename,
+                    "bucket": BUCKET_NAME_WRITE,
+                },
+            )
             print(f"[ICON] [GCS] Archivo no encontrado: {zip_filename}")
-            # Archivo no existe - retornar error en lugar de fallback
-            raise FileNotFoundError(f"ZIP file not found in GCS: {zip_filename}")
+            raise FileNotFoundError(error_msg)
 
         # Usar IAM-based signing con service account automático en Cloud Run
         from datetime import datetime, timezone, timedelta
 
-        # Configurar tiempo de expiración con buffer (usando timezone-aware datetime)
-        buffer_minutes = 5  # Buffer básico para clock skew
+        # Configurar tiempo de expiración con buffer dinámico
+        # Verificar sincronización temporal si módulos disponibles
+        buffer_minutes = 5  # Default fallback
+        if GCS_STABILITY_AVAILABLE:
+            try:
+                from src.gcs_stability.gcs_time_sync import (
+                    calculate_buffer_time,
+                )
+                from src.gcs_stability import verify_time_sync
+
+                sync_status = verify_time_sync()
+                buffer_minutes = calculate_buffer_time(sync_status)
+                print(
+                    f"[OK] [ZIP] Buffer dinámico: {buffer_minutes}min "
+                    f"(sync_status={sync_status})"
+                )
+            except Exception as e:
+                print(
+                    f"[WARN] [ZIP] Error calculando buffer dinámico: {e}, "
+                    f"usando default={buffer_minutes}min"
+                )
+
         expiration_time = datetime.now(timezone.utc) + timedelta(
             hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes
         )
@@ -753,11 +781,19 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         return signed_url
 
     except FileNotFoundError as e:
-        print(f"[ICON] [GCS] {e}")
+        # Ya loggeado arriba, solo re-raise
         raise
     except Exception as e:
+        log_signed_url_failure(
+            url_type="zip",
+            error_category="unknown",
+            details={
+                "zip_filename": zip_filename,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            },
+        )
         print(f"[ICON] [GCS] Error general: {e}")
-        # Re-lanzar excepción en lugar de retornar fallback
         raise RuntimeError(f"Failed to generate signed URL for {zip_filename}: {e}")
 
 
@@ -776,17 +812,46 @@ def _is_valid_gcs_url(url: str) -> bool:
     if not url.startswith("gs://"):
         return False
 
-    # No debe contener caracteres problemáticos que pueden corromper la firma
-    problematic_chars = ["<", ">", '"', "'", "&", "%", "+"]
+    # Lista expandida de caracteres problemáticos que corrompen firmas
+    problematic_chars = [
+        "<", ">", '"', "'", "&", "%", "+",  # Originales
+        "?", "#", "|", "\\", "$", "*", "`",  # Nuevos
+    ]
     if any(char in url for char in problematic_chars):
+        log_signed_url_failure(
+            url_type="validation",
+            error_category="invalid_format",
+            details={
+                "reason": "problematic_characters",
+                "chars_found": [c for c in problematic_chars if c in url],
+            },
+            gs_url=url,
+        )
         print(
-            f"[ICON] [FILTRO URL] URL contiene caracteres problemáticos: {url[:50]}..."
+            f"[ICON] [FILTRO URL] URL contiene caracteres "
+            f"problemáticos: {url[:50]}..."
+        )
+        return False
+
+    # Verificar caracteres de control (invisibles)
+    if any(ord(char) < 32 for char in url):
+        log_signed_url_failure(
+            url_type="validation",
+            error_category="invalid_format",
+            details={"reason": "control_characters"},
+            gs_url=url,
         )
         return False
 
     # Debe tener una estructura básica válida
     parts = url.replace("gs://", "").split("/")
     if len(parts) < 2:  # Necesita al menos bucket/object
+        log_signed_url_failure(
+            url_type="validation",
+            error_category="invalid_format",
+            details={"reason": "missing_path", "parts": len(parts)},
+            gs_url=url,
+        )
         print(f"[ICON] [FILTRO URL] URL con estructura inválida: {url}")
         return False
 

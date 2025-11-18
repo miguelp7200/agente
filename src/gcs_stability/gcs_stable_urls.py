@@ -79,6 +79,14 @@ def generate_stable_signed_url(
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(blob_name)
 
+        # 3.5. CRÍTICO: Verificar que el blob existe antes de generar URL
+        if not blob.exists():
+            error_msg = (
+                f"Blob not found: gs://{bucket_name}/{blob_name}"
+            )
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+
         # 4. Calcular tiempo de expiración con buffer
         expiration = datetime.now(timezone.utc) + timedelta(
             hours=expiration_hours, minutes=buffer_minutes
