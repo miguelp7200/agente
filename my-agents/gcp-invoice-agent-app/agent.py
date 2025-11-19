@@ -1156,14 +1156,28 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
 
             # Generar URLs firmadas con retry automático
             # FASE 3: Wrapper con retry para sistema robusto
-            stable_urls = _generate_robust_urls_with_retry(
+            stable_urls_dict = _generate_robust_urls_with_retry(
                 url_service, bucket_name, blob_names
             )
+
+            if not stable_urls_dict:
+                return {
+                    "success": False,
+                    "error": "No se pudo generar ninguna URL estable",
+                }
+
+            # FIX CRÍTICO: Convertir diccionario {blob_name: url} a lista [url1, url2, ...]
+            # generate_batch_urls() devuelve dict, pero código espera lista
+            stable_urls = [
+                stable_urls_dict[blob_name]
+                for blob_name in blob_names
+                if blob_name in stable_urls_dict and stable_urls_dict[blob_name] is not None
+            ]
 
             if not stable_urls:
                 return {
                     "success": False,
-                    "error": "No se pudo generar ninguna URL estable",
+                    "error": "Todas las URLs generadas fallaron",
                 }
 
             # Obtener estadísticas del servicio
