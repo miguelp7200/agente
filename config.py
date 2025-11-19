@@ -210,6 +210,15 @@ TIME_SYNC_TIMEOUT = int(os.getenv("TIME_SYNC_TIMEOUT", "10"))
 TIME_SYNC_THRESHOLD = int(os.getenv("TIME_SYNC_THRESHOLD", "300"))  # 5 minutos
 
 # ==============================================
+# CONFIGURACIÓN DE SISTEMA DE SIGNED URLs
+# ==============================================
+
+# Feature flag para seleccionar implementación de signed URLs
+# - true: Sistema robusto con clock skew y retry automático
+# - false: Implementación legacy (solo debugging/rollback)
+USE_ROBUST_SIGNED_URLS = os.getenv("USE_ROBUST_SIGNED_URLS", "true").lower() == "true"
+
+# ==============================================
 # CONFIGURACIÓN DE VISUALIZACIÓN EN CHAT
 # ==============================================
 

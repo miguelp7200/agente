@@ -1,0 +1,536 @@
+[
+  {
+    "errorGroups": [
+      {
+        "id": "CO2b67aQ7qOdUw"
+      }
+    ],
+    "insertId": "691ce4000009dd57cea4fc87",
+    "labels": {
+      "instanceId": "00147782963c2b47f4b6fbda5d06e16f775fd0009d65d2824ca26fd74f51c7ead8ed679aebf8bd3ba5b9fda9c9840fce254b56459dcb2ed17da7e8ff3b107a4fa9d47cdaa02471f468f08da21171"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-18T21:24:16.817163479Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-181708",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 403, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 60, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/applications.py\", line 1134, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/applications.py\", line 113, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py\", line 85, in __call__\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 716, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 736, in app\n    await route.handle(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 290, in handle\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 125, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 111, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 391, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 290, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/adk_web_server.py\", line 1381, in run_agent\n    runner = await self.get_runner_async(req.app_name)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/adk_web_server.py\", line 472, in get_runner_async\n    agent_or_app = self.agent_loader.load_agent(app_name)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/utils/agent_loader.py\", line 306, in load_agent\n    agent_or_app = self._perform_load(agent_name)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/utils/agent_loader.py\", line 249, in _perform_load\n    raise ValueError(\nValueError: No root_agent found for 'gcp-invoice-agent-app'. Searched in 'gcp-invoice-agent-app.agent.root_agent', 'gcp-invoice-agent-app.root_agent' and 'gcp-invoice-agent-app/root_agent.yaml'.",
+    "timestamp": "2025-11-18T21:24:16.646487Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "0.005607138s",
+      "protocol": "HTTP/1.1",
+      "remoteIp": "34.96.44.109",
+      "requestMethod": "POST",
+      "requestSize": "1443",
+      "requestUrl": "https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app/run",
+      "responseSize": "130",
+      "serverIp": "34.143.77.2",
+      "status": 500,
+      "userAgent": "node"
+    },
+    "insertId": "691ce4000009d5c8f6d1f256",
+    "labels": {
+      "instanceId": "00147782963c2b47f4b6fbda5d06e16f775fd0009d65d2824ca26fd74f51c7ead8ed679aebf8bd3ba5b9fda9c9840fce254b56459dcb2ed17da7e8ff3b107a4fa9d47cdaa02471f468f08da21171"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2025-11-18T21:24:16.818723378Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-181708",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "spanId": "eb4121ef9d37afc2",
+    "timestamp": "2025-11-18T21:24:16.636482Z",
+    "trace": "projects/agent-intelligence-gasco/traces/a82e1c665dc3d8b825f4d56bda83cc0c"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CO2b67aQ7qOdUw"
+      }
+    ],
+    "insertId": "691ce3fc00099330c4aab501",
+    "labels": {
+      "instanceId": "00147782963c2b47f4b6fbda5d06e16f775fd0009d65d2824ca26fd74f51c7ead8ed679aebf8bd3ba5b9fda9c9840fce254b56459dcb2ed17da7e8ff3b107a4fa9d47cdaa02471f468f08da21171"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-18T21:24:12.819970691Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-181708",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 403, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 60, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/applications.py\", line 1134, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/applications.py\", line 113, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py\", line 85, in __call__\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 716, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 736, in app\n    await route.handle(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 290, in handle\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 125, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 111, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 391, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 290, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/adk_web_server.py\", line 1381, in run_agent\n    runner = await self.get_runner_async(req.app_name)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/adk_web_server.py\", line 472, in get_runner_async\n    agent_or_app = self.agent_loader.load_agent(app_name)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/utils/agent_loader.py\", line 306, in load_agent\n    agent_or_app = self._perform_load(agent_name)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/utils/agent_loader.py\", line 249, in _perform_load\n    raise ValueError(\nValueError: No root_agent found for 'gcp-invoice-agent-app'. Searched in 'gcp-invoice-agent-app.agent.root_agent', 'gcp-invoice-agent-app.root_agent' and 'gcp-invoice-agent-app/root_agent.yaml'.",
+    "timestamp": "2025-11-18T21:24:12.627504Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "0.006545528s",
+      "protocol": "HTTP/1.1",
+      "remoteIp": "34.96.44.109",
+      "requestMethod": "POST",
+      "requestSize": "1443",
+      "requestUrl": "https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app/run",
+      "responseSize": "130",
+      "serverIp": "34.143.77.2",
+      "status": 500,
+      "userAgent": "node"
+    },
+    "insertId": "691ce3fc00098e8b700cac31",
+    "labels": {
+      "instanceId": "00147782963c2b47f4b6fbda5d06e16f775fd0009d65d2824ca26fd74f51c7ead8ed679aebf8bd3ba5b9fda9c9840fce254b56459dcb2ed17da7e8ff3b107a4fa9d47cdaa02471f468f08da21171"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2025-11-18T21:24:12.821093858Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-181708",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "spanId": "8d0aa07920df7b26",
+    "timestamp": "2025-11-18T21:24:12.617713Z",
+    "trace": "projects/agent-intelligence-gasco/traces/85a5767dba48c64425f4d56bda83cf00"
+  },
+  {
+    "errorGroups": [
+      {
+        "id": "CO2b67aQ7qOdUw"
+      }
+    ],
+    "insertId": "691ce3fa0009d046d5170dce",
+    "labels": {
+      "instanceId": "00147782963c2b47f4b6fbda5d06e16f775fd0009d65d2824ca26fd74f51c7ead8ed679aebf8bd3ba5b9fda9c9840fce254b56459dcb2ed17da7e8ff3b107a4fa9d47cdaa02471f468f08da21171"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-18T21:24:10.822382606Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-181708",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py\", line 403, in run_asgi\n    result = await app(  # type: ignore[func-returns-value]\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py\", line 60, in __call__\n    return await self.app(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/applications.py\", line 1134, in __call__\n    await super().__call__(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/applications.py\", line 113, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 186, in __call__\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/cors.py\", line 85, in __call__\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 716, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 736, in app\n    await route.handle(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/routing.py\", line 290, in handle\n    await self.app(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 125, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 111, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 391, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/fastapi/routing.py\", line 290, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/adk_web_server.py\", line 1381, in run_agent\n    runner = await self.get_runner_async(req.app_name)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/adk_web_server.py\", line 472, in get_runner_async\n    agent_or_app = self.agent_loader.load_agent(app_name)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/utils/agent_loader.py\", line 306, in load_agent\n    agent_or_app = self._perform_load(agent_name)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/site-packages/google/adk/cli/utils/agent_loader.py\", line 249, in _perform_load\n    raise ValueError(\nValueError: No root_agent found for 'gcp-invoice-agent-app'. Searched in 'gcp-invoice-agent-app.agent.root_agent', 'gcp-invoice-agent-app.root_agent' and 'gcp-invoice-agent-app/root_agent.yaml'.",
+    "timestamp": "2025-11-18T21:24:10.643142Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "1.730113442s",
+      "protocol": "HTTP/1.1",
+      "remoteIp": "34.96.44.109",
+      "requestMethod": "POST",
+      "requestSize": "1441",
+      "requestUrl": "https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app/run",
+      "responseSize": "130",
+      "serverIp": "34.143.73.2",
+      "status": 500,
+      "userAgent": "node"
+    },
+    "insertId": "691ce3fa0009464f0747eccc",
+    "labels": {
+      "instanceId": "00147782963c2b47f4b6fbda5d06e16f775fd0009d65d2824ca26fd74f51c7ead8ed679aebf8bd3ba5b9fda9c9840fce254b56459dcb2ed17da7e8ff3b107a4fa9d47cdaa02471f468f08da21171"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2025-11-18T21:24:10.822731799Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-181708",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "spanId": "dd709591b4bdbd8a",
+    "timestamp": "2025-11-18T21:24:08.876282Z",
+    "trace": "projects/agent-intelligence-gasco/traces/dfe2084a866c40cff23d04803ca9b552"
+  },
+  {
+    "insertId": "-2pt6ewdjbm4",
+    "logName": "projects/agent-intelligence-gasco/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/agent-intelligence-gasco/services/invoice-backend-test",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "547.0.0",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/operation-id": "1b75f2c7-2bf1-4c8f-ad3e-ec9f5f6a9f67",
+            "run.googleapis.com/urls": "[\"https://invoice-backend-test-819133916464.us-central1.run.app\",\"https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app\"]",
+            "serving.knative.dev/creator": "v.calle.ext@gasco.cl",
+            "serving.knative.dev/lastModifier": "v.calle.ext@gasco.cl"
+          },
+          "creationTimestamp": "2025-11-11T17:58:20.702664Z",
+          "generation": 23,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "name": "invoice-backend-test",
+          "namespace": "819133916464",
+          "resourceVersion": "AAZD4yt4hLE",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/819133916464/services/invoice-backend-test",
+          "uid": "2305d006-c24a-44b4-adda-4b2c0b6942d8"
+        },
+        "spec": {
+          "template": {
+            "metadata": {
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "10",
+                "run.googleapis.com/client-name": "gcloud",
+                "run.googleapis.com/client-version": "547.0.0",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              },
+              "labels": {
+                "run.googleapis.com/startupProbeType": "Default"
+              },
+              "name": "invoice-backend-test-r20251118-160544"
+            },
+            "spec": {
+              "containerConcurrency": 5,
+              "containers": [
+                {
+                  "env": [
+                    {
+                      "name": "GOOGLE_CLOUD_PROJECT_READ",
+                      "value": "datalake-gasco"
+                    },
+                    {
+                      "name": "GOOGLE_CLOUD_PROJECT_WRITE",
+                      "value": "agent-intelligence-gasco"
+                    },
+                    {
+                      "name": "GOOGLE_CLOUD_LOCATION",
+                      "value": "us-central1"
+                    },
+                    {
+                      "name": "IS_CLOUD_RUN",
+                      "value": "true"
+                    }
+                  ],
+                  "image": "us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:v20251118-160224",
+                  "ports": [
+                    {
+                      "containerPort": 8080,
+                      "name": "http1"
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "4",
+                      "memory": "4Gi"
+                    }
+                  },
+                  "startupProbe": {
+                    "failureThreshold": 1,
+                    "periodSeconds": 240,
+                    "tcpSocket": {
+                      "port": 8080
+                    },
+                    "timeoutSeconds": 240
+                  }
+                }
+              ],
+              "serviceAccountName": "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com",
+              "timeoutSeconds": 3600
+            }
+          },
+          "traffic": [
+            {
+              "latestRevision": true,
+              "percent": 100
+            }
+          ]
+        },
+        "status": {
+          "address": {
+            "url": "https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app"
+          },
+          "conditions": [
+            {
+              "lastTransitionTime": "2025-11-18T19:07:06.185766Z",
+              "message": "The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start",
+              "reason": "HealthCheckContainerError",
+              "status": "False",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:07:06.185766Z",
+              "message": "The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start",
+              "reason": "HealthCheckContainerError",
+              "status": "False",
+              "type": "ConfigurationsReady"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:06:35.922210Z",
+              "message": "Provisioning revision instances to receive traffic.",
+              "status": "Unknown",
+              "type": "RoutesReady"
+            }
+          ],
+          "latestCreatedRevisionName": "invoice-backend-test-r20251118-160544",
+          "latestReadyRevisionName": "invoice-backend-test-r20251118-090403",
+          "observedGeneration": 23,
+          "traffic": [
+            {
+              "percent": 100,
+              "revisionName": "invoice-backend-test-r20251118-090403"
+            }
+          ],
+          "url": "https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app"
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "code": 9,
+        "message": "Ready condition status changed to False for Service invoice-backend-test with message: The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start"
+      }
+    },
+    "receiveTimestamp": "2025-11-18T19:07:06.510072281Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "timestamp": "2025-11-18T19:07:06.238327Z"
+  },
+  {
+    "insertId": "nmfcxjdjb32",
+    "logName": "projects/agent-intelligence-gasco/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/agent-intelligence-gasco/revisions/invoice-backend-test-r20251118-160544",
+      "response": {
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision",
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "metadata": {
+          "annotations": {
+            "autoscaling.knative.dev/maxScale": "10",
+            "run.googleapis.com/client-name": "gcloud",
+            "run.googleapis.com/client-version": "547.0.0",
+            "run.googleapis.com/operation-id": "1b75f2c7-2bf1-4c8f-ad3e-ec9f5f6a9f67",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "serving.knative.dev/creator": "v.calle.ext@gasco.cl"
+          },
+          "creationTimestamp": "2025-11-18T19:05:58.723214Z",
+          "generation": 1,
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default",
+            "serving.knative.dev/configuration": "invoice-backend-test",
+            "serving.knative.dev/configurationGeneration": "12",
+            "serving.knative.dev/route": "invoice-backend-test",
+            "serving.knative.dev/service": "invoice-backend-test",
+            "serving.knative.dev/serviceUid": "2305d006-c24a-44b4-adda-4b2c0b6942d8"
+          },
+          "name": "invoice-backend-test-r20251118-160544",
+          "namespace": "819133916464",
+          "ownerReferences": [
+            {
+              "apiVersion": "serving.knative.dev/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "Configuration",
+              "name": "invoice-backend-test",
+              "uid": "251cf288-b84d-4be1-a68f-1c9891195572"
+            }
+          ],
+          "resourceVersion": "AAZD4yt3dWk",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/819133916464/revisions/invoice-backend-test-r20251118-160544",
+          "uid": "eb4f29f4-3088-4c9e-aaee-9d8ac067ec90"
+        },
+        "spec": {
+          "containerConcurrency": 5,
+          "containers": [
+            {
+              "env": [
+                {
+                  "name": "GOOGLE_CLOUD_PROJECT_READ",
+                  "value": "datalake-gasco"
+                },
+                {
+                  "name": "GOOGLE_CLOUD_PROJECT_WRITE",
+                  "value": "agent-intelligence-gasco"
+                },
+                {
+                  "name": "GOOGLE_CLOUD_LOCATION",
+                  "value": "us-central1"
+                },
+                {
+                  "name": "IS_CLOUD_RUN",
+                  "value": "true"
+                }
+              ],
+              "image": "us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend@sha256:f224b7138e2dc57b0525df3f66c3e82761ab2bc84eeb44e1fa596e9339dd1e0b",
+              "name": "backend-1",
+              "ports": [
+                {
+                  "containerPort": 8080,
+                  "name": "http1"
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "4",
+                  "memory": "4Gi"
+                }
+              },
+              "startupProbe": {
+                "failureThreshold": 1,
+                "periodSeconds": 240,
+                "tcpSocket": {
+                  "port": 8080
+                },
+                "timeoutSeconds": 240
+              }
+            }
+          ],
+          "serviceAccountName": "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com",
+          "timeoutSeconds": 3600
+        },
+        "status": {
+          "conditions": [
+            {
+              "lastTransitionTime": "2025-11-18T19:07:06.150249Z",
+              "message": "The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start",
+              "reason": "HealthCheckContainerError",
+              "status": "False",
+              "type": "Ready"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:06:35.895825Z",
+              "message": "Recreating retired Revision.",
+              "reason": "Recreating",
+              "severity": "Info",
+              "status": "Unknown",
+              "type": "Active"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:07:06.150249Z",
+              "message": "The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start",
+              "reason": "HealthCheckContainerError",
+              "status": "False",
+              "type": "ContainerHealthy"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:06:36.377748Z",
+              "message": "Container image import completed.",
+              "status": "True",
+              "type": "ContainerReady"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:06:37.784054Z",
+              "message": "Provisioning imported containers completed in 1.89s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "status": "True",
+              "type": "ResourcesAvailable"
+            },
+            {
+              "lastTransitionTime": "2025-11-18T19:06:37.784054Z",
+              "message": "System will retry after 0:00:00 from lastTransitionTime for attempt 0.",
+              "reason": "ImmediateRetry",
+              "severity": "Info",
+              "status": "True",
+              "type": "Retry"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "imageDigest": "us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend@sha256:f224b7138e2dc57b0525df3f66c3e82761ab2bc84eeb44e1fa596e9339dd1e0b",
+              "name": "backend-1"
+            }
+          ],
+          "imageDigest": "us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend@sha256:f224b7138e2dc57b0525df3f66c3e82761ab2bc84eeb44e1fa596e9339dd1e0b",
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22",
+          "observedGeneration": 1
+        }
+      },
+      "serviceName": "run.googleapis.com",
+      "status": {
+        "code": 9,
+        "message": "Ready condition status changed to False for Revision invoice-backend-test-r20251118-160544 with message: The user-provided container failed to start and listen on the port defined provided by the PORT=8080 environment variable within the allocated timeout. This can happen when the container port is misconfigured or if the timeout is too short. The health check timeout can be extended. Logs for this revision might contain more information.\n\nLogs URL: https://console.cloud.google.com/logs/viewer?project=agent-intelligence-gasco&resource=cloud_run_revision/service_name/invoice-backend-test/revision_name/invoice-backend-test-r20251118-160544&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22invoice-backend-test%22%0Aresource.labels.revision_name%3D%22invoice-backend-test-r20251118-160544%22 \nFor more troubleshooting guidance, see https://cloud.google.com/run/docs/troubleshooting#container-failed-to-start"
+      }
+    },
+    "receiveTimestamp": "2025-11-18T19:07:06.785776835Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-160544",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "timestamp": "2025-11-18T19:07:06.161961Z"
+  },
+  {
+    "insertId": "691cc3da00024aff196af956",
+    "labels": {
+      "instanceId": "0014778296853944d14602d938b6766e1d4eb20b1affbe035d66e16d876343bbc40d803fc8a1c9dd8d632846673599e81d38443900f536182208cc0d16a934622da2480a0d3916ece9aa1fee81"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-11-18T19:07:06.363567799Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251118-160544",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "ERROR",
+    "textPayload": "Default STARTUP TCP probe failed 1 time consecutively for container \"backend-1\" on port 8080. The instance was not started.\nConnection failed with status CANCELLED.",
+    "timestamp": "2025-11-18T19:07:06.150271Z"
+  }
+]

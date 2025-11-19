@@ -23,6 +23,86 @@ from google.auth import impersonated_credentials
 from vertexai.generative_models import GenerativeModel
 from google.genai import types  # [TARGET] ESTRATEGIA 6: Para GenerateContentConfig
 
+
+# FASE 3: Métricas globales de signed URLs
+_SIGNED_URL_METRICS = {
+    "success_count": 0,
+    "failure_count": 0,
+    "retry_count": 0,
+    "generation_times": [],
+    "error_categories": {},
+}
+
+
+def _update_signed_url_metrics(category: str, success: bool) -> None:
+    """
+    FASE 3: Actualizar métricas globales de signed URLs.
+
+    Args:
+        category: Categoría del resultado ("success" o error category)
+        success: True si exitoso, False si error
+    """
+    global _SIGNED_URL_METRICS
+
+    if success:
+        _SIGNED_URL_METRICS["success_count"] += 1
+    else:
+        _SIGNED_URL_METRICS["failure_count"] += 1
+        _SIGNED_URL_METRICS["error_categories"][category] = (
+            _SIGNED_URL_METRICS["error_categories"].get(category, 0) + 1
+        )
+
+
+def get_signed_url_metrics() -> dict:
+    """
+    FASE 3: Obtener métricas actuales de generación de signed URLs.
+
+    Returns:
+        Diccionario con contadores de éxito/fallo, retries y categorías
+    """
+    global _SIGNED_URL_METRICS
+
+    total = _SIGNED_URL_METRICS["success_count"] + _SIGNED_URL_METRICS["failure_count"]
+    success_rate = (
+        (_SIGNED_URL_METRICS["success_count"] / total * 100) if total > 0 else 0
+    )
+
+    return {
+        "success_count": _SIGNED_URL_METRICS["success_count"],
+        "failure_count": _SIGNED_URL_METRICS["failure_count"],
+        "retry_count": _SIGNED_URL_METRICS["retry_count"],
+        "success_rate": round(success_rate, 2),
+        "error_breakdown": dict(_SIGNED_URL_METRICS["error_categories"]),
+        "avg_generation_time_ms": (
+            round(
+                sum(_SIGNED_URL_METRICS["generation_times"])
+                / len(_SIGNED_URL_METRICS["generation_times"]),
+                2,
+            )
+            if _SIGNED_URL_METRICS["generation_times"]
+            else 0
+        ),
+    }
+
+
+# Importar retry wrapper para signed URLs con errores de signature
+try:
+    from src.gcs_stability.gcs_retry_logic import retry_on_signature_error
+
+    RETRY_DECORATOR_AVAILABLE = True
+    print("[OK] [FASE 3] retry_on_signature_error decorator cargado")
+except ImportError as e:
+    print(f"[WARNING] [FASE 3] No se pudo importar retry decorator: {e}")
+    RETRY_DECORATOR_AVAILABLE = False
+
+    # Crear decorator dummy que no hace nada
+    def retry_on_signature_error(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+
 # Importar configuración desde el proyecto principal
 sys.path.append(str(Path(__file__).parent.parent.parent))
 from config import (
@@ -47,6 +127,8 @@ from config import (
     # [THINK] ESTRATEGIA 8: Importar configuración de Thinking Mode
     ENABLE_THINKING_MODE,
     THINKING_BUDGET,
+    # Feature flag para signed URLs
+    USE_ROBUST_SIGNED_URLS,
 )
 
 # Importar sistema robusto de signed URLs
@@ -250,6 +332,57 @@ def log_token_analysis(
             "total_tokens": 0,
             "status": "[ICON] ERROR",
         }
+
+
+def log_signed_url_failure(
+    url_type: str, error_category: str, details: dict, gs_url: str = None
+) -> None:
+    """
+    Registra fallos en la generación de signed URLs para análisis y debugging.
+
+    FASE 3: Incluye métricas de éxito/fallo por categoría de error para
+    monitoreo y análisis de tendencias.
+
+    Args:
+        url_type: Tipo de URL ("zip", "individual", "legacy_fallback")
+        error_category: Categoría del error
+            ("encoding", "clock_skew", "null_validation", "blob_not_found",
+             "credentials", "signature_mismatch", "timeout", "unknown")
+        details: Diccionario con detalles adicionales del error
+        gs_url: URL de GCS que causó el problema (opcional, truncada a 100)
+    """
+    from datetime import datetime, timezone
+
+    # FASE 3: Actualizar contadores de métricas
+    _update_signed_url_metrics(error_category, success=False)
+
+    log_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "url_type": url_type,
+        "error_category": error_category,
+        "details": details,
+    }
+
+    # Agregar muestra de gs_url si está disponible (truncada)
+    if gs_url:
+        log_entry["gs_url_sample"] = gs_url[:100]
+    elif "gs_url" in details:
+        log_entry["gs_url_sample"] = str(details["gs_url"])[:100]
+
+    # Log estructurado para parsing automático
+    print(f"[SIGNED_URL_FAILURE] {json.dumps(log_entry)}")
+
+    # Opcional: persistir en BigQuery si conversation_tracker disponible
+    if (
+        logging_available
+        and conversation_tracker is not None
+        and hasattr(conversation_tracker, "current_conversation")
+        and conversation_tracker.current_conversation
+    ):
+        # Agregar al tracking de conversación
+        conversation_tracker.current_conversation.setdefault(
+            "signed_url_failures", []
+        ).append(log_entry)
 
 
 def download_single_pdf(url_info):
@@ -674,15 +807,43 @@ def generate_signed_zip_url(zip_filename: str) -> str:
 
         # Verificar que el archivo existe
         if not blob.exists():
+            error_msg = f"ZIP file not found in GCS: {zip_filename}"
+            log_signed_url_failure(
+                url_type="zip",
+                error_category="blob_not_found",
+                details={
+                    "zip_filename": zip_filename,
+                    "bucket": BUCKET_NAME_WRITE,
+                },
+            )
             print(f"[ICON] [GCS] Archivo no encontrado: {zip_filename}")
-            # Archivo no existe - retornar error en lugar de fallback
-            raise FileNotFoundError(f"ZIP file not found in GCS: {zip_filename}")
+            raise FileNotFoundError(error_msg)
 
         # Usar IAM-based signing con service account automático en Cloud Run
         from datetime import datetime, timezone, timedelta
 
-        # Configurar tiempo de expiración con buffer (usando timezone-aware datetime)
-        buffer_minutes = 5  # Buffer básico para clock skew
+        # Configurar tiempo de expiración con buffer dinámico
+        # Verificar sincronización temporal si módulos disponibles
+        buffer_minutes = 5  # Default fallback
+        if GCS_STABILITY_AVAILABLE:
+            try:
+                from src.gcs_stability.gcs_time_sync import (
+                    calculate_buffer_time,
+                )
+                from src.gcs_stability import verify_time_sync
+
+                sync_status = verify_time_sync()
+                buffer_minutes = calculate_buffer_time(sync_status)
+                print(
+                    f"[OK] [ZIP] Buffer dinámico: {buffer_minutes}min "
+                    f"(sync_status={sync_status})"
+                )
+            except Exception as e:
+                print(
+                    f"[WARN] [ZIP] Error calculando buffer dinámico: {e}, "
+                    f"usando default={buffer_minutes}min"
+                )
+
         expiration_time = datetime.now(timezone.utc) + timedelta(
             hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes
         )
@@ -703,11 +864,19 @@ def generate_signed_zip_url(zip_filename: str) -> str:
         return signed_url
 
     except FileNotFoundError as e:
-        print(f"[ICON] [GCS] {e}")
+        # Ya loggeado arriba, solo re-raise
         raise
     except Exception as e:
+        log_signed_url_failure(
+            url_type="zip",
+            error_category="unknown",
+            details={
+                "zip_filename": zip_filename,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            },
+        )
         print(f"[ICON] [GCS] Error general: {e}")
-        # Re-lanzar excepción en lugar de retornar fallback
         raise RuntimeError(f"Failed to generate signed URL for {zip_filename}: {e}")
 
 
@@ -726,17 +895,58 @@ def _is_valid_gcs_url(url: str) -> bool:
     if not url.startswith("gs://"):
         return False
 
-    # No debe contener caracteres problemáticos que pueden corromper la firma
-    problematic_chars = ["<", ">", '"', "'", "&", "%", "+"]
+    # Lista expandida de caracteres problemáticos que corrompen firmas
+    problematic_chars = [
+        "<",
+        ">",
+        '"',
+        "'",
+        "&",
+        "%",
+        "+",  # Originales
+        "?",
+        "#",
+        "|",
+        "\\",
+        "$",
+        "*",
+        "`",  # Nuevos
+    ]
     if any(char in url for char in problematic_chars):
+        log_signed_url_failure(
+            url_type="validation",
+            error_category="invalid_format",
+            details={
+                "reason": "problematic_characters",
+                "chars_found": [c for c in problematic_chars if c in url],
+            },
+            gs_url=url,
+        )
         print(
-            f"[ICON] [FILTRO URL] URL contiene caracteres problemáticos: {url[:50]}..."
+            f"[ICON] [FILTRO URL] URL contiene caracteres "
+            f"problemáticos: {url[:50]}..."
+        )
+        return False
+
+    # Verificar caracteres de control (invisibles)
+    if any(ord(char) < 32 for char in url):
+        log_signed_url_failure(
+            url_type="validation",
+            error_category="invalid_format",
+            details={"reason": "control_characters"},
+            gs_url=url,
         )
         return False
 
     # Debe tener una estructura básica válida
     parts = url.replace("gs://", "").split("/")
     if len(parts) < 2:  # Necesita al menos bucket/object
+        log_signed_url_failure(
+            url_type="validation",
+            error_category="invalid_format",
+            details={"reason": "missing_path", "parts": len(parts)},
+            gs_url=url,
+        )
         print(f"[ICON] [FILTRO URL] URL con estructura inválida: {url}")
         return False
 
@@ -848,11 +1058,12 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
             "error": f"Todas las URLs ({original_count}) fueron filtradas por ser problemáticas",
         }
 
-    # Usar servicio estable si está disponible
-    if GCS_STABILITY_AVAILABLE:
+    # Usar servicio estable si está disponible Y feature flag activado
+    if USE_ROBUST_SIGNED_URLS and GCS_STABILITY_AVAILABLE:
         try:
             print(
-                "[ICON] [ESTABILIDAD GCS] Usando SignedURLService para generación estable..."
+                "[OK] [ROBUST] Usando sistema robusto de signed URLs "
+                "(feature flag activado)..."
             )
 
             # Verificar sincronización de tiempo
@@ -944,12 +1155,29 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
                 }
 
             # Generar URLs firmadas con retry automático
-            stable_urls = url_service.generate_batch_urls(bucket_name, blob_names)
+            # FASE 3: Wrapper con retry para sistema robusto
+            stable_urls_dict = _generate_robust_urls_with_retry(
+                url_service, bucket_name, blob_names
+            )
+
+            if not stable_urls_dict:
+                return {
+                    "success": False,
+                    "error": "No se pudo generar ninguna URL estable",
+                }
+
+            # FIX CRÍTICO: Convertir diccionario {blob_name: url} a lista [url1, url2, ...]
+            # generate_batch_urls() devuelve dict, pero código espera lista
+            stable_urls = [
+                stable_urls_dict[blob_name]
+                for blob_name in blob_names
+                if blob_name in stable_urls_dict and stable_urls_dict[blob_name] is not None
+            ]
 
             if not stable_urls:
                 return {
                     "success": False,
-                    "error": "No se pudo generar ninguna URL estable",
+                    "error": "Todas las URLs generadas fallaron",
                 }
 
             # Obtener estadísticas del servicio
@@ -981,8 +1209,46 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
     return _generate_individual_download_links_legacy(pdf_urls_list)
 
 
+@retry_on_signature_error(max_retries=2, base_delay=90, max_delay=300)
+def _generate_robust_urls_with_retry(
+    url_service, bucket_name: str, blob_names: list
+) -> list:
+    """
+    Wrapper con retry para generación batch de URLs del sistema robusto.
+
+    FASE 3: Aplica retry automático a generate_batch_urls() para manejar
+    errores transitorios de signature (max 2 reintentos, delay base 90s).
+
+    Args:
+        url_service: Instancia de SignedURLService
+        bucket_name: Nombre del bucket GCS
+        blob_names: Lista de nombres de blobs
+
+    Returns:
+        Lista de signed URLs generadas
+    """
+    return url_service.generate_batch_urls(bucket_name, blob_names)
+
+
+@retry_on_signature_error(max_retries=2, base_delay=90, max_delay=300)
 def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
-    """Implementación legacy de generación de URLs firmadas (sin mejoras de estabilidad)"""
+    """
+    Implementación legacy de generación de URLs firmadas.
+    Fallback cuando el sistema robusto no está disponible.
+
+    FASE 3: Incluye retry automático con exponential backoff para
+    errores SignatureDoesNotMatch (max 2 reintentos, delay base 90s).
+    """
+    """
+    Implementación legacy de generación de URLs firmadas.
+    Fallback cuando el sistema robusto no está disponible.
+    
+    FASE 3: Incluye retry automático con exponential backoff para
+    errores SignatureDoesNotMatch (max 2 reintentos, delay base 90s).
+    """
+    from datetime import datetime, timezone, timedelta
+    from urllib.parse import quote
+
     # Configurar credenciales impersonadas para firmar URLs
     try:
         credentials, project = google.auth.default()
@@ -997,42 +1263,161 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
 
         storage_client = storage.Client(credentials=target_credentials)
         print(
-            f"[OK] [LINKS INDIVIDUALES] Cliente GCS inicializado con credenciales impersonadas para PDFs en {BUCKET_NAME_READ}"
+            f"[OK] [LEGACY] Cliente GCS inicializado con "
+            f"credenciales impersonadas para PDFs en {BUCKET_NAME_READ}"
         )
     except Exception as e:
-        print(
-            f"[ICON] [LINKS INDIVIDUALES] Error configurando credenciales impersonadas: {e}"
+        error_msg = f"Error de autenticación: {e}"
+        log_signed_url_failure(
+            url_type="legacy_fallback",
+            error_category="credentials",
+            details={"error": str(e), "stage": "authentication"},
         )
-        return {"success": False, "error": f"Error de autenticación: {e}"}
+        return {"success": False, "error": error_msg}
 
     secure_links = []
+    failed_count = 0
 
     for gs_url in pdf_urls_list:
         try:
-            # � VALIDACIÓN CRÍTICA: Verificar campos NULL antes de procesar
-            if gs_url is None or gs_url.strip() == "" or gs_url.upper() == "NULL":
-                print(
-                    f"[ICON] [LINKS INDIVIDUALES] Campo NULL detectado, omitiendo: '{gs_url}'"
+            # VALIDACIÓN EXPANDIDA: NULL, empty, "None", "null", whitespace
+            if (
+                gs_url is None
+                or not gs_url
+                or not gs_url.strip()
+                or gs_url.upper() == "NULL"
+                or gs_url.upper() == "NONE"
+                or gs_url.strip() == "[]"
+            ):
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="null_validation",
+                    details={"gs_url": str(gs_url), "type": type(gs_url).__name__},
+                    gs_url=str(gs_url),
                 )
+                failed_count += 1
                 continue
 
-        except Exception as e:
-            print(f"[ICON] [LINKS INDIVIDUALES] Error procesando URL {gs_url}: {e}")
+            # Validar que sea URL gs://
+            if not gs_url.startswith("gs://"):
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="invalid_format",
+                    details={"gs_url": gs_url, "reason": "missing gs:// prefix"},
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
 
+            # Extraer bucket y blob path
+            parts = gs_url[5:].split("/", 1)  # Remover 'gs://'
+            if len(parts) != 2:
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="invalid_format",
+                    details={
+                        "gs_url": gs_url,
+                        "reason": "invalid path structure",
+                        "parts_count": len(parts),
+                    },
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
+
+            bucket_name, blob_path = parts
+
+            # Validar bucket name
+            if not bucket_name or len(bucket_name) > 63:
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="invalid_bucket",
+                    details={
+                        "gs_url": gs_url,
+                        "bucket_name": bucket_name,
+                        "length": len(bucket_name),
+                    },
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
+
+            # Obtener blob
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_path)
+
+            # CRÍTICO: Verificar que el blob existe
+            if not blob.exists():
+                log_signed_url_failure(
+                    url_type="legacy_fallback",
+                    error_category="blob_not_found",
+                    details={
+                        "gs_url": gs_url,
+                        "bucket": bucket_name,
+                        "blob_path": blob_path,
+                    },
+                    gs_url=gs_url,
+                )
+                failed_count += 1
+                continue
+
+            # Configurar expiración con buffer para clock skew
+            buffer_minutes = 5  # Buffer básico
+            expiration_time = datetime.now(timezone.utc) + timedelta(
+                hours=SIGNED_URL_EXPIRATION_HOURS, minutes=buffer_minutes
+            )
+
+            # Generar signed URL
+            signed_url = blob.generate_signed_url(
+                version="v4",
+                expiration=expiration_time,
+                method="GET",
+                credentials=target_credentials,
+            )
+
+            # FASE 3: Registrar éxito en métricas
+            _update_signed_url_metrics("success", success=True)
+            secure_links.append(signed_url)
+
+        except Exception as e:
+            log_signed_url_failure(
+                url_type="legacy_fallback",
+                error_category="unknown",
+                details={
+                    "gs_url": gs_url,
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                },
+                gs_url=gs_url,
+            )
+            failed_count += 1
+            continue
+
+    # Validación de resultados
     if not secure_links:
         return {
             "success": False,
-            "error": "No se pudo generar ninguna URL de descarga segura.",
+            "error": (
+                f"No se pudo generar ninguna URL de descarga segura. "
+                f"Procesadas: {len(pdf_urls_list)}, Fallidas: {failed_count}"
+            ),
+            "failed_count": failed_count,
+            "total_count": len(pdf_urls_list),
         }
 
-    print(f"[OK] [LINKS INDIVIDUALES] {len(secure_links)} enlaces firmados generados.")
+    print(
+        f"[OK] [LEGACY] {len(secure_links)} enlaces firmados generados. "
+        f"Fallidas: {failed_count}"
+    )
 
-    # [ICON] VALIDACIÓN FINAL: Verificar que todas las URLs están bien formadas
+    # Validación de longitud de URLs
     validated_links = []
     for i, url in enumerate(secure_links):
         if len(url) > 2000:
-            print(
-                f"[ICON] [LINKS INDIVIDUALES] Omitiendo URL #{i+1} por longitud anormal ({len(url)} chars)"
+            log_signed_url_failure(
+                url_type="legacy_fallback",
+                error_category="url_too_long",
+                details={"url_index": i, "length": len(url)},
             )
             continue
         validated_links.append(url)
@@ -1043,16 +1428,20 @@ def _generate_individual_download_links_legacy(pdf_urls_list: list) -> dict:
             "error": "Todas las URLs generadas fueron malformadas y omitidas.",
         }
 
-    # DEBUG: Mostrar algunas URLs para verificar el formato
+    # DEBUG: Mostrar muestras
     if validated_links:
-        print(f"[ICON] [DEBUG] Primera URL generada: {validated_links[0][:100]}...")
+        print(f"[DEBUG] [LEGACY] Primera URL: {validated_links[0][:100]}...")
         if len(validated_links) > 1:
-            print(f"[ICON] [DEBUG] Última URL generada: {validated_links[-1][:100]}...")
+            print(f"[DEBUG] [LEGACY] Última URL: {validated_links[-1][:100]}...")
 
     return {
         "success": True,
         "download_urls": validated_links,
-        "message": f"Se han generado {len(validated_links)} enlaces de descarga firmados.",
+        "message": (
+            f"Se han generado {len(validated_links)} enlaces de descarga "
+            f"firmados (legacy)."
+        ),
+        "failed_count": failed_count,
     }
 
 
