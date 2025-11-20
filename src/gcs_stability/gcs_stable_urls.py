@@ -14,8 +14,10 @@ from typing import Optional, Dict, Any
 from google.cloud import storage
 from google.auth import default, impersonated_credentials
 import google.auth.exceptions
+import os
 
 from .gcs_time_sync import verify_time_sync, calculate_buffer_time
+from src.core.config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -105,12 +107,10 @@ def generate_stable_signed_url(
                 # Para Cloud Run: usar service account impersonation con signing específico
                 logger.info("Intentando signed URL con service account impersonation")
 
-                import os
-                from google.auth import impersonated_credentials, default
                 from google.auth.transport.requests import Request
 
-                service_account_email = os.getenv(
-                    "SERVICE_ACCOUNT_EMAIL",
+                service_account_email = get_config().get(
+                    "google_cloud.service_accounts.pdf_signer",
                     "adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com",
                 )
 

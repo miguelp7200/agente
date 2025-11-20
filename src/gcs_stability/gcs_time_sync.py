@@ -16,10 +16,12 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Optional, Tuple
 
+from src.core.config import get_config
+
 logger = logging.getLogger(__name__)
 
 
-def verify_time_sync(timeout: int = 5) -> Optional[bool]:
+def verify_time_sync(timeout: Optional[int] = None) -> Optional[bool]:
     """
     Verificar sincronización de tiempo del servidor con Google Cloud.
 
@@ -28,11 +30,11 @@ def verify_time_sync(timeout: int = 5) -> Optional[bool]:
     errores SignatureDoesNotMatch.
 
     Args:
-        timeout: Timeout en segundos para la petición HTTP
+        timeout: Timeout en segundos para la petición HTTP (None = usar config)
 
     Returns:
-        True si el tiempo está sincronizado (< 60s diferencia)
-        False si hay clock skew detectado (> 60s diferencia)
+        True si el tiempo está sincronizado (< threshold diferencia)
+        False si hay clock skew detectado (> threshold diferencia)
         None si no se pudo verificar (error de red)
 
     Example:
@@ -40,6 +42,11 @@ def verify_time_sync(timeout: int = 5) -> Optional[bool]:
         >>> if sync_status is False:
         ...     print("Clock skew detectado - agregando buffer time")
     """
+    if timeout is None:
+        timeout = int(get_config().get("gcs.time_sync.check_timeout", 5))
+
+    threshold = int(get_config().get("gcs.time_sync.threshold_seconds", 60))
+
     try:
         # Obtener tiempo de servidor de Google usando HEAD request
         response = requests.head("https://storage.googleapis.com", timeout=timeout)
@@ -63,8 +70,8 @@ def verify_time_sync(timeout: int = 5) -> Optional[bool]:
             f"Diff: {time_diff:.1f}s"
         )
 
-        # Considerar sincronizado si diferencia < 60 segundos
-        if time_diff > 60:
+        # Considerar sincronizado si diferencia < threshold
+        if time_diff > threshold:
             logger.warning(
                 f"Clock skew detectado: {time_diff:.1f} segundos de diferencia"
             )
@@ -136,18 +143,31 @@ def calculate_buffer_time(sync_status: Optional[bool] = None) -> int:
     if sync_status is None:
         sync_status = verify_time_sync()
 
+    # Get buffer times from config
+    buffer_clock_skew = int(get_config().get("gcs.buffer_time.clock_skew_detected", 5))
+    buffer_verification_failed = int(
+        get_config().get("gcs.buffer_time.verification_failed", 3)
+    )
+    buffer_synchronized = int(get_config().get("gcs.buffer_time.synchronized", 1))
+
     if sync_status is False:
         # Clock skew detectado - usar buffer grande
-        logger.info("Clock skew detectado - usando buffer de 5 minutos")
-        return 5
+        logger.info(
+            f"Clock skew detectado - usando buffer de {buffer_clock_skew} minutos"
+        )
+        return buffer_clock_skew
     elif sync_status is None:
         # No se pudo verificar - usar buffer moderado por precaución
-        logger.info("No se pudo verificar tiempo - usando buffer de 3 minutos")
-        return 3
+        logger.info(
+            f"No se pudo verificar tiempo - usando buffer de {buffer_verification_failed} minutos"
+        )
+        return buffer_verification_failed
     else:
         # Tiempo sincronizado - usar buffer mínimo
-        logger.info("Tiempo sincronizado - usando buffer de 1 minuto")
-        return 1
+        logger.info(
+            f"Tiempo sincronizado - usando buffer de {buffer_synchronized} minuto"
+        )
+        return buffer_synchronized
 
 
 if __name__ == "__main__":

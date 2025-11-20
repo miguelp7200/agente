@@ -98,6 +98,134 @@ export GOOGLE_CLOUD_LOCATION=us-central1
 # PDF_SERVER_PORT=8011  # DEPRECATED - Using signed URLs
 ```
 
+## 🔐 Sistema de Configuración
+
+El proyecto utiliza un **sistema de configuración dual** que combina archivos YAML con variables de ambiente para máxima flexibilidad:
+
+### Jerarquía de Configuración
+
+```
+Environment Variables (highest priority)
+         ↓
+   config/config.yaml
+         ↓
+   Code Defaults (lowest priority)
+```
+
+### Archivo de Configuración Principal
+
+El archivo `config/config.yaml` contiene toda la configuración base del sistema:
+
+```yaml
+google_cloud:
+  service_accounts:
+    pdf_signer: adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com
+  
+bigquery:
+  timeouts:
+    query_deadline: 60.0  # segundos
+
+gcs:
+  time_sync:
+    threshold_seconds: 60
+  buffer_time:
+    clock_skew_detected: 5  # minutos
+    verification_failed: 3
+    synchronized: 1
+  retry:
+    base_delay_seconds: 60
+    max_delay_seconds: 300
+    backoff_multiplier: 2.0
+    request_timeout: 30
+  download:
+    timeout_large_files: 60
+
+validation:
+  max_url_length: 2000
+  max_zip_url_length: 3000
+
+vertex_ai:
+  thinking:
+    max_budget: 8192
+```
+
+### Variables de Ambiente (Overrides)
+
+Las variables de ambiente **sobrescriben** valores del YAML. Conversión automática:
+
+```
+YAML path: gcs.retry.base_delay_seconds
+Env var:   GCS_RETRY_BASE_DELAY_SECONDS
+```
+
+**Ejemplo de uso:**
+
+```bash
+# Override service account para otro proyecto
+export PDF_SIGNER_SERVICE_ACCOUNT="my-sa@my-project.iam.gserviceaccount.com"
+
+# Aumentar timeouts para conexiones lentas
+export BIGQUERY_TIMEOUTS_QUERY_DEADLINE="120.0"
+export GCS_RETRY_REQUEST_TIMEOUT="60"
+```
+
+### Archivo .env.example
+
+El archivo `.env.example` documenta **16 variables configurables**:
+
+| Categoría | Variables | Propósito |
+|-----------|-----------|-----------|
+| **Service Accounts** | `PDF_SIGNER_SERVICE_ACCOUNT` | Service account para firmar URLs |
+| **BigQuery** | `BIGQUERY_TIMEOUTS_QUERY_DEADLINE` | Timeout de queries |
+| **GCS Time Sync** | `GCS_TIME_SYNC_THRESHOLD_SECONDS`<br/>`GCS_TIME_SYNC_CHECK_TIMEOUT` | Sincronización de reloj |
+| **GCS Buffer Time** | `GCS_BUFFER_TIME_CLOCK_SKEW_DETECTED`<br/>`GCS_BUFFER_TIME_VERIFICATION_FAILED`<br/>`GCS_BUFFER_TIME_SYNCHRONIZED` | Buffers por estado de sync |
+| **GCS Retry** | `GCS_RETRY_BASE_DELAY_SECONDS`<br/>`GCS_RETRY_MAX_DELAY_SECONDS`<br/>`GCS_RETRY_BACKOFF_MULTIPLIER`<br/>`GCS_RETRY_REQUEST_TIMEOUT` | Lógica de reintentos |
+| **GCS Download** | `GCS_DOWNLOAD_TIMEOUT_LARGE_FILES` | Timeouts de descarga |
+| **Validation** | `VALIDATION_MAX_URL_LENGTH`<br/>`VALIDATION_MAX_ZIP_URL_LENGTH` | Límites de validación |
+| **Vertex AI** | `VERTEX_AI_THINKING_MAX_BUDGET` | Budget máximo de reasoning |
+
+### Logging de Overrides
+
+Los overrides se registran automáticamente en **nivel DEBUG**:
+
+```python
+# Habilitar logging de overrides
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Output:
+# DEBUG:src.core.config.yaml_config_loader:Config override: gcs.retry.base_delay_seconds=90 (via env var GCS_RETRY_BASE_DELAY_SECONDS)
+```
+
+### Migrar a Otro Proyecto GCP
+
+Para usar este código en un proyecto diferente:
+
+1. **Copiar `.env.example` a `.env`**:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Modificar `config/config.yaml`** con tus project IDs:
+   ```yaml
+   google_cloud:
+     read:
+       project: tu-proyecto-lectura
+     write:
+       project: tu-proyecto-escritura
+     service_accounts:
+       pdf_signer: tu-sa@tu-proyecto.iam.gserviceaccount.com
+   ```
+
+3. **Overrides opcionales en `.env`** para valores específicos del ambiente
+
+4. **Validar configuración**:
+   ```python
+   from src.core.config import get_config
+   config = get_config()
+   config.print_summary()  # Muestra configuración cargada
+   ```
+
 ### 3. Configuración de MCP Toolbox
 
 Los archivos binarios de MCP Toolbox son necesarios para el funcionamiento del sistema, pero debido a su tamaño (~117MB) no están incluidos en el repositorio.
