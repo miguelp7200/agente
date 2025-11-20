@@ -10,9 +10,9 @@ from datetime import date
 from google.cloud import bigquery
 from google.api_core import retry
 
-from ...core.domain.models import Invoice
-from ...core.domain.interfaces import IInvoiceRepository
-from ...core.config import ConfigLoader
+from src.core.domain.models import Invoice
+from src.core.domain.interfaces import IInvoiceRepository
+from src.core.config import ConfigLoader
 
 
 class BigQueryInvoiceRepository(IInvoiceRepository):

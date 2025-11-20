@@ -10,8 +10,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from google.cloud import storage
 
-from ...core.domain.interfaces import IURLSigner
-from ...core.config import ConfigLoader
+from src.core.domain.interfaces import IURLSigner
+from src.core.config import ConfigLoader
 
 
 class LegacyURLSigner(IURLSigner):

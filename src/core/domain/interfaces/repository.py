@@ -7,9 +7,9 @@ Infrastructure layer provides concrete implementations.
 
 from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any
-from datetime import date
+from datetime import datetime, date
 
-from ..models import Invoice, ZipPackage, Conversation
+from src.core.domain.models import Invoice, ZipPackage, Conversation
 
 
 class IInvoiceRepository(ABC):

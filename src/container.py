@@ -7,20 +7,20 @@ Central container for dependency injection and service lifecycle management.
 import sys
 from typing import Optional
 
-from ..core.config import ConfigLoader, get_config
-from ..core.domain.interfaces import (
+from src.core.config import ConfigLoader, get_config
+from src.core.domain.interfaces import (
     IInvoiceRepository,
     IZipRepository,
     IConversationRepository,
     IURLSigner,
 )
-from ..infrastructure.bigquery import (
+from src.infrastructure.bigquery import (
     BigQueryInvoiceRepository,
     BigQueryZipRepository,
     BigQueryConversationRepository,
 )
-from ..infrastructure.gcs import RobustURLSigner, LegacyURLSigner
-from ..application.services import InvoiceService, ZipService, ConversationService
+from src.infrastructure.gcs import RobustURLSigner, LegacyURLSigner
+from src.application.services import InvoiceService, ZipService, ConversationService
 
 
 class ServiceContainer:

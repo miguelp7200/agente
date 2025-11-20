@@ -9,8 +9,8 @@ import sys
 from typing import List, Optional, Dict, Any
 from datetime import date
 
-from ...core.domain.models import Invoice
-from ...core.domain.interfaces import IInvoiceRepository, IURLSigner
+from src.core.domain.models import Invoice
+from src.core.domain.interfaces import IInvoiceRepository, IURLSigner
 
 
 class InvoiceService:

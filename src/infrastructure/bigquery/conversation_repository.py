@@ -10,9 +10,9 @@ from datetime import datetime, timedelta
 from google.cloud import bigquery
 from google.api_core import retry
 
-from ...core.domain.models import Conversation, ConversationStatus, TokenUsage
-from ...core.domain.interfaces import IConversationRepository
-from ...core.config import ConfigLoader
+from src.core.domain.models import Conversation, ConversationStatus, TokenUsage
+from src.core.domain.interfaces import IConversationRepository
+from src.core.config import ConfigLoader
 
 
 class BigQueryConversationRepository(IConversationRepository):

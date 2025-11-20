@@ -10,9 +10,9 @@ from datetime import datetime, timedelta
 from google.cloud import bigquery
 from google.api_core import retry
 
-from ...core.domain.models import ZipPackage, ZipStatus
-from ...core.domain.interfaces import IZipRepository
-from ...core.config import ConfigLoader
+from src.core.domain.models import ZipPackage, ZipStatus
+from src.core.domain.interfaces import IZipRepository
+from src.core.config import ConfigLoader
 
 
 class BigQueryZipRepository(IZipRepository):

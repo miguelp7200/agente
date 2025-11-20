@@ -9,7 +9,7 @@
 
 $sessionId = "get_multiple_pdf_TEST-$(Get-Date -Format 'yyyyMMddHHmmss')"
 $userId = "victor-local"
-$appName = "gcp-invoice-agent-app"
+$appName = "gcp_invoice_agent_app"
 $backendUrl = "https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app"
 $timeoutSeconds = 1200
 

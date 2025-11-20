@@ -9,8 +9,8 @@ import uuid
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-from ...core.domain.models import Conversation, ConversationStatus, TokenUsage
-from ...core.domain.interfaces import IConversationRepository
+from src.core.domain.models import Conversation, ConversationStatus, TokenUsage
+from src.core.domain.interfaces import IConversationRepository
 
 
 class ConversationService:

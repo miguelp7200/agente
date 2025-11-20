@@ -15,9 +15,9 @@ import io
 import concurrent.futures
 from google.cloud import storage
 
-from ...core.domain.models import ZipPackage, ZipStatus, Invoice
-from ...core.domain.interfaces import IZipRepository, IURLSigner
-from ...core.config import ConfigLoader
+from src.core.domain.models import ZipPackage, ZipStatus, Invoice
+from src.core.domain.interfaces import IZipRepository, IURLSigner
+from src.core.config import ConfigLoader
 
 
 class ZipService:
