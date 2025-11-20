@@ -12,7 +12,12 @@ from google.api_core import retry
 
 from src.core.domain.models import Conversation, ConversationStatus, TokenUsage
 from src.core.domain.interfaces import IConversationRepository
-from src.core.config import ConfigLoader
+from src.core.config import ConfigLoader, get_config
+
+
+def _get_query_deadline() -> float:
+    """Helper to get BigQuery query deadline from config"""
+    return float(get_config().get("bigquery.timeouts.query_deadline", 60.0))
 
 
 class BigQueryConversationRepository(IConversationRepository):
@@ -292,7 +297,7 @@ class BigQueryConversationRepository(IConversationRepository):
             print(f"ERROR Getting conversation statistics: {e}", file=sys.stderr)
             raise
 
-    @retry.Retry(predicate=retry.if_transient_error, deadline=60.0)
+    @retry.Retry(predicate=retry.if_transient_error, deadline=_get_query_deadline())
     def _execute_query(
         self, query: str, job_config: Optional[bigquery.QueryJobConfig] = None
     ):

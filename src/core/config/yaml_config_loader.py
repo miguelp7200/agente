@@ -199,23 +199,15 @@ class ConfigLoader:
         """Validate critical configuration values"""
         errors = []
 
-        # Validate Google Cloud configuration
+        # Validate Google Cloud configuration exists
         try:
             read_project = self.get("google_cloud.read.project")
             if not read_project:
                 errors.append("google_cloud.read.project is required")
-            elif read_project != "datalake-gasco":
-                errors.append(
-                    f"Invalid read project: {read_project}, expected: datalake-gasco"
-                )
 
             write_project = self.get("google_cloud.write.project")
             if not write_project:
                 errors.append("google_cloud.write.project is required")
-            elif write_project != "agent-intelligence-gasco":
-                errors.append(
-                    f"Invalid write project: {write_project}, expected: agent-intelligence-gasco"
-                )
 
         except KeyError as e:
             errors.append(f"Missing required configuration: {e}")
@@ -253,19 +245,38 @@ class ConfigLoader:
 
     def get(self, path: str, default: Any = None) -> Any:
         """
-        Get configuration value using dot notation
+        Get configuration value using dot notation with environment variable override
+
+        Environment variables take precedence over YAML values.
+        Conversion: 'google_cloud.read.project' → 'GOOGLE_CLOUD_READ_PROJECT'
 
         Args:
             path: Dot-separated path (e.g., 'google_cloud.read.project')
             default: Default value if path not found
 
         Returns:
-            Configuration value
+            Configuration value (env var > yaml > default)
 
         Example:
             >>> config.get('google_cloud.read.project')
             'datalake-gasco'
+            >>> # If GCS_TIME_SYNC_THRESHOLD=90 in env:
+            >>> config.get('gcs.time_sync.threshold_seconds')
+            '90'  # Returns string from env (caller must cast)
         """
+        # Check for environment variable override first
+        env_var = path.upper().replace(".", "_")
+        env_value = os.getenv(env_var)
+
+        if env_value is not None:
+            # Log the override at debug level
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Config override: {path}={env_value} (via env var {env_var})")
+            return env_value
+
+        # Fallback to YAML configuration
         keys = path.split(".")
         current = self._merged_config
 

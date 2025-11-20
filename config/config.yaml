@@ -38,6 +38,10 @@ google_cloud:
 # BigQuery Tables - Dual Architecture
 # ================================================================
 bigquery:
+  # Timeouts and Performance
+  timeouts:
+    query_deadline: 60.0  # Retry deadline in seconds for BigQuery queries
+    
   # Read tables (datalake-gasco)
   read:
     invoices:
@@ -92,6 +96,7 @@ vertex_ai:
   thinking:
     enabled: false  # Enable for development/debugging
     budget: 1024    # Token budget for reasoning (256-8192)
+    max_budget: 8192  # Maximum allowed thinking budget
 
 # ================================================================
 # API & Services Configuration
@@ -119,6 +124,7 @@ pdf:
   # Signed URLs configuration
   signed_urls:
     expiration_hours: 24
+    max_expiration_hours: 168  # Maximum 1 week
     buffer_minutes: 5
     use_robust_implementation: true  # Use clock-skew resistant implementation
     
@@ -153,6 +159,45 @@ pdf:
     
     # Alternative to ZIP for very large sets
     use_signed_urls_threshold: 30  # Use individual signed URLs instead of ZIP
+
+# ================================================================
+# GCS (Google Cloud Storage) Configuration
+# ================================================================
+gcs:
+  # Time Synchronization
+  time_sync:
+    threshold_seconds: 60  # Max acceptable time difference
+    check_timeout: 5       # Timeout for time sync check
+  
+  # Buffer Time by Clock Skew Status (minutes)
+  buffer_time:
+    clock_skew_detected: 5      # When clock skew is detected
+    verification_failed: 3      # When verification fails
+    synchronized: 1             # When time is synchronized
+  
+  # Retry Logic
+  retry:
+    max_retries: 3
+    base_delay_seconds: 60
+    max_delay_seconds: 300
+    backoff_multiplier: 2.0
+    request_timeout: 30
+    jitter_enabled: true
+  
+  # Download Configuration
+  download:
+    timeout_large_files: 60     # Timeout for large file downloads
+    max_concurrent: 10          # Max concurrent downloads
+
+# ================================================================
+# Validation Limits
+# ================================================================
+validation:
+  max_url_length: 2000          # Maximum URL length in characters
+  max_zip_url_length: 3000      # Maximum ZIP URL length
+  signature:
+    max_length: 500             # Max signature length
+    pattern_check_length: 50    # Length for pattern validation
 
 # ================================================================
 # Display & UI Configuration
