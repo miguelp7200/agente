@@ -14,12 +14,12 @@ from .yaml_config_loader import (
 )
 
 __all__ = [
-    'ConfigLoader',
-    'get_config',
-    'reload_config',
-    'get_read_project',
-    'get_write_project',
-    'get_invoices_table',
-    'get_zip_packages_table',
-    'is_legacy_mode',
+    "ConfigLoader",
+    "get_config",
+    "reload_config",
+    "get_read_project",
+    "get_write_project",
+    "get_invoices_table",
+    "get_zip_packages_table",
+    "is_legacy_mode",
 ]

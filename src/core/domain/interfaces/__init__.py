@@ -8,8 +8,8 @@ from .repository import IInvoiceRepository, IZipRepository, IConversationReposit
 from .url_signer import IURLSigner
 
 __all__ = [
-    'IInvoiceRepository',
-    'IZipRepository',
-    'IConversationRepository',
-    'IURLSigner',
+    "IInvoiceRepository",
+    "IZipRepository",
+    "IConversationRepository",
+    "IURLSigner",
 ]
