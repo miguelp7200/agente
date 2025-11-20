@@ -855,7 +855,7 @@ tools:
       \ Copia_Cedible_sf IS NOT NULL THEN 'Copia Cedible (Sin Fondo - sin logo) '\
       \ ELSE '' END,\n    CASE WHEN Doc_Termico IS NOT NULL THEN 'Documento Termico\
       \ ' ELSE '' END\n  ) as tipos_pdf_disponibles\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
-      WHERE\n  (COALESCE(@solicitante_code, '') = '' OR Solicitante = @solicitante_code)\n\
+      WHERE\n  (COALESCE(@solicitante_code, '') = '' OR Solicitante = LPAD(@solicitante_code, 10, '0'))\n\
       ORDER BY Factura DESC\n"
     description: 'HERRAMIENTA ESPECIALIZADA: Obtiene TODOS los PDFs disponibles para
       un solicitante específico.
@@ -1027,7 +1027,7 @@ tools:
     statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  Copia_Cedible_cf\
       \ as cedible_cf_url,\n  'Copia Cedible Con Fondo (logo Gasco)' as tipo_documento\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
-      \  Solicitante = @solicitante_code\n  AND Copia_Cedible_cf IS NOT NULL\nORDER\
+      \  Solicitante = LPAD(@solicitante_code, 10, '0')\n  AND Copia_Cedible_cf IS NOT NULL\nORDER\
       \ BY Factura DESC\nLIMIT 10\n"
     description: 'Obtiene facturas Cedible CON FONDO (logo Gasco) para un solicitante
       específico.
@@ -1048,7 +1048,7 @@ tools:
     statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  Copia_Cedible_sf\
       \ as cedible_sf_url,\n  'Copia Cedible Sin Fondo (sin logo)' as tipo_documento\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
-      \  Solicitante = @solicitante_code\n  AND Copia_Cedible_sf IS NOT NULL\nORDER\
+      \  Solicitante = LPAD(@solicitante_code, 10, '0')\n  AND Copia_Cedible_sf IS NOT NULL\nORDER\
       \ BY Factura DESC\nLIMIT 10\n"
     description: 'Obtiene facturas Cedible SIN FONDO (sin logo) para un solicitante
       específico.
@@ -1069,7 +1069,7 @@ tools:
     statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  Copia_Tributaria_cf\
       \ as tributaria_cf_url,\n  'Copia Tributaria Con Fondo (logo Gasco)' as tipo_documento\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
-      \  Solicitante = @solicitante_code\n  AND Copia_Tributaria_cf IS NOT NULL\n\
+      \  Solicitante = LPAD(@solicitante_code, 10, '0')\n  AND Copia_Tributaria_cf IS NOT NULL\n\
       ORDER BY Factura DESC\nLIMIT 10\n"
     description: 'Obtiene facturas Tributaria CON FONDO (logo Gasco) para un solicitante
       específico.
@@ -1091,7 +1091,7 @@ tools:
     statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  Copia_Tributaria_sf\
       \ as tributaria_sf_url,\n  'Copia Tributaria Sin Fondo (sin logo)' as tipo_documento\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
-      \  Solicitante = @solicitante_code\n  AND Copia_Tributaria_sf IS NOT NULL\n\
+      \  Solicitante = LPAD(@solicitante_code, 10, '0')\n  AND Copia_Tributaria_sf IS NOT NULL\n\
       ORDER BY Factura DESC\nLIMIT 10\n"
     description: 'Obtiene facturas Tributaria SIN FONDO (sin logo) para un solicitante
       específico.
@@ -1120,7 +1120,7 @@ tools:
       \  (CASE WHEN Copia_Tributaria_cf IS NOT NULL THEN 1 ELSE 0 END +\n   CASE WHEN\
       \ Copia_Tributaria_sf IS NOT NULL THEN 1 ELSE 0 END) as total_tributarias_disponibles\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
-      \  Solicitante = @solicitante_code\n  AND (Copia_Tributaria_cf IS NOT NULL OR\
+      \  Solicitante = LPAD(@solicitante_code, 10, '0')\n  AND (Copia_Tributaria_cf IS NOT NULL OR\
       \ Copia_Tributaria_sf IS NOT NULL)\nORDER BY Factura DESC\nLIMIT 10\n"
     description: 'Obtiene TODAS las facturas TRIBUTARIAS (con y sin firma) para un
       solicitante específico.
@@ -1149,7 +1149,7 @@ tools:
       \ Fondo (sin logo) ' ELSE '' END\n  ) as tipos_cedibles_disponibles,\n  (CASE\
       \ WHEN Copia_Cedible_cf IS NOT NULL THEN 1 ELSE 0 END +\n   CASE WHEN Copia_Cedible_sf\
       \ IS NOT NULL THEN 1 ELSE 0 END) as total_cedibles_disponibles\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
-      WHERE\n  Solicitante = @solicitante_code\n  AND (Copia_Cedible_cf IS NOT NULL\
+      WHERE\n  Solicitante = LPAD(@solicitante_code, 10, '0')\n  AND (Copia_Cedible_cf IS NOT NULL\
       \ OR Copia_Cedible_sf IS NOT NULL)\nORDER BY Factura DESC\nLIMIT 10\n"
     description: 'Obtiene TODAS las facturas CEDIBLES (con y sin firma) para un solicitante
       específico.

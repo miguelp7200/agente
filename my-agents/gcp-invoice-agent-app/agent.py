@@ -1171,7 +1171,8 @@ def generate_individual_download_links(pdf_urls: str, allow_zip: bool = True) ->
             stable_urls = [
                 stable_urls_dict[blob_name]
                 for blob_name in blob_names
-                if blob_name in stable_urls_dict and stable_urls_dict[blob_name] is not None
+                if blob_name in stable_urls_dict
+                and stable_urls_dict[blob_name] is not None
             ]
 
             if not stable_urls:

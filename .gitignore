@@ -70,6 +70,9 @@ logs/logs-adk.txt
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
 
+# Deployment logs
+deployment/backend/*.json
+
 # VS Code and AI tools specific files (now in docs/ai-assistants/ and docs/debugging/)
 docs/ai-assistants/AGENTS.md
 docs/debugging/BYTEROVER*.md
@@ -100,3 +103,6 @@ docs/exports/
 docs/official/**/*.pdf
 docs/official/**/*.docx
 docs/official/**/*.html
+
+# Logs de deployment y testing
+deployment/backend/logs_*.json
