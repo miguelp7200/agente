@@ -1,5 +1,5 @@
 {
-  "appName": "gcp-invoice-agent-app",
+  "appName": "gcp_invoice_agent_app",
   "userId": "test-user",
   "sessionId": "test-session-20250904-010300",
   "newMessage": {
