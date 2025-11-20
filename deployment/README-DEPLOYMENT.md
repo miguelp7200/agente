@@ -45,42 +45,73 @@ gcloud config set project agent-intelligence-gasco
 - `mcp-toolbox-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
 - `file-service-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
 
-## 🎯 Despliegue Completo (Un comando)
+## 🎯 Despliegue del Backend
 
-```bash
-# Desde el directorio raíz del proyecto
-cd /path/to/invoice-chatbot-system
+### Método Principal (Recomendado)
 
-# Hacer scripts ejecutables
-chmod +x deployment/scripts/*.sh
+```powershell
+# Desde el directorio deployment/backend
+cd deployment/backend
 
-# Desplegar todo el sistema
-./deployment/scripts/deploy-all.sh
+# Desplegar a producción
+.\deploy.ps1
+
+# Desplegar a test (sin afectar producción)
+.\deploy.ps1 -Environment test
+
+# Despliegue local para desarrollo
+.\deploy.ps1 -Local
+
+# Solo validar sin desplegar
+.\deploy.ps1 -ValidateOnly
 ```
 
-### Qué hace el despliegue completo:
-1. 📦 Configura Artifact Registry
-2. 🔧 Despliega Backend (ADK + PDF + MCP)
-3. 🎨 Despliega Frontend con URL del backend
-4. 🔍 Ejecuta health checks completos
-5. 📊 Muestra URLs finales
+### Parámetros Disponibles
 
-## 🔧 Despliegue Individual
+| Parámetro | Descripción | Ejemplo |
+|-----------|-------------|---------|
+| `-Environment` | Ambiente de deployment: `prod`, `test`, `dev`, `local` | `-Environment test` |
+| `-Version` | Versión/tag de la imagen | `-Version v1.2.3` |
+| `-Local` | Ejecutar localmente en Docker | `-Local` |
+| `-ValidateOnly` | Solo validar sin desplegar | `-ValidateOnly` |
+| `-ConfigValidation` | Validar configuración antes de deployment | `-ConfigValidation` |
+| `-SkipBuild` | Omitir construcción de imagen | `-SkipBuild` |
+| `-SkipTests` | Omitir pruebas de validación | `-SkipTests` |
+| `-LocalPort` | Puerto para deployment local | `-LocalPort 8001` |
+| `-ServiceName` | Nombre personalizado del servicio | `-ServiceName my-backend` |
 
-### Backend solamente
-```bash
-./deployment/scripts/deploy-backend.sh
+### Ejemplos de Uso Común
+
+```powershell
+# 1. Deploy rápido a test
+cd deployment/backend
+.\deploy.ps1 -Environment test
+
+# 2. Desarrollo local con validación
+.\deploy.ps1 -Local -ConfigValidation
+
+# 3. Deploy a producción con versión específica
+.\deploy.ps1 -Environment prod -Version v2.1.0
+
+# 4. Solo validar servicio existente
+.\deploy.ps1 -ValidateOnly
+
+# 5. Deploy sin rebuild (usar imagen existente)
+.\deploy.ps1 -SkipBuild -Environment test
 ```
 
-### Frontend solamente (requiere URL del backend)
-```bash
-BACKEND_URL=https://invoice-backend-xyz-uc.a.run.app \
-    ./deployment/scripts/deploy-frontend.sh
-```
+## 🔧 Herramientas Auxiliares
 
 ### Setup inicial de Artifact Registry
-```bash
-./deployment/scripts/setup-artifacts.sh
+```powershell
+cd deployment/scripts
+.\setup-artifacts.ps1
+```
+
+### Health Check del servicio
+```powershell
+cd deployment/scripts
+.\health-check.ps1
 ```
 
 ## 🔍 Monitoreo y Debugging
