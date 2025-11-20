@@ -24,9 +24,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY my-agents/ ./my-agents/
 COPY mcp-toolbox/ ./mcp-toolbox/
 COPY src/ ./src/
+COPY config/ ./config/
 COPY config.py ./
-COPY create_complete_zip.py ./
-COPY zip_packager.py ./
+COPY deprecated/ ./deprecated/
 COPY .env ./
 
 # Copiar scripts de deployment
