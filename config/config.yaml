@@ -1,0 +1,188 @@
+# ================================================================
+# Invoice Backend - Multi-Service Configuration
+# ================================================================
+# This configuration file supports multiple services (invoice-backend, 
+# invoice-backend-test) using the same codebase with service-specific overrides.
+#
+# Configuration inheritance:
+# 1. Base defaults (this file)
+# 2. Environment variables (.env file)
+# 3. Service-specific overrides (via SERVICE_NAME env var)
+# ================================================================
+
+# ================================================================
+# Google Cloud Platform - Dual Project Architecture
+# ================================================================
+google_cloud:
+  # Read Project (Production data - read-only)
+  read:
+    project: datalake-gasco
+    dataset: sap_analitico_facturas_pdf_qa
+    bucket: miguel-test
+    location: us-central1
+    
+  # Write Project (Operations, ZIPs, logs - read-write)
+  write:
+    project: agent-intelligence-gasco
+    dataset: zip_operations
+    bucket: agent-intelligence-zips
+    location: us-central1
+
+  # Service Account Configuration
+  service_accounts:
+    pdf_signer: adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com
+    bigquery_reader: null  # Uses Application Default Credentials
+    bigquery_writer: null  # Uses Application Default Credentials
+
+# ================================================================
+# BigQuery Tables - Dual Architecture
+# ================================================================
+bigquery:
+  # Read tables (datalake-gasco)
+  read:
+    invoices:
+      table: pdfs_modelo
+      full_path: datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo
+      
+  # Write tables (agent-intelligence-gasco)
+  write:
+    zip_packages:
+      table: zip_packages
+      full_path: agent-intelligence-gasco.zip_operations.zip_packages
+    logs:
+      table: extraction_logs
+      full_path: agent-intelligence-gasco.zip_operations.extraction_logs
+    operations:
+      table: agent_operations
+      full_path: agent-intelligence-gasco.zip_operations.agent_operations
+    line_items:
+      table: invoice_line_items
+      full_path: agent-intelligence-gasco.zip_operations.invoice_line_items
+    conversation_logs:
+      table: conversation_logs
+      full_path: agent-intelligence-gasco.chat_analytics.conversation_logs
+
+# ================================================================
+# Gasco Business Logic - Field Mapping
+# ================================================================
+gasco:
+  # Field mapping from generic names to Gasco-specific column names
+  field_mapping:
+    numero_factura: Factura
+    solicitante: Solicitante
+    factura_referencia: Factura_Referencia
+    cliente_rut: Rut
+    cliente_nombre: Nombre
+    detalles_items: DetallesFactura
+    pdf_tributaria_cf: Copia_Tributaria_cf
+    pdf_cedible_cf: Copia_Cedible_cf
+    pdf_tributaria_sf: Copia_Tributaria_sf
+    pdf_cedible_sf: Copia_Cedible_sf
+    pdf_termico: Doc_Termico
+
+# ================================================================
+# Vertex AI Configuration
+# ================================================================
+vertex_ai:
+  model: gemini-2.5-flash
+  temperature: 0.3
+  max_workers: 3
+  
+  # Thinking Mode (Reasoning Budget)
+  thinking:
+    enabled: false  # Enable for development/debugging
+    budget: 1024    # Token budget for reasoning (256-8192)
+
+# ================================================================
+# API & Services Configuration
+# ================================================================
+services:
+  # Base configuration (shared across all services)
+  defaults:
+    port: 8080
+    mcp_toolbox_url: http://127.0.0.1:5000
+    cloud_run_base_url: https://invoice-backend-819133916464.us-central1.run.app
+    
+  # Service-specific overrides (selected via SERVICE_NAME env var)
+  invoice-backend:
+    suffix: ""  # Production service (no suffix)
+    cloud_run_url: https://invoice-backend-819133916464.us-central1.run.app
+    
+  invoice-backend-test:
+    suffix: "-test"  # Test service (with suffix)
+    cloud_run_url: https://invoice-backend-test-819133916464.us-central1.run.app
+
+# ================================================================
+# PDF & ZIP Processing Configuration
+# ================================================================
+pdf:
+  # Signed URLs configuration
+  signed_urls:
+    expiration_hours: 24
+    buffer_minutes: 5
+    use_robust_implementation: true  # Use clock-skew resistant implementation
+    
+    # Retry configuration for signature errors
+    retry:
+      max_retries: 3
+      delay_seconds: 2
+      backoff_factor: 2.0
+      
+    # Time synchronization
+    time_sync:
+      timeout_seconds: 10
+      threshold_seconds: 300  # Max acceptable time difference (5 minutes)
+      timezone: UTC
+      
+    # Monitoring
+    monitoring:
+      enabled: true
+      log_level: INFO
+
+  # ZIP packaging configuration
+  zip:
+    threshold: 5              # Number of invoices to trigger auto-ZIP
+    preview_limit: 3          # Number of invoices to preview when ZIP is created
+    expiration_days: 7        # Days before ZIP expires
+    max_files: 50             # Maximum PDFs per ZIP
+    
+    # Timeouts
+    creation_timeout: 900     # 15 minutes
+    download_timeout: 300     # 5 minutes per PDF
+    max_concurrent_downloads: 10
+    
+    # Alternative to ZIP for very large sets
+    use_signed_urls_threshold: 30  # Use individual signed URLs instead of ZIP
+
+# ================================================================
+# Display & UI Configuration
+# ================================================================
+display:
+  max_pdf_links: 10  # Maximum PDF links to show in chat before auto-ZIP
+
+# ================================================================
+# System Configuration
+# ================================================================
+system:
+  # Logging
+  log_level: INFO
+  debug_mode: false
+  
+  # Paths (relative to project root)
+  paths:
+    data: data
+    samples: data/samples
+    output: invoice_processing_output
+    zips: data/zips
+  
+  # Cloud Run detection
+  is_cloud_run: false  # Automatically detected via K_SERVICE env var
+  
+# ================================================================
+# Feature Flags
+# ================================================================
+features:
+  use_robust_signed_urls: true     # Use new stable signed URL implementation
+  enable_thinking_mode: false      # Enable model reasoning (development only)
+  signed_url_monitoring: true      # Enable signed URL monitoring/logging
+  use_legacy_architecture: false   # Fallback to deprecated/legacy code
