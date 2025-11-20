@@ -1,0 +1,160 @@
+"""
+ADK Agent Wrapper - Clean Architecture Integration
+===================================================
+Thin wrapper that delegates to application services.
+Maintains ADK compatibility while using SOLID refactored code.
+"""
+
+import sys
+from pathlib import Path
+
+# Add project root to Python path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+# Import ADK components
+from google.adk.agents import Agent
+from google.adk.tools import FunctionTool
+from google.adk.planners import BuiltInPlanner
+from toolbox_core import ToolboxSyncClient
+
+# Import service container
+from src.container import get_container
+from src.core.config import get_config
+
+# ================================================================
+# Configuration and Initialization
+# ================================================================
+
+# Load configuration
+config = get_config()
+
+# Get service container
+container = get_container()
+
+# Initialize MCP Toolbox
+toolbox_url = config.get("service.mcp_toolbox_url", "http://127.0.0.1:5000")
+toolbox_client = ToolboxSyncClient(toolbox_url)
+
+print(f"ADK Agent initialized with service container", file=sys.stderr)
+container.print_status()
+
+# ================================================================
+# ADK Agent Tools (Thin Wrappers)
+# ================================================================
+
+
+def search_invoices_by_rut(rut: str, limit: int = 10) -> dict:
+    """
+    Search invoices by customer RUT
+
+    Args:
+        rut: Customer RUT (Chilean tax ID)
+        limit: Maximum number of results
+
+    Returns:
+        Dictionary with invoices and signed URLs
+    """
+    try:
+        invoice_service = container.invoice_service
+        invoices = invoice_service.get_invoices_by_rut(rut, limit=limit)
+
+        return {"success": True, "count": len(invoices), "invoices": invoices}
+    except Exception as e:
+        print(f"ERROR search_invoices_by_rut: {e}", file=sys.stderr)
+        return {"success": False, "error": str(e), "count": 0, "invoices": []}
+
+
+def create_zip_package(invoice_numbers: list[str]) -> dict:
+    """
+    Create ZIP package from invoice numbers
+
+    Args:
+        invoice_numbers: List of invoice numbers
+
+    Returns:
+        Dictionary with ZIP download URL
+    """
+    try:
+        # Get invoices
+        invoice_service = container.invoice_service
+        invoices = []
+
+        for invoice_number in invoice_numbers:
+            invoice_data = invoice_service.get_invoice_by_number(
+                invoice_number,
+                generate_urls=False,  # Don't need URLs, just creating ZIP
+            )
+            if invoice_data:
+                # Convert back to domain model (temporary - will improve this)
+                from src.core.domain.models import Invoice
+
+                invoice = Invoice.from_bigquery_row(invoice_data["metadata"]["raw_row"])
+                invoices.append(invoice)
+
+        if not invoices:
+            return {
+                "success": False,
+                "error": "No invoices found",
+                "download_url": None,
+            }
+
+        # Create ZIP
+        zip_service = container.zip_service
+        zip_package = zip_service.create_zip_from_invoices(invoices)
+
+        return {
+            "success": True,
+            "package_id": zip_package.package_id,
+            "download_url": zip_package.download_url,
+            "file_size_mb": zip_package.file_size_mb,
+            "pdf_count": zip_package.pdf_count,
+        }
+
+    except Exception as e:
+        print(f"ERROR create_zip_package: {e}", file=sys.stderr)
+        return {"success": False, "error": str(e), "download_url": None}
+
+
+# ================================================================
+# ADK Agent Configuration
+# ================================================================
+
+# Get Vertex AI configuration
+vertex_model = config.get("vertex_ai.model", "gemini-2.5-flash")
+vertex_temperature = config.get("vertex_ai.temperature", 0.3)
+thinking_enabled = config.get("vertex_ai.thinking.enabled", False)
+thinking_budget = config.get("vertex_ai.thinking.budget", 1024)
+
+# Create ADK agent with all MCP tools
+root_agent = Agent(
+    model=vertex_model,
+    tools=[
+        # MCP Toolbox tools (49 tools from toolbox)
+        *toolbox_client.to_function_tools(),
+        # Custom wrapped tools
+        FunctionTool(search_invoices_by_rut),
+        FunctionTool(create_zip_package),
+    ],
+    system_instruction="""
+    You are a helpful invoice assistant for Gasco.
+    
+    You have access to invoice data in BigQuery and can:
+    - Search invoices by RUT, invoice number, solicitante code
+    - Generate signed URLs for PDF downloads
+    - Create ZIP packages for multiple invoices
+    
+    Always provide clear, concise responses in Spanish.
+    When providing PDF links, use the signed URLs generated by the system.
+    """,
+    generate_content_config={
+        "temperature": vertex_temperature,
+        "thinking_budget": thinking_budget if thinking_enabled else 0,
+    },
+)
+
+print(f"ADK root_agent configured:", file=sys.stderr)
+print(f"  - Model: {vertex_model}", file=sys.stderr)
+print(f"  - Temperature: {vertex_temperature}", file=sys.stderr)
+print(f"  - Thinking mode: {thinking_enabled}", file=sys.stderr)
+print(f"  - Tools: {len(root_agent.tools)}", file=sys.stderr)
