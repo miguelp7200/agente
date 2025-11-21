@@ -123,21 +123,28 @@ class RobustURLSigner:
         Returns:
             Buffer time in minutes (5/3/1 based on sync status)
         """
-        sync_info = self.time_sync.get_sync_info()
+        # get_sync_info returns (local_time, google_time, time_diff_seconds)
+        local_time, google_time, time_diff = self.time_sync.get_sync_info()
 
-        if sync_info["is_synchronized"] is None:
+        # Determine sync status from time_diff
+        if time_diff is None:
             # Unknown sync status - use maximum buffer
             buffer = 5
             logger.warning(
                 "Clock sync status unknown - using maximum buffer",
                 extra={"buffer_minutes": buffer},
             )
-        elif sync_info["is_synchronized"]:
+        elif abs(time_diff) <= self.config.get(
+            "gcs.monitoring.clock_skew_threshold_seconds", 10
+        ):
             # Good sync - use minimum buffer
             buffer = 1
             logger.debug(
                 "Clock synchronized - using minimum buffer",
-                extra={"buffer_minutes": buffer},
+                extra={
+                    "buffer_minutes": buffer,
+                    "time_diff_seconds": round(time_diff, 2),
+                },
             )
         else:
             # Poor sync - use medium buffer
@@ -146,17 +153,16 @@ class RobustURLSigner:
                 "Clock NOT synchronized - using medium buffer",
                 extra={
                     "buffer_minutes": buffer,
-                    "time_diff_seconds": sync_info.get("time_diff_seconds"),
+                    "time_diff_seconds": round(time_diff, 2),
                 },
             )
 
             # Log clock skew event
-            if sync_info.get("time_diff_seconds"):
-                self.metrics.log_clock_skew_detection(
-                    bucket="system",
-                    time_diff=sync_info["time_diff_seconds"],
-                    buffer_applied=buffer,
-                )
+            self.metrics.log_clock_skew_detection(
+                bucket="system",
+                time_diff=time_diff,
+                buffer_applied=buffer,
+            )
 
         return buffer
 
