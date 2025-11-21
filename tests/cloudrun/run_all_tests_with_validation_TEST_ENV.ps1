@@ -36,18 +36,28 @@ function Extract-URLs {
     
     $urls = @()
     
-    # Regex para signed URLs de GCS
-    $pattern = 'https://storage\.googleapis\.com/[^\s\)\]<>"]+'
-    $matches = [regex]::Matches($Response, $pattern)
+    # Primero, limpiar el response de saltos de línea dentro de URLs
+    # Las URLs pueden estar cortadas en múltiples líneas
+    $cleanedResponse = $Response -replace '(\r?\n)\s*', ' '
+    
+    # Regex para signed URLs de GCS (captura URL completa hasta & o fin)
+    $pattern = 'https://storage\.googleapis\.com/[^\s\)\]\<\>"\r\n]+'
+    $matches = [regex]::Matches($cleanedResponse, $pattern)
     
     foreach ($match in $matches) {
         $url = $match.Value
-        # Limpiar URL de posibles caracteres finales
+        # Limpiar URL de posibles caracteres finales inválidos
         $url = $url -replace '[,;\.]+$', ''
-        $urls += $url
+        $url = $url.Trim()
+        
+        # Validar que la URL tenga parámetros de firma
+        if ($url -match 'X-Goog-Signature=') {
+            $urls += $url
+        }
     }
     
-    return $urls
+    # Eliminar duplicados
+    return $urls | Select-Object -Unique
 }
 
 # Función para validar una URL descargándola

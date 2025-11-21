@@ -11,7 +11,7 @@ param(
     
     [int]$DownloadTimeout = 10,  # Timeout por descarga
     
-    [switch]$Verbose  # Mostrar detalles de cada descarga
+    [switch]$ShowDetails  # Mostrar detalles de cada descarga
 )
 
 $ErrorActionPreference = "Continue"
@@ -35,15 +35,25 @@ function Extract-URLs {
     param([string]$Response)
     
     $urls = @()
-    $pattern = 'https://storage\.googleapis\.com/[^\s\)\]<>"]+'
-    $matches = [regex]::Matches($Response, $pattern)
+    
+    # Limpiar saltos de línea dentro de URLs
+    $cleanedResponse = $Response -replace '(\r?\n)\s*', ' '
+    
+    # Regex para signed URLs de GCS
+    $pattern = 'https://storage\.googleapis\.com/[^\s\)\]\<\>"\r\n]+'
+    $matches = [regex]::Matches($cleanedResponse, $pattern)
     
     foreach ($match in $matches) {
         $url = $match.Value -replace '[,;\.]+$', ''
-        $urls += $url
+        $url = $url.Trim()
+        
+        # Solo URLs con firma válida
+        if ($url -match 'X-Goog-Signature=') {
+            $urls += $url
+        }
     }
     
-    return $urls
+    return $urls | Select-Object -Unique
 }
 
 # Función para validar URL
@@ -102,7 +112,7 @@ function Test-SignedURL {
             Write-Host "⚠️  Error: $($errorMessage.Substring(0, [Math]::Min(50, $errorMessage.Length)))..." -ForegroundColor Yellow
         }
         
-        if ($Verbose) {
+        if ($ShowDetails) {
             Write-Host "      URL: $shortUrl" -ForegroundColor DarkGray
             Write-Host "      Error completo: $errorMessage" -ForegroundColor DarkGray
         }
