@@ -309,10 +309,13 @@ class RobustURLSigner:
 
         expiration = timedelta(minutes=expiration_minutes)
 
+        # Pass credentials explicitly to ensure correct signing
+        # Critical for impersonated credentials
         signed_url = blob.generate_signed_url(
             version="v4",
             expiration=expiration,
             method="GET",
+            credentials=client._credentials,
         )
 
         return signed_url
