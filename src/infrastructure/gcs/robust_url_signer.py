@@ -1,8 +1,16 @@
 """
 Robust URL Signer Implementation
 =================================
-Adapter for existing gcs_stable_urls module implementing IURLSigner interface.
-Uses clock-skew resistant signing with automatic buffer time calculation.
+Adapter that switches between SOLID and legacy implementations
+based on feature flag.
+
+Feature flag in config.yaml:
+    pdf.signed_urls.use_solid_implementation: true/false
+
+When true:  Uses new SOLID architecture
+            (src.infrastructure.gcs.robust_url_signer_solid)
+When false: Uses legacy implementation
+            (src.gcs_stability.gcs_stable_urls)
 """
 
 import sys
@@ -11,18 +19,19 @@ from typing import Optional
 
 from src.core.domain.interfaces import IURLSigner
 from src.core.config import ConfigLoader
-from src.gcs_stability.gcs_stable_urls import generate_stable_signed_url
 
 
 class RobustURLSigner(IURLSigner):
     """
-    Robust implementation of URL signer using gcs_stable_urls module
+    Robust implementation of URL signer with feature flag support
+
+    Switches between SOLID and legacy implementations based on config.
 
     Features:
     - Automatic clock skew detection and compensation
     - V4 signing for better stability
-    - Blob existence verification before signing
-    - Impersonated credentials support for Cloud Run
+    - Triple fallback strategy (SOLID only)
+    - Comprehensive monitoring (SOLID only)
     """
 
     def __init__(self, config: ConfigLoader):
@@ -34,6 +43,9 @@ class RobustURLSigner(IURLSigner):
         """
         self.config = config
 
+        # Check feature flag
+        self.use_solid = config.get("pdf.signed_urls.use_solid_implementation", True)
+
         # Get signing configuration
         self.default_expiration_hours = config.get(
             "pdf.signed_urls.expiration_hours", 24
@@ -42,24 +54,36 @@ class RobustURLSigner(IURLSigner):
             "google_cloud.service_accounts.pdf_signer"
         )
 
-        print(f"SIGNER Initialized RobustURLSigner", file=sys.stderr)
+        # Initialize appropriate implementation
+        if self.use_solid:
+            print("SIGNER Using SOLID implementation", file=sys.stderr)
+            from src.core.di import get_signed_url_service
+
+            self._solid_service = get_signed_url_service()
+        else:
+            print("SIGNER Using LEGACY implementation", file=sys.stderr)
+            from src.gcs_stability.gcs_stable_urls import generate_stable_signed_url
+
+            self._generate_stable_signed_url = generate_stable_signed_url
+
         print(
-            f"       - Default expiration: {self.default_expiration_hours}h",
+            f"       - Default expiration: " f"{self.default_expiration_hours}h",
             file=sys.stderr,
         )
         print(
-            f"       - Service account: {self.service_account_email}", file=sys.stderr
+            f"       - Service account: {self.service_account_email}",
+            file=sys.stderr,
         )
 
     def generate_signed_url(
         self, gs_url: str, expiration: Optional[timedelta] = None
     ) -> str:
         """
-        Generate signed URL from GCS path using robust implementation
+        Generate signed URL from GCS path using configured implementation
 
         Args:
             gs_url: GCS path (gs://bucket/path/to/file.pdf)
-            expiration: URL expiration duration (defaults to configured value)
+            expiration: URL expiration duration (defaults to configured)
 
         Returns:
             Signed HTTPS URL
@@ -72,32 +96,49 @@ class RobustURLSigner(IURLSigner):
         if not self.validate_gs_url(gs_url):
             raise ValueError(f"Invalid GCS URL format: {gs_url}")
 
-        bucket_name, blob_name = self.extract_bucket_and_blob(gs_url)
-
-        # Calculate expiration hours
+        # Calculate expiration
         if expiration:
             expiration_hours = int(expiration.total_seconds() / 3600)
+            expiration_minutes = int(expiration.total_seconds() / 60)
         else:
             expiration_hours = self.default_expiration_hours
+            expiration_minutes = self.default_expiration_hours * 60
 
         try:
-            # Use existing robust implementation with automatic clock skew compensation
-            signed_url = generate_stable_signed_url(
-                bucket_name=bucket_name,
-                blob_name=blob_name,
-                expiration_hours=expiration_hours,
-                service_account_path=None,  # Use impersonated credentials
-                credentials=None,  # Will use ADC with impersonation
-                method="GET",
-            )
+            if self.use_solid:
+                # Use SOLID implementation
+                signed_url = self._solid_service.generate_signed_url(
+                    gs_url=gs_url,
+                    expiration_minutes=expiration_minutes,
+                )
 
-            return signed_url
+                if signed_url is None:
+                    raise Exception("SOLID service returned None")
+
+                return signed_url
+            else:
+                # Use legacy implementation
+                bucket_name, blob_name = self.extract_bucket_and_blob(gs_url)
+
+                signed_url = self._generate_stable_signed_url(
+                    bucket_name=bucket_name,
+                    blob_name=blob_name,
+                    expiration_hours=expiration_hours,
+                    service_account_path=None,
+                    credentials=None,
+                    method="GET",
+                )
+
+                return signed_url
 
         except FileNotFoundError:
             # Re-raise blob not found errors
             raise
         except Exception as e:
-            print(f"ERROR Generating signed URL for {gs_url}: {e}", file=sys.stderr)
+            print(
+                f"ERROR Generating signed URL for {gs_url}: {e}",
+                file=sys.stderr,
+            )
             raise
 
     def validate_gs_url(self, gs_url: str) -> bool:
