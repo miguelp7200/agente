@@ -183,37 +183,51 @@ class RobustURLSigner:
             logger.debug("Legacy method disabled by configuration")
             return None
 
+        # Thread-safe double-check locking pattern
         if self._legacy_client is not None:
             return self._legacy_client
 
-        try:
-            credentials_path = self.config.get(
-                "gcs.credentials.service_account_key_file"
-            )
-            if not credentials_path:
-                logger.debug("No service account key file configured")
+        with self._client_lock:
+            # Double-check inside lock to prevent race condition
+            if self._legacy_client is not None:
+                return self._legacy_client
+
+            try:
+                credentials_path = self.config.get(
+                    "gcs.credentials.service_account_key_file"
+                )
+                if not credentials_path:
+                    logger.debug(
+                        "No service account key file configured"
+                    )
+                    return None
+
+                credentials = (
+                    service_account.Credentials.from_service_account_file(
+                        credentials_path
+                    )
+                )
+
+                self._legacy_client = storage.Client(
+                    credentials=credentials
+                )
+
+                logger.info(
+                    "Legacy storage client created",
+                    extra={"credentials_path": credentials_path},
+                )
+
+                return self._legacy_client
+
+            except Exception as e:
+                logger.error(
+                    "Failed to create legacy storage client",
+                    extra={
+                        "error": str(e),
+                        "error_type": type(e).__name__,
+                    },
+                )
                 return None
-
-            credentials = service_account.Credentials.from_service_account_file(
-                credentials_path
-            )
-
-            with self._client_lock:
-                self._legacy_client = storage.Client(credentials=credentials)
-
-            logger.info(
-                "Legacy storage client created",
-                extra={"credentials_path": credentials_path},
-            )
-
-            return self._legacy_client
-
-        except Exception as e:
-            logger.error(
-                "Failed to create legacy storage client",
-                extra={"error": str(e), "error_type": type(e).__name__},
-            )
-            return None
 
     def _get_impersonated_client(self) -> Optional[storage.Client]:
         """
@@ -226,36 +240,47 @@ class RobustURLSigner:
             logger.debug("Impersonation method not configured")
             return None
 
+        # Thread-safe double-check locking pattern
         if self._impersonated_client is not None:
             return self._impersonated_client
 
-        try:
-            source_credentials, _ = default()
+        with self._client_lock:
+            # Double-check inside lock to prevent race condition
+            if self._impersonated_client is not None:
+                return self._impersonated_client
 
-            target_credentials = impersonated_credentials.Credentials(
-                source_credentials=source_credentials,
-                target_principal=self.service_account_email,
-                target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
-            )
+            try:
+                source_credentials, _ = default()
 
-            with self._client_lock:
+                target_credentials = impersonated_credentials.Credentials(
+                    source_credentials=source_credentials,
+                    target_principal=self.service_account_email,
+                    target_scopes=[
+                        "https://www.googleapis.com/auth/cloud-platform"
+                    ],
+                )
+
                 self._impersonated_client = storage.Client(
                     credentials=target_credentials
                 )
 
-            logger.info(
-                "Impersonated storage client created",
-                extra={"service_account_email": self.service_account_email},
-            )
+                logger.info(
+                    "Impersonated storage client created",
+                    extra={
+                        "service_account_email": (
+                            self.service_account_email
+                        )
+                    },
+                )
 
-            return self._impersonated_client
+                return self._impersonated_client
 
-        except Exception as e:
-            logger.error(
-                "Failed to create impersonated storage client",
-                extra={"error": str(e), "error_type": type(e).__name__},
-            )
-            return None
+            except Exception as e:
+                logger.error(
+                    "Failed to create impersonated storage client",
+                    extra={"error": str(e), "error_type": type(e).__name__},
+                )
+                return None
 
     def _get_adc_client(self) -> Optional[storage.Client]:
         """
@@ -264,23 +289,31 @@ class RobustURLSigner:
         Returns:
             Storage client or None if not available
         """
+        # Thread-safe double-check locking pattern
         if self._adc_client is not None:
             return self._adc_client
 
-        try:
-            with self._client_lock:
+        with self._client_lock:
+            # Double-check inside lock to prevent race condition
+            if self._adc_client is not None:
+                return self._adc_client
+
+            try:
                 self._adc_client = storage.Client()
 
-            logger.info("ADC storage client created")
+                logger.info("ADC storage client created")
 
-            return self._adc_client
+                return self._adc_client
 
-        except Exception as e:
-            logger.error(
-                "Failed to create ADC storage client",
-                extra={"error": str(e), "error_type": type(e).__name__},
-            )
-            return None
+            except Exception as e:
+                logger.error(
+                    "Failed to create ADC storage client",
+                    extra={
+                        "error": str(e),
+                        "error_type": type(e).__name__,
+                    },
+                )
+                return None
 
     def _generate_with_client(
         self,
