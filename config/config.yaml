@@ -165,6 +165,13 @@ pdf:
 # GCS (Google Cloud Storage) Configuration
 # ================================================================
 gcs:
+  # Signed URLs Configuration (SOLID Implementation)
+  signed_urls:
+    use_impersonation: true
+    service_account_email: adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com
+    validate_environment_on_init: true
+    default_expiration_minutes: 60
+  
   # Time Synchronization
   time_sync:
     threshold_seconds: 60  # Max acceptable time difference
