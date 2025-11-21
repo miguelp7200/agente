@@ -180,8 +180,8 @@ gcs:
   # Buffer Time by Clock Skew Status (minutes)
   buffer_time:
     clock_skew_detected: 5      # When clock skew is detected
-    verification_failed: 3      # When verification fails
-    synchronized: 1             # When time is synchronized
+    verification_failed: 5      # When verification fails
+    synchronized: 5             # When time is synchronized (production stable value)
   
   # Retry Logic
   retry:

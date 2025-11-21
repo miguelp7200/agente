@@ -126,34 +126,40 @@ class RobustURLSigner:
         # get_sync_info returns (local_time, google_time, time_diff_seconds)
         local_time, google_time, time_diff = self.time_sync.get_sync_info()
 
+        # Get threshold and buffer values from config
+        threshold_seconds = self.config.get("gcs.time_sync.threshold_seconds", 60)
+        buffer_synced = self.config.get("gcs.buffer_time.synchronized", 5)
+        buffer_skew = self.config.get("gcs.buffer_time.clock_skew_detected", 5)
+        buffer_unknown = self.config.get("gcs.buffer_time.verification_failed", 5)
+
         # Determine sync status from time_diff
         if time_diff is None:
             # Unknown sync status - use maximum buffer
-            buffer = 5
+            buffer = buffer_unknown
             logger.warning(
                 "Clock sync status unknown - using maximum buffer",
                 extra={"buffer_minutes": buffer},
             )
-        elif abs(time_diff) <= self.config.get(
-            "gcs.monitoring.clock_skew_threshold_seconds", 10
-        ):
+        elif abs(time_diff) <= threshold_seconds:
             # Good sync - use minimum buffer
-            buffer = 1
+            buffer = buffer_synced
             logger.debug(
                 "Clock synchronized - using minimum buffer",
                 extra={
                     "buffer_minutes": buffer,
                     "time_diff_seconds": round(time_diff, 2),
+                    "threshold_seconds": threshold_seconds,
                 },
             )
         else:
             # Poor sync - use medium buffer
-            buffer = 3
+            buffer = buffer_skew
             logger.warning(
                 "Clock NOT synchronized - using medium buffer",
                 extra={
                     "buffer_minutes": buffer,
                     "time_diff_seconds": round(time_diff, 2),
+                    "threshold_seconds": threshold_seconds,
                 },
             )
 
