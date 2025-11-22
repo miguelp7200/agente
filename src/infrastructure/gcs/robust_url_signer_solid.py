@@ -17,13 +17,18 @@ following SOLID principles with dependency injection.
 
 import logging
 import time
+import binascii
+import hashlib
+import collections
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 from threading import Lock
+from urllib.parse import quote
 
 from google.cloud import storage
 from google.auth import impersonated_credentials, default
 from google.oauth2 import service_account
+from googleapiclient import discovery
 
 from src.domain.interfaces.time_sync import ITimeSyncValidator
 from src.domain.interfaces.environment_validator import IEnvironmentValidator
@@ -105,6 +110,11 @@ class RobustURLSigner:
         self._legacy_client = None
         self._impersonated_client = None
         self._adc_client = None
+
+        # Debugging: Track credential renewals and URL generation
+        self._last_credential_refresh = None
+        self._urls_generated_count = 0
+        self._last_url_timestamp = None
 
         logger.info(
             "RobustURLSigner initialized",
@@ -197,20 +207,14 @@ class RobustURLSigner:
                     "gcs.credentials.service_account_key_file"
                 )
                 if not credentials_path:
-                    logger.debug(
-                        "No service account key file configured"
-                    )
+                    logger.debug("No service account key file configured")
                     return None
 
-                credentials = (
-                    service_account.Credentials.from_service_account_file(
-                        credentials_path
-                    )
+                credentials = service_account.Credentials.from_service_account_file(
+                    credentials_path
                 )
 
-                self._legacy_client = storage.Client(
-                    credentials=credentials
-                )
+                self._legacy_client = storage.Client(credentials=credentials)
 
                 logger.info(
                     "Legacy storage client created",
@@ -255,9 +259,7 @@ class RobustURLSigner:
                 target_credentials = impersonated_credentials.Credentials(
                     source_credentials=source_credentials,
                     target_principal=self.service_account_email,
-                    target_scopes=[
-                        "https://www.googleapis.com/auth/cloud-platform"
-                    ],
+                    target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
                 )
 
                 self._impersonated_client = storage.Client(
@@ -266,11 +268,7 @@ class RobustURLSigner:
 
                 logger.info(
                     "Impersonated storage client created",
-                    extra={
-                        "service_account_email": (
-                            self.service_account_email
-                        )
-                    },
+                    extra={"service_account_email": (self.service_account_email)},
                 )
 
                 return self._impersonated_client
@@ -342,16 +340,394 @@ class RobustURLSigner:
 
         expiration = timedelta(minutes=expiration_minutes)
 
+        # DEBUGGING: Log client creation/reuse
+        client_type = type(client._credentials).__name__
+        client_created_new = False
+        if client_type == "Credentials":
+            if self._last_credential_refresh is None:
+                client_created_new = True
+                self._last_credential_refresh = datetime.utcnow()
+                logger.info(
+                    "Storage client created with impersonated credentials",
+                    extra={
+                        "credential_type": client_type,
+                        "timestamp": self._last_credential_refresh.isoformat(),
+                    },
+                )
+
         # Pass credentials explicitly to ensure correct signing
         # Critical for impersonated credentials
-        signed_url = blob.generate_signed_url(
-            version="v4",
-            expiration=expiration,
-            method="GET",
-            credentials=client._credentials,
-        )
+        # WORKAROUND: Retry up to 3 times if signature is corrupt
+        max_attempts = 3
+        signed_url = None
+
+        for attempt in range(max_attempts):
+            generation_start = time.time()
+            system_time_before = datetime.utcnow()
+
+            # Recreate blob object for each attempt to avoid cached state
+            if attempt > 0:
+                blob = client.bucket(bucket_name).blob(blob_name)
+                time.sleep(0.1 * attempt)  # Small delay: 100ms, 200ms
+
+            signed_url = blob.generate_signed_url(
+                version="v4",
+                expiration=expiration,
+                method="GET",
+                credentials=client._credentials,
+            )
+
+            # Validate signature immediately (length + hex format)
+            if "X-Goog-Signature=" in signed_url:
+                sig = signed_url.split("X-Goog-Signature=")[1]
+                sig_len = len(sig)
+
+                # RSA-SHA256 signature must be exactly 512 hex characters
+                is_valid_length = sig_len == 512
+                is_valid_hex = all(c in "0123456789abcdef" for c in sig.lower())
+                is_valid = is_valid_length and is_valid_hex
+
+                if is_valid:
+                    # Valid signature (length + hex format)
+                    if attempt > 0:
+                        logger.info(
+                            f"Signature OK on attempt {attempt + 1} | "
+                            f"blob={blob_name}"
+                        )
+                    break  # Success
+                else:
+                    # Corrupt signature (length or format)
+                    error_detail = []
+                    if not is_valid_length:
+                        error_detail.append(f"length={sig_len}")
+                    if not is_valid_hex:
+                        # Find first non-hex character
+                        for i, c in enumerate(sig):
+                            if c.lower() not in "0123456789abcdef":
+                                error_detail.append(f"non-hex_char='{c}'_at_pos_{i}")
+                                break
+
+                    logger.error(
+                        f"CORRUPT SIGNATURE attempt {attempt + 1}/{max_attempts} | "
+                        f"blob={blob_name} | {' '.join(error_detail)}"
+                    )
+                    if attempt < max_attempts - 1:
+                        continue  # Retry
+                    else:
+                        logger.error(
+                            f"All {max_attempts} attempts failed | blob={blob_name} | "
+                            f"Returning corrupt URL"
+                        )
+
+        system_time_after = datetime.utcnow()
+        generation_time_ms = (time.time() - generation_start) * 1000
+
+        # DEBUGGING: Track URL generation velocity
+        self._urls_generated_count += 1
+        time_since_last_url = None
+        if self._last_url_timestamp:
+            time_since_last_url = (
+                system_time_after - self._last_url_timestamp
+            ).total_seconds() * 1000
+        self._last_url_timestamp = system_time_after
+
+        # DEBUGGING: Log URL length and signature analysis
+        url_length = len(signed_url)
+
+        # Extract URL components for validation
+        url_components = {}
+        x_goog_date_str = None
+        clock_skew_seconds = None
+
+        if "?" in signed_url:
+            base_url, query_string = signed_url.split("?", 1)
+            url_components["base_url"] = base_url
+            params = dict(
+                param.split("=", 1) for param in query_string.split("&") if "=" in param
+            )
+            x_goog_date_str = params.get("X-Goog-Date", "")
+            url_components["x_goog_date"] = x_goog_date_str
+            url_components["x_goog_expires"] = params.get("X-Goog-Expires", "")
+            url_components["x_goog_algorithm"] = params.get("X-Goog-Algorithm", "")
+
+            # DEBUGGING: Calculate clock skew
+            if x_goog_date_str:
+                try:
+                    # Parse X-Goog-Date: 20251121T183307Z
+                    x_goog_dt = datetime.strptime(x_goog_date_str, "%Y%m%dT%H%M%SZ")
+                    clock_skew_seconds = (
+                        system_time_before - x_goog_dt
+                    ).total_seconds()
+
+                    # Log significant clock skew
+                    if abs(clock_skew_seconds) > 2:
+                        logger.warning(
+                            "Significant clock skew detected",
+                            extra={
+                                "bucket": bucket_name,
+                                "blob": blob_name,
+                                "system_time": (system_time_before.isoformat()),
+                                "x_goog_date": x_goog_dt.isoformat(),
+                                "skew_seconds": round(clock_skew_seconds, 2),
+                            },
+                        )
+                except Exception as e:
+                    logger.debug(f"Could not parse X-Goog-Date: {e}")
+
+        if "X-Goog-Signature=" in signed_url:
+            signature = signed_url.split("X-Goog-Signature=")[1]
+            sig_length = len(signature)
+
+            # Check for repeated patterns (bug indicator)
+            if sig_length > 1000:
+                logger.error(
+                    "ABNORMALLY LONG SIGNATURE DETECTED",
+                    extra={
+                        "bucket": bucket_name,
+                        "blob": blob_name,
+                        "url_length": url_length,
+                        "signature_length": sig_length,
+                        "signature_preview": signature[:200],
+                        "signature_tail": signature[-200:],
+                    },
+                )
+
+                # Check for repetition pattern
+                if sig_length > 500:
+                    chunk = signature[200:268]  # 68 chars from position 200
+                    occurrences = signature.count(chunk)
+                    if occurrences > 10:
+                        logger.error(
+                            "SIGNATURE REPETITION DETECTED - POSSIBLE SDK BUG",
+                            extra={
+                                "bucket": bucket_name,
+                                "blob": blob_name,
+                                "pattern_length": len(chunk),
+                                "pattern_occurrences": occurrences,
+                                "pattern_sample": chunk,
+                                "total_from_pattern": len(chunk) * occurrences,
+                                "actual_signature_length": sig_length,
+                                "credentials_type": type(client._credentials).__name__,
+                            },
+                        )
+            elif sig_length >= 400 and sig_length <= 600:
+                # Normal signature length - Log as INFO
+                extra_data = {
+                    "bucket": bucket_name,
+                    "blob": blob_name,
+                    "signature_length": sig_length,
+                    "url_length": url_length,
+                    "generation_time_ms": round(generation_time_ms, 2),
+                    "x_goog_date": url_components.get("x_goog_date"),
+                    "x_goog_expires": url_components.get("x_goog_expires"),
+                    "x_goog_algorithm": url_components.get("x_goog_algorithm"),
+                    "credentials_type": (type(client._credentials).__name__),
+                    "url_sequence_number": self._urls_generated_count,
+                    "system_time_utc": system_time_before.isoformat(),
+                }
+
+                # Add optional debugging fields
+                if clock_skew_seconds is not None:
+                    extra_data["clock_skew_seconds"] = round(clock_skew_seconds, 2)
+                if time_since_last_url is not None:
+                    extra_data["ms_since_last_url"] = round(time_since_last_url, 2)
+                if self._last_credential_refresh:
+                    seconds_since_refresh = (
+                        system_time_after - self._last_credential_refresh
+                    ).total_seconds()
+                    extra_data["seconds_since_credential_refresh"] = round(
+                        seconds_since_refresh, 2
+                    )
+
+                logger.info(
+                    "Signed URL generated successfully",
+                    extra=extra_data,
+                )
+            else:
+                # Unexpected signature length (not normal, not extremely long)
+                logger.warning(
+                    "Unexpected signature length detected",
+                    extra={
+                        "bucket": bucket_name,
+                        "blob": blob_name,
+                        "signature_length": sig_length,
+                        "url_length": url_length,
+                        "expected_range": "400-600 chars",
+                    },
+                )
 
         return signed_url
+
+    def _generate_signed_url_manual(
+        self,
+        bucket_name: str,
+        blob_name: str,
+        expiration_minutes: int,
+    ) -> Optional[str]:
+        """
+        Generate signed URL using manual V4 signing (Google official method)
+
+        This implementation follows the official Google Cloud sample:
+        https://github.com/GoogleCloudPlatform/python-docs-samples/blob/main/storage/signed_urls/generate_signed_urls.py
+
+        Uses IAM signBlob API instead of blob.generate_signed_url() to avoid
+        the impersonated credentials bug.
+
+        Args:
+            bucket_name: GCS bucket name
+            blob_name: Object path within bucket
+            expiration_minutes: URL validity in minutes
+
+        Returns:
+            Signed URL string or None if failed
+        """
+        try:
+            # Convert expiration to seconds
+            expiration_seconds = expiration_minutes * 60
+            if expiration_seconds > 604800:
+                logger.error("Expiration cannot exceed 7 days (604800 seconds)")
+                return None
+
+            # Escape object name
+            escaped_object_name = quote(blob_name.encode("utf-8"), safe=b"/~")
+            canonical_uri = f"/{escaped_object_name}"
+
+            # Get current UTC time
+            datetime_now = datetime.now(tz=datetime.timezone.utc)
+            request_timestamp = datetime_now.strftime("%Y%m%dT%H%M%SZ")
+            datestamp = datetime_now.strftime("%Y%m%d")
+
+            # Build credential scope
+            client_email = self.service_account_email
+            credential_scope = f"{datestamp}/auto/storage/goog4_request"
+            credential = f"{client_email}/{credential_scope}"
+
+            # Build canonical headers
+            host = f"{bucket_name}.storage.googleapis.com"
+            headers = {"host": host}
+
+            canonical_headers = ""
+            ordered_headers = collections.OrderedDict(sorted(headers.items()))
+            for k, v in ordered_headers.items():
+                lower_k = str(k).lower()
+                strip_v = str(v).lower()
+                canonical_headers += f"{lower_k}:{strip_v}\n"
+
+            signed_headers = ";".join(str(k).lower() for k in ordered_headers.keys())
+
+            # Build query parameters
+            query_parameters = {
+                "X-Goog-Algorithm": "GOOG4-RSA-SHA256",
+                "X-Goog-Credential": credential,
+                "X-Goog-Date": request_timestamp,
+                "X-Goog-Expires": str(expiration_seconds),
+                "X-Goog-SignedHeaders": signed_headers,
+            }
+
+            canonical_query_string = ""
+            ordered_params = collections.OrderedDict(sorted(query_parameters.items()))
+            for k, v in ordered_params.items():
+                encoded_k = quote(str(k), safe="")
+                encoded_v = quote(str(v), safe="")
+                canonical_query_string += f"{encoded_k}={encoded_v}&"
+            canonical_query_string = canonical_query_string[:-1]  # Remove trailing '&'
+
+            # Build canonical request
+            canonical_request = "\n".join(
+                [
+                    "GET",
+                    canonical_uri,
+                    canonical_query_string,
+                    canonical_headers,
+                    signed_headers,
+                    "UNSIGNED-PAYLOAD",
+                ]
+            )
+
+            # Hash canonical request
+            canonical_request_hash = hashlib.sha256(
+                canonical_request.encode()
+            ).hexdigest()
+
+            # Build string to sign
+            string_to_sign = "\n".join(
+                [
+                    "GOOG4-RSA-SHA256",
+                    request_timestamp,
+                    credential_scope,
+                    canonical_request_hash,
+                ]
+            )
+
+            # Sign using IAM signBlob API
+            # Get source credentials for impersonation
+            source_credentials, _ = default()
+
+            # Create IAM client
+            iam_client = discovery.build(
+                "iamcredentials",
+                "v1",
+                credentials=source_credentials,
+                cache_discovery=False,
+            )
+
+            import base64
+
+            # CRITICAL: IAM signBlob expects the RAW BYTES to sign (not pre-base64'd)
+            # The API will base64-encode internally, and return base64-encoded signature
+            # So we encode string_to_sign as bytes, then the API handles base64
+            string_to_sign_bytes = string_to_sign.encode("utf-8")
+
+            # Call signBlob - API expects base64-encoded payload
+            service_account_name = f"projects/-/serviceAccounts/{client_email}"
+            sign_request = (
+                iam_client.projects()
+                .serviceAccounts()
+                .signBlob(
+                    name=service_account_name,
+                    body={
+                        "payload": base64.b64encode(string_to_sign_bytes).decode(
+                            "utf-8"
+                        )
+                    },
+                )
+            )
+
+            sign_response = sign_request.execute()
+
+            # Response contains base64-encoded signature bytes
+            # Decode from base64, then convert to hex (GCS V4 expects hex signature)
+            signature_bytes = base64.b64decode(sign_response["signedBlob"])
+            signature = binascii.hexlify(signature_bytes).decode()
+
+            # Build final URL
+            scheme_and_host = f"https://{host}"
+            signed_url = f"{scheme_and_host}{canonical_uri}?{canonical_query_string}&x-goog-signature={signature}"
+
+            logger.info(
+                "Manual signed URL generated successfully",
+                extra={
+                    "bucket": bucket_name,
+                    "blob": blob_name,
+                    "expiration_minutes": expiration_minutes,
+                    "signature_length": len(signature),
+                },
+            )
+
+            return signed_url
+
+        except Exception as e:
+            logger.error(
+                f"Failed to generate manual signed URL: {type(e).__name__}: {str(e)}",
+                extra={
+                    "bucket": bucket_name,
+                    "blob": blob_name,
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                },
+                exc_info=True,
+            )
+            return None
 
     def generate_signed_url(
         self,
@@ -431,7 +807,7 @@ class RobustURLSigner:
                     )
                     continue
 
-                # Use retry strategy for URL generation
+                # Use retry strategy for URL generation with SDK method
                 @self.retry.retry_decorator()
                 def _generate():
                     return self._generate_with_client(
@@ -521,7 +897,12 @@ class RobustURLSigner:
         )
 
         result = {}
-        for gs_url in gs_urls:
+        for i, gs_url in enumerate(gs_urls):
+            # Add delay between requests to avoid signBlob rate limiting
+            # Google applies throttling on concurrent signBlob calls
+            if i > 0:
+                time.sleep(0.05)  # 50ms delay between generations
+
             result[gs_url] = self.generate_signed_url(
                 gs_url=gs_url,
                 expiration_minutes=expiration_minutes,

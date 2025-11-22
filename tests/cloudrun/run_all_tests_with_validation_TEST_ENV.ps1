@@ -36,23 +36,38 @@ function Extract-URLs {
     
     $urls = @()
     
-    # Primero, limpiar el response de saltos de línea dentro de URLs
-    # Las URLs pueden estar cortadas en múltiples líneas
-    $cleanedResponse = $Response -replace '(\r?\n)\s*', ' '
+    # Limpiar whitespace
+    $cleanedResponse = $Response -replace '[\r\n]+', ' '
+    $cleanedResponse = $cleanedResponse -replace '\s+', ' '
     
-    # Regex para signed URLs de GCS (captura URL completa hasta & o fin)
-    $pattern = 'https://storage\.googleapis\.com/[^\s\)\]\<\>"\r\n]+'
-    $matches = [regex]::Matches($cleanedResponse, $pattern)
+    # Estrategia 1: Buscar URLs en formato Markdown [Descargar](URL)
+    $markdownRegex = [regex]'\[Descargar\]\((https://storage\.googleapis\.com/[^\)]+)\)'
+    $matches = $markdownRegex.Matches($cleanedResponse)
     
     foreach ($match in $matches) {
-        $url = $match.Value
-        # Limpiar URL de posibles caracteres finales inválidos
-        $url = $url -replace '[,;\.]+$', ''
-        $url = $url.Trim()
+        if ($match.Groups.Count -ge 2) {
+            $url = $match.Groups[1].Value
+            
+            # Validar firma
+            if ($url -match 'X-Goog-Signature=' -and $url -match 'X-Goog-Algorithm=') {
+                $urls += $url
+            }
+        }
+    }
+    
+    # Estrategia 2: Buscar URLs directas si no encontramos en Markdown
+    if ($urls.Count -eq 0) {
+        $directRegex = [regex]'https://storage\.googleapis\.com/[^\s\)\]\<\>]+\?[^\s\)\]<>]+'
+        $directMatches = $directRegex.Matches($cleanedResponse)
         
-        # Validar que la URL tenga parámetros de firma
-        if ($url -match 'X-Goog-Signature=') {
-            $urls += $url
+        foreach ($match in $directMatches) {
+            $url = $match.Value
+            $url = $url -replace '[,;\.]+$', ''
+            $url = $url.Trim()
+            
+            if ($url -match 'X-Goog-Signature=' -and $url -match 'X-Goog-Algorithm=') {
+                $urls += $url
+            }
         }
     }
     

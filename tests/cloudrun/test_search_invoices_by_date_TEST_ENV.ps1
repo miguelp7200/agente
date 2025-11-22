@@ -42,7 +42,7 @@ $requestBody = @{
     userId = $userId
     sessionId = $sessionId
     newMessage = @{
-        parts = @(@{text = "dame las facturas del 08-09-2025"})
+        parts = @(@{text = "dame las facturas del 8 de septiembre de 2025"})
         role = "user"
     }
 } | ConvertTo-Json -Depth 5
@@ -63,6 +63,11 @@ if ($modelEvents) {
     $responseText = ($modelEvents | Select-Object -Last 1).content.parts[0].text
     Write-Host "🤖 Respuesta:" -ForegroundColor Cyan
     Write-Host $responseText -ForegroundColor White
+    
+    # IMPORTANTE: También enviamos a stdout para que el validador lo capture
+    Write-Output "CHATBOT_RESPONSE_START"
+    Write-Output $responseText
+    Write-Output "CHATBOT_RESPONSE_END"
     
     Write-Host "`n📊 Validación:" -ForegroundColor Magenta
     $noLocalhost = $responseText -notmatch "localhost"

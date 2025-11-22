@@ -36,24 +36,79 @@ function Extract-URLs {
     
     $urls = @()
     
-    # Limpiar saltos de línea dentro de URLs
-    $cleanedResponse = $Response -replace '(\r?\n)\s*', ' '
+    # Limpiar whitespace
+    $cleanedResponse = $Response -replace '[\r\n]+', ' '
+    $cleanedResponse = $cleanedResponse -replace '\s+', ' '
     
-    # Regex para signed URLs de GCS
-    $pattern = 'https://storage\.googleapis\.com/[^\s\)\]\<\>"\r\n]+'
-    $matches = [regex]::Matches($cleanedResponse, $pattern)
+    # Estrategia 1: Buscar URLs en formato Markdown [Descargar](URL)
+    # Los corchetes [ ] deben estar escapados en regex
+    $markdownRegex = [regex]'\[Descargar\]\((https://storage\.googleapis\.com/[^\)]+)\)'
+    $matches = $markdownRegex.Matches($cleanedResponse)
     
-    foreach ($match in $matches) {
-        $url = $match.Value -replace '[,;\.]+$', ''
-        $url = $url.Trim()
+    Write-Host "   🔍 Debug: Encontrados $($matches.Count) matches de Markdown" -ForegroundColor Gray
+    
+    # Debug: Mostrar muestra del texto donde buscamos
+    if ($matches.Count -eq 0) {
+        $sampleText = $cleanedResponse.Substring(0, [Math]::Min(500, $cleanedResponse.Length))
+        Write-Host "   📝 Muestra del texto: $sampleText..." -ForegroundColor DarkGray
         
-        # Solo URLs con firma válida
-        if ($url -match 'X-Goog-Signature=') {
-            $urls += $url
+        # Buscar manualmente si contiene el patrón
+        if ($cleanedResponse -match '\[Descargar\]') {
+            Write-Host "   ✅ SÍ contiene '[Descargar]'" -ForegroundColor Green
+        } else {
+            Write-Host "   ❌ NO contiene '[Descargar]'" -ForegroundColor Red
+        }
+        
+        if ($cleanedResponse -match 'https://storage\.googleapis\.com') {
+            Write-Host "   ✅ SÍ contiene 'https://storage.googleapis.com'" -ForegroundColor Green
+        } else {
+            Write-Host "   ❌ NO contiene 'https://storage.googleapis.com'" -ForegroundColor Red
         }
     }
     
-    return $urls | Select-Object -Unique
+    foreach ($match in $matches) {
+        if ($match.Groups.Count -ge 2) {
+            $url = $match.Groups[1].Value
+            
+            # Validar firma
+            if ($url -match 'X-Goog-Signature=' -and $url -match 'X-Goog-Algorithm=') {
+                $urls += $url
+                Write-Host "   ✅ URL capturada: $($url.Substring(0, [Math]::Min(100, $url.Length)))..." -ForegroundColor DarkGreen
+            }
+        }
+    }
+    
+    # Estrategia 2: Buscar URLs directas si no encontramos en Markdown
+    if ($urls.Count -eq 0) {
+        Write-Host "   🔍 No se encontraron URLs en Markdown, buscando URLs directas..." -ForegroundColor Yellow
+        
+        $directRegex = [regex]'https://storage\.googleapis\.com/[^\s\)\]\<\>]+\?[^\s\)\]<>]+'
+        $directMatches = $directRegex.Matches($cleanedResponse)
+        
+        Write-Host "   🔍 Debug: Encontrados $($directMatches.Count) matches directos" -ForegroundColor Gray
+        
+        foreach ($match in $directMatches) {
+            $url = $match.Value
+            $url = $url -replace '[,;\.]+$', ''
+            $url = $url.Trim()
+            
+            if ($url -match 'X-Goog-Signature=' -and $url -match 'X-Goog-Algorithm=') {
+                $urls += $url
+                Write-Host "   ✅ URL directa capturada: $($url.Substring(0, [Math]::Min(100, $url.Length)))..." -ForegroundColor DarkGreen
+            }
+        }
+    }
+    
+    # Eliminar duplicados
+    $uniqueUrls = $urls | Select-Object -Unique
+    
+    if ($uniqueUrls.Count -gt 0) {
+        Write-Host "   🔗 URLs extraídas: $($uniqueUrls.Count)" -ForegroundColor Cyan
+    } else {
+        Write-Host "   ⚠️  No se encontraron URLs válidas" -ForegroundColor Yellow
+    }
+    
+    return $uniqueUrls
 }
 
 # Función para validar URL
@@ -87,6 +142,34 @@ function Test-SignedURL {
             Write-Host "✅ " -NoNewline -ForegroundColor Green
             Write-Host "OK ($sizeMB MB, $([math]::Round($downloadTime, 0))ms)" -ForegroundColor Green
             
+            # Calculate time delta between generation and validation
+            $xGoogDateStr = if ($Url -match "X-Goog-Date=([^&]+)") { $matches[1] } else { $null }
+            $timeDeltaSeconds = $null
+            
+            if ($xGoogDateStr) {
+                try {
+                    # Parse X-Goog-Date: 20251121T183307Z
+                    $year = $xGoogDateStr.Substring(0, 4)
+                    $month = $xGoogDateStr.Substring(4, 2)
+                    $day = $xGoogDateStr.Substring(6, 2)
+                    $hour = $xGoogDateStr.Substring(9, 2)
+                    $minute = $xGoogDateStr.Substring(11, 2)
+                    $second = $xGoogDateStr.Substring(13, 2)
+                    
+                    $xGoogDateTime = [DateTime]::ParseExact(
+                        "$year-$month-${day}T${hour}:${minute}:${second}Z",
+                        "yyyy-MM-ddTHH:mm:ssZ",
+                        [System.Globalization.CultureInfo]::InvariantCulture,
+                        [System.Globalization.DateTimeStyles]::AssumeUniversal
+                    )
+                    
+                    $validationTime = (Get-Date).ToUniversalTime()
+                    $timeDeltaSeconds = ($validationTime - $xGoogDateTime).TotalSeconds
+                } catch {
+                    # Silently ignore parsing errors
+                }
+            }
+            
             return @{
                 Index = $Index
                 FileName = $fileName
@@ -97,6 +180,9 @@ function Test-SignedURL {
                 Error = $null
                 IsSignatureError = $false
                 Url = $Url
+                ValidationTimestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                XGoogDate = $xGoogDateStr
+                TimeDeltaSeconds = if ($timeDeltaSeconds) { [math]::Round($timeDeltaSeconds, 2) } else { $null }
             }
         }
         
@@ -117,6 +203,33 @@ function Test-SignedURL {
             Write-Host "      Error completo: $errorMessage" -ForegroundColor DarkGray
         }
         
+        # Calculate time delta for errors too
+        $xGoogDateStr = if ($Url -match "X-Goog-Date=([^&]+)") { $matches[1] } else { $null }
+        $timeDeltaSeconds = $null
+        
+        if ($xGoogDateStr) {
+            try {
+                $year = $xGoogDateStr.Substring(0, 4)
+                $month = $xGoogDateStr.Substring(4, 2)
+                $day = $xGoogDateStr.Substring(6, 2)
+                $hour = $xGoogDateStr.Substring(9, 2)
+                $minute = $xGoogDateStr.Substring(11, 2)
+                $second = $xGoogDateStr.Substring(13, 2)
+                
+                $xGoogDateTime = [DateTime]::ParseExact(
+                    "$year-$month-${day}T${hour}:${minute}:${second}Z",
+                    "yyyy-MM-ddTHH:mm:ssZ",
+                    [System.Globalization.CultureInfo]::InvariantCulture,
+                    [System.Globalization.DateTimeStyles]::AssumeUniversal
+                )
+                
+                $validationTime = (Get-Date).ToUniversalTime()
+                $timeDeltaSeconds = ($validationTime - $xGoogDateTime).TotalSeconds
+            } catch {
+                # Silently ignore
+            }
+        }
+        
         return @{
             Index = $Index
             FileName = $fileName
@@ -127,6 +240,9 @@ function Test-SignedURL {
             Error = $errorMessage
             IsSignatureError = $isSignatureError
             Url = $Url
+            ValidationTimestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+            XGoogDate = $xGoogDateStr
+            TimeDeltaSeconds = if ($timeDeltaSeconds) { [math]::Round($timeDeltaSeconds, 2) } else { $null }
         }
     }
 }
