@@ -100,9 +100,7 @@ class TestFeatureFlagSwitching(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn("storage.googleapis.com", result)
 
-    @patch(
-        "src.gcs_stability.gcs_stable_urls.generate_stable_signed_url"
-    )
+    @patch("src.gcs_stability.gcs_stable_urls.generate_stable_signed_url")
     def test_legacy_implementation_generates_urls(
         self, mock_generate_stable_signed_url
     ):
