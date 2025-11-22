@@ -56,6 +56,8 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     Registered as ADK FunctionTool. Agent's prompt instructs it to call
     this tool when it receives gs:// URLs from other tools.
     
+    CRITICAL: Auto-triggers ZIP creation when count > threshold
+    
     Args:
         pdf_urls: Comma-separated string of gs:// URLs
         
@@ -74,7 +76,75 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             "download_urls": []
         }
     
-    print(f"[TOOL] Processing {len(pdf_urls_list)} URLs", file=sys.stderr)
+    count = len(pdf_urls_list)
+    print(f"[TOOL] Processing {count} URLs", file=sys.stderr)
+    
+    # Check ZIP threshold from config
+    zip_threshold = config.get("pdf.zip.threshold", 5)
+    
+    # Auto-trigger ZIP creation if count > threshold
+    zip_triggered = False
+    zip_message = ""
+    
+    if count > zip_threshold:
+        print(
+            f"[TOOL] Count {count} > threshold {zip_threshold}",
+            file=sys.stderr
+        )
+        print("[TOOL] Auto-triggering parallel ZIP", file=sys.stderr)
+        
+        # Start background ZIP creation
+        import threading
+        
+        def create_zip_in_background():
+            """Background task to create ZIP package"""
+            try:
+                print("[ZIP-BG] Starting background ZIP creation", file=sys.stderr)
+                
+                # Extract invoice numbers from gs:// URLs
+                # Format: gs://bucket/descargas/{invoice_number}/filename.pdf
+                invoice_numbers = []
+                for url in pdf_urls_list:
+                    parts = url.split('/')
+                    if len(parts) >= 5 and parts[3] == 'descargas':
+                        invoice_number = parts[4]
+                        if invoice_number not in invoice_numbers:
+                            invoice_numbers.append(invoice_number)
+                
+                if invoice_numbers:
+                    print(
+                        f"[ZIP-BG] Creating ZIP for {len(invoice_numbers)} invoices",
+                        file=sys.stderr
+                    )
+                    # Call create_zip_package function
+                    zip_result = create_zip_package(invoice_numbers)
+                    
+                    if zip_result.get("success"):
+                        print(
+                            f"[ZIP-BG] ZIP created: {zip_result.get('download_url')}",
+                            file=sys.stderr
+                        )
+                    else:
+                        print(
+                            f"[ZIP-BG] ZIP failed: {zip_result.get('error')}",
+                            file=sys.stderr
+                        )
+                else:
+                    print("[ZIP-BG] No invoice numbers extracted", file=sys.stderr)
+                    
+            except Exception as e:
+                print(f"[ZIP-BG] Exception: {str(e)}", file=sys.stderr)
+        
+        # Start thread
+        zip_thread = threading.Thread(target=create_zip_in_background)
+        zip_thread.daemon = True
+        zip_thread.start()
+        
+        zip_triggered = True
+        zip_message = (
+            f"Se está generando un archivo ZIP con {count} facturas en "
+            f"paralelo. El enlace estará disponible en breve."
+        )
     
     # Get URL signer from container
     url_signer = container.url_signer
@@ -103,6 +173,11 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     
     if errors:
         result["errors"] = errors
+    
+    # Add ZIP notification if threshold exceeded
+    if zip_triggered:
+        result["zip_triggered"] = True
+        result["zip_message"] = zip_message
     
     signed_count = result['signed']
     total_count = result['total']
