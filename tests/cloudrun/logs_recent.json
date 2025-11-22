@@ -1,0 +1,402 @@
+[
+  {
+    "insertId": "6920c3ae0008b5f6f45d8298",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-11-21T19:55:26.576266023Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:13142 - \"POST /run HTTP/1.1\" 200 OK",
+    "timestamp": "2025-11-21T19:55:26.570870Z"
+  },
+  {
+    "insertId": "6920c3ae0008b2894cc2c4b3",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:55:26.904095046Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:55:26,570 - INFO - adk_web_server.py:1391 - Generated 5 events in agent run",
+    "timestamp": "2025-11-21T19:55:26.569993Z"
+  },
+  {
+    "insertId": "6920c3ae0008a5002520c53c",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:55:26.571094478Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:55:26,567 - INFO - google_llm.py:219 - Response received from the model.",
+    "timestamp": "2025-11-21T19:55:26.566528Z"
+  },
+  {
+    "insertId": "6920c37c000304ff39b8abf7",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,198 - INFO - google_llm.py:163 - Sending out request, model: gemini-2.5-flash, backend: GoogleLLMVariant.VERTEX_AI, stream: False",
+    "timestamp": "2025-11-21T19:54:36.197887Z"
+  },
+  {
+    "insertId": "6920c37c00024dea47e6ad0a",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[TOOL] Result: 18/18 signed",
+    "timestamp": "2025-11-21T19:54:36.151018Z"
+  },
+  {
+    "insertId": "6920c37c00024de6bca6db67",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[TOOL] Signed: gs://miguel-test/descargas/0105536375/Copia_Tribut...",
+    "timestamp": "2025-11-21T19:54:36.151014Z"
+  },
+  {
+    "insertId": "6920c37c00024de0b3af4b6b",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,151 - INFO - signed_url_service.py:158 - Signed URL generated",
+    "timestamp": "2025-11-21T19:54:36.151008Z"
+  },
+  {
+    "insertId": "6920c37c00024d5ac4527ced",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,151 - INFO - robust_url_signer_solid.py:595 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:36.150874Z"
+  },
+  {
+    "insertId": "6920c37c00024d2de5da71c3",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,151 - INFO - robust_url_signer_solid.py:485 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:36.150829Z"
+  },
+  {
+    "insertId": "6920c37c0000ab8b4dca8e9c",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[TOOL] Signed: gs://miguel-test/descargas/0105536375/Copia_Cedibl...",
+    "timestamp": "2025-11-21T19:54:36.043915Z"
+  },
+  {
+    "insertId": "6920c37c0000ab6f016c60e9",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,044 - INFO - signed_url_service.py:158 - Signed URL generated",
+    "timestamp": "2025-11-21T19:54:36.043887Z"
+  },
+  {
+    "insertId": "6920c37c0000ab15d5d9f8d1",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,044 - INFO - robust_url_signer_solid.py:595 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:36.043797Z"
+  },
+  {
+    "insertId": "6920c37c0000aaeec30da0e5",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:36.268424367Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:36,044 - INFO - robust_url_signer_solid.py:485 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:36.043758Z"
+  },
+  {
+    "insertId": "6920c37b000dbb7aa4f92d58",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[TOOL] Signed: gs://miguel-test/descargas/0105536376/Copia_Tribut...",
+    "timestamp": "2025-11-21T19:54:35.899962Z"
+  },
+  {
+    "insertId": "6920c37b000dbb60db7f2b1f",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:35,900 - INFO - signed_url_service.py:158 - Signed URL generated",
+    "timestamp": "2025-11-21T19:54:35.899936Z"
+  },
+  {
+    "insertId": "6920c37b000dbb0fb54007d8",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:35,900 - INFO - robust_url_signer_solid.py:595 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:35.899855Z"
+  },
+  {
+    "insertId": "6920c37b000dbae16648c1b3",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:35,900 - INFO - robust_url_signer_solid.py:485 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:35.899809Z"
+  },
+  {
+    "insertId": "6920c37b000c1582c6807cc3",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[TOOL] Signed: gs://miguel-test/descargas/0105536376/Copia_Cedibl...",
+    "timestamp": "2025-11-21T19:54:35.791938Z"
+  },
+  {
+    "insertId": "6920c37b000c15682d965bfb",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:35,792 - INFO - signed_url_service.py:158 - Signed URL generated",
+    "timestamp": "2025-11-21T19:54:35.791912Z"
+  },
+  {
+    "insertId": "6920c37b000c151f26cc3c03",
+    "labels": {
+      "instanceId": "0014778296787a881d2c4aab395927d2e91de243d855a50a4e4e120e20f8eab3414ae329694c4f22cecb2ca87c982ee87cd19e3114e062dd356e79583f8fa967c839d6bd8879da2b3896e17ce7eb00"
+    },
+    "logName": "projects/agent-intelligence-gasco/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-11-21T19:54:35.933841014Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "invoice-backend-test",
+        "location": "us-central1",
+        "project_id": "agent-intelligence-gasco",
+        "revision_name": "invoice-backend-test-r20251121-161407",
+        "service_name": "invoice-backend-test"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "2025-11-21 19:54:35,792 - INFO - robust_url_signer_solid.py:595 - Signed URL generated successfully",
+    "timestamp": "2025-11-21T19:54:35.791839Z"
+  }
+]

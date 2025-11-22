@@ -4,6 +4,7 @@ Unit tests for RetryStrategy (SOLID implementation)
 Tests the retry strategy component that implements
 IRetryStrategy interface.
 """
+
 import unittest
 from unittest.mock import Mock, patch
 import time
@@ -78,18 +79,16 @@ class TestRetryStrategy(unittest.TestCase):
         """Test execute_with_retry with immediate success"""
         mock_func = Mock(return_value="result")
         result = self.retry_strategy.execute_with_retry(mock_func, 1, 2, key="value")
-        
+
         self.assertEqual(result, "result")
         mock_func.assert_called_once_with(1, 2, key="value")
 
     def test_execute_with_retry_eventual_success(self):
         """Test execute_with_retry with eventual success"""
-        mock_func = Mock(side_effect=[
-            Exception("Error 1"),
-            Exception("Error 2"),
-            "success"
-        ])
-        
+        mock_func = Mock(
+            side_effect=[Exception("Error 1"), Exception("Error 2"), "success"]
+        )
+
         result = self.retry_strategy.execute_with_retry(mock_func)
         self.assertEqual(result, "success")
         self.assertEqual(mock_func.call_count, 3)
@@ -97,10 +96,10 @@ class TestRetryStrategy(unittest.TestCase):
     def test_execute_with_retry_max_attempts_reached(self):
         """Test execute_with_retry failing after max attempts"""
         mock_func = Mock(side_effect=Exception("Persistent error"))
-        
+
         with self.assertRaises(Exception):
             self.retry_strategy.execute_with_retry(mock_func)
-        
+
         self.assertEqual(mock_func.call_count, 4)  # initial + 3 retries
 
     def test_calculate_backoff_delay(self):
@@ -120,7 +119,7 @@ class TestRetryStrategy(unittest.TestCase):
         self.assertGreaterEqual(delay3, 0.4)
         self.assertLessEqual(delay3, 0.8)
 
-    @patch('time.sleep')
+    @patch("time.sleep")
     def test_retry_decorator_with_delay(self, mock_sleep):
         """Test that retry decorator applies delays between attempts"""
         call_count = 0
@@ -135,10 +134,10 @@ class TestRetryStrategy(unittest.TestCase):
 
         result = failing_function()
         self.assertEqual(result, "success")
-        
+
         # Should have slept 2 times (between 3 attempts)
         self.assertEqual(mock_sleep.call_count, 2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
