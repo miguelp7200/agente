@@ -99,17 +99,17 @@ class RobustURLSigner(IURLSigner):
         # Calculate expiration
         if expiration:
             expiration_hours = int(expiration.total_seconds() / 3600)
-            expiration_minutes = int(expiration.total_seconds() / 60)
+            expiration_timedelta = expiration  # Keep original timedelta for SOLID
         else:
             expiration_hours = self.default_expiration_hours
-            expiration_minutes = self.default_expiration_hours * 60
+            expiration_timedelta = timedelta(hours=self.default_expiration_hours)
 
         try:
             if self.use_solid:
-                # Use SOLID implementation
+                # Use SOLID implementation (expects timedelta, not minutes)
                 signed_url = self._solid_service.generate_signed_url(
                     gs_url=gs_url,
-                    expiration_minutes=expiration_minutes,
+                    expiration=expiration_timedelta,
                 )
 
                 if signed_url is None:
