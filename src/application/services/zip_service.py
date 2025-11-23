@@ -6,10 +6,11 @@ Handles ZIP creation, download URL generation, and cleanup.
 """
 
 import sys
+import time
+import threading
 import uuid
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from datetime import datetime, timedelta
-from pathlib import Path
 import zipfile
 import io
 import concurrent.futures
@@ -56,9 +57,12 @@ class ZipService:
         # Initialize GCS client for ZIP upload
         self.storage_client = storage.Client(project=self.write_project)
 
-        print(f"SERVICE Initialized ZipService", file=sys.stderr)
+        print("SERVICE Initialized ZipService", file=sys.stderr)
         print(f"        - ZIP bucket: {self.write_bucket}", file=sys.stderr)
-        print(f"        - Expiration: {self.zip_expiration_days} days", file=sys.stderr)
+        print(
+            f"        - Expiration: {self.zip_expiration_days} days",
+            file=sys.stderr,
+        )
 
     def create_zip_from_invoices(
         self, invoices: List[Invoice], package_name: Optional[str] = None
@@ -130,7 +134,7 @@ class ZipService:
             self.zip_repo.update(zip_package)
 
             print(
-                f"ZIP Package {package_id} created successfully ({file_size} bytes)",
+                f"ZIP Package {package_id} created " f"({file_size} bytes)",
                 file=sys.stderr,
             )
             return zip_package
@@ -178,7 +182,8 @@ class ZipService:
         print("ZIP Running cleanup of expired packages", file=sys.stderr)
         deleted_count = self.zip_repo.delete_expired()
         print(
-            f"ZIP Cleanup complete: {deleted_count} packages deleted", file=sys.stderr
+            f"ZIP Cleanup: {deleted_count} packages deleted",
+            file=sys.stderr,
         )
         return deleted_count
 
@@ -194,6 +199,19 @@ class ZipService:
         """
         zip_buffer = io.BytesIO()
 
+        # Count total PDFs to download
+        total_pdfs = sum(len(inv.pdf_paths) for inv in invoices)
+        print(
+            f"[ZIP Service] Creating ZIP: {total_pdfs} PDFs "
+            f"from {len(invoices)} invoices",
+            file=sys.stderr,
+        )
+        print(
+            f"[ZIP Service] ThreadPoolExecutor: "
+            f"{self.max_concurrent_downloads} workers",
+            file=sys.stderr,
+        )
+
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
             # Download PDFs concurrently and add to ZIP
             with concurrent.futures.ThreadPoolExecutor(
@@ -201,23 +219,47 @@ class ZipService:
             ) as executor:
                 # Submit all download tasks
                 future_to_pdf = {}
+                start_submit = time.time()
                 for invoice in invoices:
                     for pdf_type, gs_path in invoice.pdf_paths.items():
                         future = executor.submit(self._download_pdf_from_gcs, gs_path)
                         pdf_filename = f"{invoice.factura}_{pdf_type}.pdf"
                         future_to_pdf[future] = (pdf_filename, gs_path)
 
+                submit_time = time.time() - start_submit
+                print(
+                    f"[ZIP Service] Submitted {len(future_to_pdf)} "
+                    f"tasks in {submit_time:.2f}s",
+                    file=sys.stderr,
+                )
+
                 # Collect results and add to ZIP
+                completed = 0
+                start_downloads = time.time()
                 for future in concurrent.futures.as_completed(future_to_pdf):
                     pdf_filename, gs_path = future_to_pdf[future]
+                    completed += 1
                     try:
                         pdf_content = future.result()
+                        pdf_size_kb = len(pdf_content) / 1024
                         zip_file.writestr(pdf_filename, pdf_content)
-                    except Exception as e:
                         print(
-                            f"WARNING Failed to download {gs_path}: {e}",
+                            f"[ZIP] [{completed}/{len(future_to_pdf)}] "
+                            f"{pdf_filename} ({pdf_size_kb:.1f} KB)",
                             file=sys.stderr,
                         )
+                    except Exception as e:
+                        print(
+                            f"[ZIP] [{completed}/{len(future_to_pdf)}] "
+                            f"FAIL {gs_path}: {e}",
+                            file=sys.stderr,
+                        )
+
+                download_time = time.time() - start_downloads
+                print(
+                    f"[ZIP Service] ✓ Downloads: {download_time:.2f}s",
+                    file=sys.stderr,
+                )
 
         zip_buffer.seek(0)
         return zip_buffer
@@ -232,12 +274,28 @@ class ZipService:
         Returns:
             PDF file content as bytes
         """
+        thread_name = threading.current_thread().name
+        start_time = time.time()
+
         bucket_name, blob_name = self.url_signer.extract_bucket_and_blob(gs_path)
+        blob_path_short = blob_name.split("/")[-1]
+
+        print(
+            f"[{thread_name}] ⬇ {blob_path_short}",
+            file=sys.stderr,
+        )
 
         bucket = self.storage_client.bucket(bucket_name)
         blob = bucket.blob(blob_name)
+        content = blob.download_as_bytes()
 
-        return blob.download_as_bytes()
+        elapsed = time.time() - start_time
+        print(
+            f"[{thread_name}] ✓ {blob_path_short} ({elapsed:.2f}s)",
+            file=sys.stderr,
+        )
+
+        return content
 
     def _upload_zip_to_gcs(
         self, package_id: str, zip_buffer: io.BytesIO, package_name: str
