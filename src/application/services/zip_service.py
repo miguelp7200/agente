@@ -8,7 +8,7 @@ Handles ZIP creation, download URL generation, and cleanup.
 import sys
 import uuid
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 import zipfile
 import io
@@ -111,8 +111,12 @@ class ZipService:
             )
 
             # Generate signed URL for download
+            # Max GCS signed URL expiration: 7 days (10080 minutes)
+            expiration_minutes = min(
+                self.zip_expiration_days * 24 * 60, 10080
+            )
             download_url = self.url_signer.generate_signed_url(
-                gcs_path, expiration=timedelta(days=self.zip_expiration_days)
+                gcs_path, expiration_minutes=expiration_minutes
             )
 
             # Update package with download info

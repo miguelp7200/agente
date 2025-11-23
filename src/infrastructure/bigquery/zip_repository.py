@@ -64,9 +64,7 @@ class BigQueryZipRepository(IZipRepository):
         import json
 
         expires_iso = (
-            zip_package.expires_at.isoformat()
-            if zip_package.expires_at
-            else None
+            zip_package.expires_at.isoformat() if zip_package.expires_at else None
         )
         metadata_dict = {
             "download_url": zip_package.download_url,
@@ -131,9 +129,7 @@ class BigQueryZipRepository(IZipRepository):
         import json
 
         expires_iso = (
-            zip_package.expires_at.isoformat()
-            if zip_package.expires_at
-            else None
+            zip_package.expires_at.isoformat() if zip_package.expires_at else None
         )
         metadata_dict = {
             "download_url": zip_package.download_url,

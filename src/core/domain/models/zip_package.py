@@ -168,6 +168,7 @@ class ZipPackage:
         elif isinstance(facturas, str):
             # Fallback: parse JSON array string if needed
             import json
+
             try:
                 invoice_numbers = json.loads(facturas)
             except (json.JSONDecodeError, ValueError):
