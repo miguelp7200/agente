@@ -52,22 +52,22 @@ class BigQueryZipRepository(IZipRepository):
         # Build insert query
         query = f"""
             INSERT INTO `{self.table_full_path}`
-            (package_id, invoice_numbers, status, created_at, expires_at, 
-             gcs_path, download_url, file_size_bytes, pdf_count, error_message)
-            VALUES (@package_id, @invoice_numbers, @status, @created_at, @expires_at,
-                    @gcs_path, @download_url, @file_size_bytes, @pdf_count, @error_message)
+            (zip_id, invoice_ids, state, created_at, expires_at, 
+             gcs_path, download_url, total_size_bytes, count, error_message)
+            VALUES (@zip_id, @invoice_ids, @state, @created_at, @expires_at,
+                    @gcs_path, @download_url, @total_size_bytes, @count, @error_message)
         """
 
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "package_id", "STRING", zip_package.package_id
+                    "zip_id", "STRING", zip_package.package_id
                 ),
                 bigquery.ArrayQueryParameter(
-                    "invoice_numbers", "STRING", zip_package.invoice_numbers
+                    "invoice_ids", "STRING", zip_package.invoice_numbers
                 ),
                 bigquery.ScalarQueryParameter(
-                    "status", "STRING", zip_package.status.value
+                    "state", "STRING", zip_package.status.value
                 ),
                 bigquery.ScalarQueryParameter(
                     "created_at", "TIMESTAMP", zip_package.created_at
@@ -82,11 +82,9 @@ class BigQueryZipRepository(IZipRepository):
                     "download_url", "STRING", zip_package.download_url
                 ),
                 bigquery.ScalarQueryParameter(
-                    "file_size_bytes", "INT64", zip_package.file_size_bytes
+                    "total_size_bytes", "INT64", zip_package.file_size_bytes
                 ),
-                bigquery.ScalarQueryParameter(
-                    "pdf_count", "INT64", zip_package.pdf_count
-                ),
+                bigquery.ScalarQueryParameter("count", "INT64", zip_package.pdf_count),
                 bigquery.ScalarQueryParameter(
                     "error_message", "STRING", zip_package.error_message
                 ),
@@ -108,22 +106,22 @@ class BigQueryZipRepository(IZipRepository):
         """Update existing ZIP package"""
         query = f"""
             UPDATE `{self.table_full_path}`
-            SET status = @status,
+            SET state = @state,
                 gcs_path = @gcs_path,
                 download_url = @download_url,
-                file_size_bytes = @file_size_bytes,
-                pdf_count = @pdf_count,
+                total_size_bytes = @total_size_bytes,
+                count = @count,
                 error_message = @error_message
-            WHERE package_id = @package_id
+            WHERE zip_id = @zip_id
         """
 
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "package_id", "STRING", zip_package.package_id
+                    "zip_id", "STRING", zip_package.package_id
                 ),
                 bigquery.ScalarQueryParameter(
-                    "status", "STRING", zip_package.status.value
+                    "state", "STRING", zip_package.status.value
                 ),
                 bigquery.ScalarQueryParameter(
                     "gcs_path", "STRING", zip_package.gcs_path
@@ -132,11 +130,9 @@ class BigQueryZipRepository(IZipRepository):
                     "download_url", "STRING", zip_package.download_url
                 ),
                 bigquery.ScalarQueryParameter(
-                    "file_size_bytes", "INT64", zip_package.file_size_bytes
+                    "total_size_bytes", "INT64", zip_package.file_size_bytes
                 ),
-                bigquery.ScalarQueryParameter(
-                    "pdf_count", "INT64", zip_package.pdf_count
-                ),
+                bigquery.ScalarQueryParameter("count", "INT64", zip_package.pdf_count),
                 bigquery.ScalarQueryParameter(
                     "error_message", "STRING", zip_package.error_message
                 ),
@@ -159,13 +155,13 @@ class BigQueryZipRepository(IZipRepository):
         query = f"""
             SELECT *
             FROM `{self.table_full_path}`
-            WHERE package_id = @package_id
+            WHERE zip_id = @zip_id
             LIMIT 1
         """
 
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("package_id", "STRING", package_id)
+                bigquery.ScalarQueryParameter("zip_id", "STRING", package_id)
             ]
         )
 
