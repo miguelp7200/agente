@@ -181,14 +181,29 @@ class InvoiceService:
         Returns:
             Invoice dictionary ready for response
         """
+        # DEBUG: Log generate_urls flag
+        print(
+            f"[DEBUG] _prepare_invoice_response: generate_urls={generate_urls}, pdf_count={invoice.pdf_count}",
+            file=sys.stderr,
+        )
+
         response = invoice.to_dict()
 
         if generate_urls and invoice.pdf_count > 0:
             # Replace GCS paths with signed URLs
+            print(
+                f"[DEBUG] Signing URLs for invoice {invoice.factura}",
+                file=sys.stderr,
+            )
             signed_urls = self.generate_pdf_urls(invoice)
             response["pdf_urls"] = signed_urls
             response["pdf_paths"] = (
                 invoice.pdf_paths
             )  # Keep original paths for reference
+        else:
+            print(
+                f"[DEBUG] NOT signing URLs (generate_urls={generate_urls})",
+                file=sys.stderr,
+            )
 
         return response
