@@ -776,6 +776,21 @@ class RobustURLSigner:
         buffer_minutes = self._get_buffer_minutes()
         total_expiration = expiration_minutes + buffer_minutes
 
+        # Cap total expiration at 7 days (Google limit: 604800 seconds)
+        max_expiration_minutes = (604800 // 60) - 1  # 10079 minutes (just under 7 days)
+        if total_expiration > max_expiration_minutes:
+            logger.warning(
+                f"Total expiration ({total_expiration}min) exceeds Google limit. "
+                f"Capping at {max_expiration_minutes}min (~7 days)",
+                extra={
+                    "requested_minutes": expiration_minutes,
+                    "buffer_minutes": buffer_minutes,
+                    "total_minutes": total_expiration,
+                    "capped_minutes": max_expiration_minutes,
+                },
+            )
+            total_expiration = max_expiration_minutes
+
         logger.debug(
             "Generating signed URL",
             extra={
