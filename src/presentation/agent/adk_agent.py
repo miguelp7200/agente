@@ -62,7 +62,16 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
         pdf_urls: Comma-separated string of gs:// URLs
 
     Returns:
-        Dictionary with success status and signed URLs
+        Dictionary with:
+        - success: bool
+        - signed_urls: list of signed HTTPS URLs (first 5 if count > threshold)
+        - zip_url: str (ONLY if count > threshold) - ZIP download URL to show user
+        - message: str - Message explaining what was done
+        - zip_auto_created: bool - True if ZIP was created
+        - original_pdf_count: int - Total number of invoices
+
+        IMPORTANT: If zip_url is present, YOU MUST show it to the user as
+        a download link for all invoices in ZIP format.
     """
     print("[TOOL] generate_individual_download_links called", file=sys.stderr)
 
@@ -82,75 +91,95 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
     # Check ZIP threshold from config
     zip_threshold = config.get("pdf.zip.threshold", 5)
 
-    # Auto-trigger ZIP creation if count > threshold
-    zip_triggered = False
-    zip_message = ""
-
+    # [INTERCEPTOR AUTO-ZIP] LEGACY PATTERN (SYNCHRONOUS)
+    # If count > threshold, create ZIP IMMEDIATELY and return ZIP URL
     if count > zip_threshold:
         print(f"[TOOL] Count {count} > threshold {zip_threshold}", file=sys.stderr)
-        print("[TOOL] Auto-triggering parallel ZIP", file=sys.stderr)
+        print("[TOOL] AUTO-ZIP INTERCEPTOR: Creating ZIP (SYNC)", file=sys.stderr)
 
-        # Start background ZIP creation
-        import threading
+        # Extract invoice numbers from gs:// URLs
+        # Format: gs://bucket/descargas/{invoice_number}/filename.pdf
+        invoice_numbers = []
+        for url in pdf_urls_list:
+            parts = url.split("/")
+            if len(parts) >= 5 and parts[3] == "descargas":
+                invoice_number = parts[4]
+                if invoice_number not in invoice_numbers:
+                    invoice_numbers.append(invoice_number)
 
-        def create_zip_in_background():
-            """Background task to create ZIP package"""
+        if not invoice_numbers:
+            print("[TOOL] ERROR: No invoice numbers extracted", file=sys.stderr)
+            # Fallback: sign first 5 URLs
+            urls_to_sign = pdf_urls_list[:5]
+        else:
+            print(
+                f"[TOOL] Creating ZIP for {len(invoice_numbers)} invoices (SYNC)...",
+                file=sys.stderr,
+            )
+
             try:
-                print("[ZIP-BG] Starting background ZIP creation", file=sys.stderr)
+                # SYNCHRONOUS ZIP creation (legacy pattern)
+                zip_result = create_zip_package(invoice_numbers)
 
-                # Extract invoice numbers from gs:// URLs
-                # Format: gs://bucket/descargas/{invoice_number}/filename.pdf
-                invoice_numbers = []
-                for url in pdf_urls_list:
-                    parts = url.split("/")
-                    if len(parts) >= 5 and parts[3] == "descargas":
-                        invoice_number = parts[4]
-                        if invoice_number not in invoice_numbers:
-                            invoice_numbers.append(invoice_number)
-
-                if invoice_numbers:
+                if zip_result.get("success") and zip_result.get("download_url"):
                     print(
-                        f"[ZIP-BG] Creating ZIP for {len(invoice_numbers)} invoices",
+                        f"[TOOL] ZIP created: {zip_result['download_url']}",
                         file=sys.stderr,
                     )
-                    # Call create_zip_package function
-                    zip_result = create_zip_package(invoice_numbers)
 
-                    if zip_result.get("success"):
-                        print(
-                            f"[ZIP-BG] ZIP created: {zip_result.get('download_url')}",
-                            file=sys.stderr,
-                        )
-                    else:
-                        print(
-                            f"[ZIP-BG] ZIP failed: {zip_result.get('error')}",
-                            file=sys.stderr,
-                        )
+                    # Sign ONLY first 5 PDFs for preview
+                    urls_to_sign = pdf_urls_list[:5]
+                    url_signer = container.url_signer
+                    signed_urls = []
+                    errors = []
+
+                    for gs_url in urls_to_sign:
+                        try:
+                            signed_url = url_signer.generate_signed_url(gs_url)
+                            signed_urls.append(signed_url)
+                            print(f"[TOOL] Signed: {gs_url[:60]}...", file=sys.stderr)
+                        except Exception as e:
+                            error_msg = f"Error signing {gs_url}: {str(e)}"
+                            errors.append(error_msg)
+                            print(f"[TOOL] {error_msg}", file=sys.stderr)
+
+                    # Return immediately with ZIP URL + first 5 signed URLs
+                    return {
+                        "success": True,
+                        "signed_urls": signed_urls,
+                        "zip_url": zip_result["download_url"],
+                        "message": f"ZIP creado con {count} facturas. "
+                        f"Se muestran las primeras 5 para vista previa.",
+                        "zip_auto_created": True,
+                        "original_pdf_count": count,
+                        "errors": errors if errors else None,
+                    }
                 else:
-                    print("[ZIP-BG] No invoice numbers extracted", file=sys.stderr)
+                    print(
+                        f"[TOOL] ZIP failed: {zip_result.get('error')}",
+                        file=sys.stderr,
+                    )
+                    print("[TOOL] Fallback: signing first 5 URLs", file=sys.stderr)
+                    # Fallback: sign first 5 URLs
+                    urls_to_sign = pdf_urls_list[:5]
 
             except Exception as e:
-                print(f"[ZIP-BG] Exception: {str(e)}", file=sys.stderr)
-
-        # Start thread
-        zip_thread = threading.Thread(target=create_zip_in_background)
-        zip_thread.daemon = True
-        zip_thread.start()
-
-        zip_triggered = True
-        zip_message = (
-            f"Se está generando un archivo ZIP con {count} facturas en "
-            f"paralelo. El enlace estará disponible en breve."
-        )
+                print(f"[TOOL] ZIP exception: {str(e)}", file=sys.stderr)
+                print("[TOOL] Fallback: signing first 5 URLs", file=sys.stderr)
+                # Fallback: sign first 5 URLs
+                urls_to_sign = pdf_urls_list[:5]
+    else:
+        # Below threshold: sign all URLs
+        urls_to_sign = pdf_urls_list
 
     # Get URL signer from container
     url_signer = container.url_signer
 
-    # Sign each URL
+    # Sign URLs (only first 5 if count > threshold)
     signed_urls = []
     errors = []
 
-    for gs_url in pdf_urls_list:
+    for gs_url in urls_to_sign:
         try:
             signed_url = url_signer.generate_signed_url(gs_url)
             signed_urls.append(signed_url)
@@ -170,11 +199,6 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
 
     if errors:
         result["errors"] = errors
-
-    # Add ZIP notification if threshold exceeded
-    if zip_triggered:
-        result["zip_triggered"] = True
-        result["zip_message"] = zip_message
 
     signed_count = result["signed"]
     total_count = result["total"]
@@ -287,18 +311,36 @@ CRITICAL INSTRUCTIONS:
 
 1. PDF URL CONVERSION:
    When any tool returns URLs in gs:// format (like gs://bucket/file.pdf),
-   you MUST call the generate_individual_download_links tool with ALL URLs
-   to convert them to signed HTTPS URLs before showing them to the user.
+   you MUST call the generate_individual_download_links tool to convert them.
    
    NEVER show gs:// URLs directly to the user - always convert them first.
 
 2. AUTO ZIP CREATION (MANDATORY):
    When a search returns more than 5 invoices:
-   - Show only the first 5 invoices with their signed download links
-   - You MUST call generate_individual_download_links with ALL gs:// URLs
-     (not just the first 5) to trigger automatic ZIP creation
-   - The tool will automatically detect count > 5 and create a ZIP package
-   - Inform the user that a ZIP file is being generated in the background
+   
+   EXAMPLE: If search returns 278 invoices with gs:// URLs:
+   
+   Step 1: Call generate_individual_download_links with THE COMPLETE LIST:
+   generate_individual_download_links(pdf_urls="gs://url1,gs://url2,...,gs://url278")
+   
+   DO NOT call with only 5 URLs. DO NOT truncate the list. Pass ALL 278 URLs.
+   
+   Step 2: The tool will automatically:
+   - Detect that 278 > 5 (threshold)
+   - Create a ZIP package with ALL invoices (this takes ~10 seconds)
+   - Return response with:
+     * signed_urls: First 5 PDF links for preview
+     * zip_url: Download link for ZIP with ALL invoices
+     * message: Explanation of what was done
+   
+   Step 3: Show to user (CRITICAL FORMAT):
+   - First 5 invoices with their signed PDF links (from signed_urls)
+   - ALWAYS show ZIP download link if zip_url is present in response:
+     Format: "📦 Descarga todas las facturas en ZIP: [Descargar ZIP](URL_AQUI)"
+     Replace URL_AQUI with the actual zip_url value from tool response
+   
+   IMPORTANT: If the tool returns zip_url field, YOU MUST ALWAYS show it
+   to the user as a clickable download link. DO NOT ignore this field.
 
 Always provide clear, concise responses in Spanish.
 """
