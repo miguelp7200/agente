@@ -60,9 +60,6 @@ class BigQueryZipRepository(IZipRepository):
                     @gcs_path, @size_bytes, PARSE_JSON(@metadata))
         """
 
-        # Convert invoice_numbers array to comma-separated string
-        facturas_str = ",".join(zip_package.invoice_numbers)
-
         # Build metadata JSON
         import json
 
@@ -86,8 +83,8 @@ class BigQueryZipRepository(IZipRepository):
                 bigquery.ScalarQueryParameter(
                     "filename", "STRING", f"zip_{zip_package.package_id}.zip"
                 ),
-                bigquery.ScalarQueryParameter(
-                    "facturas", "STRING", facturas_str
+                bigquery.ArrayQueryParameter(
+                    "facturas", "STRING", zip_package.invoice_numbers
                 ),
                 bigquery.ScalarQueryParameter(
                     "created_at", "TIMESTAMP", zip_package.created_at

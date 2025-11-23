@@ -161,12 +161,19 @@ class ZipPackage:
         except (ValueError, AttributeError):
             status = ZipStatus.PENDING
 
-        # Parse invoice numbers from "facturas" field (comma-separated)
-        facturas = row.get("facturas", "")
-        if isinstance(facturas, str):
-            invoice_numbers = [
-                num.strip() for num in facturas.split(",") if num.strip()
-            ]
+        # Parse invoice numbers from "facturas" field (ARRAY<STRING>)
+        facturas = row.get("facturas", [])
+        if isinstance(facturas, list):
+            invoice_numbers = [str(num) for num in facturas if num]
+        elif isinstance(facturas, str):
+            # Fallback: parse JSON array string if needed
+            import json
+            try:
+                invoice_numbers = json.loads(facturas)
+            except (json.JSONDecodeError, ValueError):
+                invoice_numbers = [
+                    num.strip() for num in facturas.split(",") if num.strip()
+                ]
         else:
             invoice_numbers = []
 
