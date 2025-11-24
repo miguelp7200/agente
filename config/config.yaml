@@ -127,6 +127,7 @@ pdf:
     max_expiration_hours: 168  # Maximum 1 week
     buffer_minutes: 5
     use_robust_implementation: true  # Use clock-skew resistant implementation
+    use_solid_implementation: true   # Use SOLID architecture (set to false to rollback to legacy)
     
     # Retry configuration for signature errors
     retry:
@@ -164,6 +165,13 @@ pdf:
 # GCS (Google Cloud Storage) Configuration
 # ================================================================
 gcs:
+  # Signed URLs Configuration (SOLID Implementation)
+  signed_urls:
+    use_impersonation: true
+    service_account_email: adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com
+    validate_environment_on_init: true
+    default_expiration_minutes: 60
+  
   # Time Synchronization
   time_sync:
     threshold_seconds: 60  # Max acceptable time difference
@@ -172,8 +180,8 @@ gcs:
   # Buffer Time by Clock Skew Status (minutes)
   buffer_time:
     clock_skew_detected: 5      # When clock skew is detected
-    verification_failed: 3      # When verification fails
-    synchronized: 1             # When time is synchronized
+    verification_failed: 5      # When verification fails
+    synchronized: 5             # When time is synchronized (production stable value)
   
   # Retry Logic
   retry:
@@ -183,11 +191,47 @@ gcs:
     backoff_multiplier: 2.0
     request_timeout: 30
     jitter_enabled: true
+    
+    # Error patterns that trigger retry (signature and timeout errors)
+    error_patterns:
+      - signaturedoesnotmatch
+      - signature does not match
+      - the request signature we calculated does not match
+      - invalid signature
+      - expired signature
+      - access denied
+      - invalid unicode
+      - unicodeencodeerror
+      - clock skew
+      - request time too skewed
+      - requesttimetoskewed
+      - connection timeout
+      - read timeout
+      - timed out
+    
+    # HTTP status codes that are retriable
+    retriable_status_codes:
+      - 401  # Unauthorized (may be expired signature)
+      - 403  # Forbidden (may be signature issue)
   
   # Download Configuration
   download:
     timeout_large_files: 60     # Timeout for large file downloads
     max_concurrent: 10          # Max concurrent downloads
+  
+  # Monitoring and Metrics
+  monitoring:
+    enabled: true              # Enable metrics collection
+    max_history: 1000          # Max events to keep in history
+    log_format: json           # json or text
+    
+  # Environment Validation
+  environment_validation:
+    enabled: true              # Validate environment on startup
+    check_timezone: true       # Verify UTC timezone
+    check_credentials: true    # Verify GCP credentials
+    required_env_vars:         # Required environment variables
+      - GOOGLE_APPLICATION_CREDENTIALS
 
 # ================================================================
 # Validation Limits
@@ -209,9 +253,26 @@ display:
 # System Configuration
 # ================================================================
 system:
-  # Logging
+  # Logging Configuration
   log_level: INFO
   debug_mode: false
+  
+  # Structured Logging (JSON for Cloud Logging)
+  logging:
+    format: json              # json or text
+    level: INFO               # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    handlers:
+      - console               # Log to console/stdout
+      - cloud                 # Cloud Logging compatible
+    structured_fields:        # Fields to include in JSON logs
+      - timestamp             # ISO 8601 timestamp
+      - level                 # Log level
+      - logger                # Logger name
+      - module                # Module name
+      - function              # Function name
+      - message               # Log message
+      - context               # Additional context data
+    disable_emoticons: true   # No emoticons in logs
   
   # Paths (relative to project root)
   paths:
@@ -231,3 +292,29 @@ features:
   enable_thinking_mode: false      # Enable model reasoning (development only)
   signed_url_monitoring: true      # Enable signed URL monitoring/logging
   use_legacy_architecture: false   # Fallback to deprecated/legacy code
+
+# Analytics and Conversation Tracking
+# ================================================================
+analytics:
+  conversation_tracking:
+    enabled: true                   # Enable conversation analytics
+    backend: "solid"                # Options: "legacy", "solid", "dual"
+                                    # - legacy: Use deprecated conversation_callbacks.py
+                                    # - solid: Use new SOLID architecture (recommended)
+                                    # - dual: Write to both for validation (temporary)
+    
+    # Comparison settings (only used when backend="dual")
+    dual_write:
+      compare_tokens: true          # Compare token counts between systems
+      token_diff_threshold: 100     # Alert if absolute difference > 100 tokens
+      log_differences: true         # Log differences to stderr
+
+    # BigQuery persistence
+    bigquery:
+      project: agent-intelligence-gasco
+      dataset: chat_analytics
+      table: conversation_logs
+      
+    # Performance
+    zip_metrics_timeout: 30         # Seconds to wait for ZIP metrics before persisting
+

@@ -49,46 +49,55 @@ class BigQueryZipRepository(IZipRepository):
 
     def create(self, zip_package: ZipPackage) -> ZipPackage:
         """Create new ZIP package record"""
-        # Build insert query
+        # Build insert query using LEGACY schema
+        # facturas: STRING (comma-separated)
+        # status: STRING, size_bytes: INTEGER
         query = f"""
             INSERT INTO `{self.table_full_path}`
-            (package_id, invoice_numbers, status, created_at, expires_at, 
-             gcs_path, download_url, file_size_bytes, pdf_count, error_message)
-            VALUES (@package_id, @invoice_numbers, @status, @created_at, @expires_at,
-                    @gcs_path, @download_url, @file_size_bytes, @pdf_count, @error_message)
+            (zip_id, filename, facturas, created_at, status,
+             gcs_path, size_bytes, metadata)
+            VALUES (@zip_id, @filename, @facturas, @created_at, @status,
+                    @gcs_path, @size_bytes, PARSE_JSON(@metadata))
         """
+
+        # Build metadata JSON
+        import json
+
+        expires_iso = (
+            zip_package.expires_at.isoformat() if zip_package.expires_at else None
+        )
+        metadata_dict = {
+            "download_url": zip_package.download_url,
+            "expires_at": expires_iso,
+            "count": zip_package.pdf_count,
+            "error_message": zip_package.error_message,
+        }
 
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "package_id", "STRING", zip_package.package_id
-                ),
-                bigquery.ArrayQueryParameter(
-                    "invoice_numbers", "STRING", zip_package.invoice_numbers
+                    "zip_id", "STRING", zip_package.package_id
                 ),
                 bigquery.ScalarQueryParameter(
-                    "status", "STRING", zip_package.status.value
+                    "filename", "STRING", f"zip_{zip_package.package_id}.zip"
+                ),
+                bigquery.ArrayQueryParameter(
+                    "facturas", "STRING", zip_package.invoice_numbers
                 ),
                 bigquery.ScalarQueryParameter(
                     "created_at", "TIMESTAMP", zip_package.created_at
                 ),
                 bigquery.ScalarQueryParameter(
-                    "expires_at", "TIMESTAMP", zip_package.expires_at
+                    "status", "STRING", zip_package.status.value
                 ),
                 bigquery.ScalarQueryParameter(
                     "gcs_path", "STRING", zip_package.gcs_path
                 ),
                 bigquery.ScalarQueryParameter(
-                    "download_url", "STRING", zip_package.download_url
+                    "size_bytes", "INT64", zip_package.file_size_bytes
                 ),
                 bigquery.ScalarQueryParameter(
-                    "file_size_bytes", "INT64", zip_package.file_size_bytes
-                ),
-                bigquery.ScalarQueryParameter(
-                    "pdf_count", "INT64", zip_package.pdf_count
-                ),
-                bigquery.ScalarQueryParameter(
-                    "error_message", "STRING", zip_package.error_message
+                    "metadata", "STRING", json.dumps(metadata_dict)
                 ),
             ]
         )
@@ -106,21 +115,33 @@ class BigQueryZipRepository(IZipRepository):
 
     def update(self, zip_package: ZipPackage) -> ZipPackage:
         """Update existing ZIP package"""
+        # Update using LEGACY schema
         query = f"""
             UPDATE `{self.table_full_path}`
             SET status = @status,
                 gcs_path = @gcs_path,
-                download_url = @download_url,
-                file_size_bytes = @file_size_bytes,
-                pdf_count = @pdf_count,
-                error_message = @error_message
-            WHERE package_id = @package_id
+                size_bytes = @size_bytes,
+                metadata = PARSE_JSON(@metadata)
+            WHERE zip_id = @zip_id
         """
+
+        # Build metadata JSON
+        import json
+
+        expires_iso = (
+            zip_package.expires_at.isoformat() if zip_package.expires_at else None
+        )
+        metadata_dict = {
+            "download_url": zip_package.download_url,
+            "expires_at": expires_iso,
+            "count": zip_package.pdf_count,
+            "error_message": zip_package.error_message,
+        }
 
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter(
-                    "package_id", "STRING", zip_package.package_id
+                    "zip_id", "STRING", zip_package.package_id
                 ),
                 bigquery.ScalarQueryParameter(
                     "status", "STRING", zip_package.status.value
@@ -129,16 +150,10 @@ class BigQueryZipRepository(IZipRepository):
                     "gcs_path", "STRING", zip_package.gcs_path
                 ),
                 bigquery.ScalarQueryParameter(
-                    "download_url", "STRING", zip_package.download_url
+                    "size_bytes", "INT64", zip_package.file_size_bytes
                 ),
                 bigquery.ScalarQueryParameter(
-                    "file_size_bytes", "INT64", zip_package.file_size_bytes
-                ),
-                bigquery.ScalarQueryParameter(
-                    "pdf_count", "INT64", zip_package.pdf_count
-                ),
-                bigquery.ScalarQueryParameter(
-                    "error_message", "STRING", zip_package.error_message
+                    "metadata", "STRING", json.dumps(metadata_dict)
                 ),
             ]
         )
@@ -159,13 +174,13 @@ class BigQueryZipRepository(IZipRepository):
         query = f"""
             SELECT *
             FROM `{self.table_full_path}`
-            WHERE package_id = @package_id
+            WHERE zip_id = @zip_id
             LIMIT 1
         """
 
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("package_id", "STRING", package_id)
+                bigquery.ScalarQueryParameter("zip_id", "STRING", package_id)
             ]
         )
 

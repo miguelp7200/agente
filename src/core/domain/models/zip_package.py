@@ -139,7 +139,14 @@ class ZipPackage:
     @classmethod
     def from_bigquery_row(cls, row: Dict[str, Any]) -> "ZipPackage":
         """
-        Create ZipPackage from BigQuery row
+        Create ZipPackage from BigQuery row (LEGACY schema)
+
+        LEGACY schema fields:
+        - zip_id: STRING
+        - facturas: STRING (comma-separated)
+        - status: STRING
+        - size_bytes: INTEGER
+        - metadata: JSON (contains download_url, expires_at, count, etc.)
 
         Args:
             row: BigQuery row as dictionary
@@ -150,27 +157,67 @@ class ZipPackage:
         # Parse status
         status_str = row.get("status", "pending")
         try:
-            status = ZipStatus(status_str)
-        except ValueError:
+            status = ZipStatus(status_str.lower())
+        except (ValueError, AttributeError):
             status = ZipStatus.PENDING
 
-        # Parse invoice numbers (may be stored as comma-separated or JSON array)
-        invoice_numbers = row.get("invoice_numbers", [])
-        if isinstance(invoice_numbers, str):
-            invoice_numbers = [num.strip() for num in invoice_numbers.split(",")]
+        # Parse invoice numbers from "facturas" field (ARRAY<STRING>)
+        facturas = row.get("facturas", [])
+        if isinstance(facturas, list):
+            invoice_numbers = [str(num) for num in facturas if num]
+        elif isinstance(facturas, str):
+            # Fallback: parse JSON array string if needed
+            import json
+
+            try:
+                invoice_numbers = json.loads(facturas)
+            except (json.JSONDecodeError, ValueError):
+                invoice_numbers = [
+                    num.strip() for num in facturas.split(",") if num.strip()
+                ]
+        else:
+            invoice_numbers = []
+
+        # Parse metadata JSON
+        import json
+
+        metadata_raw = row.get("metadata", {})
+        if isinstance(metadata_raw, str):
+            try:
+                metadata = json.loads(metadata_raw)
+            except json.JSONDecodeError:
+                metadata = {}
+        else:
+            metadata = metadata_raw or {}
+
+        # Extract fields from metadata
+        download_url = metadata.get("download_url")
+        expires_at_str = metadata.get("expires_at")
+        pdf_count = metadata.get("count", len(invoice_numbers))
+        error_message = metadata.get("error_message")
+
+        # Parse expires_at from ISO string
+        expires_at = None
+        if expires_at_str:
+            try:
+                expires_at = datetime.fromisoformat(
+                    expires_at_str.replace("Z", "+00:00")
+                )
+            except (ValueError, AttributeError):
+                pass
 
         return cls(
-            package_id=row.get("package_id"),
+            package_id=row.get("zip_id"),
             invoice_numbers=invoice_numbers,
             status=status,
             created_at=row.get("created_at", datetime.utcnow()),
-            expires_at=row.get("expires_at"),
+            expires_at=expires_at,
             gcs_path=row.get("gcs_path"),
-            download_url=row.get("download_url"),
-            file_size_bytes=row.get("file_size_bytes"),
-            pdf_count=row.get("pdf_count", 0),
-            error_message=row.get("error_message"),
-            metadata={"source": "bigquery", "raw_row": row},
+            download_url=download_url,
+            file_size_bytes=row.get("size_bytes"),
+            pdf_count=pdf_count,
+            error_message=error_message,
+            metadata={"source": "bigquery", "raw_metadata": metadata},
         )
 
     def with_status(

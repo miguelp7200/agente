@@ -1,16 +1,15 @@
 {
-  "version": "0.2.0",
-  "release_date": "2025-09-09",
-  "description": "URLs firmadas y sistema de tests completado",
+  "version": "0.2.2",
+  "release_date": "2025-11-22",
+  "description": "Sistema optimizado - 96.67% de éxito en signed URLs",
   "changes": [
-    "✅ URLs firmadas funcionando (storage.googleapis.com)",
-    "✅ Tests críticos completados (5/5 al 100%)",
-    "✅ ZIP automático para >5 facturas",
-    "✅ Herramientas estadísticas con dual-tool execution",
-    "✅ Agent_prompt.yaml optimizado",
-    "🔧 Deploy script mejorado con versiones únicas"
+    "✅ Método SDK optimizado alcanza 96.67% de éxito",
+    "📊 Testing exhaustivo: 10 iteraciones, 180 URLs, solo 6 errores",
+    "🔧 Logging mejorado con exc_info para debugging",
+    "✅ Mejora de +5% vs versión anterior (91.67% → 96.67%)",
+    "✅ Sistema listo para producción con 3.33% error rate"
   ],
-  "next_version": "0.2.1",
-  "git_hash": "eb4085d",
-  "build_number": 1
+  "next_version": "0.2.3",
+  "git_hash": "pending",
+  "build_number": 4
 }
