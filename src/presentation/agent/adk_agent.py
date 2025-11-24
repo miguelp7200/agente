@@ -40,9 +40,17 @@ from src.infrastructure.repositories.bigquery_conversation_repository import (
     BigQueryConversationRepository,
 )
 
+# Context validation service for token overflow prevention
+from src.application.services.context_validation_service import (
+    ContextValidationService,
+)
+
 # Create BigQuery repository and tracking service
 bq_repo = BigQueryConversationRepository()
 conversation_tracker = ConversationTrackingService(repository=bq_repo)
+
+# Create context validation service (for token overflow prevention)
+context_validator = ContextValidationService()
 
 # Check if dual-write mode is enabled
 tracking_backend = config.get("analytics.conversation_tracking.backend", "solid")
@@ -342,6 +350,102 @@ def create_zip_package(invoice_numbers: list[str]) -> dict:
 
 
 # ================================================================
+# Context Validation Wrapper (Token Overflow Prevention)
+# ================================================================
+
+
+def search_invoices_by_month_year_validated(
+    target_year: int, target_month: int, pdf_type: str = "both"
+) -> dict:
+    """
+    Validated wrapper for search_invoices_by_month_year.
+
+    ENFORCES context validation BEFORE executing the search.
+    Prevents 503 UNAVAILABLE errors from token overflow.
+
+    Args:
+        target_year: Year of invoices (e.g., 2019, 2022, 2025)
+        target_month: Month of invoices (1-12)
+        pdf_type: Type of PDF ('both', 'tributaria_only', 'cedible_only')
+
+    Returns:
+        Dictionary with invoices or blocking message if context too large.
+    """
+    print(
+        f"[VALIDATION] search_invoices_by_month_year_validated called: "
+        f"year={target_year}, month={target_month}",
+        file=sys.stderr,
+    )
+
+    # Check if enforcement is enabled
+    enforcement_enabled = config.get("context_validation.enforcement_enabled", True)
+
+    if enforcement_enabled:
+        # Validate context size BEFORE executing search
+        print("[VALIDATION] Checking context size...", file=sys.stderr)
+        validation_result = context_validator.validate_monthly_search(
+            target_year, target_month
+        )
+
+        print(
+            f"[VALIDATION] Result: {validation_result.context_status.value}, "
+            f"facturas={validation_result.total_facturas}, "
+            f"tokens={validation_result.estimated_tokens}",
+            file=sys.stderr,
+        )
+
+        # Block if context would exceed limits
+        if validation_result.should_block:
+            print(
+                "[VALIDATION] ❌ BLOCKED - Context would exceed limits", file=sys.stderr
+            )
+            return context_validator.create_blocking_response(validation_result)
+
+        print(
+            f"[VALIDATION] ✓ PASSED - Status: "
+            f"{validation_result.context_status.value}",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            "[VALIDATION] ⚠️ Enforcement disabled, skipping validation", file=sys.stderr
+        )
+
+    # Execute the original MCP tool
+    print("[VALIDATION] Executing search_invoices_by_month_year...", file=sys.stderr)
+
+    # Find and call the original MCP tool
+    original_tool = None
+    for tool in mcp_tools:
+        if hasattr(tool, "name") and tool.name == "search_invoices_by_month_year":
+            original_tool = tool
+            break
+        # Also check _name attribute used by some tool implementations
+        if hasattr(tool, "_name") and tool._name == "search_invoices_by_month_year":
+            original_tool = tool
+            break
+
+    if original_tool is None:
+        print("[VALIDATION] ERROR: Original MCP tool not found", file=sys.stderr)
+        return {
+            "success": False,
+            "error": "Internal error: MCP tool not found",
+            "invoices": [],
+        }
+
+    try:
+        # Call the original tool with parameters
+        result = original_tool(
+            target_year=target_year, target_month=target_month, pdf_type=pdf_type
+        )
+        print(f"[VALIDATION] Search completed successfully", file=sys.stderr)
+        return result
+    except Exception as e:
+        print(f"[VALIDATION] ERROR executing MCP tool: {e}", file=sys.stderr)
+        return {"success": False, "error": str(e), "invoices": []}
+
+
+# ================================================================
 # ADK Agent Configuration
 # ================================================================
 
@@ -531,6 +635,32 @@ def _compare_token_counts(callback_context):
 # Create ADK Agent
 # ================================================================
 
+# Filter MCP tools to remove those that have validated wrappers
+# We keep the original tool in mcp_tools for the wrapper to call,
+# but register the validated wrapper in root_agent.tools
+WRAPPED_TOOL_NAMES = {"search_invoices_by_month_year"}
+
+
+def _get_tool_name(tool) -> str:
+    """Extract tool name from MCP tool object."""
+    if hasattr(tool, "name"):
+        return tool.name
+    if hasattr(tool, "_name"):
+        return tool._name
+    return ""
+
+
+# Filter out wrapped tools from MCP tools for registration
+mcp_tools_filtered = [
+    tool for tool in mcp_tools if _get_tool_name(tool) not in WRAPPED_TOOL_NAMES
+]
+
+print(
+    f"[VALIDATION] Filtered {len(mcp_tools) - len(mcp_tools_filtered)} "
+    f"MCP tools for validation wrappers",
+    file=sys.stderr,
+)
+
 # Create ADK agent with all MCP tools and conversation tracking
 root_agent = Agent(
     name="gasco_invoice_assistant",
@@ -539,13 +669,15 @@ root_agent = Agent(
         "Invoice assistant for Gasco with BigQuery access " "and PDF generation"
     ),
     tools=[
-        # MCP Toolbox tools (loaded from toolsets)
-        *mcp_tools,
+        # MCP Toolbox tools (filtered - wrapped tools removed)
+        *mcp_tools_filtered,
         # Custom wrapped tools
         FunctionTool(search_invoices_by_rut),
         FunctionTool(create_zip_package),
         # URL signing tool - agent calls this for gs:// URLs
         FunctionTool(generate_individual_download_links),
+        # Context validation wrappers (replace filtered MCP tools)
+        FunctionTool(search_invoices_by_month_year_validated),
     ],
     instruction=system_instruction,
     generate_content_config={
