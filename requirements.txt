@@ -99,7 +99,8 @@ toolbox-core
 # Dependencias para ADK API Demo Backend
 # =====================================
 
-
+# Timezone support para logging de stats diarias
+pytz
 
 # Framework web y servidor API
 fastapi
