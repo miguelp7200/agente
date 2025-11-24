@@ -191,8 +191,13 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                         "success": True,
                         "signed_urls": signed_urls,
                         "zip_url": zip_result["download_url"],
-                        "message": f"ZIP creado con {count} facturas. "
-                        f"Se muestran las primeras 5 para vista previa.",
+                        "message": (
+                            f"CRITICAL: Se encontraron {count} facturas. "
+                            f"DEBES mostrar al usuario el enlace de "
+                            f"descarga ZIP como método principal. "
+                            f"Las signed_urls son SOLO para vista previa "
+                            f"de las primeras 5 facturas."
+                        ),
                         "zip_auto_created": True,
                         "original_pdf_count": count,
                         "errors": errors if errors else None,
@@ -377,18 +382,39 @@ CRITICAL INSTRUCTIONS:
    - Detect that 278 > 5 (threshold)
    - Create a ZIP package with ALL invoices (this takes ~10 seconds)
    - Return response with:
-     * signed_urls: First 5 PDF links for preview
+     * signed_urls: First 5 PDF links for preview (ONLY FOR PREVIEW)
      * zip_url: Download link for ZIP with ALL invoices
+       (PRIMARY DOWNLOAD METHOD)
      * message: Explanation of what was done
    
-   Step 3: Show to user (CRITICAL FORMAT):
-   - First 5 invoices with their signed PDF links (from signed_urls)
-   - ALWAYS show ZIP download link if zip_url is present in response:
-     Format: "📦 Descarga todas las facturas en ZIP: [Descargar ZIP](URL_AQUI)"
-     Replace URL_AQUI with the actual zip_url value from tool response
+   Step 3: Show to user (CRITICAL FORMAT - FOLLOW EXACTLY):
    
-   IMPORTANT: If the tool returns zip_url field, YOU MUST ALWAYS show it
-   to the user as a clickable download link. DO NOT ignore this field.
+   **ALWAYS CHECK IF zip_url FIELD EXISTS IN TOOL RESPONSE**
+   
+   If zip_url is present (meaning count > 5):
+   
+   EXAMPLE FORMAT:
+   "Encontré 278 facturas para el cliente.
+   
+   Descarga Multiple Disponible:
+   [Descargar ZIP con todas las facturas](https://storage.googleapis.com/...)
+   
+   Documentos disponibles (primeras 5 facturas como vista previa):
+   
+   Factura 0105635394:
+   - [Copia Cedible con Fondo](https://storage.googleapis.com/...)
+   - [Copia Tributaria con Fondo](https://storage.googleapis.com/...)
+   ..."
+   
+   **CRITICAL**: The zip_url is the MAIN download link. The signed_urls
+   are ONLY for preview. User must see the ZIP link prominently.
+   
+   DO NOT show individual PDF links as the primary download method when
+   zip_url is present. DO NOT say "aquí están tus facturas" and only show
+   the 5 preview PDFs - that's misleading when there are 278 invoices.
+   
+   If zip_url is NOT present (meaning count <= 5):
+   Show individual PDF links normally (no ZIP needed).
 
 Always provide clear, concise responses in Spanish.
 """
