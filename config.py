@@ -180,6 +180,14 @@ ZIP_MAX_FILES = int(os.getenv("ZIP_MAX_FILES", "50"))
 USE_SIGNED_URLS_THRESHOLD = int(os.getenv("USE_SIGNED_URLS_THRESHOLD", "30"))
 
 # ==============================================
+# CONFIGURACIÓN DE LOGGING
+# ==============================================
+
+# Niveles de logging por módulo (env vars: LOG_LEVEL_TRACKING, LOG_LEVEL_REPOSITORY)
+LOG_LEVEL_TRACKING = os.getenv("LOG_LEVEL_TRACKING", "INFO")
+LOG_LEVEL_REPOSITORY = os.getenv("LOG_LEVEL_REPOSITORY", "WARNING")
+
+# ==============================================
 # CONFIGURACIÓN DE SIGNED URLS - ESTABILIDAD
 # ==============================================
 

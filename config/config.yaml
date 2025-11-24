@@ -295,6 +295,22 @@ features:
 
 # Analytics and Conversation Tracking
 # ================================================================
+# Logging Configuration
+# ================================================================
+logging:
+  # Log levels per module (can be overridden by env vars)
+  levels:
+    tracking_service: INFO          # ConversationTrackingService log level
+    repository: WARNING             # BigQueryConversationRepository log level
+  
+  # Timezone for daily stats (America/Santiago for Chile)
+  timezone: "America/Santiago"
+  
+  # Aggregated stats
+  aggregated_stats_enabled: true    # Enable daily stats logging
+
+# Analytics and Conversation Tracking
+# ================================================================
 analytics:
   conversation_tracking:
     enabled: true                   # Enable conversation analytics
