@@ -19,6 +19,7 @@ from google.cloud import storage
 from src.core.domain.models import ZipPackage, ZipStatus, Invoice
 from src.core.domain.interfaces import IZipRepository, IURLSigner
 from src.core.config import ConfigLoader
+from src.core.domain.entities.conversation import ZipPerformanceMetrics
 
 
 class ZipService:
@@ -56,6 +57,9 @@ class ZipService:
 
         # Initialize GCS client for ZIP upload
         self.storage_client = storage.Client(project=self.write_project)
+
+        # Store last ZIP metrics for conversation tracking
+        self._last_zip_metrics: Optional[ZipPerformanceMetrics] = None
 
         print("SERVICE Initialized ZipService", file=sys.stderr)
         print(f"        - ZIP bucket: {self.write_bucket}", file=sys.stderr)
@@ -104,8 +108,11 @@ class ZipService:
             # Persist initial record
             self.zip_repo.create(zip_package)
 
-            # Create ZIP file in memory
-            zip_buffer = self._create_zip_buffer(invoices)
+            # Create ZIP file in memory and collect performance metrics
+            zip_buffer, zip_metrics = self._create_zip_buffer(invoices)
+
+            # Store metrics for later retrieval by conversation tracker
+            self._last_zip_metrics = zip_metrics
 
             # Upload to GCS
             gcs_path, file_size = self._upload_zip_to_gcs(
@@ -187,7 +194,21 @@ class ZipService:
         )
         return deleted_count
 
-    def _create_zip_buffer(self, invoices: List[Invoice]) -> io.BytesIO:
+    def get_last_zip_metrics(self) -> Optional[ZipPerformanceMetrics]:
+        """
+        Get performance metrics from last ZIP creation.
+
+        Used by conversation tracking to capture ZIP generation metrics.
+
+        Returns:
+            ZipPerformanceMetrics from last create_zip_from_invoices() call,
+            or None if no ZIP has been created yet
+        """
+        return self._last_zip_metrics
+
+    def _create_zip_buffer(
+        self, invoices: List[Invoice]
+    ) -> tuple[io.BytesIO, ZipPerformanceMetrics]:
         """
         Create ZIP file in memory from invoices
 
@@ -195,9 +216,14 @@ class ZipService:
             invoices: List of invoice entities
 
         Returns:
-            BytesIO buffer containing ZIP file
+            Tuple of (BytesIO buffer, ZipPerformanceMetrics)
         """
         zip_buffer = io.BytesIO()
+
+        # ⏱️ Start timing for performance metrics
+        zip_start_time = time.time()
+        files_included = 0
+        files_missing = 0
 
         # Count total PDFs to download
         total_pdfs = sum(len(inv.pdf_paths) for inv in invoices)
@@ -243,26 +269,48 @@ class ZipService:
                         pdf_content = future.result()
                         pdf_size_kb = len(pdf_content) / 1024
                         zip_file.writestr(pdf_filename, pdf_content)
+                        files_included += 1  # 📊 Track successful files
                         print(
                             f"[ZIP] [{completed}/{len(future_to_pdf)}] "
                             f"{pdf_filename} ({pdf_size_kb:.1f} KB)",
                             file=sys.stderr,
                         )
                     except Exception as e:
+                        files_missing += 1  # 📊 Track failed files
                         print(
                             f"[ZIP] [{completed}/{len(future_to_pdf)}] "
                             f"FAIL {gs_path}: {e}",
                             file=sys.stderr,
                         )
 
-                download_time = time.time() - start_downloads
+                parallel_download_time_ms = int((time.time() - start_downloads) * 1000)
                 print(
-                    f"[ZIP Service] ✓ Downloads: {download_time:.2f}s",
+                    f"[ZIP Service] ✓ Downloads: " f"{parallel_download_time_ms}ms",
                     file=sys.stderr,
                 )
 
         zip_buffer.seek(0)
-        return zip_buffer
+
+        # 📊 Calculate final metrics
+        zip_generation_time_ms = int((time.time() - zip_start_time) * 1000)
+        zip_total_size_bytes = zip_buffer.tell()
+
+        metrics = ZipPerformanceMetrics(
+            generation_time_ms=zip_generation_time_ms,
+            parallel_download_time_ms=parallel_download_time_ms,
+            max_workers_used=self.max_concurrent_downloads,
+            files_included=files_included,
+            files_missing=files_missing,
+            total_size_bytes=zip_total_size_bytes,
+        )
+
+        print(
+            f"[ZIP Service] 📊 Metrics: {zip_generation_time_ms}ms total, "
+            f"{files_included} files ({zip_total_size_bytes} bytes)",
+            file=sys.stderr,
+        )
+
+        return zip_buffer, metrics
 
     def _download_pdf_from_gcs(self, gs_path: str) -> bytes:
         """
