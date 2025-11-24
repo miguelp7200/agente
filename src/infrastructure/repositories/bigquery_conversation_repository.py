@@ -6,12 +6,13 @@ Implements async persistence with retry logic and fallback to Cloud Logging.
 
 import logging
 import json
-from typing import Optional
+import time
 from google.cloud import bigquery
 from google.api_core import retry
 from google.cloud.logging import Client as LoggingClient
 
 from src.core.domain.entities.conversation import ConversationRecord
+from src.core.config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class BigQueryConversationRepository:
     - Automatic retry with exponential backoff
     - Fallback to Cloud Logging if BigQuery fails
     - Async non-blocking persistence
-    - Compatible with existing conversation_logs table
+    - Timing metrics for monitoring
     """
 
     def __init__(self, project_id: str = "agent-intelligence-gasco"):
@@ -39,12 +40,17 @@ class BigQueryConversationRepository:
         self.table_name = "conversation_logs"
         self.table_id = f"{project_id}.{self.dataset_id}.{self.table_name}"
 
+        # Configure logger level
+        config = get_config()
+        log_level = config.get("logging.levels.repository", "WARNING")
+        logger.setLevel(getattr(logging, log_level, logging.WARNING))
+
         # Initialize BigQuery client
         try:
             self.client = bigquery.Client(project=project_id)
-            logger.info(f"✅ BigQuery client initialized: {self.table_id}")
+            logger.info("[INFO] BigQuery client initialized: %s", self.table_id)
         except Exception as e:
-            logger.error(f"❌ Error initializing BigQuery client: {e}")
+            logger.error("[ERROR] Failed to initialize BigQuery client: %s", str(e))
             self.client = None
 
         # Initialize Cloud Logging client for fallback
@@ -53,9 +59,9 @@ class BigQueryConversationRepository:
             self.fallback_logger = self.logging_client.logger(
                 "conversation_tracking_fallback"
             )
-            logger.info("✅ Cloud Logging fallback initialized")
+            logger.info("[INFO] Cloud Logging fallback initialized")
         except Exception as e:
-            logger.warning(f"⚠️ Cloud Logging fallback not available: {e}")
+            logger.warning("[WARNING] Cloud Logging fallback not available: %s", str(e))
             self.fallback_logger = None
 
         # Configure retry policy
@@ -64,15 +70,15 @@ class BigQueryConversationRepository:
             maximum=60.0,  # Maximum 60 seconds between retries
             multiplier=2.0,  # Exponential backoff
             deadline=300.0,  # Total timeout: 5 minutes
-            predicate=retry.if_transient_error,  # Only retry transient errors
+            predicate=retry.if_transient_error,
         )
 
     async def save_async(self, record: ConversationRecord) -> bool:
         """
         Persist conversation record to BigQuery asynchronously.
 
-        Uses built-in retry with exponential backoff. Falls back to Cloud Logging
-        if BigQuery is unavailable after all retries.
+        Uses built-in retry with exponential backoff.
+        Falls back to Cloud Logging if BigQuery unavailable.
 
         Args:
             record: ConversationRecord to persist
@@ -81,8 +87,11 @@ class BigQueryConversationRepository:
             True if successfully persisted, False otherwise
         """
         if not self.client:
-            logger.error("❌ BigQuery client not available, using fallback")
+            logger.error("[ERROR] BigQuery client not available, using fallback")
             return self._log_to_fallback(record)
+
+        conv_id = record.conversation_id[:8]
+        start_time = time.time()
 
         try:
             # Serialize record to dict
@@ -96,26 +105,25 @@ class BigQueryConversationRepository:
             )
 
             if errors:
-                logger.error(f"❌ BigQuery insert errors: {errors}")
-                # Try fallback
+                # Extract error details
+                error_msgs = [str(e) for e in errors]
+                logger.error(
+                    "[ERROR] %s: BigQuery insert failed: %s",
+                    conv_id,
+                    ", ".join(error_msgs),
+                )
                 return self._log_to_fallback(record)
 
-            # Success
-            conv_id = record.conversation_id[:8]
-            logger.info(f"💾 Conversation saved to BigQuery: {conv_id}")
+            # Calculate persistence time
+            persist_time_ms = int((time.time() - start_time) * 1000)
 
-            # Log token metrics for monitoring
-            if record.token_usage.total_token_count:
-                logger.info(
-                    f"💰 Tokens logged: {record.token_usage.total_token_count} "
-                    f"(prompt={record.token_usage.prompt_token_count}, "
-                    f"candidates={record.token_usage.candidates_token_count})"
-                )
+            # Success
+            logger.info("[PERSIST] %s: Saved in %dms", conv_id, persist_time_ms)
 
             return True
 
         except Exception as e:
-            logger.error(f"❌ Critical error persisting to BigQuery: {e}")
+            logger.error("[ERROR] %s: Critical persistence error: %s", conv_id, str(e))
             return self._log_to_fallback(record)
 
     def _log_to_fallback(self, record: ConversationRecord) -> bool:
@@ -130,8 +138,12 @@ class BigQueryConversationRepository:
         Returns:
             True if logged successfully, False otherwise
         """
+        conv_id = record.conversation_id[:8]
+
         if not self.fallback_logger:
-            logger.error("❌ No fallback logger available - conversation data lost")
+            logger.error(
+                "[ERROR] %s: No fallback logger - conversation data lost", conv_id
+            )
             return False
 
         try:
@@ -141,19 +153,27 @@ class BigQueryConversationRepository:
             self.fallback_logger.log_struct(
                 row_data,
                 severity="INFO",
-                labels={"source": "conversation_tracking_fallback"},
+                labels={
+                    "source": "conversation_tracking_fallback",
+                    "conversation_id": conv_id,
+                },
             )
 
-            conv_id = record.conversation_id[:8]
-            logger.warning(
-                f"⚠️ Conversation logged to Cloud Logging (fallback): {conv_id}"
-            )
+            logger.warning("[WARNING] %s: Logged to Cloud Logging (fallback)", conv_id)
             return True
 
         except Exception as e:
-            logger.error(f"❌ Fallback logging failed: {e}")
+            logger.error("[ERROR] %s: Fallback logging failed: %s", conv_id, str(e))
             # Last resort: log to local logger
-            logger.error(
-                f"❌ CONVERSATION DATA LOST: {json.dumps(record.to_dict(), default=str)}"
-            )
+            try:
+                data_json = json.dumps(record.to_dict(), default=str)
+                logger.error(
+                    "[ERROR] %s: CONVERSATION DATA LOST: %s",
+                    conv_id,
+                    data_json[:200],  # Truncate to avoid huge logs
+                )
+            except Exception:
+                logger.error(
+                    "[ERROR] %s: CONVERSATION DATA LOST (unserializable)", conv_id
+                )
             return False
