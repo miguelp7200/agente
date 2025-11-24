@@ -302,12 +302,39 @@ logging:
   levels:
     tracking_service: INFO          # ConversationTrackingService log level
     repository: WARNING             # BigQueryConversationRepository log level
+    validation_service: INFO        # ContextValidationService log level
   
   # Timezone for daily stats (America/Santiago for Chile)
   timezone: "America/Santiago"
   
   # Aggregated stats
   aggregated_stats_enabled: true    # Enable daily stats logging
+
+# ================================================================
+# Context Validation - Prevent Token Overflow
+# ================================================================
+context_validation:
+  # Feature flag - set to false to disable enforcement
+  enforcement_enabled: true
+  
+  # Token thresholds (based on Gemini 1.5 Flash limit: 1,048,576 tokens)
+  thresholds:
+    safe_tokens: 500000             # <500K = SAFE
+    warning_tokens: 800000          # 500K-800K = LARGE_BUT_OK
+    large_tokens: 1000000           # 800K-1M = WARNING_LARGE
+    max_tokens: 1048576             # >1M = EXCEED_CONTEXT (BLOCK)
+  
+  # Token estimation formula
+  estimation:
+    tokens_per_factura: 250         # Estimated tokens per invoice
+    system_context_tokens: 35000    # Fixed system prompt overhead
+  
+  # User-facing messages (Spanish)
+  messages:
+    blocked: "⚠️ La consulta excede la capacidad del sistema. Por favor, refina tu búsqueda."
+    warning_large: "⚠️ Consulta grande detectada. Considera agregar filtros adicionales."
+    large_but_ok: "Consulta moderadamente grande. Se procesará normalmente."
+    safe: "Consulta dentro de límites seguros."
 
 # Analytics and Conversation Tracking
 # ================================================================
