@@ -292,3 +292,29 @@ features:
   enable_thinking_mode: false      # Enable model reasoning (development only)
   signed_url_monitoring: true      # Enable signed URL monitoring/logging
   use_legacy_architecture: false   # Fallback to deprecated/legacy code
+
+# Analytics and Conversation Tracking
+# ================================================================
+analytics:
+  conversation_tracking:
+    enabled: true                   # Enable conversation analytics
+    backend: "solid"                # Options: "legacy", "solid", "dual"
+                                    # - legacy: Use deprecated conversation_callbacks.py
+                                    # - solid: Use new SOLID architecture (recommended)
+                                    # - dual: Write to both for validation (temporary)
+    
+    # Comparison settings (only used when backend="dual")
+    dual_write:
+      compare_tokens: true          # Compare token counts between systems
+      token_diff_threshold: 100     # Alert if absolute difference > 100 tokens
+      log_differences: true         # Log differences to stderr
+
+    # BigQuery persistence
+    bigquery:
+      project: agent-intelligence-gasco
+      dataset: chat_analytics
+      table: conversation_logs
+      
+    # Performance
+    zip_metrics_timeout: 30         # Seconds to wait for ZIP metrics before persisting
+
