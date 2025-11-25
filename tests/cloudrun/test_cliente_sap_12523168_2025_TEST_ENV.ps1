@@ -59,9 +59,52 @@ try {
 
 # Validar
 Write-Host "[3/3] Validando respuesta...`n" -ForegroundColor Yellow
-$modelEvents = $response | Where-Object { $_.content.role -eq "model" -and $_.content.parts[0].text }
-if ($modelEvents) {
-    $responseText = ($modelEvents | Select-Object -Last 1).content.parts[0].text
+
+# Debug: mostrar tipo y estructura de respuesta
+Write-Host "   [DEBUG] Response type: $($response.GetType().Name)" -ForegroundColor DarkGray
+if ($response -is [array]) {
+    Write-Host "   [DEBUG] Response count: $($response.Count)" -ForegroundColor DarkGray
+}
+
+# Extraer texto del modelo - manejar diferentes estructuras de respuesta
+$responseText = $null
+
+# Caso 1: Response es un array de eventos
+if ($response -is [array]) {
+    $modelEvents = @($response | Where-Object { 
+        $_.content -and $_.content.role -eq "model" -and $_.content.parts -and $_.content.parts[0].text 
+    })
+    if ($modelEvents.Count -gt 0) {
+        $responseText = ($modelEvents | Select-Object -Last 1).content.parts[0].text
+    }
+}
+# Caso 2: Response tiene propiedad 'events' 
+elseif ($response.events) {
+    $modelEvents = @($response.events | Where-Object { 
+        $_.content -and $_.content.role -eq "model" -and $_.content.parts -and $_.content.parts[0].text 
+    })
+    if ($modelEvents.Count -gt 0) {
+        $responseText = ($modelEvents | Select-Object -Last 1).content.parts[0].text
+    }
+}
+# Caso 3: Response es un objeto con content directamente
+elseif ($response.content -and $response.content.parts) {
+    $responseText = $response.content.parts[0].text
+}
+# Caso 4: Buscar en toda la respuesta serializada
+else {
+    $jsonStr = $response | ConvertTo-Json -Depth 10
+    if ($jsonStr -match '"text"\s*:\s*"([^"]+)"') {
+        # Extraer el último match de texto
+        $allMatches = [regex]::Matches($jsonStr, '"text"\s*:\s*"((?:[^"\\]|\\.)*)"')
+        if ($allMatches.Count -gt 0) {
+            $lastMatch = $allMatches[$allMatches.Count - 1]
+            $responseText = $lastMatch.Groups[1].Value -replace '\\n', "`n" -replace '\\"', '"'
+        }
+    }
+}
+
+if ($responseText) {
     Write-Host "🤖 Respuesta:" -ForegroundColor Cyan
     Write-Host $responseText -ForegroundColor White
     
@@ -131,6 +174,11 @@ if ($modelEvents) {
             Write-Host "      - Problema: Solo muestra PDFs individuales" -ForegroundColor Red
         }
     }
+} else {
+    Write-Host "❌ No se pudo extraer respuesta del modelo" -ForegroundColor Red
+    Write-Host "`n[DEBUG] Raw response (primeros 2000 chars):" -ForegroundColor DarkGray
+    $rawJson = $response | ConvertTo-Json -Depth 10
+    Write-Host ($rawJson.Substring(0, [Math]::Min(2000, $rawJson.Length))) -ForegroundColor DarkGray
 }
 
 Write-Host "`n🏁 Test completado [TEST ENV]" -ForegroundColor Cyan
