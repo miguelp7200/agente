@@ -235,7 +235,10 @@ class RobustURLSigner:
 
     def _get_impersonated_client(self) -> Optional[storage.Client]:
         """
-        Get storage client using impersonation method
+        Get storage client using impersonation method.
+
+        Includes automatic credential refresh every 30 minutes to prevent
+        SignatureDoesNotMatch errors from stale credentials.
 
         Returns:
             Storage client or None if not available
@@ -244,16 +247,37 @@ class RobustURLSigner:
             logger.debug("Impersonation method not configured")
             return None
 
-        # Thread-safe double-check locking pattern
+        # Check if we need to refresh credentials (every 30 minutes)
+        should_refresh = False
         if self._impersonated_client is not None:
+            if self._last_credential_refresh is not None:
+                age_seconds = (
+                    datetime.utcnow() - self._last_credential_refresh
+                ).total_seconds()
+                # Refresh every 30 minutes (1800 seconds)
+                if age_seconds > 1800:
+                    should_refresh = True
+                    logger.info(
+                        "Credentials expired, refreshing",
+                        extra={
+                            "age_seconds": round(age_seconds, 0),
+                            "threshold_seconds": 1800,
+                        },
+                    )
+
+        # Return cached client if valid and not expired
+        if self._impersonated_client is not None and not should_refresh:
             return self._impersonated_client
 
         with self._client_lock:
-            # Double-check inside lock to prevent race condition
-            if self._impersonated_client is not None:
+            # Double-check inside lock
+            if self._impersonated_client is not None and not should_refresh:
                 return self._impersonated_client
 
             try:
+                # Import Request for credential refresh
+                from google.auth.transport.requests import Request
+
                 source_credentials, _ = default()
 
                 target_credentials = impersonated_credentials.Credentials(
@@ -262,13 +286,38 @@ class RobustURLSigner:
                     target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
                 )
 
+                # CRITICAL: Refresh credentials explicitly
+                # This ensures the token is valid before use
+                try:
+                    request = Request()
+                    target_credentials.refresh(request)
+                    logger.info(
+                        "Credentials refreshed successfully",
+                        extra={
+                            "service_account": self.service_account_email,
+                            "was_refresh": should_refresh,
+                        },
+                    )
+                except Exception as refresh_error:
+                    logger.warning(
+                        "Credential refresh warning (continuing anyway)",
+                        extra={
+                            "error": str(refresh_error),
+                            "error_type": type(refresh_error).__name__,
+                        },
+                    )
+
                 self._impersonated_client = storage.Client(
                     credentials=target_credentials
                 )
+                self._last_credential_refresh = datetime.utcnow()
 
                 logger.info(
                     "Impersonated storage client created",
-                    extra={"service_account_email": (self.service_account_email)},
+                    extra={
+                        "service_account_email": self.service_account_email,
+                        "refresh_timestamp": self._last_credential_refresh.isoformat(),
+                    },
                 )
 
                 return self._impersonated_client
@@ -728,6 +777,124 @@ class RobustURLSigner:
                 exc_info=True,
             )
             return None
+
+    def _validate_signed_url(self, signed_url: str, timeout: float = 5.0) -> bool:
+        """
+        Validate signed URL by making a HEAD request.
+
+        This catches SignatureDoesNotMatch errors BEFORE returning
+        the URL to the user.
+
+        Args:
+            signed_url: The signed URL to validate
+            timeout: Request timeout in seconds
+
+        Returns:
+            True if URL is valid, False otherwise
+        """
+        import requests
+
+        try:
+            response = requests.head(signed_url, timeout=timeout, allow_redirects=True)
+
+            if response.status_code == 200:
+                logger.debug(
+                    "Signed URL validation passed",
+                    extra={"status_code": 200},
+                )
+                return True
+            elif response.status_code == 403:
+                # Check if it's a signature error
+                logger.error(
+                    "Signed URL validation FAILED - Access Denied",
+                    extra={
+                        "status_code": 403,
+                        "url_preview": signed_url[:100],
+                    },
+                )
+                return False
+            else:
+                logger.warning(
+                    "Signed URL validation unexpected status",
+                    extra={
+                        "status_code": response.status_code,
+                        "url_preview": signed_url[:100],
+                    },
+                )
+                # Allow non-403 errors (might be transient)
+                return True
+
+        except requests.exceptions.Timeout:
+            logger.warning("Signed URL validation timeout (allowing URL)")
+            return True  # Allow on timeout - might be network issue
+        except Exception as e:
+            logger.warning(
+                "Signed URL validation error (allowing URL)",
+                extra={"error": str(e)},
+            )
+            return True  # Allow on unknown error
+
+    def generate_signed_url_with_validation(
+        self,
+        gs_url: str,
+        expiration_minutes: Optional[int] = None,
+        validate: bool = True,
+    ) -> Optional[str]:
+        """
+        Generate and optionally validate a signed URL.
+
+        If validation fails, forces credential refresh and retries.
+
+        Args:
+            gs_url: GCS URL (gs://bucket/path)
+            expiration_minutes: URL validity duration
+            validate: Whether to validate URL with HEAD request
+
+        Returns:
+            Validated signed URL or None if generation fails
+        """
+        # First attempt
+        signed_url = self.generate_signed_url(gs_url, expiration_minutes)
+
+        if signed_url is None:
+            return None
+
+        if not validate:
+            return signed_url
+
+        # Validate the URL
+        if self._validate_signed_url(signed_url):
+            return signed_url
+
+        # Validation failed - force credential refresh and retry
+        logger.warning(
+            "URL validation failed, forcing credential refresh and retry",
+            extra={"gs_url": gs_url},
+        )
+
+        # Invalidate cached client to force refresh
+        with self._client_lock:
+            self._impersonated_client = None
+            self._last_credential_refresh = None
+
+        # Retry with fresh credentials
+        signed_url = self.generate_signed_url(gs_url, expiration_minutes)
+
+        if signed_url is None:
+            return None
+
+        # Validate again
+        if self._validate_signed_url(signed_url):
+            logger.info("URL validation passed after credential refresh")
+            return signed_url
+
+        # Still failing - log error but return URL anyway
+        # (Let the user see the error rather than failing silently)
+        logger.error(
+            "URL validation STILL failing after refresh - returning anyway",
+            extra={"gs_url": gs_url},
+        )
+        return signed_url
 
     def generate_signed_url(
         self,
