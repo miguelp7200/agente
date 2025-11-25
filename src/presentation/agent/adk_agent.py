@@ -587,44 +587,53 @@ def after_agent_callback(callback_context):
     return None
 
 
-def before_tool_callback(callback_context):
+def before_tool_callback(*args, **kwargs):
     """
     Called before each tool execution.
 
     Logs detailed information about tool calls for debugging.
-    This helps diagnose issues when tools are called but no response appears.
+    Uses flexible signature (*args, **kwargs) for ADK compatibility.
     """
     import time
 
-    # Extract tool information from callback context
+    # Extract tool information - ADK passes various formats
     tool_name = "unknown_tool"
     tool_args = {}
 
-    # Try different ways to extract tool name (ADK callback format varies)
-    if callback_context:
-        if hasattr(callback_context, "tool_name"):
-            tool_name = callback_context.tool_name
-        if hasattr(callback_context, "tool_args"):
-            tool_args = callback_context.tool_args
-        # Check if tool object is directly accessible
-        if hasattr(callback_context, "tool"):
-            tool_obj = callback_context.tool
-            if hasattr(tool_obj, "name"):
-                tool_name = tool_obj.name
-        # Check for function call part name
-        if hasattr(callback_context, "function_call_part"):
-            fc = callback_context.function_call_part
-            if hasattr(fc, "name"):
-                tool_name = fc.name
-            if hasattr(fc, "args"):
-                tool_args = fc.args
+    # Try to get from kwargs first (ADK may pass tool=... directly)
+    tool_obj = kwargs.get("tool")
+    if tool_obj and hasattr(tool_obj, "name"):
+        tool_name = tool_obj.name
+
+    # Also check for tool_name/tool_args in kwargs
+    if "tool_name" in kwargs:
+        tool_name = kwargs.get("tool_name")
+    if "tool_args" in kwargs:
+        tool_args = kwargs.get("tool_args", {})
+
+    # Check callback_context from positional args
+    if args:
+        callback_context = args[0]
+        if callback_context:
+            if hasattr(callback_context, "tool_name"):
+                tool_name = callback_context.tool_name
+            if hasattr(callback_context, "tool_args"):
+                tool_args = callback_context.tool_args
+            # Check for function call part
+            if hasattr(callback_context, "function_call_part"):
+                fc = callback_context.function_call_part
+                if hasattr(fc, "name"):
+                    tool_name = fc.name
+                if hasattr(fc, "args"):
+                    tool_args = fc.args
 
     # Log tool call with prominent markers
     print("=" * 60, file=sys.stderr)
-    print(f"[TOOL-CALL] ⏱️ Tool execution starting", file=sys.stderr)
-    print(f"[TOOL-CALL]   📛 Tool name: {tool_name}", file=sys.stderr)
-    print(f"[TOOL-CALL]   📝 Arguments: {tool_args}", file=sys.stderr)
-    print(f"[TOOL-CALL]   ⏰ Timestamp: {time.strftime('%H:%M:%S')}", file=sys.stderr)
+    print("[TOOL-CALL] Tool execution starting", file=sys.stderr)
+    print(f"[TOOL-CALL]   Tool name: {tool_name}", file=sys.stderr)
+    print(f"[TOOL-CALL]   Arguments: {tool_args}", file=sys.stderr)
+    ts = time.strftime('%H:%M:%S')
+    print(f"[TOOL-CALL]   Timestamp: {ts}", file=sys.stderr)
     print("=" * 60, file=sys.stderr)
 
     # Also log to SOLID conversation tracker if available
@@ -632,16 +641,14 @@ def before_tool_callback(callback_context):
         try:
             conversation_tracker.before_tool_callback(tool_name, tool_args)
         except Exception as e:
-            print(f"[TOOL-CALL] ✗ Tracker update failed: {e}", file=sys.stderr)
+            print(f"[TOOL-CALL] Tracker failed: {e}", file=sys.stderr)
 
-    # Legacy tracker
+    # Legacy tracker - pass all args/kwargs for compatibility
     if tracking_backend in ["legacy", "dual"] and legacy_tracker:
         try:
-            legacy_tracker.before_tool_callback(
-                callback_context, tool_name=tool_name, tool_args=tool_args
-            )
+            legacy_tracker.before_tool_callback(*args, **kwargs)
         except Exception as e:
-            print(f"[TOOL-CALL] ✗ Legacy tracker failed: {e}", file=sys.stderr)
+            print(f"[TOOL-CALL] Legacy tracker failed: {e}", file=sys.stderr)
 
     return None
 
