@@ -587,6 +587,65 @@ def after_agent_callback(callback_context):
     return None
 
 
+def before_tool_callback(callback_context):
+    """
+    Called before each tool execution.
+
+    Logs detailed information about tool calls for debugging.
+    This helps diagnose issues when tools are called but no response appears.
+    """
+    import time
+
+    # Extract tool information from callback context
+    tool_name = "unknown_tool"
+    tool_args = {}
+
+    # Try different ways to extract tool name (ADK callback format varies)
+    if callback_context:
+        if hasattr(callback_context, "tool_name"):
+            tool_name = callback_context.tool_name
+        if hasattr(callback_context, "tool_args"):
+            tool_args = callback_context.tool_args
+        # Check if tool object is directly accessible
+        if hasattr(callback_context, "tool"):
+            tool_obj = callback_context.tool
+            if hasattr(tool_obj, "name"):
+                tool_name = tool_obj.name
+        # Check for function call part name
+        if hasattr(callback_context, "function_call_part"):
+            fc = callback_context.function_call_part
+            if hasattr(fc, "name"):
+                tool_name = fc.name
+            if hasattr(fc, "args"):
+                tool_args = fc.args
+
+    # Log tool call with prominent markers
+    print("=" * 60, file=sys.stderr)
+    print(f"[TOOL-CALL] ⏱️ Tool execution starting", file=sys.stderr)
+    print(f"[TOOL-CALL]   📛 Tool name: {tool_name}", file=sys.stderr)
+    print(f"[TOOL-CALL]   📝 Arguments: {tool_args}", file=sys.stderr)
+    print(f"[TOOL-CALL]   ⏰ Timestamp: {time.strftime('%H:%M:%S')}", file=sys.stderr)
+    print("=" * 60, file=sys.stderr)
+
+    # Also log to SOLID conversation tracker if available
+    if tracking_backend in ["solid", "dual"]:
+        try:
+            conversation_tracker.before_tool_callback(tool_name, tool_args)
+        except Exception as e:
+            print(f"[TOOL-CALL] ✗ Tracker update failed: {e}", file=sys.stderr)
+
+    # Legacy tracker
+    if tracking_backend in ["legacy", "dual"] and legacy_tracker:
+        try:
+            legacy_tracker.before_tool_callback(
+                callback_context, tool_name=tool_name, tool_args=tool_args
+            )
+        except Exception as e:
+            print(f"[TOOL-CALL] ✗ Legacy tracker failed: {e}", file=sys.stderr)
+
+    return None
+
+
 def _compare_token_counts(callback_context):
     """
     Compare token counts between Legacy and SOLID trackers.
@@ -666,7 +725,8 @@ root_agent = Agent(
     name="gasco_invoice_assistant",
     model=vertex_model,
     description=(
-        "Invoice assistant for Gasco with BigQuery access " "and PDF generation"
+        "Invoice assistant for Gasco with BigQuery access "
+        "and PDF generation"
     ),
     tools=[
         # MCP Toolbox tools (filtered - wrapped tools removed)
@@ -686,6 +746,8 @@ root_agent = Agent(
     # Register conversation tracking callbacks
     before_agent_callback=before_agent_callback,
     after_agent_callback=after_agent_callback,
+    # Tool execution logging callback
+    before_tool_callback=before_tool_callback,
 )
 
 print("ADK root_agent configured:", file=sys.stderr)
