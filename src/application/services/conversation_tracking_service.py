@@ -87,16 +87,18 @@ class ConversationTrackingService:
         """
         Signal handler for graceful shutdown (SIGTERM from Cloud Run).
         Logs final aggregated stats before process termination.
+
+        Note: We do NOT call sys.exit() here because it interferes with
+        asyncio's event loop. Instead, we just log stats and let the
+        normal shutdown process continue.
         """
         try:
+            logger.info("[SHUTDOWN] Received signal %s, logging final stats...", signum)
             self._log_shutdown_stats()
+            logger.info("[SHUTDOWN] Stats logged, allowing graceful shutdown...")
         except Exception as e:
             logger.error("[ERROR] Failed to log shutdown stats: %s", str(e))
-        finally:
-            # Exit gracefully
-            import sys
-
-            sys.exit(0)
+        # Do NOT call sys.exit(0) - let the normal shutdown process handle it
 
     def before_agent_callback(self, callback_context) -> None:
         """
