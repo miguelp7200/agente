@@ -291,7 +291,7 @@ features:
   use_robust_signed_urls: true     # Use new stable signed URL implementation
   enable_thinking_mode: false      # Enable model reasoning (development only)
   signed_url_monitoring: true      # Enable signed URL monitoring/logging
-  use_legacy_architecture: false   # Fallback to deprecated/legacy code
+  # REMOVED: use_legacy_architecture (Nov 2025) - Legacy code archived in branch archive/legacy-pre-deprecation
 
 # Analytics and Conversation Tracking
 # ================================================================
@@ -341,16 +341,8 @@ context_validation:
 analytics:
   conversation_tracking:
     enabled: true                   # Enable conversation analytics
-    backend: "solid"                # Options: "legacy", "solid", "dual"
-                                    # - legacy: Use deprecated conversation_callbacks.py
-                                    # - solid: Use new SOLID architecture (recommended)
-                                    # - dual: Write to both for validation (temporary)
-    
-    # Comparison settings (only used when backend="dual")
-    dual_write:
-      compare_tokens: true          # Compare token counts between systems
-      token_diff_threshold: 100     # Alert if absolute difference > 100 tokens
-      log_differences: true         # Log differences to stderr
+    backend: "solid"                # DEPRECATED: legacy/dual modes removed (Nov 2025)
+                                    # Only "solid" is supported now
 
     # BigQuery persistence
     bigquery:
