@@ -13,11 +13,14 @@ from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime, timezone
 import json
 
-# Importar configuración de signed URLs
+# Import configuration from SOLID ConfigLoader
 try:
-    from config import SIGNED_URL_EXPIRATION_HOURS
+    from src.core.config import get_config
+
+    _config = get_config()
+    SIGNED_URL_EXPIRATION_HOURS = _config.get("pdf.signed_urls.expiration_hours", 24)
 except ImportError:
-    # Fallback si no se puede importar config
+    # Fallback for standalone usage
     SIGNED_URL_EXPIRATION_HOURS = 24
 
 from .gcs_time_sync import verify_time_sync, get_time_sync_info

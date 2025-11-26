@@ -1,14 +1,35 @@
 """
 Configuración para el sistema de procesamiento de facturas Gasco
-Migrado a datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo
-Optimizado para Cloud Run y desarrollo local
-Usa Application Default Credentials (ADC) para autenticación
+
+DEPRECATED (Nov 2025): This module is deprecated.
+Use src.core.config.ConfigLoader instead:
+    from src.core.config import get_config
+    config = get_config()
+    value = config.get("path.to.config")
+
+This file is maintained only for backward compatibility with:
+- infrastructure/ scripts (use env vars directly instead)
+- scripts/testing/ (being migrated)
+
+Migration guide:
+- PROJECT_ID_READ → config.get("google_cloud.read.project")
+- BIGQUERY_TABLE_INVOICES_READ → get_invoices_table()
+- SIGNED_URL_EXPIRATION_HOURS → config.get("pdf.signed_urls.expiration_hours")
 """
 
+import warnings
 import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Emit deprecation warning when imported
+warnings.warn(
+    "config.py is deprecated. Use 'from src.core.config import get_config' instead. "
+    "See config.py docstring for migration guide.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 # ==============================================
 # CARGA DE VARIABLES DE ENTORNO

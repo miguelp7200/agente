@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
 Script para crear la tabla zip_packages faltante en BigQuery
+
+Note: This script uses environment variables directly for portability.
+      Set GOOGLE_CLOUD_PROJECT_WRITE and BIGQUERY_DATASET_WRITE before running.
 """
 
+import os
 from google.cloud import bigquery
-from config import PROJECT_ID, DATASET_ID
+
+# Use environment variables directly (no dependency on project modules)
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_WRITE", "agent-intelligence-gasco")
+DATASET_ID = os.getenv("BIGQUERY_DATASET_WRITE", "zip_operations")
 
 
 def create_zip_packages_table():
