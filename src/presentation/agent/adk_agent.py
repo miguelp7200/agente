@@ -178,7 +178,7 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
                         file=sys.stderr,
                     )
 
-                    # Sign ONLY first 5 PDFs for preview
+                    # Sign ONLY first 4 PDFs for preview
                     urls_to_sign = pdf_urls_list[:5]
                     url_signer = container.url_signer
                     signed_urls = []
@@ -473,7 +473,7 @@ CRITICAL INSTRUCTIONS:
    NEVER show gs:// URLs directly to the user - always convert them first.
 
 2. AUTO ZIP CREATION (MANDATORY):
-   When a search returns more than 5 invoices:
+   When a search returns more than 2 invoices:
    
    EXAMPLE: If search returns 278 invoices with gs:// URLs:
    
@@ -483,10 +483,10 @@ CRITICAL INSTRUCTIONS:
    DO NOT call with only 5 URLs. DO NOT truncate the list. Pass ALL 278 URLs.
    
    Step 2: The tool will automatically:
-   - Detect that 278 > 5 (threshold)
+   - Detect that 278 > 2 (threshold)
    - Create a ZIP package with ALL invoices (this takes ~10 seconds)
    - Return response with:
-     * signed_urls: First 5 PDF links for preview (ONLY FOR PREVIEW)
+     * signed_urls: First 2 invoice PDFs for preview (ONLY FOR PREVIEW)
      * zip_url: Download link for ZIP with ALL invoices
        (PRIMARY DOWNLOAD METHOD)
      * message: Explanation of what was done
@@ -495,7 +495,7 @@ CRITICAL INSTRUCTIONS:
    
    **ALWAYS CHECK IF zip_url FIELD EXISTS IN TOOL RESPONSE**
    
-   If zip_url is present (meaning count > 5):
+   If zip_url is present (meaning count > 2):
    
    EXAMPLE FORMAT (FOLLOW EXACTLY - USE MARKDOWN LINKS):
    ```
@@ -504,7 +504,7 @@ CRITICAL INSTRUCTIONS:
    📦 **Descarga Completa:**
    [📥 Descargar ZIP con todas las 278 facturas](https://storage.googleapis.com/...)
    
-   📄 Vista previa (primeras 5 facturas):
+   📄 Vista previa (primeras 2 facturas):
    
    **Factura 0105635394:**
    - [Copia Cedible con Fondo](https://storage.googleapis.com/...)
@@ -523,9 +523,9 @@ CRITICAL INSTRUCTIONS:
    
    DO NOT show individual PDF links as the primary download method when
    zip_url is present. DO NOT say "aquí están tus facturas" and only show
-   the 5 preview PDFs - that's misleading when there are 278 invoices.
+   the 2 preview PDFs - that's misleading when there are 278 invoices.
    
-   If zip_url is NOT present (meaning count <= 5):
+   If zip_url is NOT present (meaning count <= 2):
    Show individual PDF links normally (no ZIP needed).
 
 3. URL FORMATTING (MANDATORY):
@@ -649,7 +649,7 @@ def before_tool_callback(*args, **kwargs):
     print("[TOOL-CALL] Tool execution starting", file=sys.stderr)
     print(f"[TOOL-CALL]   Tool name: {tool_name}", file=sys.stderr)
     print(f"[TOOL-CALL]   Arguments: {tool_args}", file=sys.stderr)
-    ts = time.strftime('%H:%M:%S')
+    ts = time.strftime("%H:%M:%S")
     print(f"[TOOL-CALL]   Timestamp: {ts}", file=sys.stderr)
     print("=" * 60, file=sys.stderr)
 
@@ -749,8 +749,7 @@ root_agent = Agent(
     name="gasco_invoice_assistant",
     model=vertex_model,
     description=(
-        "Invoice assistant for Gasco with BigQuery access "
-        "and PDF generation"
+        "Invoice assistant for Gasco with BigQuery access " "and PDF generation"
     ),
     tools=[
         # MCP Toolbox tools (filtered - wrapped tools removed)
