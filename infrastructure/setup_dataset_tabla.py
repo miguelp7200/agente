@@ -1,20 +1,29 @@
 #!/usr/bin/env python3
 """
 Setup SIMPLE para BigQuery - UNA SOLA TABLA
+
+Note: This script uses environment variables directly for portability.
+      Set GOOGLE_CLOUD_PROJECT_WRITE, BIGQUERY_DATASET_WRITE, LOCATION before running.
 """
 
+import os
 import logging
 from google.cloud import bigquery
-from config import PROJECT_ID, DATASET_ID, LOCATION
+
+# Use environment variables directly (no dependency on project modules)
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_WRITE", "agent-intelligence-gasco")
+DATASET_ID = os.getenv("BIGQUERY_DATASET_WRITE", "zip_operations")
+LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def create_dataset():
     """Crea el dataset si no existe"""
     client = bigquery.Client(project=PROJECT_ID)
     dataset_id = f"{PROJECT_ID}.{DATASET_ID}"
-    
+
     try:
         client.get_dataset(dataset_id)
         logger.info(f"✅ Dataset {dataset_id} ya existe")
@@ -25,10 +34,11 @@ def create_dataset():
         dataset = client.create_dataset(dataset, timeout=30)
         logger.info(f"✅ Dataset {dataset_id} creado")
 
+
 def create_simple_table():
     """Crea UNA SOLA TABLA simple"""
     client = bigquery.Client(project=PROJECT_ID)
-    
+
     sql = f"""
     CREATE OR REPLACE TABLE `{PROJECT_ID}.{DATASET_ID}.facturas` (
         -- Básico
@@ -77,21 +87,23 @@ def create_simple_table():
     )
     OPTIONS(description="Tabla híbrida: simple para MCP con campos detallados para chatbot completo")
     """
-    
+
     try:
         client.query(sql).result()
         logger.info("✅ Tabla 'facturas' creada/verificada")
     except Exception as e:
         logger.error(f"❌ Error creando tabla: {e}")
 
+
 def main():
     """Setup completo simplificado"""
     logger.info("🚀 Configurando BigQuery SIMPLE...")
-    
+
     create_dataset()
     create_simple_table()
-    
+
     logger.info("✅ Setup completado!")
+
 
 if __name__ == "__main__":
     main()
