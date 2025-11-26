@@ -117,6 +117,11 @@ if ($responseText) {
     $hasPreviewPdfs = $responseText -match "storage\.googleapis\.com.*Copia_"
     $noIndividualOnly = -not ($responseText -match "aquí están" -and -not $hasZipUrl)
     
+    # Validate threshold of 2 facturas in preview (each has ~2 PDFs)
+    $previewText = $responseText -match "primeras 2"
+    $facturaMatches = [regex]::Matches($responseText, "\*\*Factura \d+:\*\*")
+    $previewCount = $facturaMatches.Count
+    
     Write-Host "`n🔍 ZIP Display Validation:" -ForegroundColor Yellow
     
     if ($hasZipUrl) { 
@@ -138,9 +143,18 @@ if ($responseText) {
     }
     
     if ($hasPreviewPdfs) { 
-        Write-Host "   ✅ PDFs preview (primeras 5) presentes" -ForegroundColor Green 
+        Write-Host "   ✅ PDFs preview presentes" -ForegroundColor Green 
     } else { 
         Write-Host "   ℹ️  Sin PDFs de preview" -ForegroundColor Cyan 
+    }
+    
+    # Threshold validation (should be 2, not 4 or 5)
+    if ($previewCount -eq 2) {
+        Write-Host "   ✅ Threshold correcto: $previewCount facturas en preview (esperado: 2)" -ForegroundColor Green
+    } elseif ($previewCount -le 2) {
+        Write-Host "   ✅ Preview count OK: $previewCount facturas (≤ threshold 2)" -ForegroundColor Green
+    } else {
+        Write-Host "   ⚠️  Preview count: $previewCount facturas (threshold debería ser 2)" -ForegroundColor Yellow
     }
     
     if ($noIndividualOnly) { 
