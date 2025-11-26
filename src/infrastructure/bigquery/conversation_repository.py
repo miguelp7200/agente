@@ -6,7 +6,7 @@ Concrete implementation of IConversationRepository using Google BigQuery.
 
 import sys
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from google.cloud import bigquery
 from google.api_core import retry
 
@@ -243,7 +243,7 @@ class BigQueryConversationRepository(IConversationRepository):
 
     def get_statistics(self, days: int = 7) -> Dict[str, Any]:
         """Get conversation statistics for recent period"""
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         query = f"""
             SELECT

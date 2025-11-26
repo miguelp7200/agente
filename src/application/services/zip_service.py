@@ -10,7 +10,7 @@ import time
 import threading
 import uuid
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import zipfile
 import io
 import concurrent.futures
@@ -360,7 +360,7 @@ class ZipService:
             Tuple of (gcs_path, file_size_bytes)
         """
         # Generate blob path
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         blob_name = f"zips/{timestamp}_{package_name}_{package_id[:8]}.zip"
 
         # Get bucket and blob

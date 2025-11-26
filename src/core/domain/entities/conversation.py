@@ -6,7 +6,7 @@ including token usage, text metrics, and ZIP generation performance.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 import uuid
 
@@ -119,7 +119,7 @@ class ConversationRecord:
     session_id: Optional[str] = None
 
     # === Temporal fields (4 fields) ===
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     date_partition: Optional[str] = None  # Calculated from timestamp
     hour_of_day: Optional[int] = None  # Calculated from timestamp
     day_of_week: Optional[int] = None  # Calculated from timestamp

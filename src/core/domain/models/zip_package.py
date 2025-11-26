@@ -5,7 +5,7 @@ Represents a collection of invoice PDFs packaged as a ZIP file for bulk download
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from enum import Enum
 
@@ -47,7 +47,7 @@ class ZipPackage:
     status: ZipStatus = ZipStatus.PENDING
 
     # Timestamps
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: Optional[datetime] = None
 
     # Storage
@@ -87,7 +87,7 @@ class ZipPackage:
     @property
     def is_expired(self) -> bool:
         """Check if ZIP has expired"""
-        return datetime.utcnow() > self.expires_at if self.expires_at else False
+        return datetime.now(timezone.utc) > self.expires_at if self.expires_at else False
 
     @property
     def is_failed(self) -> bool:
@@ -108,7 +108,7 @@ class ZipPackage:
     def time_until_expiry(self) -> Optional[timedelta]:
         """Time remaining until expiration"""
         if self.expires_at:
-            return self.expires_at - datetime.utcnow()
+            return self.expires_at - datetime.now(timezone.utc)
         return None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -210,7 +210,7 @@ class ZipPackage:
             package_id=row.get("zip_id"),
             invoice_numbers=invoice_numbers,
             status=status,
-            created_at=row.get("created_at", datetime.utcnow()),
+            created_at=row.get("created_at", datetime.now(timezone.utc)),
             expires_at=expires_at,
             gcs_path=row.get("gcs_path"),
             download_url=download_url,

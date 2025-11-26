@@ -5,7 +5,7 @@ Represents an AI agent conversation session with tracking metadata.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 from enum import Enum
 
@@ -72,7 +72,7 @@ class Conversation:
     status: ConversationStatus = ConversationStatus.ACTIVE
 
     # Timestamps
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
 
     # Metrics
@@ -179,7 +179,7 @@ class Conversation:
             user_query=row.get("user_query", ""),
             agent_response=row.get("agent_response", ""),
             status=status,
-            started_at=row.get("started_at", datetime.utcnow()),
+            started_at=row.get("started_at", datetime.now(timezone.utc)),
             completed_at=row.get("completed_at"),
             token_usage=token_usage,
             tools_used=tools_used,
@@ -217,7 +217,7 @@ class Conversation:
             agent_response=agent_response,
             status=ConversationStatus.COMPLETED,
             started_at=self.started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(timezone.utc),
             token_usage=token_usage,
             tools_used=tools_used,
             invoices_found=invoices_found,
@@ -243,7 +243,7 @@ class Conversation:
             agent_response=self.agent_response,
             status=ConversationStatus.FAILED,
             started_at=self.started_at,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(timezone.utc),
             token_usage=self.token_usage,
             tools_used=self.tools_used,
             invoices_found=self.invoices_found,
