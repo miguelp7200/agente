@@ -233,6 +233,21 @@ class ConfigLoader:
                 errors.append(
                     f"vertex_ai.thinking.budget must be 0-8192, got: {thinking_budget}"
                 )
+
+            # Validate ZIP threshold
+            # Max 2 facturas because each has ~2 PDFs = 4 signed URLs max
+            zip_threshold = self.get("pdf.zip.threshold", 2)
+            if isinstance(zip_threshold, str):
+                zip_threshold = int(zip_threshold)
+            if zip_threshold > 2:
+                print(
+                    f"WARNING: pdf.zip.threshold={zip_threshold} exceeds "
+                    f"safe limit of 2 facturas (~4 PDFs). "
+                    f"Signed URLs may fail.",
+                    file=sys.stderr,
+                )
+            elif zip_threshold < 1:
+                errors.append(f"pdf.zip.threshold must be >= 1, got: {zip_threshold}")
         except KeyError:
             pass  # Optional fields
 
