@@ -52,35 +52,8 @@ conversation_tracker = ConversationTrackingService(repository=bq_repo)
 # Create context validation service (for token overflow prevention)
 context_validator = ContextValidationService()
 
-# Check if dual-write mode is enabled
-tracking_backend = config.get("analytics.conversation_tracking.backend", "solid")
-legacy_tracker = None
-
-if tracking_backend in ["legacy", "dual"]:
-    # Import Legacy tracker for dual-write or legacy-only mode
-    print(
-        f"[ANALYTICS] Backend mode: {tracking_backend} " "(importing Legacy tracker)",
-        file=sys.stderr,
-    )
-    try:
-        legacy_path = (
-            Path(__file__).parent.parent.parent.parent
-            / "my-agents"
-            / "gcp_invoice_agent_app"
-        )
-        sys.path.insert(0, str(legacy_path))
-        from conversation_callbacks import conversation_tracker as legacy_tracker_import
-
-        legacy_tracker = legacy_tracker_import
-        print("[ANALYTICS] ✓ Legacy tracker loaded", file=sys.stderr)
-    except Exception as e:
-        msg = f"[ANALYTICS] ✗ Failed to load Legacy tracker: {e}"
-        print(msg, file=sys.stderr)
-        if tracking_backend == "legacy":
-            raise  # Fail if legacy-only mode can't load legacy
-else:
-    msg = f"[ANALYTICS] Backend mode: {tracking_backend} (SOLID only)"
-    print(msg, file=sys.stderr)
+# Analytics backend (legacy modes deprecated, SOLID only)
+print("[ANALYTICS] Backend: SOLID (legacy/dual modes deprecated)", file=sys.stderr)
 
 
 # Initialize MCP Toolbox
@@ -549,20 +522,9 @@ def before_agent_callback(callback_context):
     """
     Called before agent processes user query.
 
-    Initializes conversation tracking (SOLID and/or Legacy).
+    Initializes conversation tracking (SOLID only).
     """
-    # SOLID tracker (always call unless backend="legacy")
-    if tracking_backend in ["solid", "dual"]:
-        conversation_tracker.before_agent_callback(callback_context)
-
-    # Legacy tracker (call if backend="legacy" or "dual")
-    if tracking_backend in ["legacy", "dual"] and legacy_tracker:
-        try:
-            legacy_tracker.before_agent_callback(callback_context)
-        except Exception as e:
-            msg = f"[ANALYTICS] ✗ Legacy before_agent failed: {e}"
-            print(msg, file=sys.stderr)
-
+    conversation_tracker.before_agent_callback(callback_context)
     return None
 
 
@@ -571,35 +533,13 @@ def after_agent_callback(callback_context):
     Called after agent generates response.
 
     Captures tokens, response text, and triggers persistence.
-    Implements dual-write with token comparison if enabled.
     """
-    # Legacy tracker FIRST (backward compatibility)
-    if tracking_backend in ["legacy", "dual"] and legacy_tracker:
-        try:
-            legacy_tracker.after_agent_callback(callback_context)
-        except Exception as e:
-            msg = f"[ANALYTICS] ✗ Legacy after_agent failed: {e}"
-            print(msg, file=sys.stderr)
-
-    # SOLID tracker
-    if tracking_backend in ["solid", "dual"]:
-        try:
-            conversation_tracker.after_agent_callback(callback_context)
-
-            # Compare tokens if dual-write mode
-            compare_enabled = config.get(
-                "analytics.conversation_tracking.dual_write.compare_tokens", True
-            )
-            if tracking_backend == "dual" and compare_enabled:
-                _compare_token_counts(callback_context)
-
-        except Exception as e:
-            msg = f"[ANALYTICS] ✗ SOLID after_agent failed: {e}"
-            print(msg, file=sys.stderr)
-            # In dual-write, SOLID failure is not fatal
-            # (Legacy already persisted)
-            if tracking_backend == "solid":
-                raise  # Re-raise if SOLID-only mode
+    try:
+        conversation_tracker.after_agent_callback(callback_context)
+    except Exception as e:
+        msg = f"[ANALYTICS] ✗ after_agent failed: {e}"
+        print(msg, file=sys.stderr)
+        raise
 
     return None
 
@@ -653,65 +593,13 @@ def before_tool_callback(*args, **kwargs):
     print(f"[TOOL-CALL]   Timestamp: {ts}", file=sys.stderr)
     print("=" * 60, file=sys.stderr)
 
-    # Also log to SOLID conversation tracker if available
-    if tracking_backend in ["solid", "dual"]:
-        try:
-            conversation_tracker.before_tool_callback(tool_name, tool_args)
-        except Exception as e:
-            print(f"[TOOL-CALL] Tracker failed: {e}", file=sys.stderr)
-
-    # Legacy tracker - pass all args/kwargs for compatibility
-    if tracking_backend in ["legacy", "dual"] and legacy_tracker:
-        try:
-            legacy_tracker.before_tool_callback(*args, **kwargs)
-        except Exception as e:
-            print(f"[TOOL-CALL] Legacy tracker failed: {e}", file=sys.stderr)
+    # Log to SOLID conversation tracker
+    try:
+        conversation_tracker.before_tool_callback(tool_name, tool_args)
+    except Exception as e:
+        print(f"[TOOL-CALL] Tracker failed: {e}", file=sys.stderr)
 
     return None
-
-
-def _compare_token_counts(callback_context):
-    """
-    Compare token counts between Legacy and SOLID trackers.
-
-    Logs warning if difference exceeds threshold.
-    """
-    try:
-        # Get tokens from SOLID
-        solid_tokens = None
-        if conversation_tracker.current_record:
-            solid_tokens = (
-                conversation_tracker.current_record.token_usage.total_token_count
-            )
-
-        # Get tokens from Legacy
-        legacy_tokens = None
-        if legacy_tracker and hasattr(legacy_tracker, "current_conversation"):
-            legacy_data = legacy_tracker.current_conversation
-            legacy_tokens = legacy_data.get("total_token_count")
-
-        # Compare if both have values
-        if solid_tokens is not None and legacy_tokens is not None:
-            diff = abs(solid_tokens - legacy_tokens)
-            threshold_key = (
-                "analytics.conversation_tracking." "dual_write.token_diff_threshold"
-            )
-            threshold = config.get(threshold_key, 100)
-
-            if diff > threshold:
-                msg = (
-                    f"[ANALYTICS] ⚠️ TOKEN MISMATCH: "
-                    f"Legacy={legacy_tokens}, SOLID={solid_tokens}, "
-                    f"diff={diff}"
-                )
-                print(msg, file=sys.stderr)
-            else:
-                print(
-                    f"[ANALYTICS] ✓ Tokens match: {solid_tokens} " f"(diff={diff})",
-                    file=sys.stderr,
-                )
-    except Exception as e:
-        print(f"[ANALYTICS] ✗ Token comparison failed: {e}", file=sys.stderr)
 
 
 # ================================================================
