@@ -58,7 +58,7 @@ class TestSOLIDImportIsolation:
     def _check_file_imports(self, file_path: Path) -> list:
         """
         Parse a Python file and extract all import statements.
-        
+
         Returns list of (line_number, import_statement) tuples for legacy imports.
         """
         legacy_imports = []
@@ -99,9 +99,10 @@ class TestSOLIDImportIsolation:
                         f"{file_path.relative_to(PROJECT_ROOT)}:{line_num}: {stmt}"
                     )
 
-        assert not violations, (
-            f"Application layer has {len(violations)} legacy imports:\n"
-            + "\n".join(violations)
+        assert (
+            not violations
+        ), f"Application layer has {len(violations)} legacy imports:\n" + "\n".join(
+            violations
         )
 
     def test_core_layer_no_legacy_imports(self):
@@ -117,10 +118,9 @@ class TestSOLIDImportIsolation:
                         f"{file_path.relative_to(PROJECT_ROOT)}:{line_num}: {stmt}"
                     )
 
-        assert not violations, (
-            f"Core layer has {len(violations)} legacy imports:\n"
-            + "\n".join(violations)
-        )
+        assert (
+            not violations
+        ), f"Core layer has {len(violations)} legacy imports:\n" + "\n".join(violations)
 
     def test_infrastructure_layer_no_legacy_imports(self):
         """Infrastructure layer should not import from legacy."""
@@ -135,9 +135,10 @@ class TestSOLIDImportIsolation:
                         f"{file_path.relative_to(PROJECT_ROOT)}:{line_num}: {stmt}"
                     )
 
-        assert not violations, (
-            f"Infrastructure layer has {len(violations)} legacy imports:\n"
-            + "\n".join(violations)
+        assert (
+            not violations
+        ), f"Infrastructure layer has {len(violations)} legacy imports:\n" + "\n".join(
+            violations
         )
 
     def test_presentation_layer_allowed_exceptions_only(self):
@@ -163,26 +164,29 @@ class TestSOLIDImportIsolation:
 class TestFeatureFlagBehavior:
     """Test that feature flags correctly control architecture selection."""
 
-    def test_legacy_mode_flag_exists_in_config(self):
-        """Verify use_legacy_architecture flag exists in config."""
+    def test_legacy_mode_flag_removed_from_config(self):
+        """Verify use_legacy_architecture flag was removed (deprecated Nov 2025)."""
         from src.core.config import get_config
 
         config = get_config()
         value = config.get("features.use_legacy_architecture", "NOT_FOUND")
 
-        assert value != "NOT_FOUND", "features.use_legacy_architecture not in config"
-        assert isinstance(value, bool), "use_legacy_architecture should be boolean"
+        # Flag should NOT exist anymore - legacy was fully deprecated
+        assert (
+            value == "NOT_FOUND"
+        ), "features.use_legacy_architecture should be removed (legacy deprecated)"
 
-    def test_default_is_solid_mode(self):
-        """Verify default configuration uses SOLID architecture."""
+    def test_solid_mode_is_default_and_only_option(self):
+        """Verify SOLID is now the only architecture (legacy removed)."""
         from src.core.config import get_config
 
         config = get_config()
-        use_legacy = config.get("features.use_legacy_architecture", True)
+        # Default to True to detect if flag accidentally returns
+        use_legacy = config.get("features.use_legacy_architecture", False)
 
-        assert use_legacy is False, (
-            "Default should be use_legacy_architecture=false (SOLID mode)"
-        )
+        assert (
+            use_legacy is False
+        ), "SOLID is the only architecture - legacy was deprecated"
 
     def test_tracking_backend_default_is_solid(self):
         """Verify conversation tracking defaults to SOLID backend."""
@@ -191,9 +195,9 @@ class TestFeatureFlagBehavior:
         config = get_config()
         backend = config.get("analytics.conversation_tracking.backend", "legacy")
 
-        assert backend == "solid", (
-            f"Default tracking backend should be 'solid', got '{backend}'"
-        )
+        assert (
+            backend == "solid"
+        ), f"Default tracking backend should be 'solid', got '{backend}'"
 
 
 class TestSOLIDComponentsLoadIndependently:
@@ -202,7 +206,9 @@ class TestSOLIDComponentsLoadIndependently:
     def test_container_loads_without_legacy(self):
         """ServiceContainer should load without any legacy imports."""
         # Clear any cached modules
-        modules_to_clear = [k for k in sys.modules if "deprecated" in k or "legacy" in k]
+        modules_to_clear = [
+            k for k in sys.modules if "deprecated" in k or "legacy" in k
+        ]
         for mod in modules_to_clear:
             del sys.modules[mod]
 
@@ -294,7 +300,7 @@ class TestSOLIDServicesFunction:
 
         # Mock repository
         mock_repo = MagicMock()
-        
+
         # Should initialize without errors
         service = ConversationTrackingService(repository=mock_repo)
         assert service is not None
