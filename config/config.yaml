@@ -148,7 +148,7 @@ pdf:
 
   # ZIP packaging configuration
   zip:
-    threshold: 5              # Number of invoices to trigger auto-ZIP
+    threshold: 2              # Max 2 facturas (~4 PDFs) due to signed URL constraints
     preview_limit: 3          # Number of invoices to preview when ZIP is created
     expiration_days: 7        # Days before ZIP expires
     max_files: 50             # Maximum PDFs per ZIP
@@ -292,6 +292,49 @@ features:
   enable_thinking_mode: false      # Enable model reasoning (development only)
   signed_url_monitoring: true      # Enable signed URL monitoring/logging
   use_legacy_architecture: false   # Fallback to deprecated/legacy code
+
+# Analytics and Conversation Tracking
+# ================================================================
+# Logging Configuration
+# ================================================================
+logging:
+  # Log levels per module (can be overridden by env vars)
+  levels:
+    tracking_service: INFO          # ConversationTrackingService log level
+    repository: WARNING             # BigQueryConversationRepository log level
+    validation_service: INFO        # ContextValidationService log level
+  
+  # Timezone for daily stats (America/Santiago for Chile)
+  timezone: "America/Santiago"
+  
+  # Aggregated stats
+  aggregated_stats_enabled: true    # Enable daily stats logging
+
+# ================================================================
+# Context Validation - Prevent Token Overflow
+# ================================================================
+context_validation:
+  # Feature flag - set to false to disable enforcement
+  enforcement_enabled: true
+  
+  # Token thresholds (based on Gemini 1.5 Flash limit: 1,048,576 tokens)
+  thresholds:
+    safe_tokens: 500000             # <500K = SAFE
+    warning_tokens: 800000          # 500K-800K = LARGE_BUT_OK
+    large_tokens: 1000000           # 800K-1M = WARNING_LARGE
+    max_tokens: 1048576             # >1M = EXCEED_CONTEXT (BLOCK)
+  
+  # Token estimation formula
+  estimation:
+    tokens_per_factura: 250         # Estimated tokens per invoice
+    system_context_tokens: 35000    # Fixed system prompt overhead
+  
+  # User-facing messages (Spanish)
+  messages:
+    blocked: "⚠️ La consulta excede la capacidad del sistema. Por favor, refina tu búsqueda."
+    warning_large: "⚠️ Consulta grande detectada. Considera agregar filtros adicionales."
+    large_but_ok: "Consulta moderadamente grande. Se procesará normalmente."
+    safe: "Consulta dentro de límites seguros."
 
 # Analytics and Conversation Tracking
 # ================================================================

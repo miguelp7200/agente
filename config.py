@@ -155,8 +155,14 @@ PDF_SERVER_PORT = int(os.getenv("PDF_SERVER_PORT", "8080"))
 # CONFIGURACIÓN DE EMPAQUETADO ZIP
 # ==============================================
 
-# Umbral para activar empaquetado ZIP automático
-ZIP_THRESHOLD = int(os.getenv("ZIP_THRESHOLD", "5"))
+# Límite técnico de URLs firmadas simultáneas (empírico)
+# Cada factura tiene ~2 PDFs (Cedible + Tributaria), máximo ~4 URLs funcionan
+# Por lo tanto, máximo 2 facturas en preview antes de ZIP
+MAX_SAFE_SIGNED_URLS = 4  # URLs, no facturas
+
+# Umbral para activar empaquetado ZIP automático (en número de FACTURAS)
+# Con 2 PDFs por factura, threshold=2 significa máximo 4 signed URLs
+ZIP_THRESHOLD = min(int(os.getenv("ZIP_THRESHOLD", "2")), 2)
 
 # Número de facturas en preview cuando se activa ZIP
 ZIP_PREVIEW_LIMIT = int(os.getenv("ZIP_PREVIEW_LIMIT", "3"))
@@ -178,6 +184,14 @@ ZIP_MAX_FILES = int(os.getenv("ZIP_MAX_FILES", "50"))
 
 # Usar URLs firmadas individuales en lugar de ZIP para conjuntos muy grandes
 USE_SIGNED_URLS_THRESHOLD = int(os.getenv("USE_SIGNED_URLS_THRESHOLD", "30"))
+
+# ==============================================
+# CONFIGURACIÓN DE LOGGING
+# ==============================================
+
+# Niveles de logging por módulo (env vars: LOG_LEVEL_TRACKING, LOG_LEVEL_REPOSITORY)
+LOG_LEVEL_TRACKING = os.getenv("LOG_LEVEL_TRACKING", "INFO")
+LOG_LEVEL_REPOSITORY = os.getenv("LOG_LEVEL_REPOSITORY", "WARNING")
 
 # ==============================================
 # CONFIGURACIÓN DE SIGNED URLS - ESTABILIDAD
