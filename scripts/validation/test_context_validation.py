@@ -34,10 +34,11 @@ from src.core.domain.entities.validation import ContextStatus
 # Mock MCP Executor for Local Testing
 # ================================================================
 
+
 def create_mock_mcp_executor():
     """
     Create a mock MCP executor that simulates validation tool responses.
-    
+
     Returns realistic responses based on known data patterns.
     """
     # Simulated data based on actual invoice volumes
@@ -79,7 +80,7 @@ def create_mock_mcp_executor():
             "context_usage_percentage": 33.1,
         },
     }
-    
+
     def mock_executor(tool_name: str, **kwargs) -> dict:
         """Mock MCP tool executor."""
         # Build lookup key based on tool and params
@@ -97,11 +98,11 @@ def create_mock_mcp_executor():
                 "recommendation": "Consulta dentro de límites seguros.",
                 "context_usage_percentage": 5.7,
             }
-        
+
         # Return mock data or default
         if key in MOCK_DATA:
             return MOCK_DATA[key]
-        
+
         # Default for unknown month/year combinations
         return {
             "total_facturas": 500,
@@ -111,7 +112,7 @@ def create_mock_mcp_executor():
             "recommendation": "Consulta dentro de límites seguros.",
             "context_usage_percentage": 15.3,
         }
-    
+
     return mock_executor
 
 
@@ -180,10 +181,7 @@ def test_low_volume_month():
         print_result(True, "Month has no data (expected for old date)")
         return True
 
-    passed = result.context_status in [
-        ContextStatus.SAFE, 
-        ContextStatus.LARGE_BUT_OK
-    ]
+    passed = result.context_status in [ContextStatus.SAFE, ContextStatus.LARGE_BUT_OK]
     print_result(passed, f"Status is {result.context_status.value}")
 
     return passed
