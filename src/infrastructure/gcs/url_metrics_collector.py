@@ -13,7 +13,7 @@ Features:
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Callable
 from collections import defaultdict, deque
 from functools import wraps
@@ -182,7 +182,7 @@ class URLMetricsCollector(IMetricsCollector):
             with self._errors_lock:
                 self.error_history.append(
                     {
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                         "error_type": "signature_error",
                         "size_bytes": size_bytes,
                         "retries": retries,
@@ -262,7 +262,7 @@ class URLMetricsCollector(IMetricsCollector):
                 "avg_download_size_bytes": int(avg_download_size),
             },
             "bucket_stats": bucket_stats_copy,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         logger.debug(
@@ -306,7 +306,7 @@ class URLMetricsCollector(IMetricsCollector):
     ):
         """Log clock skew detection event"""
         event = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "bucket": bucket,
             "time_diff_seconds": round(time_diff, 2),
             "buffer_applied_minutes": buffer_applied,
@@ -381,7 +381,7 @@ class URLMetricsCollector(IMetricsCollector):
                         with self._errors_lock:
                             self.error_history.append(
                                 {
-                                    "timestamp": datetime.utcnow().isoformat(),
+                                    "timestamp": datetime.now(timezone.utc).isoformat(),
                                     "operation_type": operation_type,
                                     "error_type": type(error).__name__,
                                     "error_message": str(error),

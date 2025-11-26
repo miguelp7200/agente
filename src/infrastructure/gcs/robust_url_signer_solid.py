@@ -20,7 +20,7 @@ import time
 import binascii
 import hashlib
 import collections
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
 from threading import Lock
 from urllib.parse import quote
@@ -252,7 +252,7 @@ class RobustURLSigner:
         if self._impersonated_client is not None:
             if self._last_credential_refresh is not None:
                 age_seconds = (
-                    datetime.utcnow() - self._last_credential_refresh
+                    datetime.now(timezone.utc) - self._last_credential_refresh
                 ).total_seconds()
                 # Refresh every 30 minutes (1800 seconds)
                 if age_seconds > 1800:
@@ -310,7 +310,7 @@ class RobustURLSigner:
                 self._impersonated_client = storage.Client(
                     credentials=target_credentials
                 )
-                self._last_credential_refresh = datetime.utcnow()
+                self._last_credential_refresh = datetime.now(timezone.utc)
 
                 logger.info(
                     "Impersonated storage client created",
@@ -395,7 +395,7 @@ class RobustURLSigner:
         if client_type == "Credentials":
             if self._last_credential_refresh is None:
                 client_created_new = True
-                self._last_credential_refresh = datetime.utcnow()
+                self._last_credential_refresh = datetime.now(timezone.utc)
                 logger.info(
                     "Storage client created with impersonated credentials",
                     extra={
@@ -412,7 +412,7 @@ class RobustURLSigner:
 
         for attempt in range(max_attempts):
             generation_start = time.time()
-            system_time_before = datetime.utcnow()
+            system_time_before = datetime.now(timezone.utc)
 
             # Recreate blob object for each attempt to avoid cached state
             if attempt > 0:
@@ -468,7 +468,7 @@ class RobustURLSigner:
                             f"Returning corrupt URL"
                         )
 
-        system_time_after = datetime.utcnow()
+        system_time_after = datetime.now(timezone.utc)
         generation_time_ms = (time.time() - generation_start) * 1000
 
         # DEBUGGING: Track URL generation velocity

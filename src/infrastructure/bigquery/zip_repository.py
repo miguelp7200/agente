@@ -6,7 +6,7 @@ Concrete implementation of IZipRepository using Google BigQuery.
 
 import sys
 from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from google.cloud import bigquery
 from google.api_core import retry
 
@@ -221,7 +221,7 @@ class BigQueryZipRepository(IZipRepository):
 
     def delete_expired(self) -> int:
         """Delete expired ZIP packages"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         query = f"""
             DELETE FROM `{self.table_full_path}`
