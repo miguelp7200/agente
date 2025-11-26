@@ -148,7 +148,7 @@ pdf:
 
   # ZIP packaging configuration
   zip:
-    threshold: 5              # Number of invoices to trigger auto-ZIP
+    threshold: 2              # Max 2 facturas (~4 PDFs) due to signed URL constraints
     preview_limit: 3          # Number of invoices to preview when ZIP is created
     expiration_days: 7        # Days before ZIP expires
     max_files: 50             # Maximum PDFs per ZIP
