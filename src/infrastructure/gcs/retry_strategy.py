@@ -26,6 +26,7 @@ class RetryStrategy(IRetryStrategy):
 
     Features:
     - Automatic detection of retriable errors (signature, timeout, etc.)
+    - Fail-fast for non-retriable signature errors (canonical request mismatches)
     - Exponential backoff with jitter
     - 15+ error patterns from production experience
     - HTTP status code analysis (401, 403)
@@ -49,15 +50,29 @@ class RetryStrategy(IRetryStrategy):
         self.default_timeout = int(self.config.get("gcs.retry.request_timeout", 30))
         self.jitter_enabled = self.config.get("gcs.retry.jitter_enabled", True)
 
-        # Error patterns (from config or defaults)
-        self.error_patterns = self.config.get(
-            "gcs.retry.error_patterns",
+        # Non-retriable error patterns (fail fast - signature issues that won't resolve with retries)
+        # These are errors where the canonical request doesn't match and never will.
+        # Based on forensic analysis: SignatureDoesNotMatch for generated URLs should fail fast.
+        self.non_retriable_patterns = self.config.get(
+            "gcs.retry.non_retriable_patterns",
             [
                 "signaturedoesnotmatch",
                 "signature does not match",
                 "the request signature we calculated does not match",
                 "invalid signature",
-                "expired signature",
+            ],
+        )
+
+        # Retriable error patterns (transient issues that may resolve with retries)
+        self.error_patterns = self.config.get(
+            "gcs.retry.error_patterns",
+            [
+                # Removed signature patterns - these are now non-retriable
+                # "signaturedoesnotmatch",
+                # "signature does not match",
+                # "the request signature we calculated does not match",
+                # "invalid signature",
+                "expired signature",  # Expired CAN be retried with fresh URL
                 "access denied",
                 "invalid unicode",
                 "unicodeencodeerror",
@@ -84,6 +99,7 @@ class RetryStrategy(IRetryStrategy):
                     "max_delay": self.default_max_delay,
                     "backoff_multiplier": self.default_backoff,
                     "error_patterns_count": len(self.error_patterns),
+                    "non_retriable_patterns_count": len(self.non_retriable_patterns),
                     "jitter_enabled": self.jitter_enabled,
                 }
             },
@@ -98,10 +114,14 @@ class RetryStrategy(IRetryStrategy):
         jitter: bool = None,
     ) -> Callable:
         """
-        Decorator for automatic retry on signature errors
+        Decorator for automatic retry on transient GCS errors.
 
-        Detects SignatureDoesNotMatch and other transient GCS errors,
-        retrying with exponential backoff.
+        IMPORTANT: SignatureDoesNotMatch errors are now FAIL-FAST.
+        These errors indicate canonical request mismatches that won't
+        resolve with retries - the signature was generated incorrectly.
+
+        Retriable errors include: expired signatures, timeouts, clock skew.
+        Non-retriable errors include: signature mismatches (fail fast).
         """
         # Use defaults if not specified
         max_retries = (
@@ -128,6 +148,23 @@ class RetryStrategy(IRetryStrategy):
                     except Exception as e:
                         last_exception = e
 
+                        # FAIL FAST: Check for non-retriable errors first
+                        # SignatureDoesNotMatch indicates a canonical request mismatch
+                        # that will NEVER succeed with retries
+                        if self.is_non_retriable_error(e):
+                            logger.error(
+                                "Non-retriable error detected - FAIL FAST",
+                                extra={
+                                    "context": {
+                                        "function": func.__name__,
+                                        "error_type": type(e).__name__,
+                                        "error_message": str(e)[:300],
+                                        "reason": "Signature mismatch - canonical request issue, not transient",
+                                    }
+                                },
+                            )
+                            raise  # Immediate failure, no retries
+
                         # Check if retriable and not last attempt
                         if self.is_retriable_error(e) and attempt < max_retries:
                             delay = self.calculate_backoff(
@@ -139,7 +176,7 @@ class RetryStrategy(IRetryStrategy):
                             )
 
                             logger.warning(
-                                "Retrying operation after error",
+                                "Retrying operation after transient error",
                                 extra={
                                     "context": {
                                         "function": func.__name__,
@@ -244,6 +281,64 @@ class RetryStrategy(IRetryStrategy):
                 extra={"context": {"error_type": type(exception).__name__}},
             )
             return True
+
+        return False
+
+    def is_non_retriable_error(self, exception: Exception) -> bool:
+        """
+        Detect if exception is a NON-RETRIABLE error (fail fast).
+
+        SignatureDoesNotMatch errors for generated URLs indicate a fundamental
+        canonical request mismatch. The signature was calculated incorrectly
+        due to Content-Type, path encoding, or other issues.
+
+        These errors will NEVER succeed with retries because the underlying
+        URL is malformed from generation time.
+
+        Based on forensic analysis:
+        - SignatureDoesNotMatch on dynamic ZIPs: Canonical request issue
+        - These errors should fail fast to preserve resources
+        - Retrying wastes time and increases latency
+
+        Returns:
+            True if error should fail immediately (no retries)
+            False if error may be transient
+        """
+        error_str = str(exception).lower()
+
+        # Check non-retriable patterns
+        for pattern in self.non_retriable_patterns:
+            if pattern in error_str:
+                logger.debug(
+                    "Non-retriable error pattern detected (fail fast)",
+                    extra={
+                        "context": {
+                            "pattern": pattern,
+                            "error_type": type(exception).__name__,
+                            "action": "immediate_failure",
+                        }
+                    },
+                )
+                return True
+
+        # Check HTTP responses for signature mismatch indicators
+        if isinstance(exception, requests.exceptions.HTTPError):
+            if hasattr(exception, "response") and exception.response:
+                response_text = exception.response.text.lower()
+
+                for pattern in self.non_retriable_patterns:
+                    if pattern in response_text:
+                        logger.debug(
+                            "Non-retriable error in HTTP response (fail fast)",
+                            extra={
+                                "context": {
+                                    "pattern": pattern,
+                                    "status_code": exception.response.status_code,
+                                    "action": "immediate_failure",
+                                }
+                            },
+                        )
+                        return True
 
         return False
 

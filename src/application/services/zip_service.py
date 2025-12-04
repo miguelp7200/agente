@@ -132,18 +132,22 @@ class ZipService:
             # Store metrics for later retrieval by conversation tracker
             self._last_zip_metrics = zip_metrics
 
-            # Upload to GCS
+            # Upload to GCS - get friendly filename for signed URL
+            friendly_name = package_name or f"facturas_{len(invoices)}_items"
             gcs_path, file_size = self._upload_zip_to_gcs(
                 package_id,
                 zip_buffer,
-                package_name or f"facturas_{len(invoices)}_items",
+                friendly_name,
             )
 
-            # Generate signed URL for download
+            # Generate signed URL for download with friendly filename
             # GCS max: 7 days, convert to timedelta and cap at limit
+            # The friendly_filename sets Content-Disposition header for browser downloads
             expiration_days = min(self.zip_expiration_days, 7)
             download_url = self.url_signer.generate_signed_url(
-                gcs_path, expiration=timedelta(days=expiration_days)
+                gcs_path,
+                expiration=timedelta(days=expiration_days),
+                friendly_filename=f"{friendly_name}.zip",
             )
 
             # Update package with download info - use filtered count
@@ -384,25 +388,42 @@ class ZipService:
         Args:
             package_id: Package ID
             zip_buffer: ZIP file buffer
-            package_name: Package name for blob path
+            package_name: Package name (used for friendly download filename)
 
         Returns:
             Tuple of (gcs_path, file_size_bytes)
+
+        Note:
+            Uses UUID-based blob names to avoid encoding issues with signed URLs.
+            The friendly filename is delivered via response-content-disposition
+            header in the signed URL, not via the blob name.
         """
-        # Generate blob path
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        blob_name = f"zips/{timestamp}_{package_name}_{package_id[:8]}.zip"
+        # Generate blob path with UUID (avoids encoding issues in signed URLs)
+        # The package_name is passed to signed URL as response-content-disposition
+        blob_name = f"zips/{package_id}.zip"
 
         # Get bucket and blob
         bucket = self.storage_client.bucket(self.write_bucket)
         blob = bucket.blob(blob_name)
 
-        # Upload
+        # Store friendly name as metadata for later use in signed URL generation
+        blob.metadata = {
+            "friendly_filename": f"{package_name}.zip",
+            "package_id": package_id,
+        }
+
+        # Upload with content-type
         zip_buffer.seek(0)
         blob.upload_from_file(zip_buffer, content_type="application/zip")
 
         # Calculate GCS path and file size
         gcs_path = f"gs://{self.write_bucket}/{blob_name}"
         file_size = zip_buffer.getbuffer().nbytes
+
+        print(
+            f"[ZIP Service] Uploaded: {blob_name} "
+            f"(friendly: {package_name}.zip, {file_size} bytes)",
+            file=sys.stderr,
+        )
 
         return gcs_path, file_size

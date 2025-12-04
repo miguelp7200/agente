@@ -42,6 +42,10 @@ python-dotenv
 # Autenticación de Google Cloud (ya incluido en google-cloud-aiplatform)
 google-auth
 
+# ===== SINCRONIZACIÓN NTP =====
+# Para validación de tiempo con servidores NTP (mitigación clock skew)
+ntplib>=0.4.0
+
 # ===== DESARROLLO Y ANÁLISIS =====
 # Para desarrollo local
 jupyter

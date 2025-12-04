@@ -76,7 +76,10 @@ class RobustURLSigner(IURLSigner):
         )
 
     def generate_signed_url(
-        self, gs_url: str, expiration: Optional[timedelta] = None
+        self,
+        gs_url: str,
+        expiration: Optional[timedelta] = None,
+        friendly_filename: Optional[str] = None,
     ) -> str:
         """
         Generate signed URL from GCS path using configured implementation
@@ -84,6 +87,8 @@ class RobustURLSigner(IURLSigner):
         Args:
             gs_url: GCS path (gs://bucket/path/to/file.pdf)
             expiration: URL expiration duration (defaults to configured)
+            friendly_filename: Optional user-friendly filename for downloads.
+                              Sets Content-Disposition header for browser downloads.
 
         Returns:
             Signed HTTPS URL
@@ -110,6 +115,7 @@ class RobustURLSigner(IURLSigner):
                 signed_url = self._solid_service.generate_signed_url(
                     gs_url=gs_url,
                     expiration_minutes=expiration_minutes,
+                    friendly_filename=friendly_filename,
                 )
 
                 if signed_url is None:
