@@ -6,8 +6,9 @@ applyTo: '**'
 - [x] 1: Agregar método filter_pdf_paths() al modelo Invoice 🔴
 - [x] 2: Modificar ZipService.create_zip_from_invoices para aceptar pdf_type y pdf_variant 🔴
 - [x] 3: Modificar create_zip_package para pasar pdf_type/pdf_variant 🔴
-- [-] 4: Modificar generate_individual_download_links para aceptar y pasar filtros 🔴
-- [ ] 5: Ejecutar tests y validar E2E 🟡
+- [x] 4: Modificar generate_individual_download_links para aceptar y pasar filtros 🔴
+- [-] 5: Ejecutar tests y validar E2E 🟡
+  _Commit 5c9f71d. Tests 41/41 passed. Pendiente redeploy y validación E2E._
 </todos>
 
 ---
