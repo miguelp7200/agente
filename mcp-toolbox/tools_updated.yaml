@@ -2099,6 +2099,72 @@ tools:
       type: string
       description: Lista de números de factura separados por comas
       required: true
+  search_invoices_by_multiple_references:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    description: |
+      Busca múltiples facturas por lista de referencias (Factura_Referencia o Factura).
+      Más eficiente que llamar search_invoices_by_any_number múltiples veces.
+      
+      ⭐ USAR CUANDO: Usuario proporciona 2+ números de factura/referencia.
+      
+      Soporta filtrado por:
+      - pdf_type: tributaria_only, cedible_only, both
+      - pdf_variant: cf (default), sf, both
+      
+      Ejemplo: "facturas 0011817764, 0011817770 y 0011817773"
+      → reference_list="0011817764,0011817770,0011817773"
+    statement: |
+      SELECT Factura, Factura_Referencia, Solicitante, Rut, Nombre, fecha,
+             DetallesFactura,
+             CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only') 
+                  AND COALESCE(@pdf_variant, 'cf') IN ('cf', 'both')
+                  AND Copia_Tributaria_cf IS NOT NULL 
+                  THEN Copia_Tributaria_cf ELSE NULL END as Copia_Tributaria_cf_proxy,
+             CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only') 
+                  AND COALESCE(@pdf_variant, 'cf') IN ('sf', 'both')
+                  AND Copia_Tributaria_sf IS NOT NULL 
+                  THEN Copia_Tributaria_sf ELSE NULL END as Copia_Tributaria_sf_proxy,
+             CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') 
+                  AND COALESCE(@pdf_variant, 'cf') IN ('cf', 'both')
+                  AND Copia_Cedible_cf IS NOT NULL 
+                  THEN Copia_Cedible_cf ELSE NULL END as Copia_Cedible_cf_proxy,
+             CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') 
+                  AND COALESCE(@pdf_variant, 'cf') IN ('sf', 'both')
+                  AND Copia_Cedible_sf IS NOT NULL 
+                  THEN Copia_Cedible_sf ELSE NULL END as Copia_Cedible_sf_proxy
+      FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`
+      WHERE Factura_Referencia IN UNNEST(SPLIT(@reference_list, ','))
+         OR Factura IN UNNEST(SPLIT(@reference_list, ','))
+         OR LTRIM(Factura_Referencia, '0') IN UNNEST(
+              ARRAY(SELECT LTRIM(x, '0') FROM UNNEST(SPLIT(@reference_list, ',')) x))
+         OR LTRIM(Factura, '0') IN UNNEST(
+              ARRAY(SELECT LTRIM(x, '0') FROM UNNEST(SPLIT(@reference_list, ',')) x))
+      ORDER BY Factura DESC
+      LIMIT 50
+    parameters:
+    - name: reference_list
+      type: string
+      description: Lista de números separados por comas SIN espacios (ej. "0011817764,0011817770,0011817773")
+      required: true
+    - name: pdf_type
+      type: string
+      description: |
+        Tipo de PDF a retornar:
+        - 'both' (default): Tributarias Y Cedibles
+        - 'tributaria_only': Solo Copia Tributaria
+        - 'cedible_only': Solo Copia Cedible
+      required: false
+      default: both
+    - name: pdf_variant
+      type: string
+      description: |
+        Variante de fondo:
+        - 'cf' (default): Solo Con Fondo (logo Gasco)
+        - 'sf': Solo Sin Fondo (sin logo)
+        - 'both': Ambas variantes
+      required: false
+      default: cf
 toolsets:
   gasco_invoice_search:
   - search_invoices
@@ -2143,6 +2209,7 @@ toolsets:
   - get_data_coverage_statistics
   - get_yearly_invoice_statistics
   - get_current_date
+  - search_invoices_by_multiple_references
   gasco_zip_management:
   - create_zip_record
   - list_zip_files

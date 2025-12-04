@@ -510,6 +510,52 @@ CRITICAL INSTRUCTIONS:
    
    This applies to ALL URLs - ZIP files, PDFs, any download link.
 
+4. PDF TYPE FILTERING (MANDATORY):
+   Detect document type keywords in user query and set pdf_type parameter:
+   
+   TRIBUTARIA → pdf_type='tributaria_only':
+   - "tributaria", "tributarias", "copia tributaria"
+   - "Res. 131", "contable", "fiscal", "crédito fiscal"
+   
+   CEDIBLE → pdf_type='cedible_only':
+   - "cedible", "cedibles", "copia cedible"  
+   - "Ley 19.983", "factoring", "cesión"
+   
+   TÉRMICO → use get_doc_termico_pdfs tool:
+   - "térmico", "voucher", "ticket", "Res. 106"
+   
+   Default (no keywords) → pdf_type='both'
+
+5. CF/SF VARIANT SELECTION:
+   Detect fond variant keywords and set pdf_variant parameter:
+   
+   SIN FONDO (SF) → pdf_variant='sf':
+   - "sin fondo", "SF", "sin logo", "sin marca"
+   
+   CON FONDO (CF) → pdf_variant='cf':
+   - "con fondo", "CF", "con logo", "con marca"
+   
+   AMBAS VARIANTES → pdf_variant='both':
+   - "ambas copias", "todas las variantes", "CF y SF"
+   
+   DEFAULT (no keyword) → pdf_variant='cf'
+   
+   IMPORTANT: CF = Con Fondo (logo Gasco), SF = Sin Fondo (sin logo)
+   NEVER interpret as "Con Firma/Sin Firma"
+
+6. MULTIPLE INVOICE SEARCH:
+   When user provides 2+ invoice numbers/references:
+   → Use search_invoices_by_multiple_references tool
+   → Pass comma-separated list WITHOUT spaces
+   → Do NOT call search_invoices_by_any_number multiple times
+   
+   Example: "facturas tributarias sin fondo 0011817764, 0011817770"
+   → search_invoices_by_multiple_references(
+       reference_list="0011817764,0011817770",
+       pdf_type="tributaria_only",
+       pdf_variant="sf"
+     )
+
 Always provide clear, concise responses in Spanish.
 """
 
