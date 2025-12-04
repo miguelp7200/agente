@@ -69,7 +69,11 @@ class ZipService:
         )
 
     def create_zip_from_invoices(
-        self, invoices: List[Invoice], package_name: Optional[str] = None
+        self,
+        invoices: List[Invoice],
+        package_name: Optional[str] = None,
+        pdf_type: str = "both",
+        pdf_variant: str = "cf",
     ) -> ZipPackage:
         """
         Create ZIP package from list of invoices
@@ -77,6 +81,16 @@ class ZipService:
         Args:
             invoices: List of invoice entities
             package_name: Optional custom package name
+            pdf_type: Filter type:
+                - 'both': Tributaria + Cedible (default)
+                - 'tributaria_only': Only Copia Tributaria
+                - 'cedible_only': Only Copia Cedible
+                - 'termico_only': Only Doc Termico
+                - 'all': All available PDFs (no filter)
+            pdf_variant: Variant filter:
+                - 'cf': Con Fondo (default)
+                - 'sf': Sin Fondo
+                - 'both': Both CF and SF variants
 
         Returns:
             ZipPackage entity with download URL
@@ -92,7 +106,8 @@ class ZipService:
         invoice_numbers = [inv.factura for inv in invoices]
 
         print(
-            f"ZIP Creating package {package_id} with {len(invoices)} invoices",
+            f"ZIP Creating package {package_id} with {len(invoices)} invoices "
+            f"(pdf_type={pdf_type}, pdf_variant={pdf_variant})",
             file=sys.stderr,
         )
 
@@ -109,7 +124,10 @@ class ZipService:
             self.zip_repo.create(zip_package)
 
             # Create ZIP file in memory and collect performance metrics
-            zip_buffer, zip_metrics = self._create_zip_buffer(invoices)
+            # Pass filters to _create_zip_buffer
+            zip_buffer, zip_metrics = self._create_zip_buffer(
+                invoices, pdf_type=pdf_type, pdf_variant=pdf_variant
+            )
 
             # Store metrics for later retrieval by conversation tracker
             self._last_zip_metrics = zip_metrics
@@ -128,8 +146,10 @@ class ZipService:
                 gcs_path, expiration=timedelta(days=expiration_days)
             )
 
-            # Update package with download info
-            pdf_count = sum(inv.pdf_count for inv in invoices)
+            # Update package with download info - use filtered count
+            pdf_count = sum(
+                len(inv.filter_pdf_paths(pdf_type, pdf_variant)) for inv in invoices
+            )
             zip_package = zip_package.with_download_info(
                 gcs_path=gcs_path,
                 download_url=download_url,
@@ -207,13 +227,18 @@ class ZipService:
         return self._last_zip_metrics
 
     def _create_zip_buffer(
-        self, invoices: List[Invoice]
+        self,
+        invoices: List[Invoice],
+        pdf_type: str = "both",
+        pdf_variant: str = "cf",
     ) -> tuple[io.BytesIO, ZipPerformanceMetrics]:
         """
         Create ZIP file in memory from invoices
 
         Args:
             invoices: List of invoice entities
+            pdf_type: Filter type ('both', 'tributaria_only', 'cedible_only', etc.)
+            pdf_variant: Variant filter ('cf', 'sf', 'both')
 
         Returns:
             Tuple of (BytesIO buffer, ZipPerformanceMetrics)
@@ -225,11 +250,14 @@ class ZipService:
         files_included = 0
         files_missing = 0
 
-        # Count total PDFs to download
-        total_pdfs = sum(len(inv.pdf_paths) for inv in invoices)
+        # Count total PDFs to download (using filtered paths)
+        total_pdfs = sum(
+            len(inv.filter_pdf_paths(pdf_type, pdf_variant)) for inv in invoices
+        )
         print(
             f"[ZIP Service] Creating ZIP: {total_pdfs} PDFs "
-            f"from {len(invoices)} invoices",
+            f"from {len(invoices)} invoices "
+            f"(pdf_type={pdf_type}, pdf_variant={pdf_variant})",
             file=sys.stderr,
         )
         print(
@@ -243,13 +271,15 @@ class ZipService:
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=self.max_concurrent_downloads
             ) as executor:
-                # Submit all download tasks
+                # Submit all download tasks (using FILTERED paths)
                 future_to_pdf = {}
                 start_submit = time.time()
                 for invoice in invoices:
-                    for pdf_type, gs_path in invoice.pdf_paths.items():
+                    # Use filtered paths instead of all paths
+                    filtered_paths = invoice.filter_pdf_paths(pdf_type, pdf_variant)
+                    for pdf_key, gs_path in filtered_paths.items():
                         future = executor.submit(self._download_pdf_from_gcs, gs_path)
-                        pdf_filename = f"{invoice.factura}_{pdf_type}.pdf"
+                        pdf_filename = f"{invoice.factura}_{pdf_key}.pdf"
                         future_to_pdf[future] = (pdf_filename, gs_path)
 
                 submit_time = time.time() - start_submit

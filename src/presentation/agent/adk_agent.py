@@ -73,7 +73,11 @@ container.print_status()
 # ================================================================
 
 
-def generate_individual_download_links(pdf_urls: str) -> dict:
+def generate_individual_download_links(
+    pdf_urls: str,
+    pdf_type: str = "both",
+    pdf_variant: str = "cf",
+) -> dict:
     """
     Tool that agent can call to convert gs:// URLs to signed URLs.
 
@@ -84,6 +88,16 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
 
     Args:
         pdf_urls: Comma-separated string of gs:// URLs
+        pdf_type: Filter type for ZIP creation:
+            - 'both': Tributaria + Cedible (default)
+            - 'tributaria_only': Only Copia Tributaria
+            - 'cedible_only': Only Copia Cedible
+            - 'termico_only': Only Doc Termico
+            - 'all': All available PDFs
+        pdf_variant: Variant filter for ZIP creation:
+            - 'cf': Con Fondo (default)
+            - 'sf': Sin Fondo
+            - 'both': Both CF and SF variants
 
     Returns:
         Dictionary with:
@@ -97,7 +111,11 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
         IMPORTANT: If zip_url is present, YOU MUST show it to the user as
         a download link for all invoices in ZIP format.
     """
-    print("[TOOL] generate_individual_download_links called", file=sys.stderr)
+    print(
+        f"[TOOL] generate_individual_download_links called "
+        f"(pdf_type={pdf_type}, pdf_variant={pdf_variant})",
+        file=sys.stderr,
+    )
 
     # Parse comma-separated URLs
     pdf_urls_list = [url.strip() for url in pdf_urls.split(",") if url.strip()]
@@ -142,8 +160,12 @@ def generate_individual_download_links(pdf_urls: str) -> dict:
             )
 
             try:
-                # SYNCHRONOUS ZIP creation (legacy pattern)
-                zip_result = create_zip_package(invoice_numbers)
+                # SYNCHRONOUS ZIP creation with PDF type filtering
+                zip_result = create_zip_package(
+                    invoice_numbers,
+                    pdf_type=pdf_type,
+                    pdf_variant=pdf_variant,
+                )
 
                 if zip_result.get("success") and zip_result.get("download_url"):
                     print(
@@ -265,17 +287,38 @@ def search_invoices_by_rut(rut: str, limit: int = 10) -> dict:
         return {"success": False, "error": str(e), "count": 0, "invoices": []}
 
 
-def create_zip_package(invoice_numbers: list[str]) -> dict:
+def create_zip_package(
+    invoice_numbers: list[str],
+    pdf_type: str = "both",
+    pdf_variant: str = "cf",
+) -> dict:
     """
-    Create ZIP package from invoice numbers
+    Create ZIP package from invoice numbers with PDF type filtering.
 
     Args:
         invoice_numbers: List of invoice numbers
+        pdf_type: Filter type:
+            - 'both': Tributaria + Cedible (default)
+            - 'tributaria_only': Only Copia Tributaria
+            - 'cedible_only': Only Copia Cedible
+            - 'termico_only': Only Doc Termico
+            - 'all': All available PDFs
+        pdf_variant: Variant filter:
+            - 'cf': Con Fondo (default)
+            - 'sf': Sin Fondo
+            - 'both': Both CF and SF variants
 
     Returns:
         Dictionary with ZIP download URL
     """
     try:
+        print(
+            f"[ZIP] create_zip_package called: "
+            f"invoices={len(invoice_numbers)}, "
+            f"pdf_type={pdf_type}, pdf_variant={pdf_variant}",
+            file=sys.stderr,
+        )
+
         # Get invoices
         invoice_service = container.invoice_service
         invoices = []
@@ -300,9 +343,13 @@ def create_zip_package(invoice_numbers: list[str]) -> dict:
                 "download_url": None,
             }
 
-        # Create ZIP
+        # Create ZIP with PDF type filtering
         zip_service = container.zip_service
-        zip_package = zip_service.create_zip_from_invoices(invoices)
+        zip_package = zip_service.create_zip_from_invoices(
+            invoices,
+            pdf_type=pdf_type,
+            pdf_variant=pdf_variant,
+        )
 
         # Capture ZIP metrics for conversation tracking
         zip_metrics = zip_service.get_last_zip_metrics()

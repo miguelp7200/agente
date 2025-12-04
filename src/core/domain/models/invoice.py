@@ -125,6 +125,66 @@ class Invoice:
         """
         return self.pdf_paths.get(pdf_type)
 
+    def filter_pdf_paths(
+        self, pdf_type: str = "both", pdf_variant: str = "cf"
+    ) -> Dict[str, str]:
+        """
+        Filter PDF paths based on type and variant.
+
+        Args:
+            pdf_type: Filter type:
+                - 'both': Tributaria + Cedible (default)
+                - 'tributaria_only': Only Copia Tributaria
+                - 'cedible_only': Only Copia Cedible
+                - 'termico_only': Only Doc Termico
+                - 'all': All available PDFs (no filter)
+            pdf_variant: Variant filter:
+                - 'cf': Con Fondo (default)
+                - 'sf': Sin Fondo
+                - 'both': Both CF and SF variants
+
+        Returns:
+            Filtered dictionary of {pdf_type: gs_path}
+
+        Example:
+            >>> invoice.filter_pdf_paths('tributaria_only', 'cf')
+            {'Copia_Tributaria_cf': 'gs://bucket/path.pdf'}
+        """
+        if pdf_type == "all":
+            return self.pdf_paths.copy()
+
+        filtered = {}
+
+        # Determine which base types to include
+        include_tributaria = pdf_type in ("both", "tributaria_only")
+        include_cedible = pdf_type in ("both", "cedible_only")
+        include_termico = pdf_type == "termico_only"
+
+        # Determine which variants to include
+        include_cf = pdf_variant in ("cf", "both")
+        include_sf = pdf_variant in ("sf", "both")
+
+        for key, path in self.pdf_paths.items():
+            # Tributaria
+            if include_tributaria:
+                if key == "Copia_Tributaria_cf" and include_cf:
+                    filtered[key] = path
+                elif key == "Copia_Tributaria_sf" and include_sf:
+                    filtered[key] = path
+
+            # Cedible
+            if include_cedible:
+                if key == "Copia_Cedible_cf" and include_cf:
+                    filtered[key] = path
+                elif key == "Copia_Cedible_sf" and include_sf:
+                    filtered[key] = path
+
+            # Térmico (no variant)
+            if include_termico and key == "Doc_Termico":
+                filtered[key] = path
+
+        return filtered
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert invoice to dictionary representation"""
         return {
