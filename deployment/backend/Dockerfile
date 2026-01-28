@@ -40,7 +40,7 @@ RUN ls -la ./mcp-toolbox/toolbox
 # Variables de entorno para Cloud Run
 ENV GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
 ENV GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
-ENV GOOGLE_CLOUD_LOCATION=us-central1
+ENV GOOGLE_CLOUD_LOCATION=global
 ENV PORT=8080
 ENV MCP_TOOLBOX_PORT=5000
 ENV IS_CLOUD_RUN=true
