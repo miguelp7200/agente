@@ -1,12 +1,22 @@
 """
-JSON Utilities - Decimal and Date Serialization Support
-========================================================
-Fixes TypeError: Object of type Decimal/date is not JSON serializable.
+JSON Utilities - Extended Type Serialization Support
+=====================================================
+Fixes TypeError: Object of type X is not JSON serializable.
 
-This module provides a global patch to json.dumps() that handles Decimal
-and date/datetime types automatically. Import this module EARLY in application
-startup (before any JSON serialization occurs) to ensure all special values
-from BigQuery are properly serialized.
+This module provides a global patch to json.dumps() that handles non-standard
+Python types automatically. Import this module EARLY in application startup
+(before any JSON serialization occurs) to ensure all special values are
+properly serialized.
+
+Supported Types:
+    - Decimal → float
+    - date → ISO string (YYYY-MM-DD)
+    - datetime → ISO string (YYYY-MM-DDTHH:MM:SS)
+    - time → ISO string (HH:MM:SS)
+    - timedelta → total seconds (float)
+    - uuid.UUID → string
+    - bytes → base64 encoded string
+    - set/frozenset → list
 
 Root Cause:
     - BigQuery returns numeric aggregations (COUNT, SUM, AVG) as Decimal
@@ -16,7 +26,7 @@ Root Cause:
     - Error occurs in google/genai/_api_client.py line 1240
 
 Solution:
-    Monkey-patch json.dumps() to use a default handler for Decimal/date types.
+    Monkey-patch json.dumps() to use a default handler for extended types.
     This is the safest approach since we can't modify the google.genai library.
 
 Usage:
@@ -25,9 +35,11 @@ Usage:
     patch_json_decimal_support()
 """
 
+import base64
 import json
 import sys
-from datetime import date, datetime, time
+import uuid
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -40,12 +52,17 @@ _patched = False
 
 class ExtendedJSONEncoder(json.JSONEncoder):
     """
-    Custom JSON encoder that handles Decimal, date, datetime, and time types.
+    Custom JSON encoder that handles non-standard Python types.
 
     Converts:
-    - Decimal to float for JSON serialization
-    - date/datetime to ISO format string
-    - time to ISO format string
+    - Decimal → float
+    - datetime → ISO format string
+    - date → ISO format string  
+    - time → ISO format string
+    - timedelta → total seconds (float)
+    - uuid.UUID → string
+    - bytes → base64 encoded string
+    - set/frozenset → list
     """
 
     def default(self, obj: Any) -> Any:
@@ -57,18 +74,26 @@ class ExtendedJSONEncoder(json.JSONEncoder):
             return obj.isoformat()
         if isinstance(obj, time):
             return obj.isoformat()
+        if isinstance(obj, timedelta):
+            return obj.total_seconds()
+        if isinstance(obj, uuid.UUID):
+            return str(obj)
+        if isinstance(obj, bytes):
+            return base64.b64encode(obj).decode('ascii')
+        if isinstance(obj, (set, frozenset)):
+            return list(obj)
         return super().default(obj)
 
 
 def convert_decimals(obj: Any) -> Any:
     """
-    Recursively convert all Decimal and date values in a nested structure.
+    Recursively convert all non-serializable values in a nested structure.
 
     Args:
         obj: Any Python object (dict, list, Decimal, date, or primitive)
 
     Returns:
-        Object with all Decimal values converted to float and dates to ISO strings
+        Object with all non-serializable values converted to JSON-safe types
     """
     if isinstance(obj, Decimal):
         return float(obj)
@@ -78,6 +103,14 @@ def convert_decimals(obj: Any) -> Any:
         return obj.isoformat()
     elif isinstance(obj, time):
         return obj.isoformat()
+    elif isinstance(obj, timedelta):
+        return obj.total_seconds()
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
+    elif isinstance(obj, bytes):
+        return base64.b64encode(obj).decode('ascii')
+    elif isinstance(obj, (set, frozenset)):
+        return [convert_decimals(item) for item in obj]
     elif isinstance(obj, dict):
         return {key: convert_decimals(value) for key, value in obj.items()}
     elif isinstance(obj, (list, tuple)):
@@ -90,10 +123,10 @@ def _patched_dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=Tru
                    allow_nan=True, cls=None, indent=None, separators=None,
                    default=None, sort_keys=False, **kw):
     """
-    Patched json.dumps that handles Decimal and date types.
+    Patched json.dumps that handles extended Python types.
 
     If no custom default is provided, uses ExtendedJSONEncoder.
-    If a custom default is provided, wraps it to also handle Decimal/date.
+    If a custom default is provided, wraps it to also handle extended types.
     """
     # If caller provided a default function, wrap it to handle special types first
     if default is not None:
@@ -108,6 +141,14 @@ def _patched_dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=Tru
                 return o.isoformat()
             if isinstance(o, time):
                 return o.isoformat()
+            if isinstance(o, timedelta):
+                return o.total_seconds()
+            if isinstance(o, uuid.UUID):
+                return str(o)
+            if isinstance(o, bytes):
+                return base64.b64encode(o).decode('ascii')
+            if isinstance(o, (set, frozenset)):
+                return list(o)
             return original_default(o)
 
         default = wrapped_default
@@ -133,13 +174,13 @@ def _patched_dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=Tru
 
 def patch_json_decimal_support() -> None:
     """
-    Apply global patch to json.dumps() for Decimal and date support.
+    Apply global patch to json.dumps() for extended type support.
 
     Call this function at application startup, before any JSON serialization.
 
     This patches the json module's dumps function to automatically handle
-    Decimal, date, datetime and time types, preventing TypeError in libraries 
-    we don't control (like google.genai).
+    Decimal, date, datetime, time, timedelta, UUID, bytes, and set types,
+    preventing TypeError in libraries we don't control (like google.genai).
 
     Safe to call multiple times (idempotent).
     """
@@ -152,7 +193,7 @@ def patch_json_decimal_support() -> None:
     json.dumps = _patched_dumps
     _patched = True
 
-    print("[JSON-PATCH] ✓ Extended type support enabled globally (Decimal, date, datetime, time)", file=sys.stderr)
+    print("[JSON-PATCH] ✓ Extended type support enabled (Decimal, date, datetime, time, timedelta, UUID, bytes, set)", file=sys.stderr)
 
 
 def safe_json_dumps(obj: Any, **kwargs) -> str:
