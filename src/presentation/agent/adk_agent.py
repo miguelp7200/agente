@@ -12,6 +12,15 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+# ================================================================
+# CRITICAL: Apply JSON Decimal patch BEFORE any other imports
+# Fixes: TypeError: Object of type Decimal is not JSON serializable
+# Root cause: BigQuery returns Decimal, google.genai uses json.dumps()
+# ================================================================
+from src.core.json_utils import patch_json_decimal_support
+
+patch_json_decimal_support()
+
 # Import ADK components
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
