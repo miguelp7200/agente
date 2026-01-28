@@ -1,21 +1,22 @@
 """
-JSON Utilities - Decimal Serialization Support
-===============================================
-Fixes TypeError: Object of type Decimal is not JSON serializable.
+JSON Utilities - Decimal and Date Serialization Support
+========================================================
+Fixes TypeError: Object of type Decimal/date is not JSON serializable.
 
 This module provides a global patch to json.dumps() that handles Decimal
-types automatically. Import this module EARLY in application startup
-(before any JSON serialization occurs) to ensure all Decimal values
+and date/datetime types automatically. Import this module EARLY in application
+startup (before any JSON serialization occurs) to ensure all special values
 from BigQuery are properly serialized.
 
 Root Cause:
     - BigQuery returns numeric aggregations (COUNT, SUM, AVG) as Decimal
+    - BigQuery returns date fields as date objects
     - MCP Toolbox passes these through to ADK Agent
     - Google GenAI library calls json.dumps() without custom encoder
     - Error occurs in google/genai/_api_client.py line 1240
 
 Solution:
-    Monkey-patch json.dumps() to use a default handler for Decimal types.
+    Monkey-patch json.dumps() to use a default handler for Decimal/date types.
     This is the safest approach since we can't modify the google.genai library.
 
 Usage:
@@ -26,6 +27,7 @@ Usage:
 
 import json
 import sys
+from datetime import date, datetime, time
 from decimal import Decimal
 from typing import Any
 
@@ -36,34 +38,46 @@ _original_json_dumps = json.dumps
 _patched = False
 
 
-class DecimalEncoder(json.JSONEncoder):
+class ExtendedJSONEncoder(json.JSONEncoder):
     """
-    Custom JSON encoder that handles Decimal types.
+    Custom JSON encoder that handles Decimal, date, datetime, and time types.
 
-    Converts Decimal to float for JSON serialization.
-    Use float (not str) to maintain numeric type in JSON output.
+    Converts:
+    - Decimal to float for JSON serialization
+    - date/datetime to ISO format string
+    - time to ISO format string
     """
 
     def default(self, obj: Any) -> Any:
         if isinstance(obj, Decimal):
-            # Convert to float for numeric JSON representation
-            # This preserves the numeric type in the output
             return float(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        if isinstance(obj, date):
+            return obj.isoformat()
+        if isinstance(obj, time):
+            return obj.isoformat()
         return super().default(obj)
 
 
 def convert_decimals(obj: Any) -> Any:
     """
-    Recursively convert all Decimal values in a nested structure to float.
+    Recursively convert all Decimal and date values in a nested structure.
 
     Args:
-        obj: Any Python object (dict, list, Decimal, or primitive)
+        obj: Any Python object (dict, list, Decimal, date, or primitive)
 
     Returns:
-        Object with all Decimal values converted to float
+        Object with all Decimal values converted to float and dates to ISO strings
     """
     if isinstance(obj, Decimal):
         return float(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, date):
+        return obj.isoformat()
+    elif isinstance(obj, time):
+        return obj.isoformat()
     elif isinstance(obj, dict):
         return {key: convert_decimals(value) for key, value in obj.items()}
     elif isinstance(obj, (list, tuple)):
@@ -76,25 +90,31 @@ def _patched_dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=Tru
                    allow_nan=True, cls=None, indent=None, separators=None,
                    default=None, sort_keys=False, **kw):
     """
-    Patched json.dumps that handles Decimal types.
+    Patched json.dumps that handles Decimal and date types.
 
-    If no custom default is provided, uses DecimalEncoder.
-    If a custom default is provided, wraps it to also handle Decimal.
+    If no custom default is provided, uses ExtendedJSONEncoder.
+    If a custom default is provided, wraps it to also handle Decimal/date.
     """
-    # If caller provided a default function, wrap it to handle Decimal first
+    # If caller provided a default function, wrap it to handle special types first
     if default is not None:
         original_default = default
 
         def wrapped_default(o):
             if isinstance(o, Decimal):
                 return float(o)
+            if isinstance(o, datetime):
+                return o.isoformat()
+            if isinstance(o, date):
+                return o.isoformat()
+            if isinstance(o, time):
+                return o.isoformat()
             return original_default(o)
 
         default = wrapped_default
     else:
-        # Use DecimalEncoder when no default provided
+        # Use ExtendedJSONEncoder when no default provided
         if cls is None:
-            cls = DecimalEncoder
+            cls = ExtendedJSONEncoder
 
     return _original_json_dumps(
         obj,
@@ -113,13 +133,13 @@ def _patched_dumps(obj, *, skipkeys=False, ensure_ascii=True, check_circular=Tru
 
 def patch_json_decimal_support() -> None:
     """
-    Apply global patch to json.dumps() for Decimal support.
+    Apply global patch to json.dumps() for Decimal and date support.
 
     Call this function at application startup, before any JSON serialization.
 
     This patches the json module's dumps function to automatically handle
-    Decimal types, preventing TypeError in libraries we don't control
-    (like google.genai).
+    Decimal, date, datetime and time types, preventing TypeError in libraries 
+    we don't control (like google.genai).
 
     Safe to call multiple times (idempotent).
     """
@@ -132,14 +152,14 @@ def patch_json_decimal_support() -> None:
     json.dumps = _patched_dumps
     _patched = True
 
-    print("[JSON-PATCH] ✓ Decimal support enabled globally", file=sys.stderr)
+    print("[JSON-PATCH] ✓ Extended type support enabled globally (Decimal, date, datetime, time)", file=sys.stderr)
 
 
 def safe_json_dumps(obj: Any, **kwargs) -> str:
     """
-    Explicit safe JSON serialization with Decimal support.
+    Explicit safe JSON serialization with Decimal and date/datetime support.
 
-    Use this when you want explicit Decimal handling without relying
+    Use this when you want explicit extended type handling without relying
     on the global patch.
 
     Args:
@@ -147,10 +167,10 @@ def safe_json_dumps(obj: Any, **kwargs) -> str:
         **kwargs: Additional json.dumps arguments
 
     Returns:
-        JSON string with Decimal values converted to float
+        JSON string with Decimal values converted to float, dates to ISO strings
     """
     if 'cls' not in kwargs and 'default' not in kwargs:
-        kwargs['cls'] = DecimalEncoder
+        kwargs['cls'] = ExtendedJSONEncoder
     return json.dumps(obj, **kwargs)
 
 
