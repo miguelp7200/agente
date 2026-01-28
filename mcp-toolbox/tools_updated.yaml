@@ -712,8 +712,8 @@ tools:
       '
     parameters:
     - name: min_amount
-      type: float
-      description: Monto total mínimo para la factura (ej. 1000.0)
+      type: string
+      description: Monto total mínimo para la factura como texto (ej. "1000.0", se convierte a número internamente)
     - name: pdf_type
       type: string
       description: 'Tipo de PDF a retornar (OPCIONAL):
