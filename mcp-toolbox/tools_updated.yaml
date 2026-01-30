@@ -98,7 +98,7 @@ tools:
       \ IS NOT NULL\n\n    THEN Copia_Cedible_cf\n\n    ELSE NULL\n\n  END as Copia_Cedible_cf_proxy\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
       \  Rut = @target_rut\nORDER BY Factura DESC\nLIMIT 1000\n"
-    description: '🔗 RECOMENDACIÓN: Usar validate_rut_context_size ANTES para RUTs
+    description: 'RECOMENDACION: Usar validate_rut_context_size ANTES para RUTs
       con muchas facturas.
 
 
@@ -109,7 +109,7 @@ tools:
       Retorna facturas con URLs firmadas listas para descargar.
 
 
-      ⚠️ FLUJO RECOMENDADO para RUTs desconocidos:
+      FLUJO RECOMENDADO para RUTs desconocidos:
 
       1. Ejecutar validate_rut_context_size(target_rut) primero
 
@@ -143,6 +143,52 @@ tools:
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
       required: false
       default: both
+  # Tool optimizado para "última factura" de un RUT - LIMIT 1
+  get_latest_invoice_by_rut:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n\
+      \  DetallesFactura,\n  CASE\n\n    WHEN COALESCE(@pdf_type, 'both') IN ('both',\
+      \ 'tributaria_only') AND Copia_Tributaria_cf IS NOT NULL\n\n    THEN Copia_Tributaria_cf\n\
+      \n    ELSE NULL\n\n  END as Copia_Tributaria_cf_proxy,\n\n  CASE\n\n    WHEN\
+      \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') AND Copia_Cedible_cf\
+      \ IS NOT NULL\n\n    THEN Copia_Cedible_cf\n\n    ELSE NULL\n\n  END as Copia_Cedible_cf_proxy\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Rut = @target_rut\nORDER BY fecha DESC, Factura DESC\nLIMIT 1\n"
+    description: 'Obtiene la ÚLTIMA factura (más reciente) de un RUT específico.
+
+      USAR cuando el usuario pida "última factura", "factura más reciente", "última compra" de un RUT.
+
+      Retorna SOLO 1 factura (la más reciente por fecha) con enlaces de descarga directos.
+
+      Evita crear ZIPs innecesarios al limitar a 1 resultado.
+
+
+      Ejemplos de uso:
+
+      - "Dame la última factura del RUT 61958500-3"
+
+      - "Factura más reciente de RUT 9025012-4"
+
+      - "Última compra del cliente 76341146-K"
+
+      '
+    parameters:
+    - name: target_rut
+      type: string
+      description: RUT del cliente en formato con guión (ej. "9025012-4", "76341146-K")
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias
+
+        - ''cedible_only'': Solo facturas cedibles'
+      required: false
+      default: both
   search_invoices_by_date_range:
     kind: bigquery-sql
     source: gasco_invoices_read
@@ -155,7 +201,7 @@ tools:
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
       \  fecha >= @start_date\n  AND fecha <= @end_date\nORDER BY fecha DESC, Factura\
       \ DESC\nLIMIT 1000\n"
-    description: '🔗 RECOMENDACIÓN: Usar validate_date_range_context_size ANTES para
+    description: 'RECOMENDACIÓN: Usar validate_date_range_context_size ANTES para
       rangos amplios.
 
 
@@ -167,7 +213,7 @@ tools:
       Retorna facturas con URLs firmadas listas para descargar.
 
 
-      ⚠️ FLUJO RECOMENDADO para rangos amplios (>30 días):
+      IMPORTANTE: FLUJO RECOMENDADO para rangos amplios (>30 días):
 
       1. Ejecutar validate_date_range_context_size(start_date, end_date) primero
 
@@ -256,8 +302,8 @@ tools:
   get_solicitantes_by_rut:
     kind: bigquery-sql
     source: gasco_invoices_read
-    statement: "SELECT\n  DISTINCT Solicitante,\n  COUNT(*) as factura_count,\n  MIN(fecha)\
-      \ as fecha_primera_factura,\n  MAX(fecha) as fecha_ultima_factura,\n  MAX(Nombre)\
+    statement: "SELECT\n  DISTINCT Solicitante,\n  COUNT(*) as factura_count,\n  FORMAT_DATE('%d/%m/%Y', MIN(fecha))\
+      \ as fecha_primera_factura,\n  FORMAT_DATE('%d/%m/%Y', MAX(fecha)) as fecha_ultima_factura,\n  MAX(Nombre)\
       \ as nombre_cliente\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       WHERE\n  Rut = @target_rut\nGROUP BY Solicitante\nORDER BY factura_count DESC,\
       \ Solicitante ASC\nLIMIT 10\n"
@@ -290,7 +336,7 @@ tools:
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
       \  EXTRACT(YEAR FROM fecha) = @target_year\n  AND EXTRACT(MONTH FROM fecha)\
       \ = @target_month\nORDER BY fecha DESC, Factura DESC\nLIMIT 1000\n"
-    description: '🔗 DEBE USARSE DESPUÉS DE validate_context_size_before_search para
+    description: 'DEBE USARSE DESPUÉS DE validate_context_size_before_search para
       búsquedas mensuales.
 
 
@@ -299,7 +345,7 @@ tools:
       Utiliza funciones EXTRACT para filtrar por mes y año de forma precisa.
 
 
-      ⚠️ FLUJO OBLIGATORIO:
+      IMPORTANTE: FLUJO OBLIGATORIO:
 
       1. Ejecutar validate_context_size_before_search(target_year, target_month)
 
@@ -443,7 +489,7 @@ tools:
       \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_sf\
       \ ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       WHERE\n  UPPER(Solicitante) LIKE CONCAT('%', UPPER(@proveedor_name), '%')\n\
-      ORDER BY Factura DESC\nLIMIT 10\n"
+      ORDER BY Factura DESC\nLIMIT 100\n"
     description: 'Busca facturas por nombre de proveedor/solicitante.
 
       Proporciona parte del nombre del proveedor y encontrará facturas coincidentes.
@@ -577,7 +623,7 @@ tools:
       \ @search_number THEN 1\n    WHEN Factura_Referencia = @search_number THEN 2\n\
       \    WHEN LTRIM(Factura, '0') = LTRIM(@search_number, '0') THEN 3\n    ELSE\
       \ 4\n  END,\n  Factura DESC\nLIMIT 5\n"
-    description: '🔍 **RECOMMENDED BY DEFAULT FOR ALL NUMERIC INVOICE SEARCHES**
+    description: '**RECOMMENDED BY DEFAULT FOR ALL NUMERIC INVOICE SEARCHES**
 
 
       Search invoices in BOTH fields simultaneously:
@@ -587,7 +633,7 @@ tools:
       - Visible folio number (Factura_Referencia field)
 
 
-      ⭐ **USE THIS TOOL WHEN:**
+      **USE THIS TOOL WHEN:**
 
       - User provides a NUMBER without specifying field type
 
@@ -600,14 +646,14 @@ tools:
       - Queries like "puedes darme la siguiente factura 0022792445"
 
 
-      ❌ **DO NOT USE WHEN:**
+      NO - **DO NOT USE WHEN:**
 
-      - User EXPLICITLY says "internal ID" or "ID interno" → use search_invoices_by_factura_number
+      - User EXPLICITLY says "internal ID" or "ID interno" -> use search_invoices_by_factura_number
 
-      - User EXPLICITLY says "folio" or "referencia" → use search_invoices_by_referencia_number
+      - User EXPLICITLY says "folio" or "referencia" -> use search_invoices_by_referencia_number
 
 
-      ✅ **ADVANTAGES:**
+      - **ADVANTAGES:**
 
       - Comprehensive coverage: searches BOTH fields in a single query
 
@@ -656,7 +702,7 @@ tools:
       \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_sf\
       \ ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       WHERE\n  UPPER(Nombre) LIKE CONCAT('%', UPPER(@cliente_name), '%')\nORDER BY\
-      \ Factura DESC\nLIMIT 10\n"
+      \ Factura DESC\nLIMIT 100\n"
     description: 'Busca facturas por nombre de cliente.
 
       Proporciona parte del nombre del cliente y encontrará facturas coincidentes.
@@ -723,6 +769,60 @@ tools:
         - ''tributaria_only'': Solo facturas tributarias (CF y SF)
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
+      required: false
+      default: both
+  # Tool para búsqueda por rango de montos (min-max)
+  search_invoices_by_amount_range:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n  DetallesFactura,\n\
+      \  CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only') THEN\
+      \ Copia_Tributaria_cf ELSE NULL END as Copia_Tributaria_cf,\n  CASE WHEN COALESCE(@pdf_type,\
+      \ 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_cf ELSE NULL END as\
+      \ Copia_Cedible_cf,\n  CASE WHEN COALESCE(@pdf_type, 'both') IN ('both', 'tributaria_only')\
+      \ THEN Copia_Tributaria_sf ELSE NULL END as Copia_Tributaria_sf,\n  CASE WHEN\
+      \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') THEN Copia_Cedible_sf\
+      \ ELSE NULL END as Copia_Cedible_sf,\n  Doc_Termico,\n  (SELECT SUM(CAST(detalle.ValorTotal\
+      \ AS FLOAT64)) \n   FROM UNNEST(DetallesFactura) as detalle) as total_amount\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  (SELECT SUM(CAST(detalle.ValorTotal AS FLOAT64)) \n   FROM UNNEST(DetallesFactura)\
+      \ as detalle) >= @min_amount\n  AND (SELECT SUM(CAST(detalle.ValorTotal AS FLOAT64)) \n   FROM UNNEST(DetallesFactura)\
+      \ as detalle) <= @max_amount\nORDER BY total_amount DESC\nLIMIT 100\n"
+    description: 'Busca facturas dentro de un rango de montos (mínimo y máximo).
+
+      USAR cuando el usuario pida facturas entre ciertos valores.
+
+
+      Ejemplos de uso:
+
+      - "Facturas entre $100.000 y $500.000"
+
+      - "Dame facturas con monto entre 50000 y 200000"
+
+      - "Facturas de monto medio (entre X y Y)"
+
+
+      Retorna facturas ordenadas por monto (mayor primero) con LIMIT 100.
+
+      '
+    parameters:
+    - name: min_amount
+      type: string
+      description: Monto mínimo de la factura (ej. "100000")
+      required: true
+    - name: max_amount
+      type: string
+      description: Monto máximo de la factura (ej. "500000")
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias
+
+        - ''cedible_only'': Solo facturas cedibles'
       required: false
       default: both
   get_invoice_statistics:
@@ -801,12 +901,12 @@ tools:
       \ IS NOT NULL \n    THEN Copia_Cedible_sf\n    ELSE NULL\n  END as cedible_sf_url,\n\
       \  CASE \n    WHEN Doc_Termico IS NOT NULL \n    THEN Doc_Termico\n    ELSE\
       \ NULL\n  END as termico_url,\n  CONCAT(\n    CASE WHEN Copia_Tributaria_cf\
-      \ IS NOT NULL THEN '✅ Copia Tributaria (con fondo - logo Gasco)\\n' ELSE ''\
-      \ END,\n    CASE WHEN Copia_Cedible_cf IS NOT NULL THEN '✅ Copia Cedible (con\
+      \ IS NOT NULL THEN '- Copia Tributaria (con fondo - logo Gasco)\\n' ELSE ''\
+      \ END,\n    CASE WHEN Copia_Cedible_cf IS NOT NULL THEN '- Copia Cedible (con\
       \ fondo - logo Gasco)\\n' ELSE '' END,\n    CASE WHEN Copia_Tributaria_sf IS\
-      \ NOT NULL THEN '✅ Copia Tributaria (sin fondo - sin logo)\\n' ELSE '' END,\n\
-      \    CASE WHEN Copia_Cedible_sf IS NOT NULL THEN '✅ Copia Cedible (sin fondo\
-      \ - sin logo)\\n' ELSE '' END,\n    CASE WHEN Doc_Termico IS NOT NULL THEN '✅\
+      \ NOT NULL THEN '- Copia Tributaria (sin fondo - sin logo)\\n' ELSE '' END,\n\
+      \    CASE WHEN Copia_Cedible_sf IS NOT NULL THEN '- Copia Cedible (sin fondo\
+      \ - sin logo)\\n' ELSE '' END,\n    CASE WHEN Doc_Termico IS NOT NULL THEN '-\
       \ Documento Térmico\\n' ELSE '' END\n  ) as pdfs_disponibles\nFROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       WHERE\n  Solicitante = LPAD(@solicitante_code, 10, '0')\nORDER BY Factura DESC\n\
       LIMIT 25\n"
@@ -887,6 +987,53 @@ tools:
       description: Código de solicitante específico (ej. "0012148561"). Opcional - si está vacío retorna todas las facturas.
       required: false
       default: ""
+  # Tool optimizado para "última factura" de un SAP/Solicitante - LIMIT 1
+  get_latest_invoice_by_solicitante:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n\
+      \  DetallesFactura,\n  CASE\n\n    WHEN COALESCE(@pdf_type, 'both') IN ('both',\
+      \ 'tributaria_only') AND Copia_Tributaria_cf IS NOT NULL\n\n    THEN Copia_Tributaria_cf\n\
+      \n    ELSE NULL\n\n  END as Copia_Tributaria_cf_proxy,\n\n  CASE\n\n    WHEN\
+      \ COALESCE(@pdf_type, 'both') IN ('both', 'cedible_only') AND Copia_Cedible_cf\
+      \ IS NOT NULL\n\n    THEN Copia_Cedible_cf\n\n    ELSE NULL\n\n  END as Copia_Cedible_cf_proxy\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Solicitante = LPAD(@solicitante_code, 10, '0')\nORDER BY fecha DESC, Factura DESC\n\
+      LIMIT 1\n"
+    description: 'Obtiene la ÚLTIMA factura (más reciente) de un código SAP/Solicitante específico.
+
+      USAR cuando el usuario pida "última factura", "factura más reciente" del SAP.
+
+      Retorna SOLO 1 factura (la más reciente por fecha) con enlaces de descarga directos.
+
+      Evita crear ZIPs innecesarios al limitar a 1 resultado.
+
+
+      Ejemplos de uso:
+
+      - "Dame la última factura del SAP 12540245"
+
+      - "Factura más reciente del solicitante 0012537749"
+
+      - "Última compra del código SAP 12148561"
+
+      '
+    parameters:
+    - name: solicitante_code
+      type: string
+      description: Código de solicitante/SAP (ej. "12540245" o "0012540245")
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias
+
+        - ''cedible_only'': Solo facturas cedibles'
+      required: false
+      default: both
   create_zip_record:
     kind: bigquery-sql
     source: gasco_operations_write
@@ -1291,15 +1438,13 @@ tools:
   get_unique_ruts_statistics:
     kind: bigquery-sql
     source: gasco_invoices_read
-    statement: "SELECT\n  Rut,\n  COUNT(*) as total_facturas,\n  MIN(fecha) as primera_factura,\n\
-      \  MAX(fecha) as ultima_factura,\n  COUNT(DISTINCT Solicitante) as solicitantes_distintos\n\
+    statement: "SELECT\n  Rut,\n  COUNT(*) as total_facturas,\n  CONCAT('[Desde: ', FORMAT_DATE('%d/%m/%Y', MIN(fecha)), ' | Hasta: ', FORMAT_DATE('%d/%m/%Y', MAX(fecha)), ']') as periodo_actividad,\n  COUNT(DISTINCT Solicitante) as solicitantes_distintos\n\
       FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
       \  Rut IS NOT NULL AND Rut != ''\nGROUP BY Rut\nHAVING COUNT(*) >= @min_facturas\n\
-      ORDER BY total_facturas DESC, ultima_factura DESC\nLIMIT @limit_ruts\n"
+      ORDER BY total_facturas DESC\nLIMIT @limit_ruts\n"
     description: 'Obtiene estadísticas completas de RUTs únicos en el sistema.
 
-      Muestra cantidad de facturas, rango temporal, solicitantes distintos y disponibilidad
-      de PDFs.
+      Muestra cantidad de facturas, fechas formateadas (primera y última factura), y solicitantes distintos.
 
       Útil para análisis de clientes más activos y patrones de facturación.
 
@@ -1311,6 +1456,34 @@ tools:
       type: integer
       description: Cantidad mínima de facturas que debe tener un RUT para aparecer
         en los resultados (default 1)
+      required: false
+      default: 1
+    - name: limit_ruts
+      type: integer
+      description: Número máximo de RUTs a retornar (default 50)
+      required: false
+      default: 50
+  # Alias for get_unique_ruts_statistics - prevents model hallucination
+  get_top_ruts_by_invoice_count:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Rut,\n  COUNT(*) as total_facturas,\n  CONCAT('[Desde: ', FORMAT_DATE('%d/%m/%Y', MIN(fecha)), ' | Hasta: ', FORMAT_DATE('%d/%m/%Y', MAX(fecha)), ']') as periodo_actividad,\n  COUNT(DISTINCT Solicitante) as solicitantes_distintos\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Rut IS NOT NULL AND Rut != ''\nGROUP BY Rut\nHAVING COUNT(*) >= @min_facturas\n\
+      ORDER BY total_facturas DESC\nLIMIT @limit_ruts\n"
+    description: 'Obtiene los RUTs con mayor cantidad de facturas en el sistema.
+
+      Retorna RUTs ordenados por número de facturas (descendente).
+
+      Incluye fechas formateadas (primera/última factura) y cantidad de solicitantes distintos.
+
+      Alias de get_unique_ruts_statistics para compatibilidad.
+
+      '
+    parameters:
+    - name: min_facturas
+      type: integer
+      description: Cantidad mínima de facturas que debe tener un RUT (default 1)
       required: false
       default: 1
     - name: limit_ruts
@@ -1428,7 +1601,7 @@ tools:
   get_data_coverage_statistics:
     kind: bigquery-sql
     source: gasco_invoices_read
-    statement: "SELECT\n  MIN(fecha) as Fecha_Inicio,\n  MAX(fecha) as Fecha_Fin,\n\
+    statement: "SELECT\n  FORMAT_DATE('%d/%m/%Y', MIN(fecha)) as Fecha_Inicio,\n  FORMAT_DATE('%d/%m/%Y', MAX(fecha)) as Fecha_Fin,\n\
       \  COUNT(DISTINCT Rut) as Total_RUTs_Unicos,\n  COUNT(*) as Total_Facturas,\n\
       \  COUNT(DISTINCT EXTRACT(YEAR FROM fecha)) as Anos_Cubiertos,\n  COUNT(DISTINCT\
       \ EXTRACT(MONTH FROM fecha)) as Meses_Distintos,\n  ROUND(AVG(EXTRACT(YEAR FROM\
@@ -1450,7 +1623,7 @@ tools:
     source: gasco_invoices_read
     statement: "SELECT\n  EXTRACT(YEAR FROM fecha) as Ano,\n  COUNT(*) as Total_Facturas,\n\
       \  COUNT(DISTINCT Rut) as RUTs_Distintos,\n  COUNT(DISTINCT Solicitante) as\
-      \ Solicitantes_Distintos,\n  MIN(fecha) as Primera_Factura,\n  MAX(fecha) as\
+      \ Solicitantes_Distintos,\n  FORMAT_DATE('%d/%m/%Y', MIN(fecha)) as Primera_Factura,\n  FORMAT_DATE('%d/%m/%Y', MAX(fecha)) as\
       \ Ultima_Factura,\n  ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`),\
       \ 2) as Porcentaje_Total,\n  COALESCE(\n    SUM(\n      (SELECT SUM(detalle.ValorTotal)\n\
       \       FROM UNNEST(DetallesFactura) AS detalle \n       WHERE detalle.ValorTotal\
@@ -1488,7 +1661,7 @@ tools:
       \    WHEN 10 THEN 'Octubre'\n    WHEN 11 THEN 'Noviembre'\n    WHEN 12 THEN\
       \ 'Diciembre'\n  END as Nombre_Mes,\n  COUNT(*) as Total_Facturas,\n  COUNT(DISTINCT\
       \ Rut) as RUTs_Distintos,\n  COUNT(DISTINCT Solicitante) as Solicitantes_Distintos,\n\
-      \  MIN(fecha) as Primera_Factura_Mes,\n  MAX(fecha) as Ultima_Factura_Mes\n\
+      \  FORMAT_DATE('%d/%m/%Y', MIN(fecha)) as Primera_Factura_Mes,\n  FORMAT_DATE('%d/%m/%Y', MAX(fecha)) as Ultima_Factura_Mes\n\
       FROM (\n  SELECT \n    *,\n    EXTRACT(YEAR FROM fecha) as year_num,\n    EXTRACT(MONTH\
       \ FROM fecha) as month_num\n  FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       \  WHERE EXTRACT(YEAR FROM fecha) = @target_year\n)\nGROUP BY year_num, month_num\n\
@@ -1533,7 +1706,7 @@ tools:
       \ AS detalle \n       WHERE detalle.ValorTotal IS NOT NULL)\n    ), 0) as Monto_Total_Mes,\n\
       \  COALESCE(\n    AVG(\n      (SELECT SUM(detalle.ValorTotal)\n       FROM UNNEST(DetallesFactura)\
       \ AS detalle \n       WHERE detalle.ValorTotal IS NOT NULL)\n    ), 0) as Monto_Promedio_Factura,\n\
-      \  MIN(fecha) as Primera_Factura_Mes,\n  MAX(fecha) as Ultima_Factura_Mes\n\
+      \  FORMAT_DATE('%d/%m/%Y', MIN(fecha)) as Primera_Factura_Mes,\n  FORMAT_DATE('%d/%m/%Y', MAX(fecha)) as Ultima_Factura_Mes\n\
       FROM (\n  SELECT \n    *,\n    EXTRACT(YEAR FROM fecha) as year_num,\n    EXTRACT(MONTH\
       \ FROM fecha) as month_num\n  FROM `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\n\
       \  WHERE EXTRACT(YEAR FROM fecha) = @target_year\n)\nGROUP BY year_num, month_num\n\
@@ -1651,7 +1824,7 @@ tools:
       \  Rut = @target_rut\n  AND Solicitante = LPAD(@solicitante, 10, '0')\n  AND\
       \ EXTRACT(YEAR FROM fecha) = @target_year\nORDER BY fecha DESC, Factura DESC\n\
       LIMIT 200\n"
-    description: '⭐ HERRAMIENTA CRÍTICA: Busca facturas combinando RUT + Solicitante
+    description: 'HERRAMIENTA CRÍTICA: Busca facturas combinando RUT + Solicitante
       + Año completo.
 
 
@@ -1791,6 +1964,68 @@ tools:
         - ''tributaria_only'': Solo facturas tributarias (CF y SF)
 
         - ''cedible_only'': Solo facturas cedibles (CF y SF)'
+      required: false
+      default: both
+  # Tool para búsqueda por RUT en mes/año específico (sin calcular rango de fechas)
+  search_invoices_by_rut_and_month_year:
+    kind: bigquery-sql
+    source: gasco_invoices_read
+    statement: "SELECT\n  Factura,\n  Solicitante,\n  Rut,\n  Nombre,\n  fecha,\n\
+      \  DetallesFactura,\n  CASE\n    WHEN COALESCE(@pdf_type, 'both') IN ('both',\
+      \ 'tributaria_only') AND Copia_Tributaria_cf IS NOT NULL\n    THEN Copia_Tributaria_cf\n\
+      \    ELSE NULL\n  END as Copia_Tributaria_cf_proxy,\n  CASE\n    WHEN COALESCE(@pdf_type,\
+      \ 'both') IN ('both', 'cedible_only') AND Copia_Cedible_cf IS NOT NULL\n  \
+      \  THEN Copia_Cedible_cf\n    ELSE NULL\n  END as Copia_Cedible_cf_proxy\n\
+      FROM\n  `datalake-gasco.sap_analitico_facturas_pdf_qa.pdfs_modelo`\nWHERE\n\
+      \  Rut = @target_rut\n  AND EXTRACT(YEAR FROM fecha) = @target_year\n  AND EXTRACT(MONTH FROM fecha) = @target_month\n\
+      ORDER BY fecha DESC, Factura DESC\nLIMIT 200\n"
+    description: 'Busca facturas de un RUT específico en un mes y año específico.
+
+      USAR cuando el usuario pida facturas de un RUT en un mes específico.
+
+      Más simple que search_invoices_by_rut_and_date_range (no requiere calcular fechas).
+
+
+      Ejemplos de uso:
+
+      - "Facturas del RUT 61958500-3 en enero 2025"
+
+      - "Dame las facturas del RUT 76341146-K de diciembre 2024"
+
+      - "Facturas de marzo 2025 del cliente con RUT 9025012-4"
+
+
+      Ventajas:
+
+      - No requiere calcular inicio/fin del mes
+
+      - Filtra por RUT + año + mes directamente
+
+      - LIMIT 200 cubre la mayoría de casos
+
+      '
+    parameters:
+    - name: target_rut
+      type: string
+      description: RUT del cliente en formato con guión (ej. "76262399-4", "9025012-4")
+      required: true
+    - name: target_year
+      type: integer
+      description: Año de las facturas (ej. 2025, 2024)
+      required: true
+    - name: target_month
+      type: integer
+      description: Mes de las facturas (1-12, donde 1=enero, 12=diciembre)
+      required: true
+    - name: pdf_type
+      type: string
+      description: 'Tipo de PDF a retornar (OPCIONAL):
+
+        - ''both'' (default): Retorna facturas tributarias Y cedibles
+
+        - ''tributaria_only'': Solo facturas tributarias
+
+        - ''cedible_only'': Solo facturas cedibles'
       required: false
       default: both
   search_invoices_by_solicitante_and_year:
@@ -1948,7 +2183,7 @@ tools:
       \ AS STRING), ' facturas). Procesamiento eficiente esperado.')\n  END as recommendation,\n\
       \  ROUND(total_with_system_context / 1048576.0 * 100, 1) as context_usage_percentage\n\
       FROM result_preview\n"
-    description: '🚨 VALIDADOR CRÍTICO: Valida si una búsqueda por RUT excederá la
+    description: 'IMPORTANTE: VALIDADOR CRÍTICO: Valida si una búsqueda por RUT excederá la
       ventana de contexto de Gemini.
 
 
@@ -2003,7 +2238,7 @@ tools:
       \ (', CAST(total_facturas AS STRING), ' facturas). Procesamiento eficiente esperado.')\n\
       \  END as recommendation,\n  ROUND(total_with_system_context / 1048576.0 * 100,\
       \ 1) as context_usage_percentage\nFROM result_preview\n"
-    description: '🚨 VALIDADOR CRÍTICO: Valida si una búsqueda por rango de fechas
+    description: 'IMPORTANTE: VALIDADOR CRÍTICO: Valida si una búsqueda por rango de fechas
       excederá la ventana de contexto de Gemini.
 
 
@@ -2106,14 +2341,14 @@ tools:
       Busca múltiples facturas por lista de referencias (Factura_Referencia o Factura).
       Más eficiente que llamar search_invoices_by_any_number múltiples veces.
       
-      ⭐ USAR CUANDO: Usuario proporciona 2+ números de factura/referencia.
+      USAR CUANDO: Usuario proporciona 2+ números de factura/referencia.
       
       Soporta filtrado por:
       - pdf_type: tributaria_only, cedible_only, both
       - pdf_variant: cf (default), sf, both
       
       Ejemplo: "facturas 0011817764, 0011817770 y 0011817773"
-      → reference_list="0011817764,0011817770,0011817773"
+      -> reference_list="0011817764,0011817770,0011817773"
     statement: |
       SELECT Factura, Factura_Referencia, Solicitante, Rut, Nombre, fecha,
              DetallesFactura,
@@ -2182,6 +2417,7 @@ toolsets:
   - search_invoices_by_solicitante_and_date_range
   - search_invoices_by_solicitante_max_amount_in_month
   - get_unique_ruts_statistics
+  - get_top_ruts_by_invoice_count
   - search_invoices_by_rut_and_amount
   - get_date_range_statistics
   - search_invoices_by_proveedor
@@ -2217,3 +2453,5 @@ toolsets:
   - update_zip_status
   - record_zip_download
   - get_zip_statistics
+
+
