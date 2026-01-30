@@ -72,7 +72,19 @@ toolbox_client = ToolboxSyncClient(toolbox_url)
 # Load MCP toolsets
 invoice_search_tools = toolbox_client.load_toolset("gasco_invoice_search")
 zip_management_tools = toolbox_client.load_toolset("gasco_zip_management")
-mcp_tools = invoice_search_tools + zip_management_tools
+
+# DEBUG: Print info about MCP tools
+print(f"[DEBUG] invoice_search_tools: {len(invoice_search_tools)} tools", file=sys.stderr)
+print(f"[DEBUG] zip_management_tools: {len(zip_management_tools)} tools", file=sys.stderr)
+
+# Print tool names for verification
+for i, tool in enumerate(invoice_search_tools[:5]):
+    tool_name = getattr(tool, 'name', getattr(tool, '_name', f'unknown_{i}'))
+    print(f"[DEBUG]   Tool {i}: {tool_name}", file=sys.stderr)
+
+# Use ALL MCP tools (not sliced - fix for validate_rut_context_size not found)
+mcp_tools = invoice_search_tools
+print(f"[DEBUG] Using {len(mcp_tools)} MCP tools (full set)", file=sys.stderr)
 
 print("ADK Agent initialized with service container", file=sys.stderr)
 container.print_status()
@@ -383,7 +395,7 @@ def create_zip_package(
 # ================================================================
 
 
-def search_invoices_by_month_year_validated(
+def validated_monthly_search(
     target_year: int, target_month: int, pdf_type: str = "both"
 ) -> dict:
     """
@@ -742,24 +754,20 @@ root_agent = Agent(
         "Invoice assistant for Gasco with BigQuery access " "and PDF generation"
     ),
     tools=[
-        # MCP Toolbox tools (filtered - wrapped tools removed)
+        # MCP Toolbox tools (filtered to exclude wrapped tools)
         *mcp_tools_filtered,
-        # Custom wrapped tools
-        FunctionTool(search_invoices_by_rut),
-        FunctionTool(create_zip_package),
-        # URL signing tool - agent calls this for gs:// URLs
+        # Custom FunctionTools
+        # NOTE: FunctionTool names cannot collide with MCP tool names (gemini-3-flash-preview requirement)
         FunctionTool(generate_individual_download_links),
-        # Context validation wrappers (replace filtered MCP tools)
-        FunctionTool(search_invoices_by_month_year_validated),
+        FunctionTool(create_zip_package),
+        FunctionTool(validated_monthly_search),  # Renamed from search_invoices_by_month_year_validated
     ],
     instruction=system_instruction,
     generate_content_config={
         "temperature": vertex_temperature,
     },
-    # Register conversation tracking callbacks
     before_agent_callback=before_agent_callback,
     after_agent_callback=after_agent_callback,
-    # Tool execution logging callback
     before_tool_callback=before_tool_callback,
 )
 

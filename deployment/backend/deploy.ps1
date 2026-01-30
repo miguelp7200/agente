@@ -183,7 +183,7 @@ function Start-LocalContainer {
         $dockerArgs += @(
             "-e", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco",
             "-e", "GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco",
-            "-e", "GOOGLE_CLOUD_LOCATION=us-central1",
+            "-e", "GOOGLE_CLOUD_LOCATION=global",
             "-e", "IS_CLOUD_RUN=false",
             "-e", "LOCAL_DEVELOPMENT=true"
         )
@@ -622,7 +622,7 @@ if ($IsLocalDeployment) {
         "--project", $PROJECT_ID,
         "--allow-unauthenticated",
         "--port", "8080",
-        "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true",
+        "--set-env-vars", "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=global,IS_CLOUD_RUN=true",
         "--service-account", $SERVICE_ACCOUNT,
         "--memory", "4Gi",
         "--cpu", "4",
