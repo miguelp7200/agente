@@ -1016,13 +1016,16 @@ gcloud config set project agent-intelligence-gasco
 # Binary no incluido en repo por tamaño (117MB)
 ```
 
-**6. Configurar variables de entorno**:
+**6. Verificar configuración**:
 ```bash
-# Crear .env en my-agents/gcp-invoice-agent-app/
-cp my-agents/gcp-invoice-agent-app/.env.example \
-   my-agents/gcp-invoice-agent-app/.env
+# Toda la configuración está en config/config.yaml
+# Solo necesitas el .env raíz con variables mínimas:
+# - GOOGLE_GENAI_USE_VERTEXAI=true
+# - GOOGLE_CLOUD_LOCATION=global
+# - PORT=8080
 
-# Editar .env con tus valores
+# Validar configuración cargada:
+python -c "from src.core.config import get_config; get_config().print_summary()"
 ```
 
 ### Ejecutar Localmente
