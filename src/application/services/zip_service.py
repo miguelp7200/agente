@@ -140,14 +140,13 @@ class ZipService:
                 friendly_name,
             )
 
-            # Generate signed URL for download with friendly filename
+            # Generate signed URL for download
             # GCS max: 7 days, convert to timedelta and cap at limit
-            # The friendly_filename sets Content-Disposition header for browser downloads
+            # The blob name already includes the friendly filename, so no need for content-disposition
             expiration_days = min(self.zip_expiration_days, 7)
             download_url = self.url_signer.generate_signed_url(
                 gcs_path,
                 expiration=timedelta(days=expiration_days),
-                friendly_filename=f"{friendly_name}.zip",
             )
 
             # Update package with download info - use filtered count
@@ -394,21 +393,25 @@ class ZipService:
             Tuple of (gcs_path, file_size_bytes)
 
         Note:
-            Uses UUID-based blob names to avoid encoding issues with signed URLs.
-            The friendly filename is delivered via response-content-disposition
-            header in the signed URL, not via the blob name.
+            Uses nested path with friendly name to ensure browser downloads correct filename
+            without needing complex content-disposition headers.
+            Format: zips/{package_id}/{package_name}.zip
         """
-        # Generate blob path with UUID (avoids encoding issues in signed URLs)
-        # The package_name is passed to signed URL as response-content-disposition
-        blob_name = f"zips/{package_id}.zip"
+        # Embed friendly name in blob path to avoid signed URL encoding issues
+        # Sanitize package_name just in case
+        safe_name = package_name.replace("/", "_").replace("\\", "_")
+        if not safe_name.endswith(".zip"):
+            safe_name += ".zip"
+            
+        blob_name = f"zips/{package_id}/{safe_name}"
 
         # Get bucket and blob
         bucket = self.storage_client.bucket(self.write_bucket)
         blob = bucket.blob(blob_name)
 
-        # Store friendly name as metadata for later use in signed URL generation
+        # Store friendly name as metadata for reference
         blob.metadata = {
-            "friendly_filename": f"{package_name}.zip",
+            "friendly_filename": safe_name,
             "package_id": package_id,
         }
 
@@ -422,7 +425,7 @@ class ZipService:
 
         print(
             f"[ZIP Service] Uploaded: {blob_name} "
-            f"(friendly: {package_name}.zip, {file_size} bytes)",
+            f"(size: {file_size} bytes)",
             file=sys.stderr,
         )
 
