@@ -7,17 +7,178 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased] - development → main
 
+### 2025-02-04 - Branch `feature/test-gemini-3-flash` (21 commits)
+
+Esta rama implementa soporte para Gemini 3 Flash Preview, filtrado de PDFs por tipo,
+nuevas herramientas MCP, y un sistema de redirección para prevenir corrupción de URLs.
+
+---
+
+#### 1. Gemini 3 Flash Preview Support
+
+**Objetivo**: Probar el nuevo modelo `gemini-3-flash-preview` con ubicación global.
+
+**Commits**:
+- `0f0102b` **feat: test gemini-3-flash-preview model** - Cambio de modelo en config.yaml
+- `54db4ea` **feat: change GOOGLE_CLOUD_LOCATION to global** - Dockerfile con location=global
+- `8d671cf` **config: update GOOGLE_CLOUD_LOCATION to global** - Actualización completa de configuración
+
+**Archivos modificados**:
+- `config/config.yaml` - vertex_ai.model: gemini-3-flash-preview
+- `.env`, `deployment/backend/Dockerfile`, `deployment/config/*.env`
+- `src/presentation/agent/adk_agent.py` - Thinking mode support
+
+---
+
+#### 2. PDF Type Filtering (Tributaria/Cedible)
+
+**Objetivo**: Permitir filtrar facturas por tipo de documento (tributaria, cedible, térmico).
+
+**Commits**:
+- `16fbdc7` **feat(agent): add PDF type filtering for tributaria/cedible queries**
+- `5c9f71d` **fix(zip): pass pdf_type and pdf_variant filters through ZIP creation chain**
+
+**Cambios**:
+- Nuevo parámetro `pdf_type` en herramientas: `'tributaria_only'`, `'cedible_only'`, `'termico_only'`, `'both'`, `'all'`
+- Nuevo parámetro `pdf_variant`: `'cf'` (con fondo), `'sf'` (sin fondo), `'both'`
+- System instruction actualizado para detectar keywords y aplicar filtros automáticamente
+
+**Archivos**:
+- `src/presentation/agent/adk_agent.py` - generate_individual_download_links con filtros
+- `src/application/services/zip_service.py` - Filtrado en creación de ZIP
+- `src/core/domain/models/invoice.py` - Enums PdfType, PdfVariant
+- `tests/unit/test_tributaria_filter.py` - 385 líneas de tests
+
+---
+
+#### 3. New MCP Tools & Query Patterns
+
+**Objetivo**: Herramientas especializadas para patrones de consulta comunes.
+
+**Commits**:
+- `c5feac0` **feat(tools): add new MCP tools for specific query patterns** (+273 líneas)
+- `b01c033` **feat(prompt): add routing rules for new MCP tools**
+- `9043bac` **test: add integration tests for new MCP tools** (+518 líneas tests)
+
+**Nuevas herramientas MCP**:
+- `get_latest_invoice_by_rut` - Última factura por RUT
+- `get_latest_invoice_by_solicitante` - Última factura por solicitante
+- `search_invoices_by_amount_range` - Búsqueda por rango de montos
+- `search_invoices_by_rut_and_month_year` - Búsqueda combinada RUT + mes/año
+
+**Archivos**:
+- `mcp-toolbox/tools_updated.yaml` - Definiciones de herramientas
+- `my-agents/gcp_invoice_agent_app/agent_prompt.yaml` - Reglas de routing
+- `tests/cloudrun/test_*.ps1` - Tests de integración
+
+---
+
+#### 4. JSON Serialization Fixes
+
+**Objetivo**: Resolver errores de serialización con tipos de BigQuery y Python.
+
+**Commits**:
+- `33336d4` **fix(json): add Decimal serialization for BigQuery results**
+- `41650ab` **fix(mcp): change float to string type for toolbox_core compatibility**
+- `795c14f` **fix: add date/datetime/time support to JSON encoder**
+- `aeeb95e` **fix: extend JSON encoder to handle timedelta, UUID, bytes, set types**
+
+**Problema resuelto**: `TypeError: Object of type Decimal is not JSON serializable`
+
+**Solución**: `src/core/json_utils.py` con patch global de json.JSONEncoder:
+```python
+# Tipos soportados: Decimal, date, datetime, time, timedelta, UUID, bytes, set
+from src.core.json_utils import patch_json_decimal_support
+patch_json_decimal_support()  # Aplicar al inicio del agente
+```
+
+---
+
+#### 5. Signed URL Stability & Mitigation
+
+**Objetivo**: Mejorar estabilidad de URLs firmadas con circuit breaker y retry strategies.
+
+**Commits**:
+- `ba9616f` **feat(gcs): implement signed URL mitigation strategies** (+735 líneas)
+- `2916af5` **fix(service): add friendly_filename param to SignedURLService**
+
+**Nuevos componentes**:
+- `src/infrastructure/gcs/circuit_breaker.py` - Circuit breaker para GCS (325 líneas)
+- `src/infrastructure/gcs/retry_strategy.py` - Estrategia de reintentos mejorada
+- `src/infrastructure/gcs/time_sync_validator.py` - Validación de sincronización temporal
+
+**Configuración** (`config/config.yaml`):
+```yaml
+gcs:
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_timeout_seconds: 120
+  retry:
+    max_retries: 3
+    non_retriable_patterns:
+      - signaturedoesnotmatch
+```
+
+---
+
+#### 6. URL Redirect System (LLM Corruption Prevention)
+
+**Problema**: El LLM (Gemini) corrompe firmas hexadecimales de 512 caracteres en URLs firmadas GCS V4.
+
+**Commits**:
+- `86eb565` **fix(gcs): use consistent region in signed URL generation** - Fix `/auto/` vs `/us-central1/`
+- `7f54b30` **refactor(zip): embed friendly filename in blob path**
+- `61d429e` **feat(cache): add URL cache for LLM corruption prevention**
+- `c1b20ba` **feat(server): add custom server with URL redirect endpoint**
+- `0ce1a8a` **chore(deploy): use custom_server.py for URL redirect support**
+- `3a48be1` **feat(agent): integrate URL redirect system and group PDFs by invoice**
+- `5b9011f` **test(cloudrun): add integration test for ZIP signature validation**
+
+**Solución**: URLs cortas (`/r/{8-char-id}`) que el LLM no puede corromper.
+
+**Nuevos archivos**:
+- `custom_server.py` - Servidor FastAPI extendiendo ADK
+- `src/infrastructure/cache/url_cache.py` - Cache thread-safe con TTL 7 días
+
+**API Response actualizado**:
+```json
+{
+  "redirect_urls": ["https://backend/r/abc123"],
+  "zip_redirect_url": "https://backend/r/xyz789",
+  "invoices_grouped": [
+    {"invoice_number": "123", "pdfs": [{"url": "...", "type": "Copia Tributaria cf"}]}
+  ]
+}
+```
+
+---
+
+#### Resumen de la Rama
+
+| Categoría | Commits | Líneas Añadidas |
+|-----------|---------|-----------------|
+| Gemini 3 Flash | 3 | +50 |
+| PDF Filtering | 2 | +800 |
+| MCP Tools | 3 | +800 |
+| JSON Fixes | 4 | +300 |
+| URL Stability | 2 | +750 |
+| URL Redirect | 7 | +650 |
+| **Total** | **21** | **+3,350** |
+
+---
+
 ### Estadísticas del Release
 
 | Métrica | Valor |
 |---------|-------|
-| Total Commits | 237 |
-| Archivos Modificados | 521 |
-| Líneas Añadidas | +106,832 |
-| Líneas Eliminadas | -9,663 |
-| Features | 77 |
-| Fixes | 51 |
-| Refactors | 10 |
+| Total Commits | 258 |
+| Archivos Modificados | 560 |
+| Líneas Añadidas | +110,200 |
+| Líneas Eliminadas | -9,850 |
+| Features | 88 |
+| Fixes | 58 |
+| Refactors | 12 |
 
 ---
 
@@ -244,4 +405,4 @@ conversation_tracking:
 
 ---
 
-*Generado automáticamente el 2024-11-26*
+*Última actualización: 2025-02-04*
