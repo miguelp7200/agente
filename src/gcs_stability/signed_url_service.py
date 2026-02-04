@@ -104,6 +104,7 @@ class SignedURLService:
         blob_name: str,
         expiration_hours: Optional[int] = None,
         check_format: bool = True,
+        friendly_filename: Optional[str] = None,
     ) -> str:
         """
         Generar URL de descarga estable para un archivo.
@@ -113,6 +114,7 @@ class SignedURLService:
             blob_name: Nombre del archivo/blob
             expiration_hours: Horas de expiración (usa default si None)
             check_format: Si validar formato de la URL generada
+            friendly_filename: Nombre de archivo para descarga (Content-Disposition)
 
         Returns:
             URL firmada estable
@@ -121,12 +123,18 @@ class SignedURLService:
             Exception: Si falla la generación o validación
 
         Example:
-            >>> url = service.generate_download_url("bucket", "file.pdf")
+            >>> url = service.generate_download_url("bucket", "file.pdf", friendly_filename="factura.pdf")
         """
         start_time = datetime.now(timezone.utc)
 
         try:
             expiration = expiration_hours or self.default_expiration_hours
+
+            # Construir response_disposition si hay friendly_filename
+            response_disposition = None
+            if friendly_filename:
+                # Asegurar que el nombre está entre comillas para evitar problemas con espacios
+                response_disposition = f'attachment; filename="{friendly_filename}"'
 
             # Generar URL con mejoras de estabilidad
             signed_url = generate_stable_signed_url(
@@ -135,6 +143,7 @@ class SignedURLService:
                 expiration_hours=expiration,
                 service_account_path=self.service_account_path,
                 credentials=self.credentials,
+                response_disposition=response_disposition,
             )
 
             # Validar formato si se solicita

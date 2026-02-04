@@ -648,6 +648,7 @@ class RobustURLSigner:
             bucket_name: GCS bucket name
             blob_name: Object path within bucket
             expiration_minutes: URL validity in minutes
+            friendly_filename: Optional user-friendly filename for Content-Disposition
 
         Returns:
             Signed URL string or None if failed
@@ -664,13 +665,24 @@ class RobustURLSigner:
             canonical_uri = f"/{escaped_object_name}"
 
             # Get current UTC time
-            datetime_now = datetime.now(tz=datetime.timezone.utc)
+            datetime_now = datetime.now(tz=timezone.utc)
             request_timestamp = datetime_now.strftime("%Y%m%dT%H%M%SZ")
             datestamp = datetime_now.strftime("%Y%m%d")
 
             # Build credential scope
             client_email = self.service_account_email
-            credential_scope = f"{datestamp}/auto/storage/goog4_request"
+            
+            # FIX: Use correct region for each bucket to avoid SignatureDoesNotMatch
+            # agent-intelligence-zips is in us-central1
+            # miguel-test is configured as us-central1 in config.yaml
+            # We map explicitly to ensure correctness
+            bucket_locations = {
+                "agent-intelligence-zips": "us-central1",
+                "miguel-test": "us-central1",
+            }
+            region = bucket_locations.get(bucket_name, "us-central1")
+            
+            credential_scope = f"{datestamp}/{region}/storage/goog4_request"
             credential = f"{client_email}/{credential_scope}"
 
             # Build canonical headers
@@ -768,7 +780,8 @@ class RobustURLSigner:
 
             # Response contains base64-encoded signature bytes
             # Decode from base64, then convert to hex (GCS V4 expects hex signature)
-            signature_bytes = base64.b64decode(sign_response["signedBlob"])
+            signed_blob_b64 = sign_response["signedBlob"]
+            signature_bytes = base64.b64decode(signed_blob_b64)
             signature = binascii.hexlify(signature_bytes).decode()
 
             # Build final URL
@@ -1024,6 +1037,31 @@ class RobustURLSigner:
 
         for method_name, get_client_func in methods:
             try:
+                # SPECIAL CASE: Use manual signing for impersonation
+                # This fixes the /auto/ region issue and avoids SDK bugs
+                if method_name == "impersonation":
+                    signed_url = self._generate_signed_url_manual(
+                        bucket_name=bucket_name,
+                        blob_name=blob_name,
+                        expiration_minutes=total_expiration,
+                    )
+                    if signed_url:
+                        success = True
+                        logger.info(
+                            "Generated signed URL using manual impersonation method",
+                            extra={
+                                "bucket": bucket_name,
+                                "method": "manual_impersonation",
+                            },
+                        )
+                        self._circuit_breaker.record_success()
+                        break
+                    else:
+                        logger.warning(
+                            "Manual impersonation failed, falling back to SDK client",
+                            extra={"bucket": bucket_name},
+                        )
+
                 client = get_client_func()
                 if client is None:
                     logger.debug(

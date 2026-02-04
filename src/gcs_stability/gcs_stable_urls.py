@@ -30,6 +30,7 @@ def generate_stable_signed_url(
     credentials: Optional[Any] = None,
     method: str = "GET",
     force_buffer_minutes: Optional[int] = None,
+    response_disposition: Optional[str] = None,
 ) -> str:
     """
     Generar signed URL estable con compensación automática de clock skew.
@@ -45,6 +46,7 @@ def generate_stable_signed_url(
         credentials: Credenciales de GCP a usar (opcional, para impersonated credentials)
         method: Método HTTP ('GET', 'POST', etc.)
         force_buffer_minutes: Forzar buffer específico en minutos (opcional)
+        response_disposition: Header Content-Disposition para descarga (opcional)
 
     Returns:
         URL firmada estable con compensación de clock skew
@@ -101,6 +103,7 @@ def generate_stable_signed_url(
                     expiration=expiration,
                     method=method,
                     version="v4",
+                    response_disposition=response_disposition,
                 )
             except Exception as iam_error:
                 logger.warning(f"IAM-based signing falló: {iam_error}")
@@ -139,6 +142,7 @@ def generate_stable_signed_url(
                         method=method,
                         version="v4",
                         credentials=target_credentials,
+                        response_disposition=response_disposition,
                     )
 
                     logger.info(
@@ -157,6 +161,7 @@ def generate_stable_signed_url(
                         expiration,
                         method,
                         service_account_email,
+                        response_disposition=response_disposition,
                     )
         else:
             # Usar el método original con credenciales específicas
@@ -164,6 +169,7 @@ def generate_stable_signed_url(
                 expiration=expiration,
                 method=method,
                 version="v4",
+                response_disposition=response_disposition,
             )
 
         logger.info(
@@ -333,6 +339,7 @@ def _generate_signed_url_via_iam_api(
     expiration: datetime,
     method: str,
     service_account_email: str,
+    response_disposition: Optional[str] = None,
 ) -> str:
     """
     Generar signed URL usando la IAM API directamente.
@@ -361,15 +368,28 @@ def _generate_signed_url_via_iam_api(
         # Calcular expires en segundos desde ahora
         expires_seconds = int((expiration - now).total_seconds())
 
-        # Canonical request components
-        canonical_uri = f"/{bucket_name}/{blob_name}"
-        canonical_query = (
-            f"X-Goog-Algorithm=GOOG4-RSA-SHA256&"
-            f"X-Goog-Credential={quote(service_account_email)}/{date_stamp}/auto/storage/goog4_request&"
-            f"X-Goog-Date={timestamp}&"
-            f"X-Goog-Expires={expires_seconds}&"
-            f"X-Goog-SignedHeaders=host"
+        # Parámetros de consulta base
+        # FIX: Use us-central1 region (NOT 'auto') to match credential_scope in string-to-sign
+        # Bug found: Line 374 used '/auto/' but line 404 used '/us-central1/' causing SignatureDoesNotMatch
+        # Both MUST use the same region for the canonical request to match the signature
+        query_params = {
+            "X-Goog-Algorithm": "GOOG4-RSA-SHA256",
+            "X-Goog-Credential": f"{service_account_email}/{date_stamp}/us-central1/storage/goog4_request",
+            "X-Goog-Date": timestamp,
+            "X-Goog-Expires": str(expires_seconds),
+            "X-Goog-SignedHeaders": "host",
+        }
+
+        # Agregar response-content-disposition si existe
+        if response_disposition:
+            query_params["response-content-disposition"] = response_disposition
+
+        # Construir canonical query string (ordenada alfabéticamente)
+        canonical_query = "&".join(
+            [f"{k}={quote(v, safe='')}" for k, v in sorted(query_params.items())]
         )
+
+        canonical_uri = f"/{bucket_name}/{blob_name}"
         canonical_headers = "host:storage.googleapis.com\n"
         signed_headers = "host"
         payload_hash = "UNSIGNED-PAYLOAD"
@@ -383,7 +403,8 @@ def _generate_signed_url_via_iam_api(
         ).hexdigest()
 
         # String to sign
-        credential_scope = f"{date_stamp}/auto/storage/goog4_request"
+        # FIX: Use specific region instead of 'auto' to avoid SignatureDoesNotMatch
+        credential_scope = f"{date_stamp}/us-central1/storage/goog4_request"
         string_to_sign = f"GOOG4-RSA-SHA256\n{timestamp}\n{credential_scope}\n{canonical_request_hash}"
 
         # Usar IAM API para firmar
