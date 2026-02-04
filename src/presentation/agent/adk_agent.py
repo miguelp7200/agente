@@ -243,8 +243,9 @@ def generate_individual_download_links(
     count = len(pdf_urls_list)
     print(f"[TOOL] Processing {count} URLs", file=sys.stderr)
 
-    # Check ZIP threshold from config
+    # Check ZIP threshold and preview limit from config
     zip_threshold = config.get("pdf.zip.threshold", 5)
+    preview_limit = config.get("pdf.zip.preview_limit", 5)
 
     # [INTERCEPTOR AUTO-ZIP] LEGACY PATTERN (SYNCHRONOUS)
     # If count > threshold, create ZIP IMMEDIATELY and return ZIP URL
@@ -265,7 +266,7 @@ def generate_individual_download_links(
         if not invoice_numbers:
             print("[TOOL] ERROR: No invoice numbers extracted", file=sys.stderr)
             # Fallback: sign first 5 URLs
-            urls_to_sign = pdf_urls_list[:5]
+            urls_to_sign = pdf_urls_list[:preview_limit]
         else:
             print(
                 f"[TOOL] Creating ZIP for {len(invoice_numbers)} invoices (SYNC)...",
@@ -287,7 +288,7 @@ def generate_individual_download_links(
                     )
 
                     # Sign ONLY first 4 PDFs for preview
-                    urls_to_sign = pdf_urls_list[:5]
+                    urls_to_sign = pdf_urls_list[:preview_limit]
                     url_signer = container.url_signer
                     signed_urls = []
                     errors = []
@@ -360,13 +361,13 @@ def generate_individual_download_links(
                     )
                     print("[TOOL] Fallback: signing first 5 URLs", file=sys.stderr)
                     # Fallback: sign first 5 URLs
-                    urls_to_sign = pdf_urls_list[:5]
+                    urls_to_sign = pdf_urls_list[:preview_limit]
 
             except Exception as e:
                 print(f"[TOOL] ZIP exception: {str(e)}", file=sys.stderr)
                 print("[TOOL] Fallback: signing first 5 URLs", file=sys.stderr)
                 # Fallback: sign first 5 URLs
-                urls_to_sign = pdf_urls_list[:5]
+                urls_to_sign = pdf_urls_list[:preview_limit]
     else:
         # Below threshold: sign all URLs
         urls_to_sign = pdf_urls_list

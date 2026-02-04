@@ -1,13 +1,17 @@
 # ================================================================
-# Invoice Backend - Multi-Service Configuration
+# Invoice Backend - Centralized Configuration
 # ================================================================
-# This configuration file supports multiple services (invoice-backend, 
-# invoice-backend-test) using the same codebase with service-specific overrides.
+# This is the SINGLE SOURCE OF TRUTH for all configuration.
+# All settings are defined here - no .env file dependency.
 #
 # Configuration inheritance:
 # 1. Base defaults (this file)
-# 2. Environment variables (.env file)
-# 3. Service-specific overrides (via SERVICE_NAME env var)
+# 2. Service-specific overrides (via K_SERVICE env var in Cloud Run)
+#
+# Environment variables used (minimal, system-level only):
+# - K_SERVICE: Cloud Run service detection (auto-set by Cloud Run)
+# - PORT: Server port (auto-set by Cloud Run, default 8080)
+# - GOOGLE_GENAI_USE_VERTEXAI: Vertex AI flag (required for ADK)
 # ================================================================
 
 # ================================================================
