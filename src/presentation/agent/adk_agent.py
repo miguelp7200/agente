@@ -31,12 +31,31 @@ from toolbox_core import ToolboxSyncClient
 from src.container import get_container
 from src.core.config import get_config
 
+# Import URL cache for LLM corruption prevention
+from src.infrastructure.cache.url_cache import url_cache
+
 # ================================================================
 # Configuration and Initialization
 # ================================================================
 
 # Load configuration
 config = get_config()
+
+# Get backend base URL for redirect links (prevents LLM URL corruption)
+# Detect service name from Cloud Run environment variable K_SERVICE
+import os
+_service_name = os.environ.get("K_SERVICE", "invoice-backend")
+if _service_name == "invoice-backend-test":
+    BACKEND_BASE_URL = config.get(
+        "services.invoice-backend-test.cloud_run_url",
+        "https://invoice-backend-test-819133916464.us-central1.run.app"
+    )
+else:
+    BACKEND_BASE_URL = config.get(
+        "services.invoice-backend.cloud_run_url",
+        "https://invoice-backend-819133916464.us-central1.run.app"
+    )
+print(f"[CONFIG] Service: {_service_name}, Base URL: {BACKEND_BASE_URL}", file=sys.stderr)
 
 # Get service container
 container = get_container()
@@ -92,6 +111,79 @@ container.print_status()
 # ================================================================
 # URL Signing Tool - Agent can call this to sign gs:// URLs
 # ================================================================
+
+
+def _extract_invoice_info_from_gs_url(gs_url: str) -> dict:
+    """
+    Extract invoice number and PDF type from a gs:// URL.
+
+    Format: gs://bucket/descargas/{invoice_number}/{filename}.pdf
+    Filename examples: Copia_Tributaria_cf.pdf, Copia_Cedible_sf.pdf, Doc_Termico.pdf
+
+    Returns:
+        dict with invoice_number, pdf_type, and original gs_url
+    """
+    parts = gs_url.split("/")
+    invoice_number = None
+    pdf_type = "PDF"
+
+    if len(parts) >= 5 and parts[3] == "descargas":
+        invoice_number = parts[4]
+        # Extract PDF type from filename
+        if len(parts) >= 6:
+            filename = parts[-1].replace(".pdf", "").replace(".PDF", "")
+            # Clean up the type name for display
+            pdf_type = filename.replace("_", " ")
+
+    return {
+        "invoice_number": invoice_number,
+        "pdf_type": pdf_type,
+        "gs_url": gs_url
+    }
+
+
+def _group_urls_by_invoice(gs_urls: list, redirect_urls: list) -> list:
+    """
+    Group redirect URLs by invoice number.
+
+    Args:
+        gs_urls: List of original gs:// URLs (for extracting invoice info)
+        redirect_urls: List of corresponding redirect URLs
+
+    Returns:
+        List of invoice groups with structure:
+        [
+            {
+                "invoice_number": "12657575",
+                "pdfs": [
+                    {"url": "redirect_url", "type": "Copia Tributaria cf"},
+                    {"url": "redirect_url", "type": "Copia Cedible cf"}
+                ]
+            },
+            ...
+        ]
+    """
+    from collections import OrderedDict
+
+    # Use OrderedDict to preserve invoice order
+    invoices_dict = OrderedDict()
+
+    for gs_url, redirect_url in zip(gs_urls, redirect_urls):
+        info = _extract_invoice_info_from_gs_url(gs_url)
+        invoice_num = info["invoice_number"] or "unknown"
+
+        if invoice_num not in invoices_dict:
+            invoices_dict[invoice_num] = {
+                "invoice_number": invoice_num,
+                "pdfs": []
+            }
+
+        invoices_dict[invoice_num]["pdfs"].append({
+            "url": redirect_url,
+            "type": info["pdf_type"]
+        })
+
+    return list(invoices_dict.values())
 
 
 def generate_individual_download_links(
@@ -200,7 +292,12 @@ def generate_individual_download_links(
                     signed_urls = []
                     errors = []
 
-                    for gs_url in urls_to_sign:
+                    import time as time_module
+                    for i, gs_url in enumerate(urls_to_sign):
+                        # Add delay between requests to avoid signBlob rate limiting
+                        # Similar to generate_batch_signed_urls in robust_url_signer_solid.py
+                        if i > 0:
+                            time_module.sleep(0.05)  # 50ms delay between generations
                         try:
                             signed_url = url_signer.generate_signed_url(gs_url)
                             signed_urls.append(signed_url)
@@ -210,20 +307,50 @@ def generate_individual_download_links(
                             errors.append(error_msg)
                             print(f"[TOOL] {error_msg}", file=sys.stderr)
 
+                    # Store ZIP URL in cache and generate redirect URL
+                    zip_short_id = url_cache.store(zip_result["download_url"])
+                    zip_redirect_url = f"{BACKEND_BASE_URL}/r/{zip_short_id}"
+                    print(f"[TOOL] ZIP cached: {zip_short_id}", file=sys.stderr)
+                    print(f"[TOOL] ZIP redirect URL: {zip_redirect_url}", file=sys.stderr)
+
+                    # Store signed URLs in cache and generate redirect URLs
+                    redirect_urls = []
+                    for signed_url in signed_urls:
+                        short_id = url_cache.store(signed_url)
+                        redirect_url = f"{BACKEND_BASE_URL}/r/{short_id}"
+                        redirect_urls.append(redirect_url)
+                        print(f"[TOOL] PDF cached: {short_id} -> {redirect_url}", file=sys.stderr)
+
+                    # Log what we're returning
+                    print(f"[TOOL] Returning {len(redirect_urls)} PDF redirect URLs for preview", file=sys.stderr)
+                    for i, url in enumerate(redirect_urls):
+                        print(f"[TOOL]   PDF {i+1}: {url}", file=sys.stderr)
+
+                    # Group URLs by invoice for frontend display
+                    invoices_grouped = _group_urls_by_invoice(urls_to_sign, redirect_urls)
+                    print(f"[TOOL] Grouped into {len(invoices_grouped)} invoices", file=sys.stderr)
+
                     # Return immediately with ZIP URL + first 5 signed URLs
                     return {
                         "success": True,
                         "signed_urls": signed_urls,
+                        "redirect_urls": redirect_urls,  # LLM-safe short URLs
+                        "invoices_grouped": invoices_grouped,  # Grouped by invoice for frontend
                         "zip_url": zip_result["download_url"],
+                        "zip_redirect_url": zip_redirect_url,  # LLM-safe ZIP URL
+                        "pdf_preview_links": redirect_urls,  # Alias for clarity
                         "message": (
                             f"CRITICAL: Se encontraron {count} facturas. "
-                            f"DEBES mostrar al usuario el enlace de "
-                            f"descarga ZIP como método principal. "
-                            f"Las signed_urls son SOLO para vista previa "
-                            f"de las primeras 5 facturas."
+                            f"DEBES mostrar al usuario: "
+                            f"1) El enlace ZIP (zip_redirect_url) como descarga principal. "
+                            f"2) Los enlaces de vista previa (redirect_urls/pdf_preview_links) "
+                            f"para las primeras facturas. "
+                            f"USA SIEMPRE los campos con 'redirect' en el nombre, "
+                            f"NO uses signed_urls ni zip_url directamente."
                         ),
                         "zip_auto_created": True,
                         "original_pdf_count": count,
+                        "total_invoices": len(invoices_grouped),
                         "errors": errors if errors else None,
                     }
                 else:
@@ -251,7 +378,12 @@ def generate_individual_download_links(
     signed_urls = []
     errors = []
 
-    for gs_url in urls_to_sign:
+    import time as time_module
+    for i, gs_url in enumerate(urls_to_sign):
+        # Add delay between requests to avoid signBlob rate limiting
+        # Similar to generate_batch_signed_urls in robust_url_signer_solid.py
+        if i > 0:
+            time_module.sleep(0.05)  # 50ms delay between generations
         try:
             signed_url = url_signer.generate_signed_url(gs_url)
             signed_urls.append(signed_url)
@@ -261,12 +393,31 @@ def generate_individual_download_links(
             errors.append(error_msg)
             print(f"[TOOL] ERROR: {error_msg}", file=sys.stderr)
 
+    # Store signed URLs in cache and generate redirect URLs
+    redirect_urls = []
+    for signed_url in signed_urls:
+        short_id = url_cache.store(signed_url)
+        redirect_url = f"{BACKEND_BASE_URL}/r/{short_id}"
+        redirect_urls.append(redirect_url)
+        print(f"[TOOL] URL cached: {short_id}", file=sys.stderr)
+
+    # Group URLs by invoice for frontend display
+    invoices_grouped = _group_urls_by_invoice(urls_to_sign, redirect_urls)
+    print(f"[TOOL] Grouped into {len(invoices_grouped)} invoices", file=sys.stderr)
+
     result = {
         "success": len(signed_urls) > 0,
         "download_urls": signed_urls,
+        "redirect_urls": redirect_urls,  # LLM-safe short URLs
+        "invoices_grouped": invoices_grouped,  # Grouped by invoice for frontend
         "total": len(pdf_urls_list),
+        "total_invoices": len(invoices_grouped),
         "signed": len(signed_urls),
         "failed": len(errors),
+        "message": (
+            "USA redirect_urls EN LUGAR de download_urls para mostrar al usuario. "
+            "Las redirect_urls son más cortas y no se corrompen."
+        ),
     }
 
     if errors:
@@ -274,7 +425,7 @@ def generate_individual_download_links(
 
     signed_count = result["signed"]
     total_count = result["total"]
-    msg = f"[TOOL] Result: {signed_count}/{total_count} signed"
+    msg = f"[TOOL] Result: {signed_count}/{total_count} signed, {len(redirect_urls)} cached"
     print(msg, file=sys.stderr)
     return result
 
@@ -377,12 +528,22 @@ def create_zip_package(
         if zip_metrics:
             conversation_tracker.update_zip_metrics(zip_metrics)
 
+        # Store ZIP URL in cache and generate redirect URL
+        zip_short_id = url_cache.store(zip_package.download_url)
+        zip_redirect_url = f"{BACKEND_BASE_URL}/r/{zip_short_id}"
+        print(f"[ZIP] URL cached: {zip_short_id}", file=sys.stderr)
+
         return {
             "success": True,
             "package_id": zip_package.package_id,
             "download_url": zip_package.download_url,
+            "redirect_url": zip_redirect_url,  # LLM-safe short URL
             "file_size_mb": zip_package.file_size_mb,
             "pdf_count": zip_package.pdf_count,
+            "message": (
+                "USA redirect_url EN LUGAR de download_url para mostrar al usuario. "
+                "La redirect_url es más corta y no se corrompe."
+            ),
         }
 
     except Exception as e:
@@ -533,34 +694,42 @@ CRITICAL INSTRUCTIONS:
      * message: Explanation of what was done
    
    Step 3: Show to user (CRITICAL FORMAT - FOLLOW EXACTLY):
-   
-   **ALWAYS CHECK IF zip_url FIELD EXISTS IN TOOL RESPONSE**
-   
-   If zip_url is present (meaning count > 2):
-   
+
+   **USE redirect_urls AND zip_redirect_url (NOT signed_urls/zip_url)**
+
+   The tool returns BOTH formats:
+   - signed_urls/zip_url: Long GCS URLs (DO NOT USE - get corrupted)
+   - redirect_urls/zip_redirect_url: Short redirect URLs (USE THESE!)
+
+   If zip_redirect_url is present (meaning count > 2):
+
    EXAMPLE FORMAT (FOLLOW EXACTLY - USE MARKDOWN LINKS):
    ```
    Encontré 278 facturas para el cliente.
-   
+
    📦 **Descarga Completa:**
-   [📥 Descargar ZIP con todas las 278 facturas](https://storage.googleapis.com/...)
-   
-   📄 Vista previa (primeras 2 facturas):
-   
+   [📥 Descargar ZIP con todas las 278 facturas](https://invoice-backend.../r/abc12345)
+
+   📄 Vista previa (primeras 5 facturas):
+
    **Factura 0105635394:**
-   - [Copia Cedible con Fondo](https://storage.googleapis.com/...)
-   - [Copia Tributaria con Fondo](https://storage.googleapis.com/...)
+   - [Copia Cedible con Fondo](https://invoice-backend.../r/def67890)
+   - [Copia Tributaria con Fondo](https://invoice-backend.../r/ghi11111)
+
+   **Factura 0105635395:**
+   - [Copia Cedible con Fondo](https://invoice-backend.../r/jkl22222)
    ```
-   
+
    **CRITICAL FORMATTING RULES:**
    - ALWAYS use Markdown link format: [texto](url)
-   - NEVER show raw URLs as plain text
-   - NEVER use format like "📅 https://..." - this is WRONG
-   - The ZIP link MUST be clickable: [Descargar ZIP](url)
-   - Each PDF link MUST be clickable: [Nombre del PDF](url)
-   
-   **CRITICAL**: The zip_url is the MAIN download link. The signed_urls
-   are ONLY for preview. User must see the ZIP link prominently.
+   - USE redirect_urls for PDF links (from the tool response)
+   - USE zip_redirect_url for ZIP link (from the tool response)
+   - NEVER use signed_urls or zip_url directly
+   - Each PDF in redirect_urls MUST be shown as clickable link
+   - The ZIP link MUST be clickable: [Descargar ZIP](zip_redirect_url)
+
+   **CRITICAL**: Show ALL links from redirect_urls array as clickable links.
+   The user needs to see and click on the PDF preview links.
    
    DO NOT show individual PDF links as the primary download method when
    zip_url is present. DO NOT say "aquí están tus facturas" and only show
@@ -569,13 +738,22 @@ CRITICAL INSTRUCTIONS:
    If zip_url is NOT present (meaning count <= 2):
    Show individual PDF links normally (no ZIP needed).
 
-3. URL FORMATTING (MANDATORY):
+3. URL FORMATTING (MANDATORY - CRITICAL FOR DOWNLOADS TO WORK):
    ALL URLs in your response MUST be formatted as Markdown links.
-   
-   CORRECT: [Descargar archivo](https://storage.googleapis.com/...)
-   WRONG: https://storage.googleapis.com/...
-   WRONG: 📅 https://storage.googleapis.com/...
-   
+
+   **IMPORTANT: Use redirect_urls instead of signed_urls/download_urls**
+
+   Tool responses now include BOTH:
+   - signed_urls/download_urls: Raw GCS URLs (LONG - prone to corruption)
+   - redirect_urls/zip_redirect_url: Short redirect URLs (SAFE - use these!)
+
+   ALWAYS prefer redirect_url/redirect_urls over download_url/signed_urls.
+   The redirect URLs are short (like https://backend/r/abc12345) and won't
+   be corrupted during text formatting.
+
+   CORRECT: [Descargar archivo](https://invoice-backend.../r/abc12345)
+   WRONG: https://storage.googleapis.com/... (raw signed URL - gets corrupted)
+
    This applies to ALL URLs - ZIP files, PDFs, any download link.
 
 4. PDF TYPE FILTERING (MANDATORY):
