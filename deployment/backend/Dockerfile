@@ -25,7 +25,6 @@ COPY my-agents/ ./my-agents/
 COPY mcp-toolbox/ ./mcp-toolbox/
 COPY src/ ./src/
 COPY config/ ./config/
-COPY config.py ./
 COPY custom_server.py ./
 COPY deprecated/ ./deprecated/
 COPY .env ./
