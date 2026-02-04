@@ -130,24 +130,29 @@ if [ ! -d "my-agents" ]; then
 fi
 
 # 7. Iniciar servidor apropiado según entorno
+# Using custom_server.py which extends ADK with /r/{url_id} redirect endpoint
+# This prevents LLM corruption of signed URLs by using short redirect URLs
+
 if [ "$IS_CLOUD_RUN" = "true" ] || [ "$PORT" = "8080" ]; then
-    # Cloud Run: ADK simple con PDF server en background
-    log "🚀 Iniciando ADK en puerto $PORT (Cloud Run)..."
+    # Cloud Run: Custom server with redirect endpoint
+    log "🚀 Iniciando Custom Server en puerto $PORT (Cloud Run)..."
     log "🌐 CORS permitido para todos los orígenes en producción"
-    
+    log "🔗 Endpoint de redirección habilitado: /r/{url_id}"
+
     # Trap para cleanup
     trap 'log "🛑 Deteniendo servicios..."; kill $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
-    
-    # Ejecutar ADK directamente (este será el proceso principal)
-    exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
+
+    # Ejecutar custom_server.py (extiende ADK con redirect endpoint)
+    exec python custom_server.py --host=0.0.0.0 --port=$PORT --agents-dir=my-agents --allow-origins="*"
 else
-    # Desarrollo local: ADK tradicional
-    log "🚀 Iniciando ADK API Server en puerto $PORT (desarrollo local)..."
+    # Desarrollo local: Custom server con redirect endpoint
+    log "🚀 Iniciando Custom Server en puerto $PORT (desarrollo local)..."
     log "🌐 CORS permitido para todos los orígenes en producción"
+    log "🔗 Endpoint de redirección habilitado: /r/{url_id}"
 
     # Trap para cleanup en caso de señales (desarrollo local)
     trap 'log "🛑 Deteniendo servicios..."; kill $TOOLBOX_PID 2>/dev/null || true; exit 0' SIGTERM SIGINT
 
-    # Ejecutar ADK (este será el proceso principal en desarrollo local)
-    exec adk api_server --host=0.0.0.0 --port=$PORT my-agents --allow_origins="*"
+    # Ejecutar custom_server.py (extiende ADK con redirect endpoint)
+    exec python custom_server.py --host=0.0.0.0 --port=$PORT --agents-dir=my-agents --allow-origins="*"
 fi
