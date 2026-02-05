@@ -3,7 +3,7 @@ FROM python:3.11-slim
 # Metadata
 LABEL maintainer="victor.calle@gasco.cl"
 LABEL description="Invoice Chatbot Backend - ADK + PDF Server + MCP"
-LABEL version="1.0.0"
+LABEL version="1.1.0"
 
 WORKDIR /app
 
