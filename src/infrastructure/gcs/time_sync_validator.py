@@ -4,15 +4,29 @@ Time Synchronization Validator Implementation
 Verifies time synchronization with Google Cloud Storage to prevent
 SignatureDoesNotMatch errors caused by clock skew.
 
+Features:
+- NTP synchronization via ntplib (local development)
+- HTTP HEAD fallback (Cloud Run / when NTP fails)
+- Hybrid approach: NTP for precision, HTTP for availability
+
 Based on Byterover memory layer, signature mismatch errors are related to
 temporal differences that resolve after 10-15 minutes.
 """
 
 import logging
+import os
 import requests
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from typing import Optional, Tuple
+
+# NTP support - optional, fails gracefully
+try:
+    import ntplib
+
+    NTP_AVAILABLE = True
+except ImportError:
+    NTP_AVAILABLE = False
 
 from src.core.config import get_config
 from src.domain.interfaces.time_sync import ITimeSyncValidator
@@ -38,6 +52,17 @@ class TimeSyncValidator(ITimeSyncValidator):
         )
         self.default_timeout = int(self.config.get("gcs.time_sync.check_timeout", 5))
 
+        # NTP configuration
+        self.ntp_server = self.config.get("gcs.ntp.server", "time.google.com")
+        self.ntp_timeout = int(self.config.get("gcs.ntp.timeout", 5))
+        self.ntp_local_only = self.config.get("gcs.ntp.local_only", True)
+
+        # Detect Cloud Run environment
+        self.is_cloud_run = (
+            os.environ.get("IS_CLOUD_RUN", "").lower() == "true"
+            or os.environ.get("K_SERVICE") is not None
+        )
+
         # Buffer times (minutes)
         self.buffer_clock_skew = int(
             self.config.get("gcs.buffer_time.clock_skew_detected", 5)
@@ -56,13 +81,127 @@ class TimeSyncValidator(ITimeSyncValidator):
                     "buffer_clock_skew": self.buffer_clock_skew,
                     "buffer_failed": self.buffer_failed,
                     "buffer_synced": self.buffer_synced,
+                    "ntp_available": NTP_AVAILABLE,
+                    "ntp_server": self.ntp_server,
+                    "is_cloud_run": self.is_cloud_run,
                 }
             },
         )
 
+    def verify_sync_ntp(
+        self, timeout: Optional[int] = None
+    ) -> Tuple[Optional[bool], Optional[float]]:
+        """
+        Verify time synchronization using NTP protocol.
+
+        This provides more precise time synchronization than HTTP HEAD,
+        but requires UDP port 123 which may be blocked in some environments.
+
+        Args:
+            timeout: NTP request timeout in seconds (None = use config default)
+
+        Returns:
+            Tuple of (sync_status, offset_seconds):
+            - sync_status: True if synced, False if skewed, None if failed
+            - offset_seconds: Time offset in seconds (positive = local ahead)
+        """
+        if not NTP_AVAILABLE:
+            logger.debug("NTP not available - ntplib not installed")
+            return None, None
+
+        # Skip NTP in Cloud Run if configured (UDP port 123 often blocked)
+        if self.is_cloud_run and self.ntp_local_only:
+            logger.debug(
+                "Skipping NTP in Cloud Run environment",
+                extra={"context": {"ntp_local_only": self.ntp_local_only}},
+            )
+            return None, None
+
+        if timeout is None:
+            timeout = self.ntp_timeout
+
+        try:
+            client = ntplib.NTPClient()
+            response = client.request(self.ntp_server, version=3, timeout=timeout)
+
+            # offset is the time difference: positive = local clock is ahead
+            offset = response.offset
+
+            logger.info(
+                "NTP sync check completed",
+                extra={
+                    "context": {
+                        "ntp_server": self.ntp_server,
+                        "offset_seconds": round(offset, 3),
+                        "delay_seconds": round(response.delay, 3),
+                        "stratum": response.stratum,
+                        "threshold_seconds": self.threshold_seconds,
+                    }
+                },
+            )
+
+            # Check if synchronized (offset within threshold)
+            if abs(offset) > self.threshold_seconds:
+                logger.warning(
+                    "NTP clock skew detected",
+                    extra={
+                        "context": {
+                            "offset_seconds": round(offset, 3),
+                            "threshold_seconds": self.threshold_seconds,
+                            "severity": "high" if abs(offset) > 300 else "medium",
+                        }
+                    },
+                )
+                return False, offset
+
+            logger.info(
+                "NTP time synchronized successfully",
+                extra={"context": {"offset_seconds": round(offset, 3)}},
+            )
+            return True, offset
+
+        except Exception as e:
+            logger.warning(
+                "NTP sync check failed - will fallback to HTTP",
+                extra={
+                    "context": {
+                        "ntp_server": self.ntp_server,
+                        "error_type": type(e).__name__,
+                        "error_message": str(e),
+                    }
+                },
+            )
+            return None, None
+
     def verify_sync(self, timeout: Optional[int] = None) -> Optional[bool]:
         """
-        Verify time synchronization with Google Cloud
+        Verify time synchronization using hybrid approach.
+
+        Strategy:
+        1. Try NTP first (more precise) if available and not in Cloud Run
+        2. Fall back to HTTP HEAD if NTP fails or unavailable
+
+        Args:
+            timeout: Request timeout in seconds (None = use config default)
+
+        Returns:
+            True: Time synchronized (difference < threshold)
+            False: Clock skew detected (difference > threshold)
+            None: Verification failed (network error, etc.)
+        """
+        # Try NTP first (local development)
+        ntp_result, ntp_offset = self.verify_sync_ntp(timeout)
+        if ntp_result is not None:
+            return ntp_result
+
+        # Fallback to HTTP HEAD (Cloud Run or NTP failure)
+        return self._verify_sync_http(timeout)
+
+    def _verify_sync_http(self, timeout: Optional[int] = None) -> Optional[bool]:
+        """
+        Verify time synchronization using HTTP HEAD request.
+
+        This is the fallback method when NTP is unavailable.
 
         Args:
             timeout: HTTP request timeout in seconds (None = use config default)
@@ -78,7 +217,7 @@ class TimeSyncValidator(ITimeSyncValidator):
         try:
             # Get time from Google Storage using HEAD request (minimal overhead)
             logger.debug(
-                "Starting time synchronization check",
+                "Starting HTTP time synchronization check",
                 extra={"context": {"timeout": timeout}},
             )
 

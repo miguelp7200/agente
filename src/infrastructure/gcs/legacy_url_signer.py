@@ -50,7 +50,10 @@ class LegacyURLSigner(IURLSigner):
         )
 
     def generate_signed_url(
-        self, gs_url: str, expiration: Optional[timedelta] = None
+        self,
+        gs_url: str,
+        expiration: Optional[timedelta] = None,
+        friendly_filename: Optional[str] = None,
     ) -> str:
         """
         Generate signed URL using basic implementation (no clock-skew handling)
@@ -58,6 +61,8 @@ class LegacyURLSigner(IURLSigner):
         Args:
             gs_url: GCS path (gs://bucket/path/to/file.pdf)
             expiration: URL expiration duration (defaults to configured value)
+            friendly_filename: Optional user-friendly filename for downloads.
+                              (Note: Not implemented in legacy signer for simplicity)
 
         Returns:
             Signed HTTPS URL
@@ -84,10 +89,22 @@ class LegacyURLSigner(IURLSigner):
             bucket = self.client.bucket(bucket_name)
             blob = bucket.blob(blob_name)
 
+            # Build sign kwargs
+            sign_kwargs = {
+                "expiration": expiration_time,
+                "method": "GET",
+                "version": "v4",
+            }
+
+            # Add friendly filename as response_disposition if provided
+            if friendly_filename:
+                safe_filename = friendly_filename.replace('"', '\\"')
+                sign_kwargs["response_disposition"] = (
+                    f'attachment; filename="{safe_filename}"'
+                )
+
             # Generate signed URL (simple v4 signing)
-            signed_url = blob.generate_signed_url(
-                expiration=expiration_time, method="GET", version="v4"
-            )
+            signed_url = blob.generate_signed_url(**sign_kwargs)
 
             return signed_url
 

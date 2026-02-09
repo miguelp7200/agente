@@ -1,13 +1,17 @@
 # ================================================================
-# Invoice Backend - Multi-Service Configuration
+# Invoice Backend - Centralized Configuration
 # ================================================================
-# This configuration file supports multiple services (invoice-backend, 
-# invoice-backend-test) using the same codebase with service-specific overrides.
+# This is the SINGLE SOURCE OF TRUTH for all configuration.
+# All settings are defined here - no .env file dependency.
 #
 # Configuration inheritance:
 # 1. Base defaults (this file)
-# 2. Environment variables (.env file)
-# 3. Service-specific overrides (via SERVICE_NAME env var)
+# 2. Service-specific overrides (via K_SERVICE env var in Cloud Run)
+#
+# Environment variables used (minimal, system-level only):
+# - K_SERVICE: Cloud Run service detection (auto-set by Cloud Run)
+# - PORT: Server port (auto-set by Cloud Run, default 8080)
+# - GOOGLE_GENAI_USE_VERTEXAI: Vertex AI flag (required for ADK)
 # ================================================================
 
 # ================================================================
@@ -88,7 +92,7 @@ gasco:
 # Vertex AI Configuration
 # ================================================================
 vertex_ai:
-  model: gemini-2.5-flash
+  model: gemini-3-flash-preview
   temperature: 0.3
   max_workers: 3
   
@@ -172,10 +176,30 @@ gcs:
     validate_environment_on_init: true
     default_expiration_minutes: 60
   
-  # Time Synchronization
+  # Time Synchronization (Hybrid NTP + HTTP HEAD)
   time_sync:
     threshold_seconds: 60  # Max acceptable time difference
     check_timeout: 5       # Timeout for time sync check
+    
+    # NTP Configuration (local development only)
+    ntp:
+      server: time.google.com    # NTP server to use
+      timeout_seconds: 5         # NTP query timeout
+      local_only: true           # Only use NTP in local dev (not Cloud Run)
+      enabled: true              # Enable NTP sync verification
+      
+    # HTTP HEAD fallback (for Cloud Run where NTP may not work)
+    http_head:
+      url: https://storage.googleapis.com   # URL for HTTP HEAD time check
+      timeout_seconds: 5                     # HTTP HEAD timeout
+  
+  # Circuit Breaker Configuration (prevent cascade failures)
+  circuit_breaker:
+    enabled: true                 # Enable circuit breaker
+    failure_threshold: 5          # Failures before opening circuit
+    window_seconds: 60            # Time window for counting failures
+    recovery_timeout_seconds: 120 # Time before attempting half-open
+    half_open_max_calls: 3        # Max test calls in half-open state
   
   # Buffer Time by Clock Skew Status (minutes)
   buffer_time:
@@ -192,12 +216,16 @@ gcs:
     request_timeout: 30
     jitter_enabled: true
     
-    # Error patterns that trigger retry (signature and timeout errors)
-    error_patterns:
+    # Non-retriable error patterns (fail fast - these won't resolve with retries)
+    # SignatureDoesNotMatch indicates canonical request mismatch, not transient issue
+    non_retriable_patterns:
       - signaturedoesnotmatch
       - signature does not match
       - the request signature we calculated does not match
       - invalid signature
+    
+    # Retriable error patterns (transient issues that may resolve)
+    error_patterns:
       - expired signature
       - access denied
       - invalid unicode

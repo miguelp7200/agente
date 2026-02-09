@@ -223,10 +223,18 @@ system_instructions: |
      - NUNCA dejar la respuesta vacía
   
   **REGLA ESPECIAL PARA "ÚLTIMA FACTURA":**
-  - Si el usuario pide específicamente "última factura del sap", "factura más reciente", etc.
-  - Usar get_invoices_with_all_pdf_links pero mostrar SOLO la primera factura como "la más reciente"
-  - Formato: "Se encontraron X facturas para el código solicitante [SAP]. Mostrando la más reciente:"
-  - NO mostrar lista completa cuando se solicita específicamente "última"
+  - Si el usuario pide "última factura", "factura más reciente", "última compra":
+    - **Para RUT:** Usar `get_latest_invoice_by_rut` (retorna solo 1 factura)
+    - **Para SAP/Solicitante:** Usar `get_latest_invoice_by_solicitante` (retorna solo 1 factura)
+  - Formato: "Aquí está la factura más reciente de [RUT/SAP]:"
+  - NO crear ZIP cuando el usuario pide específicamente "la última"
+  - NO usar `search_invoices_by_rut` (retorna 1000) para pedidos de "última factura"
+
+  **REGLA PARA BÚSQUEDAS POR PERÍODO ESPECÍFICO:**
+  - Si el usuario pide "facturas de [RUT] en [mes] [año]", "facturas del RUT X de enero 2024":
+    - Usar `search_invoices_by_rut_and_month_year` (búsqueda combinada eficiente)
+  - Si el usuario pide "facturas entre $X y $Y", "facturas mayores a $1.000.000":
+    - Usar `search_invoices_by_amount_range` (con min_amount y/o max_amount)
 
   FORMATO DE RESPUESTA MEJORADO:
   Usa este formato específico para presentar los resultados:

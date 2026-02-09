@@ -126,7 +126,7 @@ if ! gcloud run deploy "$SERVICE_NAME" \
     --project "$PROJECT_ID" \
     --allow-unauthenticated \
     --port 8080 \
-    --set-env-vars "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true" \
+    --set-env-vars "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=global,IS_CLOUD_RUN=true" \
     --service-account "$SERVICE_ACCOUNT" \
     --memory 2Gi \
     --cpu 2 \
@@ -152,7 +152,7 @@ if SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" --region="$REGION"
         --project "$PROJECT_ID" \
         --allow-unauthenticated \
         --port 8080 \
-        --set-env-vars "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=us-central1,IS_CLOUD_RUN=true,CLOUD_RUN_SERVICE_URL=$SERVICE_URL" \
+        --set-env-vars "GOOGLE_CLOUD_PROJECT_READ=datalake-gasco,GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco,GOOGLE_CLOUD_LOCATION=global,IS_CLOUD_RUN=true,CLOUD_RUN_SERVICE_URL=$SERVICE_URL" \
         --service-account "$SERVICE_ACCOUNT" \
         --memory 2Gi \
         --cpu 2 \

@@ -1,8 +1,8 @@
 # Arquitectura del Sistema: Invoice Chatbot Backend
 
-**Proyecto**: Invoice Chatbot - Arquitectura Dual-Project GCP  
-**Fecha**: Octubre 2025  
-**Versión**: 1.1 (Corregida)
+**Proyecto**: Invoice Chatbot - Arquitectura Dual-Project GCP
+**Fecha**: Febrero 2026
+**Version**: 1.1.0
 
 ---
 
@@ -12,54 +12,57 @@
 graph LR
     U[Usuario]
     F[Frontend Web]
-    
+
     subgraph GCP["GOOGLE CLOUD PLATFORM"]
         direction LR
-        
+
         subgraph CloudRun["Cloud Run us-central1"]
             direction TB
-            API[FastAPI :8080]
+            API[Custom Server :8080]
             AGENT[ADK Agent]
-            TOOLS[MCP Toolbox 32 Tools]
+            CACHE[URL Cache]
+            TOOLS[MCP Toolbox 49 Tools]
         end
-        
-        AI[Gemini 2.0 Vertex AI]
-        
+
+        AI[Gemini 3 Flash Vertex AI]
+
         subgraph READ["datalake-gasco READ-ONLY"]
             direction TB
             BQ_R[(BigQuery pdfs_modelo)]
             GCS_R[(Storage miguel-test)]
         end
-        
+
         subgraph WRITE["agent-intelligence-gasco WRITE"]
             direction TB
             BQ_W[(BigQuery zip_ops)]
             GCS_W[(Storage zips)]
         end
     end
-    
+
     U -->|1 Query| F
-    F -->|2 POST| API
+    F -->|2 POST /run| API
     API --> AGENT
     AGENT <-->|3 Analiza| AI
     AGENT --> TOOLS
-    
+
     TOOLS -->|4 SELECT| BQ_R
     BQ_R -.->|URLs gs| GCS_R
-    
+
     AGENT -->|5a Individual| GCS_R
     AGENT -->|5b ZIP| GCS_W
+    AGENT -->|5c Cache| CACHE
     AGENT -->|6 Logs| BQ_W
-    
-    GCS_R -.->|7 Links| F
-    GCS_W -.->|7 ZIP URL| F
-    F -->|8 Download| U
-    
+
+    CACHE -->|7 /r/id| F
+    F -->|8 Proxy| CACHE
+    CACHE -.->|9 Signed URL| U
+
     style U fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
     style F fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
     style API fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#fff
     style AGENT fill:#E91E63,stroke:#AD1457,stroke-width:3px,color:#fff
     style AI fill:#E91E63,stroke:#AD1457,stroke-width:3px,color:#fff
+    style CACHE fill:#00E676,stroke:#00C853,stroke-width:2px,color:#000
     style TOOLS fill:#00BCD4,stroke:#006064,stroke-width:2px,color:#fff
     style BQ_R fill:#FFC107,stroke:#F57F00,stroke-width:2px,color:#000
     style GCS_R fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
@@ -73,7 +76,7 @@ graph LR
 
 ---
 
-## Explicación del Flujo (Paso a Paso)
+## Explicacion del Flujo (Paso a Paso)
 
 ### Flujo Principal
 
@@ -82,54 +85,54 @@ graph LR
 - Ejemplo: _"Dame las facturas del RUT 12345678-9"_
 - El frontend captura esta consulta
 
-#### **Paso 2: POST (Envío de Request)**
-- El frontend envía la consulta al backend
-- Método: `POST /callback`
-- Servidor: FastAPI en Cloud Run puerto 8080
+#### **Paso 2: POST /run (Envio de Request)**
+- El frontend envia la consulta al backend
+- Metodo: `POST /run`
+- Servidor: Custom Server (FastAPI) en Cloud Run puerto 8080
 
 #### **Paso 3: Analiza (Procesamiento con IA)**
-- El ADK Agent envía la consulta a **Gemini 2.0** (Vertex AI)
-- Gemini **analiza la intención** del usuario
-- Decide qué herramientas usar para responder
-- Ejemplo: Identifica que necesita buscar facturas por RUT
+- El ADK Agent envia la consulta a **Gemini 3 Flash** (Vertex AI)
+- Gemini **analiza la intencion** del usuario
+- Decide que herramientas usar para responder
 
 #### **Paso 4: SELECT (Consulta a Base de Datos)**
 - El **MCP Toolbox** ejecuta una consulta SQL en BigQuery
 - Base de datos: `pdfs_modelo` en proyecto `datalake-gasco`
-- Ejemplo: `SELECT * FROM pdfs_modelo WHERE Rut = '12345678-9'`
-- Retorna información de las facturas encontradas (número, fecha, URLs de PDFs)
+- Retorna informacion de las facturas encontradas (numero, fecha, URLs de PDFs)
 
 #### **Paso 5a: Individual (Pocas Facturas)**
-- Si se encuentran **menos de 5 facturas**
-- El sistema genera **URLs firmadas individuales** para cada PDF
-- URLs temporales válidas por **1 hora**
-- Acceso directo a PDFs en Cloud Storage `miguel-test`
+- Si se encuentran **2 o menos facturas** (configurable en `pdf.zip.threshold`)
+- El sistema genera **signed URLs** para cada PDF
+- Las signed URLs se almacenan en el **URL Cache** con IDs cortos de 8 caracteres
+- El agente devuelve redirect URLs: `/r/{url_id}`
 
 #### **Paso 5b: ZIP (Muchas Facturas)**
-- Si se encuentran **5 o más facturas**
-- El sistema **descarga todos los PDFs** y los empaqueta en un archivo ZIP
+- Si se encuentran **mas de 2 facturas**
+- El sistema descarga los PDFs y los empaqueta en un archivo ZIP
 - Sube el ZIP a Cloud Storage `agent-intelligence-zips`
-- Genera URL firmada del ZIP válida por **24 horas**
-- Más eficiente para descargas masivas
+- Genera signed URL del ZIP y la almacena en el **URL Cache**
+
+#### **Paso 5c: URL Cache**
+- Todas las signed URLs se almacenan en cache con IDs de 8 caracteres
+- Esto evita que el LLM corrompa las firmas hex de 512 caracteres
+- TTL: 7 dias
 
 #### **Paso 6: Logs (Registro de Operaciones)**
-- El sistema guarda registro de la operación en BigQuery
-- Tablas de log:
-  - `zip_operations.zip_packages` - Información de ZIPs generados
+- El sistema guarda registro en BigQuery:
+  - `zip_operations.zip_packages` - ZIPs generados
   - `zip_operations.extraction_logs` - Historial de consultas
-  - `chat_analytics.conversation_logs` - Conversaciones completas
-- Sirve para auditoría, análisis y debugging
+  - `chat_analytics.conversation_logs` - Conversaciones con tokens
 
-#### **Paso 7: Links / ZIP URL (Retorno de URLs)**
-- El sistema retorna las URLs al frontend
-- Caso Individual (5a): Lista de URLs de PDFs individuales
-- Caso ZIP (5b): Una URL del archivo ZIP completo
-- El frontend muestra botones de descarga al usuario
+#### **Paso 7-8: Redirect URLs (Descarga Segura)**
+- El agente retorna URLs cortas al frontend: `https://backend.../r/abc12345`
+- Los PDFs se agrupan por numero de factura (`invoices_grouped`)
+- El frontend muestra botones por factura (Tributaria, Cedible, etc.)
+- Al hacer clic, el frontend llama a su proxy `/api/redirect/{id}`
+- El proxy autenticado resuelve la signed URL real desde el cache
 
-#### **Paso 8: Download (Descarga del Usuario)**
-- El usuario hace clic en el botón de descarga
-- Descarga los PDFs directamente o el archivo ZIP
-- URLs firmadas garantizan acceso seguro y temporal
+#### **Paso 9: Download (Descarga del Usuario)**
+- El usuario recibe el PDF/ZIP directamente
+- Las signed URLs garantizan acceso seguro y temporal (24 horas)
 
 ---
 
@@ -139,105 +142,84 @@ graph LR
 Persona que utiliza el chatbot para buscar y descargar facturas.
 
 ### **Frontend Web**
-Interfaz web donde el usuario interactúa con el chatbot (React, Vue, etc.).
+Interfaz web Next.js donde el usuario interactua con el chatbot.
 
 ### **Cloud Run us-central1**
 Servicio de Google Cloud que hospeda el backend del chatbot.
-- **Ubicación**: us-central1 (Iowa, USA)
+- **Ubicacion**: us-central1 (Iowa, USA)
 - **Tipo**: Contenedor Docker serverless
-- **Escalamiento**: Automático según demanda
+- **Escalamiento**: Automatico segun demanda
 
-### **FastAPI :8080**
-Framework web de Python que recibe las peticiones HTTP.
+### **Custom Server :8080**
+Servidor FastAPI (`custom_server.py`) que extiende ADK con endpoint de redirect.
 - **Puerto**: 8080
-- **Endpoint principal**: `/callback`
-- **Función**: Punto de entrada del backend
+- **Endpoint principal**: `/run`
+- **Endpoint redirect**: `/r/{url_id}`
+- **Health check**: `/list-apps`, `/health/cache`
 
 ### **ADK Agent**
 "Agent Development Kit" de Google - El cerebro del chatbot.
-- **Función**: Orquesta todas las operaciones
-- **Responsabilidad**: Decide qué hacer con cada consulta
-- **Integración**: Conecta con Gemini, MCP Tools, y servicios GCP
+- **Funcion**: Orquesta todas las operaciones
+- **Herramientas**: `generate_individual_download_links`, `create_zip_package`, 49 MCP tools
 
-### **Gemini 2.0 Vertex AI**
+### **URL Cache**
+Cache en memoria (`url_cache.py`) para signed URLs.
+- **Funcion**: Almacena signed URLs con IDs cortos de 8 caracteres
+- **TTL**: 7 dias
+- **Thread-safe**: Si, con locks
+
+### **Gemini 3 Flash Vertex AI**
 Modelo de inteligencia artificial de Google.
-- **Función**: Procesa lenguaje natural
-- **Capacidades**: Entiende intenciones, genera respuestas naturales
-- **Versión**: Gemini 2.0 Flash (rápido y eficiente)
+- **Funcion**: Procesa lenguaje natural
+- **Version**: gemini-3-flash-preview
+- **Configuracion**: Temperatura 0.3
 
-### **MCP Toolbox 32 Tools**
-"Model Context Protocol" - Conjunto de 32 herramientas especializadas.
-- **Función**: Consultas específicas a BigQuery
-- **Ejemplos**:
-  - `search_by_rut()` - Buscar por RUT
-  - `search_by_date()` - Buscar por fecha
-  - `get_pdf_urls()` - Obtener URLs de PDFs
-  - ... (29 herramientas más)
+### **MCP Toolbox 49 Tools**
+"Model Context Protocol" - Conjunto de 49 herramientas especializadas.
+- **Funcion**: Consultas especificas a BigQuery
+- **Puerto**: 5000 (localhost, interno)
 
 ### **datalake-gasco READ-ONLY**
-Proyecto de Google Cloud con datos de producción (solo lectura).
-- **Seguridad**: Permisos de solo lectura
-- **Contenido**: Facturas originales de Gasco
-- **Acceso**: Cross-project desde agent-intelligence-gasco
-
-### **BigQuery pdfs_modelo**
-Tabla de base de datos con información de 50,000 facturas.
-- **Datos**: Número de factura, RUT, nombre cliente, fechas, URLs de PDFs
-- **Tamaño**: ~50,000 registros
-- **Proyecto**: datalake-gasco
-
-### **Storage miguel-test**
-Bucket de Cloud Storage con PDFs originales.
-- **Contenido**: Archivos PDF de facturas (Copia Tributaria, Copia Cedible, etc.)
-- **Acceso**: Solo lectura mediante URLs firmadas
-- **Proyecto**: datalake-gasco
+Proyecto GCP con datos de produccion (solo lectura).
+- **Tabla principal**: `sap_analitico_facturas_pdf_qa.pdfs_modelo`
+- **Bucket**: `miguel-test` (PDFs originales)
 
 ### **agent-intelligence-gasco WRITE**
-Proyecto de Google Cloud para operaciones del chatbot (lectura y escritura).
-- **Función**: Almacena ZIPs, logs, métricas
-- **Permisos**: Escritura completa
-- **Separación**: Aislado del datalake de producción
-
-### **BigQuery zip_ops**
-Base de datos para tracking de operaciones.
-- **Tablas**:
-  - `zip_packages` - ZIPs generados
-  - `zip_files` - Archivos dentro de ZIPs
-  - `zip_downloads` - Descargas realizadas
-  - `extraction_logs` - Historial de consultas
-  - `agent_operations` - Métricas del agente
-
-### **Storage zips**
-Bucket para almacenar archivos ZIP temporales.
-- **Nombre**: agent-intelligence-zips
-- **Contenido**: ZIPs generados cuando hay 5+ facturas
-- **TTL**: Los archivos se eliminan después de 7 días
-- **Límite**: Máximo 50 PDFs por ZIP
+Proyecto GCP para operaciones del chatbot (lectura/escritura).
+- **Bucket**: `agent-intelligence-zips` (ZIPs generados, TTL 7 dias)
+- **BigQuery**: zip_operations, chat_analytics
 
 ---
 
 ## Decisiones Clave del Sistema
 
-### ¿Por qué Individual vs ZIP?
+### Individual vs ZIP
 
-**Individual (< 5 facturas):**
-- Descarga inmediata, sin esperar
-- No consume espacio en servidor
-- URLs válidas 1 hora
-- Puede ser tedioso si son varias facturas
+**Individual (threshold configurable, default 2 facturas):**
+- Descarga inmediata por PDF
+- Cada PDF tiene su redirect URL
+- Agrupados por numero de factura en la respuesta
 
-**ZIP (≥ 5 facturas):**
+**ZIP (> threshold facturas):**
 - Una sola descarga
-- Más organizado para muchas facturas
-- URLs válidas 24 horas
-- Requiere tiempo de generación (~5-30 seg)
+- ZIP con nombre descriptivo
+- Preview de las primeras facturas + boton ZIP
 
-### ¿Por qué dos proyectos GCP?
+### Redirect URLs vs Signed URLs Directas
+
+**Problema:** El LLM corrompe las firmas hex de 512 caracteres de las signed URLs.
+
+**Solucion:** URL Cache con IDs cortos:
+- Signed URL (512 chars de firma) → Cache → `/r/abc12345` (8 chars)
+- Frontend resuelve via proxy autenticado
+- Usuario recibe la signed URL original intacta
+
+### Dos proyectos GCP
 
 **Seguridad y Governance:**
-- `datalake-gasco`: Datos inmutables de producción (solo lectura)
+- `datalake-gasco`: Datos inmutables de produccion (solo lectura)
 - `agent-intelligence-gasco`: Operaciones del chatbot (lectura/escritura)
-- **Beneficio**: Si el chatbot tiene un bug, NO puede modificar datos de producción
+- **Beneficio**: El chatbot NO puede modificar datos de produccion
 
 ---
 
@@ -245,17 +227,14 @@ Bucket para almacenar archivos ZIP temporales.
 
 **Caso de Uso: "Dame las facturas del RUT 12345678-9 de enero 2025"**
 
-1. **Usuario** escribe en el chat → **Frontend** captura
-2. **Frontend** envía POST → **FastAPI** recibe
-3. **ADK Agent** consulta → **Gemini** interpreta: "buscar por RUT y fecha"
-4. **MCP Tools** ejecuta → **BigQuery**: `SELECT * WHERE Rut='...' AND Fecha='2025-01'`
-5. **Resultado**: Se encuentran 8 facturas
-6. **Decisión**: 8 > 5 → **Generar ZIP** (ruta 5b)
-7. Sistema descarga 8 PDFs → Crea ZIP → Sube a **Storage zips**
-8. **Registra** operación en **BigQuery zip_ops**
-9. **Retorna** URL del ZIP → **Frontend** muestra botón
-10. **Usuario** descarga archivo: `facturas_12345678-9_enero2025.zip`
-
----
-
-**¿Todo más claro ahora?**
+1. **Usuario** escribe en el chat
+2. **Frontend** envia `POST /run` al backend
+3. **ADK Agent** consulta **Gemini 3 Flash**: interpreta "buscar por RUT y fecha"
+4. **MCP Tools** ejecuta SQL en **BigQuery**: `SELECT * WHERE Rut='...' AND Fecha='2025-01'`
+5. **Resultado**: 8 facturas encontradas
+6. **Decision**: 8 > 2 (threshold) → Generar ZIP
+7. Sistema descarga PDFs → Crea ZIP → Sube a **Storage zips**
+8. Genera signed URL del ZIP → Almacena en **URL Cache** → Devuelve `/r/zip12345`
+9. Tambien genera preview de 3 facturas con redirect URLs agrupadas por `invoice_number`
+10. **Frontend** muestra ToolDownloadSection: boton ZIP + preview por factura
+11. **Usuario** descarga el ZIP o PDFs individuales via proxy autenticado

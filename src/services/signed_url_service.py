@@ -124,6 +124,7 @@ class SignedURLService:
         self,
         gs_url: str,
         expiration_minutes: Optional[int] = None,
+        friendly_filename: Optional[str] = None,
     ) -> Optional[str]:
         """
         Generate signed URL for a GCS object
@@ -131,6 +132,8 @@ class SignedURLService:
         Args:
             gs_url: GCS URL (gs://bucket/path)
             expiration_minutes: URL validity in minutes (default: from config)
+            friendly_filename: Optional user-friendly filename for downloads.
+                              Sets Content-Disposition header for browser downloads.
 
         Returns:
             Signed URL or None if generation fails
@@ -145,13 +148,18 @@ class SignedURLService:
         """
         logger.debug(
             "Generating signed URL",
-            extra={"gs_url": gs_url, "expiration_minutes": expiration_minutes},
+            extra={
+                "gs_url": gs_url,
+                "expiration_minutes": expiration_minutes,
+                "friendly_filename": friendly_filename,
+            },
         )
 
         try:
             signed_url = self.url_signer.generate_signed_url(
                 gs_url=gs_url,
                 expiration_minutes=expiration_minutes,
+                friendly_filename=friendly_filename,
             )
 
             if signed_url:

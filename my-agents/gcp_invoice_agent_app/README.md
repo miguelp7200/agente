@@ -23,14 +23,18 @@ Specialized Chilean invoice PDF finder agent using Google ADK framework with YAM
 
 ## 🛠️ Configuration
 
-### Environment Setup
-```bash
-# Required environment variables in .env
-PROJECT_READ=datalake-gasco
-PROJECT_WRITE=agent-intelligence-gasco
-BUCKET_NAME_READ=miguel-test
-BUCKET_NAME_WRITE=miguel-test
-IS_CLOUD_RUN=false
+### Centralized Configuration
+All configuration is in `config/config.yaml`. No `.env` file needed for application settings.
+
+```yaml
+# config/config.yaml (excerpt)
+google_cloud:
+  read:
+    project: datalake-gasco
+    bucket: miguel-test
+  write:
+    project: agent-intelligence-gasco
+    bucket: agent-intelligence-zips
 ```
 
 ### YAML Configuration Structure

@@ -3,7 +3,7 @@ FROM python:3.11-slim
 # Metadata
 LABEL maintainer="victor.calle@gasco.cl"
 LABEL description="Invoice Chatbot Backend - ADK + PDF Server + MCP"
-LABEL version="1.0.0"
+LABEL version="1.1.0"
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ COPY my-agents/ ./my-agents/
 COPY mcp-toolbox/ ./mcp-toolbox/
 COPY src/ ./src/
 COPY config/ ./config/
-COPY config.py ./
+COPY custom_server.py ./
 COPY deprecated/ ./deprecated/
 COPY .env ./
 
@@ -40,7 +40,7 @@ RUN ls -la ./mcp-toolbox/toolbox
 # Variables de entorno para Cloud Run
 ENV GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
 ENV GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
-ENV GOOGLE_CLOUD_LOCATION=us-central1
+ENV GOOGLE_CLOUD_LOCATION=global
 ENV PORT=8080
 ENV MCP_TOOLBOX_PORT=5000
 ENV IS_CLOUD_RUN=true

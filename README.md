@@ -1,220 +1,379 @@
-# 🚀 Invoice Chatbot Backend
+# Backend de Chatbot de Facturas Gasco
 
-Backend de chatbot conversacional para consulta y descarga de facturas, construido con **Google ADK** y arquitectura **SOLID**.
+## Informacion General
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-green)]()
-[![Python](https://img.shields.io/badge/Python-3.11+-blue)]()
-[![Architecture](https://img.shields.io/badge/Architecture-SOLID-purple)]()
+- **Version**: 1.1.0
+- **Ultima actualizacion**: Febrero 2026
+- **Estado del sistema**: PRODUCTION READY
+- **Modelo IA**: Gemini 3 Flash (via Vertex AI)
+- **ADK Agent**: gcp-invoice-agent-app
+- **MCP Toolbox**: 49 herramientas BigQuery
+- **Configuracion**: Centralizada en `config/config.yaml` (fuente unica de verdad)
 
----
+## Arquitectura del Sistema
 
-## ⚡ Quick Start
+El backend esta compuesto por tres componentes principales:
 
-```powershell
-# 1. Configurar entorno
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+1. **ADK (Application Development Kit)**: Framework para agentes conversacionales con Gemini 3 Flash
+2. **MCP (Model Context Protocol)**: Protocolo para comunicacion con herramientas BigQuery
+3. **Custom Server**: Servidor FastAPI que extiende ADK con endpoint de redirect para descargas seguras
+
+Todos los componentes se comunican con **Google Cloud Platform** (BigQuery, Cloud Storage, Cloud Run).
+
+## Estructura del Repositorio
+
+```
+invoice-backend/
+├── my-agents/
+│   └── gcp-invoice-agent-app/      # Agente principal de facturas
+│       ├── agent.py                # Configuracion del agente ADK
+│       ├── agent_prompt_config.py  # Configuracion de prompts
+│       └── conversation_callbacks.py # Logging con tokens
+│
+├── src/
+│   ├── core/                       # Configuracion central (config.yaml loader)
+│   ├── domain/                     # Entidades y logica de negocio
+│   ├── application/                # Servicios (ZIP, signed URLs)
+│   ├── infrastructure/
+│   │   ├── cache/url_cache.py      # Cache de URLs con IDs cortos
+│   │   ├── gcs/                    # Google Cloud Storage (signed URLs)
+│   │   ├── bigquery/               # Repositorios BigQuery
+│   │   └── repositories/           # Persistencia
+│   └── presentation/
+│       └── agent/adk_agent.py      # Herramientas del agente (descarga, agrupacion)
+│
+├── custom_server.py                # Servidor FastAPI con endpoint /r/{url_id}
+│
+├── config/
+│   └── config.yaml                 # FUENTE UNICA DE VERDAD - toda la configuracion
+│
+├── mcp-toolbox/
+│   ├── tools_updated.yaml          # 49 herramientas BigQuery
+│   └── README.md                   # Info sobre binarios MCP
+│
+├── deployment/
+│   └── backend/
+│       ├── Dockerfile              # Imagen Docker para Cloud Run
+│       ├── start_backend.sh        # Script de inicio (custom_server.py + MCP)
+│       ├── deploy.ps1              # Script de deploy automatizado
+│       └── requirements.txt        # Dependencias Python
+│
+├── tests/
+│   ├── cases/                      # Casos de prueba JSON
+│   ├── scripts/                    # Scripts PowerShell de testing
+│   └── curl-tests/                 # Tests con curl
+│
+├── docs/                           # Documentacion tecnica
+├── infrastructure/                 # Scripts de setup BigQuery
+├── sql_schemas/                    # Schemas de BigQuery
+└── sql_validation/                 # Queries de validacion
+```
+
+## Requisitos Previos
+
+- Python 3.11+
+- Docker
+- Google Cloud SDK
+- Acceso a Google Cloud Platform (proyecto agent-intelligence-gasco)
+- Credenciales de servicio configuradas
+
+## Configuracion del Entorno
+
+### 1. Instalacion de Dependencias
+
+```bash
+# Crear entorno virtual
+python -m venv venv
+
+# Activar entorno virtual
+source venv/bin/activate          # Linux/Mac
+.\venv\Scripts\Activate.ps1       # Windows
+
+# Instalar dependencias
 pip install -r requirements.txt
-
-# 2. Ejecutar localmente
-cd deployment\backend
-.\deploy.ps1 -Local
-
-# 3. Desplegar a Cloud Run (test)
-.\deploy.ps1 -Environment test
-
-# 4. Desplegar a producción
-.\deploy.ps1 -Environment prod -AutoVersion
 ```
 
-**URLs de Producción:**
-- 🌐 **Producción**: `https://invoice-backend-yuhrx5x2ra-uc.a.run.app`
-- 🧪 **Test**: `https://invoice-backend-test-yuhrx5x2ra-uc.a.run.app`
+### 2. Sistema de Configuracion
 
----
+Toda la configuracion esta centralizada en `config/config.yaml`. No se requiere archivo `.env` para configuracion de la aplicacion.
 
-## 🏗️ Arquitectura
+**Variables de ambiente minimas** (solo las que Cloud Run auto-configura):
 
-### Stack Tecnológico
+| Variable | Proposito |
+|----------|-----------|
+| `GOOGLE_GENAI_USE_VERTEXAI` | Flag para usar Vertex AI (requerido por ADK) |
+| `GOOGLE_CLOUD_LOCATION` | Region de Vertex AI |
+| `PORT` | Puerto del servidor (auto-set por Cloud Run) |
+| `K_SERVICE` | Deteccion de servicio Cloud Run (auto-set) |
 
-| Componente | Tecnología | Descripción |
-|------------|------------|-------------|
-| **Agent** | Google ADK + Gemini 2.5 Flash | Agente conversacional |
-| **Tools** | MCP Toolbox (32 herramientas) | Consultas BigQuery |
-| **Storage** | GCS + Signed URLs | PDFs y ZIPs seguros |
-| **Analytics** | BigQuery | Tracking de conversaciones |
+**Secciones principales de `config/config.yaml`:**
 
-### Arquitectura SOLID
+| Seccion | Proposito |
+|---------|-----------|
+| `google_cloud` | Proyectos GCP, buckets, datasets, service accounts |
+| `vertex_ai` | Modelo (gemini-3-flash-preview), temperatura, thinking mode |
+| `services` | URLs de Cloud Run (produccion y test) |
+| `pdf.zip` | Threshold, preview_limit, expiracion de ZIPs |
+| `pdf.signed_urls` | Configuracion de URLs firmadas |
+| `gcs` | Circuit breaker, retry, time sync |
+| `context_validation` | Prevencion de overflow de tokens |
+| `analytics` | Tracking de conversaciones en BigQuery |
 
-```
-src/
-├── core/                    # Configuración y DI
-│   ├── config/              # ConfigLoader (YAML)
-│   ├── di/                  # Inyección de dependencias
-│   └── domain/              # Entidades y contratos
-│
-├── application/             # Servicios de negocio
-│   └── services/
-│       ├── invoice_service.py
-│       ├── zip_service.py
-│       └── conversation_tracking_service.py
-│
-├── infrastructure/          # Implementaciones
-│   ├── bigquery/            # Repositorios BQ
-│   └── gcs/                 # Signed URLs, retry
-│
-└── presentation/            # API/Agent
-    └── agent/adk_agent.py   # Entry point
-```
+### Migrar a Otro Proyecto GCP
 
-### Dual-Project GCP
-
-```
-┌─────────────────────┐     ┌──────────────────────────┐
-│   datalake-gasco    │     │  agent-intelligence-gasco │
-│      (READ)         │     │         (WRITE)           │
-├─────────────────────┤     ├──────────────────────────┤
-│ • Facturas (pdfs)   │     │ • ZIP packages            │
-│ • PDFs en GCS       │     │ • Conversation logs       │
-│ • Datos producción  │     │ • Analytics               │
-└─────────────────────┘     └──────────────────────────┘
-```
-
----
-
-## 🚀 Deployment
-
-### Opciones del Script `deploy.ps1`
-
-```powershell
-.\deploy.ps1 [opciones]
-```
-
-| Opción | Descripción |
-|--------|-------------|
-| `-Environment` | `local`, `dev`, `staging`, `test`, `prod` (default: prod) |
-| `-Local` | Ejecutar en Docker local (puerto 8001) |
-| `-AutoVersion` | Generar versión con timestamp |
-| `-Version "v1.0"` | Especificar versión manual |
-| `-ValidateOnly` | Solo ejecutar validaciones |
-| `-SkipTests` | Omitir pruebas post-deploy |
-
-### Ejemplos Comunes
-
-```powershell
-# Desarrollo local con Docker
-.\deploy.ps1 -Local
-
-# Deploy a ambiente de pruebas
-.\deploy.ps1 -Environment test
-
-# Deploy a producción con versión automática
-.\deploy.ps1 -Environment prod -AutoVersion
-
-# Solo validar sin desplegar
-.\deploy.ps1 -ValidateOnly
-```
-
-### Recursos Cloud Run
-
-| Recurso | Valor |
-|---------|-------|
-| Memoria | 4Gi |
-| CPU | 4 |
-| Timeout | 3600s |
-| Max Instances | 10 |
-| Concurrency | 5 |
-
----
-
-## ⚙️ Configuración
-
-### Archivo Principal: `config/config.yaml`
+Modificar `config/config.yaml` con tus project IDs:
 
 ```yaml
 google_cloud:
   read:
-    project: datalake-gasco
+    project: tu-proyecto-lectura
   write:
-    project: agent-intelligence-gasco
-
-vertex_ai:
-  model: gemini-2.5-flash
-  temperature: 0.3
-
-pdf:
-  zip:
-    threshold: 4          # Auto-ZIP si >4 PDFs
-    max_files: 50
-    expiration_days: 7
-
-conversation_tracking:
-  enabled: true
-  backend: "solid"
+    project: tu-proyecto-escritura
+  service_accounts:
+    pdf_signer: tu-sa@tu-proyecto.iam.gserviceaccount.com
 ```
 
-### Variables de Entorno (Override)
+### 3. Configuracion de MCP Toolbox
+
+Los binarios de MCP Toolbox (~117MB) no estan en el repositorio. Sigue las instrucciones en `mcp-toolbox/README.md`.
+
+### 4. Configuracion de BigQuery
 
 ```bash
-# Proyectos GCP
-GOOGLE_CLOUD_PROJECT_READ=datalake-gasco
-GOOGLE_CLOUD_PROJECT_WRITE=agent-intelligence-gasco
-
-# Service Account
-PDF_SIGNER_SERVICE_ACCOUNT=adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com
+cd infrastructure
+python create_bigquery_infrastructure.py
+python setup_dataset_tabla.py
 ```
 
-Ver `.env.example` para lista completa de variables configurables.
+## Despliegue
 
----
+### Despliegue Local (Desarrollo)
 
-## 🧪 Testing
+```bash
+# Opcion 1: Script automatizado (recomendado)
+chmod +x deployment/backend/start_backend.sh
+./deployment/backend/start_backend.sh
+
+# Opcion 2: Servicios individuales
+# Terminal 1: MCP Toolbox
+./mcp-toolbox/toolbox --tools-file=./mcp-toolbox/tools_updated.yaml --port=5000
+
+# Terminal 2: Custom Server (ADK + redirect endpoint)
+python custom_server.py --port 8080 --agents-dir my-agents
+```
+
+### Despliegue en Google Cloud Run (Produccion)
+
+#### Metodo Recomendado: Script Automatizado
 
 ```powershell
-# Tests unitarios (33 tests)
-python -m pytest tests/unit/ -v
+# Windows PowerShell - Despliegue a produccion
+cd c:\proyectos\invoice-backend\deployment\backend
+.\deploy.ps1 -Environment prod
 
-# Test de health check
-curl https://invoice-backend-yuhrx5x2ra-uc.a.run.app/list-apps
+# Despliegue con version automatica (timestamp)
+.\deploy.ps1 -Environment prod -AutoVersion
 
-# Test de conversación
-curl -X POST https://invoice-backend-yuhrx5x2ra-uc.a.run.app/run \
-  -H 'Content-Type: application/json' \
-  -d '{"appName":"gcp_invoice_agent_app","userId":"test","sessionId":"123","newMessage":{"parts":[{"text":"Hola"}],"role":"user"}}'
+# Despliegue a entorno de test (invoice-backend-test)
+.\deploy.ps1 -Environment test
+
+# Otras opciones disponibles:
+# -Version "v1.2.3": Especifica version manual
+# -Local: Ejecutar localmente en Docker (puerto 8001)
+# -ValidateOnly: Solo ejecutar validaciones sin deployment
+# -SkipTests: Omitir pruebas post-deployment
 ```
 
----
+#### Metodo Manual
 
-## 📚 Documentación
+```bash
+# 1. Construir imagen Docker
+docker build -f deployment/backend/Dockerfile \
+  -t us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest .
 
-| Documento | Descripción |
-|-----------|-------------|
-| [RELEASE_NOTES.md](./RELEASE_NOTES.md) | Notas del release actual |
-| [CHANGELOG.md](./CHANGELOG.md) | Historial técnico de cambios |
-| [docs/ARCHITECTURE_DIAGRAM.md](./docs/ARCHITECTURE_DIAGRAM.md) | Diagramas de arquitectura |
-| [docs/ADAPTATION_GUIDE.md](./docs/ADAPTATION_GUIDE.md) | 🆕 Guía para adaptar a otros dominios |
-| [docs/official/](./docs/official/) | Documentación oficial completa |
-| [docs/debugging/](./docs/debugging/) | Guías de troubleshooting |
+# 2. Subir imagen a Artifact Registry
+docker push us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest
 
----
+# 3. Desplegar en Cloud Run
+gcloud run deploy invoice-backend \
+  --image us-central1-docker.pkg.dev/agent-intelligence-gasco/invoice-chatbot/backend:latest \
+  --region us-central1 \
+  --project agent-intelligence-gasco \
+  --port 8080 \
+  --service-account adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com \
+  --memory 2Gi --cpu 2 --timeout 3600s \
+  --max-instances 10 --concurrency 10
+```
 
-## 🔧 Solución de Problemas
+### Service Accounts
 
-| Problema | Solución |
+El servicio Cloud Run usa `adk-agent-sa` como identidad principal. Internamente, el sistema utiliza 3 service accounts con permisos separados por responsabilidad:
+
+#### 1. ADK Agent (`adk-agent-sa`)
+
+**Email:** `adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
+**Proposito:** Service account principal del servicio Cloud Run. Interfaz conversacional con Vertex AI.
+
+| Rol | Proyecto | Proposito |
+|-----|----------|-----------|
+| `roles/aiplatform.user` | agent-intelligence-gasco | Acceso a Gemini 3 Flash via Vertex AI |
+| `roles/bigquery.dataEditor` | agent-intelligence-gasco | Escritura de logs, analytics, operaciones ZIP |
+| `roles/logging.logWriter` | agent-intelligence-gasco | Escritura en Cloud Logging |
+| `roles/bigquery.dataViewer` | datalake-gasco | Lectura de tabla de facturas (pdfs_modelo) |
+| `roles/storage.objectViewer` | datalake-gasco | Lectura de PDFs originales (bucket miguel-test) |
+
+#### 2. MCP Toolbox (`mcp-toolbox-sa`)
+
+**Email:** `mcp-toolbox-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
+**Proposito:** Ejecucion de las 49 herramientas BigQuery via protocolo MCP (puerto 5000 interno).
+
+| Rol | Proyecto | Proposito |
+|-----|----------|-----------|
+| `roles/bigquery.jobUser` | agent-intelligence-gasco | Crear y ejecutar jobs de BigQuery |
+| `roles/bigquery.dataEditor` | agent-intelligence-gasco | Lectura/escritura de datos operacionales |
+| `roles/logging.logWriter` | agent-intelligence-gasco | Escritura en Cloud Logging |
+| `roles/bigquery.dataViewer` | datalake-gasco | Lectura de datos de facturas |
+
+#### 3. File Service (`file-service-sa`)
+
+**Email:** `file-service-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
+**Proposito:** Generacion de signed URLs para PDFs y creacion dinamica de paquetes ZIP.
+
+| Rol | Proyecto | Proposito |
+|-----|----------|-----------|
+| `roles/storage.admin` | agent-intelligence-gasco | Gestion de bucket ZIPs (agent-intelligence-zips) |
+| `roles/bigquery.dataEditor` | agent-intelligence-gasco | Registro de operaciones ZIP |
+| `roles/logging.logWriter` | agent-intelligence-gasco | Escritura en Cloud Logging |
+| `roles/storage.objectViewer` | datalake-gasco | Lectura de PDFs originales |
+
+#### Arquitectura Dual-Proyecto
+
+```
+datalake-gasco (READ-ONLY)              agent-intelligence-gasco (READ-WRITE)
+├── BigQuery: pdfs_modelo               ├── BigQuery: zip_operations, chat_analytics
+└── Storage: miguel-test (PDFs)         ├── Storage: agent-intelligence-zips (ZIPs)
+                                        └── Cloud Run: invoice-backend
+```
+
+**Notas de seguridad:**
+- Cloud Run usa Application Default Credentials (ADC) — no se usan archivos de credenciales en el contenedor
+- Los datos de produccion (`datalake-gasco`) son de solo lectura para todas las service accounts
+- Configuracion detallada en `deployment/config/service-accounts.yaml`
+
+## Integracion con Frontend
+
+### Endpoints
+
+| Endpoint | Metodo | Descripcion |
+|----------|--------|-------------|
+| `/run` | POST | Ejecutar conversaciones con el agente |
+| `/run_sse` | GET | Streaming server-sent events |
+| `/r/{url_id}` | GET | Redirect a signed URL (descargas seguras) |
+| `/health/cache` | GET | Estadisticas del cache de URLs |
+| `/list-apps` | GET | Lista aplicaciones ADK disponibles (health check) |
+| `/apps/{app}/users/{user}/sessions/{session}` | GET/POST | Gestion de sesiones |
+
+### Sistema de Redirect URLs
+
+Para evitar que el LLM corrompa las firmas hex de las signed URLs (512 caracteres), el backend implementa un sistema de cache con IDs cortos:
+
+1. El backend genera signed URLs y las almacena en `url_cache` con IDs de 8 caracteres
+2. El agente devuelve URLs cortas: `https://invoice-backend.../r/abc12345`
+3. El frontend resuelve la URL real a traves de su proxy con autenticacion
+4. El usuario recibe el PDF/ZIP directamente
+
+### Estructura de Respuesta (`invoices_grouped`)
+
+El agente agrupa los PDFs por numero de factura:
+
+```json
+{
+  "invoices_grouped": [
+    {
+      "invoice_number": "0101552280",
+      "pdfs": [
+        {"url": "https://invoice-backend.../r/abc12345", "type": "Copia Tributaria cf"},
+        {"url": "https://invoice-backend.../r/def67890", "type": "Copia Cedible cf"}
+      ]
+    }
+  ],
+  "total_invoices": 1,
+  "zip_redirect_url": "https://invoice-backend.../r/zip12345"
+}
+```
+
+### URLs de Servicios
+
+| Servicio | URL |
+|----------|-----|
+| Backend Produccion | `https://invoice-backend-819133916464.us-central1.run.app` |
+| Backend Test | `https://invoice-backend-test-819133916464.us-central1.run.app` |
+
+## Token Tracking
+
+El sistema captura metricas de tokens consumidos por Gemini API en BigQuery:
+
+- Tokens de entrada/salida/total/thinking/cached
+- Metricas de texto (caracteres, palabras)
+- Monitoreo de costos por conversacion
+
+```bash
+# Validacion rapida
+python scripts/validation/quick_validate_tokens.py
+```
+
+Documentacion completa: `docs/TOKEN_USAGE_TRACKING.md`
+
+## Pruebas
+
+```bash
+# Health check
+curl https://invoice-backend-819133916464.us-central1.run.app/list-apps
+
+# Prueba completa
+curl -X POST https://invoice-backend-819133916464.us-central1.run.app/run \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "appName": "gcp-invoice-agent-app",
+    "userId": "test-user",
+    "sessionId": "test-session-123",
+    "newMessage": {
+      "parts": [{"text": "Muéstrame las facturas del mes pasado"}],
+      "role": "user"
+    }
+  }'
+```
+
+```powershell
+# Suite completa de tests (Windows)
+.\tests\curl-tests\run-all-curl-tests.ps1
+```
+
+## Solucion de Problemas
+
+| Problema | Solucion |
 |----------|----------|
 | Module not found | `pip install -r requirements.txt` |
-| Error BigQuery | `gcloud auth application-default login` |
-| MCP tools no encontradas | Ver `mcp-toolbox/README.md` |
-| URLs expiradas | Las signed URLs duran 24h, regenerar |
+| Error conexion BigQuery | `gcloud auth application-default login` |
+| MCP tools no encontradas | Descargar binarios segun `mcp-toolbox/README.md` |
+| Error "Forbidden" en descargas | Verificar permisos de Storage en la service account |
+| Tokens no se capturan | Ejecutar `python scripts/bigquery/apply_token_schema_update.py` |
+
+## Documentacion Adicional
+
+- [CHANGELOG.md](./CHANGELOG.md) - Historial de cambios por version
+- [TOKEN_USAGE_TRACKING.md](./docs/TOKEN_USAGE_TRACKING.md) - Sistema de tokens
+- [SETUP_INFRAESTRUCTURA.md](./infrastructure/SETUP_INFRAESTRUCTURA.md) - Setup GCP
+- [DEPLOYMENT_ARCHITECTURE.md](./docs/DEPLOYMENT_ARCHITECTURE.md) - Arquitectura de deployment
+
+## Licencia
+
+Este proyecto es propiedad de **Gasco** y **Option**. Todos los derechos reservados.
+
+## Contacto
+
+Para soporte tecnico: [soporte-tech@option.cl](mailto:soporte-tech@option.cl)
 
 ---
 
-## 📜 Licencia
-
-Propiedad de **Gasco** y **Option**. Todos los derechos reservados.
-
----
-
-**Última actualización**: 26 de noviembre de 2025  
-**Versión**: SOLID Architecture Release  
-**Estado**: ✅ Production Ready
+**Version**: 1.1.0 | **Estado**: Production Ready | **Ultima revision**: Febrero 2026

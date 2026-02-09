@@ -10,6 +10,7 @@ Features:
 - Comprehensive metrics collection
 - Batch URL generation support
 - Thread-safe operations
+- Circuit breaker protection
 
 This is a COMPLETE reimplementation of the legacy robust URL signer,
 following SOLID principles with dependency injection.
@@ -35,6 +36,7 @@ from src.domain.interfaces.environment_validator import IEnvironmentValidator
 from src.domain.interfaces.retry_strategy import IRetryStrategy
 from src.domain.interfaces.metrics_collector import IMetricsCollector
 from src.core.config.yaml_config_loader import ConfigLoader
+from src.infrastructure.gcs.circuit_breaker import CircuitBreaker
 
 
 logger = logging.getLogger(__name__)
@@ -111,6 +113,9 @@ class RobustURLSigner:
         self._impersonated_client = None
         self._adc_client = None
 
+        # Circuit breaker for preventing cascading failures
+        self._circuit_breaker = CircuitBreaker(name="gcs_signed_url")
+
         # Debugging: Track credential renewals and URL generation
         self._last_credential_refresh = None
         self._urls_generated_count = 0
@@ -123,6 +128,7 @@ class RobustURLSigner:
                 "use_impersonation": self.use_impersonation,
                 "use_legacy_method": self.use_legacy_method,
                 "service_account_email": self.service_account_email,
+                "circuit_breaker_enabled": True,
             },
         )
 
@@ -368,6 +374,7 @@ class RobustURLSigner:
         bucket_name: str,
         blob_name: str,
         expiration_minutes: int,
+        friendly_filename: Optional[str] = None,
     ) -> str:
         """
         Generate signed URL using specific storage client
@@ -377,6 +384,8 @@ class RobustURLSigner:
             bucket_name: GCS bucket name
             blob_name: Blob path within bucket
             expiration_minutes: URL validity duration
+            friendly_filename: Optional user-friendly filename for Content-Disposition.
+                              Enables UUID blob naming while providing nice download names.
 
         Returns:
             Signed URL string
@@ -410,6 +419,14 @@ class RobustURLSigner:
         max_attempts = 3
         signed_url = None
 
+        # Build response_content_disposition if friendly_filename provided
+        # This allows UUID blob names while providing user-friendly download names
+        response_disposition = None
+        if friendly_filename:
+            # Sanitize filename for Content-Disposition header
+            safe_filename = friendly_filename.replace('"', '\\"')
+            response_disposition = f'attachment; filename="{safe_filename}"'
+
         for attempt in range(max_attempts):
             generation_start = time.time()
             system_time_before = datetime.now(timezone.utc)
@@ -419,12 +436,17 @@ class RobustURLSigner:
                 blob = client.bucket(bucket_name).blob(blob_name)
                 time.sleep(0.1 * attempt)  # Small delay: 100ms, 200ms
 
-            signed_url = blob.generate_signed_url(
-                version="v4",
-                expiration=expiration,
-                method="GET",
-                credentials=client._credentials,
-            )
+            # Build signed URL kwargs - only include response_content_disposition if set
+            sign_kwargs = {
+                "version": "v4",
+                "expiration": expiration,
+                "method": "GET",
+                "credentials": client._credentials,
+            }
+            if response_disposition:
+                sign_kwargs["response_disposition"] = response_disposition
+
+            signed_url = blob.generate_signed_url(**sign_kwargs)
 
             # Validate signature immediately (length + hex format)
             if "X-Goog-Signature=" in signed_url:
@@ -626,6 +648,7 @@ class RobustURLSigner:
             bucket_name: GCS bucket name
             blob_name: Object path within bucket
             expiration_minutes: URL validity in minutes
+            friendly_filename: Optional user-friendly filename for Content-Disposition
 
         Returns:
             Signed URL string or None if failed
@@ -642,13 +665,24 @@ class RobustURLSigner:
             canonical_uri = f"/{escaped_object_name}"
 
             # Get current UTC time
-            datetime_now = datetime.now(tz=datetime.timezone.utc)
+            datetime_now = datetime.now(tz=timezone.utc)
             request_timestamp = datetime_now.strftime("%Y%m%dT%H%M%SZ")
             datestamp = datetime_now.strftime("%Y%m%d")
 
             # Build credential scope
             client_email = self.service_account_email
-            credential_scope = f"{datestamp}/auto/storage/goog4_request"
+            
+            # FIX: Use correct region for each bucket to avoid SignatureDoesNotMatch
+            # agent-intelligence-zips is in us-central1
+            # miguel-test is configured as us-central1 in config.yaml
+            # We map explicitly to ensure correctness
+            bucket_locations = {
+                "agent-intelligence-zips": "us-central1",
+                "miguel-test": "us-central1",
+            }
+            region = bucket_locations.get(bucket_name, "us-central1")
+            
+            credential_scope = f"{datestamp}/{region}/storage/goog4_request"
             credential = f"{client_email}/{credential_scope}"
 
             # Build canonical headers
@@ -746,7 +780,8 @@ class RobustURLSigner:
 
             # Response contains base64-encoded signature bytes
             # Decode from base64, then convert to hex (GCS V4 expects hex signature)
-            signature_bytes = base64.b64decode(sign_response["signedBlob"])
+            signed_blob_b64 = sign_response["signedBlob"]
+            signature_bytes = base64.b64decode(signed_blob_b64)
             signature = binascii.hexlify(signature_bytes).decode()
 
             # Build final URL
@@ -900,6 +935,7 @@ class RobustURLSigner:
         self,
         gs_url: str,
         expiration_minutes: Optional[int] = None,
+        friendly_filename: Optional[str] = None,
     ) -> Optional[str]:
         """
         Generate signed URL with triple fallback strategy
@@ -912,6 +948,9 @@ class RobustURLSigner:
         Args:
             gs_url: GCS URL (gs://bucket/path)
             expiration_minutes: URL validity (default: from config)
+            friendly_filename: Optional user-friendly filename for downloads.
+                              If provided, sets Content-Disposition header so browsers
+                              download with this name instead of the blob UUID.
 
         Returns:
             Signed URL or None if all methods fail
@@ -920,7 +959,23 @@ class RobustURLSigner:
             >>> signer = RobustURLSigner(...)
             >>> url = signer.generate_signed_url("gs://miguel-test/invoice.pdf")
             >>> print(f"URL: {url}")
+            >>> # With friendly filename for UUID blobs:
+            >>> url = signer.generate_signed_url(
+            ...     "gs://bucket/zips/abc123.zip",
+            ...     friendly_filename="facturas_junio_2025.zip"
+            ... )
         """
+        # Check circuit breaker first
+        if not self._circuit_breaker.can_execute():
+            logger.warning(
+                "Circuit breaker OPEN - skipping URL generation",
+                extra={
+                    "gs_url": gs_url,
+                    "circuit_stats": self._circuit_breaker.get_stats(),
+                },
+            )
+            return None
+
         start_time = time.time()
 
         # Parse GCS URL
@@ -982,6 +1037,31 @@ class RobustURLSigner:
 
         for method_name, get_client_func in methods:
             try:
+                # SPECIAL CASE: Use manual signing for impersonation
+                # This fixes the /auto/ region issue and avoids SDK bugs
+                if method_name == "impersonation":
+                    signed_url = self._generate_signed_url_manual(
+                        bucket_name=bucket_name,
+                        blob_name=blob_name,
+                        expiration_minutes=total_expiration,
+                    )
+                    if signed_url:
+                        success = True
+                        logger.info(
+                            "Generated signed URL using manual impersonation method",
+                            extra={
+                                "bucket": bucket_name,
+                                "method": "manual_impersonation",
+                            },
+                        )
+                        self._circuit_breaker.record_success()
+                        break
+                    else:
+                        logger.warning(
+                            "Manual impersonation failed, falling back to SDK client",
+                            extra={"bucket": bucket_name},
+                        )
+
                 client = get_client_func()
                 if client is None:
                     logger.debug(
@@ -997,6 +1077,7 @@ class RobustURLSigner:
                         bucket_name=bucket_name,
                         blob_name=blob_name,
                         expiration_minutes=total_expiration,
+                        friendly_filename=friendly_filename,
                     )
 
                 signed_url = _generate()
@@ -1008,8 +1089,12 @@ class RobustURLSigner:
                         "method": method_name,
                         "bucket": bucket_name,
                         "expiration_minutes": total_expiration,
+                        "friendly_filename": friendly_filename,
                     },
                 )
+
+                # Record success with circuit breaker
+                self._circuit_breaker.record_success()
 
                 break  # Success - exit fallback loop
 
@@ -1034,12 +1119,15 @@ class RobustURLSigner:
         )
 
         if not success:
+            # Record failure with circuit breaker
+            self._circuit_breaker.record_failure()
             logger.error(
                 "All URL generation methods failed",
                 extra={
                     "bucket": bucket_name,
                     "blob": blob_name,
                     "duration_seconds": round(duration, 3),
+                    "circuit_stats": self._circuit_breaker.get_stats(),
                 },
             )
 

@@ -15,7 +15,10 @@ class IURLSigner(ABC):
 
     @abstractmethod
     def generate_signed_url(
-        self, gs_url: str, expiration: Optional[timedelta] = None
+        self,
+        gs_url: str,
+        expiration: Optional[timedelta] = None,
+        friendly_filename: Optional[str] = None,
     ) -> str:
         """
         Generate signed URL from GCS path
@@ -23,6 +26,10 @@ class IURLSigner(ABC):
         Args:
             gs_url: GCS path (gs://bucket/path/to/file.pdf)
             expiration: URL expiration duration (defaults to implementation-specific value)
+            friendly_filename: Optional user-friendly filename for downloads.
+                              When provided, sets Content-Disposition header so browsers
+                              download with this name instead of the blob name.
+                              Useful for UUID-named blobs.
 
         Returns:
             Signed HTTPS URL

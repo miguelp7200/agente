@@ -27,7 +27,12 @@ $tests = @(
     @{Name="search_rut_date_range"; File="test_search_invoices_by_rut_and_date_range_TEST_ENV.ps1"; Description="Búsqueda por RUT y rango de fechas"},
     @{Name="search_monthly"; File="test_facturas_julio_2025_general_TEST_ENV.ps1"; Description="Búsqueda mensual (Julio 2025)"},
     @{Name="search_proveedor"; File="test_search_invoices_by_proveedor_TEST_ENV.ps1"; Description="Búsqueda por proveedor"},
-    @{Name="search_amount"; File="test_search_invoices_by_minimum_amount_TEST_ENV.ps1"; Description="Búsqueda por monto mínimo"}
+    @{Name="search_amount"; File="test_search_invoices_by_minimum_amount_TEST_ENV.ps1"; Description="Búsqueda por monto mínimo"},
+    # === NEW TOOLS TESTS (2026-01-30) ===
+    @{Name="latest_by_rut"; File="test_get_latest_invoice_by_rut_TEST_ENV.ps1"; Description="Última factura por RUT (LIMIT 1)"},
+    @{Name="latest_by_sap"; File="test_get_latest_invoice_by_solicitante_TEST_ENV.ps1"; Description="Última factura por SAP (LIMIT 1)"},
+    @{Name="rut_month_year"; File="test_search_invoices_by_rut_and_month_year_TEST_ENV.ps1"; Description="RUT + mes + año combinados"},
+    @{Name="amount_range"; File="test_search_invoices_by_amount_range_TEST_ENV.ps1"; Description="Facturas por rango de montos"}
 )
 
 $results = @()
