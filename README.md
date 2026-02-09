@@ -167,15 +167,21 @@ python custom_server.py --port 8080 --agents-dir my-agents
 #### Metodo Recomendado: Script Automatizado
 
 ```powershell
-# Windows PowerShell
-cd deployment/backend
-.\deploy.ps1 -AutoVersion
+# Windows PowerShell - Despliegue a produccion
+cd c:\proyectos\invoice-backend\deployment\backend
+.\deploy.ps1 -Environment prod
 
-# Opciones disponibles:
-# -AutoVersion: Genera version automatica con timestamp
+# Despliegue con version automatica (timestamp)
+.\deploy.ps1 -Environment prod -AutoVersion
+
+# Despliegue a entorno de test (invoice-backend-test)
+.\deploy.ps1 -Environment test
+
+# Otras opciones disponibles:
 # -Version "v1.2.3": Especifica version manual
-# -NoCache: Limpia cache de Docker antes de build
-# -Environment test: Despliega al servicio de test
+# -Local: Ejecutar localmente en Docker (puerto 8001)
+# -ValidateOnly: Solo ejecutar validaciones sin deployment
+# -SkipTests: Omitir pruebas post-deployment
 ```
 
 #### Metodo Manual
