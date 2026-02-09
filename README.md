@@ -205,15 +205,60 @@ gcloud run deploy invoice-backend \
   --max-instances 10 --concurrency 10
 ```
 
-### Configuracion de Service Account
+### Service Accounts
 
-El servicio usa `adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com` con:
+El servicio Cloud Run usa `adk-agent-sa` como identidad principal. Internamente, el sistema utiliza 3 service accounts con permisos separados por responsabilidad:
 
-- **BigQuery Data Viewer** (datalake-gasco)
-- **BigQuery User** (agent-intelligence-gasco)
-- **Storage Object Viewer** (bucket miguel-test)
-- **Storage Object Admin** (bucket agent-intelligence-zips)
-- **Service Account Token Creator** (para signed URLs)
+#### 1. ADK Agent (`adk-agent-sa`)
+
+**Email:** `adk-agent-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
+**Proposito:** Service account principal del servicio Cloud Run. Interfaz conversacional con Vertex AI.
+
+| Rol | Proyecto | Proposito |
+|-----|----------|-----------|
+| `roles/aiplatform.user` | agent-intelligence-gasco | Acceso a Gemini 3 Flash via Vertex AI |
+| `roles/bigquery.dataEditor` | agent-intelligence-gasco | Escritura de logs, analytics, operaciones ZIP |
+| `roles/logging.logWriter` | agent-intelligence-gasco | Escritura en Cloud Logging |
+| `roles/bigquery.dataViewer` | datalake-gasco | Lectura de tabla de facturas (pdfs_modelo) |
+| `roles/storage.objectViewer` | datalake-gasco | Lectura de PDFs originales (bucket miguel-test) |
+
+#### 2. MCP Toolbox (`mcp-toolbox-sa`)
+
+**Email:** `mcp-toolbox-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
+**Proposito:** Ejecucion de las 49 herramientas BigQuery via protocolo MCP (puerto 5000 interno).
+
+| Rol | Proyecto | Proposito |
+|-----|----------|-----------|
+| `roles/bigquery.jobUser` | agent-intelligence-gasco | Crear y ejecutar jobs de BigQuery |
+| `roles/bigquery.dataEditor` | agent-intelligence-gasco | Lectura/escritura de datos operacionales |
+| `roles/logging.logWriter` | agent-intelligence-gasco | Escritura en Cloud Logging |
+| `roles/bigquery.dataViewer` | datalake-gasco | Lectura de datos de facturas |
+
+#### 3. File Service (`file-service-sa`)
+
+**Email:** `file-service-sa@agent-intelligence-gasco.iam.gserviceaccount.com`
+**Proposito:** Generacion de signed URLs para PDFs y creacion dinamica de paquetes ZIP.
+
+| Rol | Proyecto | Proposito |
+|-----|----------|-----------|
+| `roles/storage.admin` | agent-intelligence-gasco | Gestion de bucket ZIPs (agent-intelligence-zips) |
+| `roles/bigquery.dataEditor` | agent-intelligence-gasco | Registro de operaciones ZIP |
+| `roles/logging.logWriter` | agent-intelligence-gasco | Escritura en Cloud Logging |
+| `roles/storage.objectViewer` | datalake-gasco | Lectura de PDFs originales |
+
+#### Arquitectura Dual-Proyecto
+
+```
+datalake-gasco (READ-ONLY)              agent-intelligence-gasco (READ-WRITE)
+├── BigQuery: pdfs_modelo               ├── BigQuery: zip_operations, chat_analytics
+└── Storage: miguel-test (PDFs)         ├── Storage: agent-intelligence-zips (ZIPs)
+                                        └── Cloud Run: invoice-backend
+```
+
+**Notas de seguridad:**
+- Cloud Run usa Application Default Credentials (ADC) — no se usan archivos de credenciales en el contenedor
+- Los datos de produccion (`datalake-gasco`) son de solo lectura para todas las service accounts
+- Configuracion detallada en `deployment/config/service-accounts.yaml`
 
 ## Integracion con Frontend
 
